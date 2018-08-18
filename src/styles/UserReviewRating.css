@@ -1,0 +1,15 @@
+.review-rating {
+    display: flex;
+}
+
+.review-rating-rated {
+    color: #FFFF00;
+}
+
+.review-rating-unrated {
+    color: #555;
+}
+
+.review-rating div {
+    margin-right: 5px;
+}

@@ -1,0 +1,14 @@
+#alert {
+    padding: 20px;
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.25s ease-in-out;
+}
+
+#alert.alert-success {
+    background: rgb(0, 200, 100);
+}
+
+#alert.alert-error {
+    background: #ED463D;
+}

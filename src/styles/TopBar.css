@@ -1,0 +1,12 @@
+#topbar {
+    background: #2F496E;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+}
+
+#topbar #logo a:hover {
+    text-decoration: none;
+}

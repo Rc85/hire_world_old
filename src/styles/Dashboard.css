@@ -1,0 +1,7 @@
+#dashboard {
+    padding: 100px;
+}
+
+#tab-bar {
+    display: flex;
+}

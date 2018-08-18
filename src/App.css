@@ -1,0 +1,99 @@
+.panel-container {
+    display: flex;
+    justify-content: center;
+}
+
+.main-container {
+    flex: 1;
+    position: relative;
+}
+
+.blue-panel {
+    background: #2F496E;
+}
+
+.blue-panel.deep {
+    padding: 100px;
+}
+
+.blue-panel.shallow {
+    padding: 25px;
+}
+
+.blue-panel.rounded-corners {
+    border-radius: 5px;
+}
+
+.form-buttons {
+    text-align: right;
+}
+
+.form-buttons input[type=submit] {
+    margin-right: 5px;
+}
+
+.section-container {
+    margin-bottom: 20px;
+}
+
+.section-container .section-header {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background: linear-gradient(#406497, #2F496E);
+    padding: 15px;
+}
+
+.section-container .section-body {
+    border-width: 0 1px 1px 1px;
+    border-color: #2F496E;
+    border-style: solid;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 15px;
+    color: #000;
+}
+
+.list-horizontal {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.col-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 100%;
+}
+
+.row-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 100%;
+    flex-wrap: wrap;
+}
+
+.section-container {
+    width: 17%;
+}
+
+.submit-btn {
+    width: 90px;
+}
+
+.loading-container {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.loading {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

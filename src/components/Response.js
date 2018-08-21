@@ -11,7 +11,7 @@ import '../styles/Response.css';
 class Response extends Component {
     render() {
         return(
-            <div className='response'>
+            <div className='response main-panel'>
                 <div className='blue-panel shallow rounded text-center'>
                     <h3>{this.props.code !== 200 ? this.props.code : ''} {this.props.header}</h3>
     

@@ -1,0 +1,29 @@
+#login-register {
+    justify-content: space-between;
+}
+
+.tab-container {
+    display: flex;
+}
+
+.tab-button {
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    border-width: 1px 1px 0 1px;
+    border-color: #2F496E;
+    border-style: solid;
+    padding: 10px;
+    color: #000;
+    margin-right: 5px;
+}
+
+.tab-button:hover {
+    background: #2988BC;
+    cursor: pointer;
+    color: #F9F6F4;
+}
+
+.tab-button.active {
+    background: #2F496E;
+    color: #F9F6F4;
+}

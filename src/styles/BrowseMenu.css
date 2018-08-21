@@ -1,22 +1,23 @@
-#employ-menu {
+#browse-menu {
     position: absolute;
     top: 0;
     right: -15%;
     width: 15%;
     transition: all 0.25s ease-in-out;
+    z-index: 2;
 }
 
-#employ-menu a {
+#browse-menu a {
     display: block;
     background: #2F496E;
     padding: 10px 20px;
     border: 1px solid #000;
 }
 
-#employ-menu a:hover {
+#browse-menu a:hover {
     background: #2988BC;
 }
 
-#employ-menu a:not(:last-child) {
+#browse-menu a:not(:last-child) {
     border-bottom: 0;
 }

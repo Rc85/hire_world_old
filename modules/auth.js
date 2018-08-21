@@ -42,6 +42,7 @@ app.post('/api/auth/login', async(req, resp) => {
         if (match) {
             delete user.user_password;
             req.session.user = user;
+            console.log(req.session.user);
 
             resp.send({status: 'login success', user: req.session.user});
         } else {

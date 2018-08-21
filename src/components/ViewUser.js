@@ -9,11 +9,9 @@ import { withRouter } from 'react-router-dom';
 
 class ViewUser extends Component {
     render() {
-        let component;
-
-        if (this.props.user) {
-            component = <div id='view-user'>
-                <div className='blue-panel deep rounded'>
+        return(
+            <div id='view-user' className='main-panel'>
+                <div className='blue-panel shallow rounded'>
                     <div className='row'>
                         <div className='col-3'>
                             <UserProfilePic url={this.props.user.avatar_url} editable={false}/>
@@ -29,10 +27,6 @@ class ViewUser extends Component {
 
                 <UserReview />
             </div>
-        }
-
-        return(
-            <div>{component}</div>
         )
     }
 }

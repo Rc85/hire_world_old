@@ -1,10 +1,14 @@
 const toggleMenuInitialState = {
-    main_menu: false
+    menu: null,
+    status: false
 }
 
 export const ToggleMenu = (state = toggleMenuInitialState, action) => {
     switch(action.type) {
-        case 'TOGGLE_MAIN_MENU': return Object.assign(...state, {main_menu: action.state});
+        case 'TOGGLE_MAIN_MENU':
+        case 'TOGGLE_ADMIN_MENU':
+        case 'CLOSE_MENUS':
+            return Object.assign(...state, {menu: action.menu, status: action.status});
         default: return state;
     }
 }

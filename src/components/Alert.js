@@ -35,14 +35,17 @@ class Alert extends Component {
     render() {
         let alertClass;
         let message;
+        let success = /success$/;
+        let fail = /fail$/;
+        let error = /error$/;
 
-        if (this.props.status === 'success') {
+        if (success.test(this.props.status)) {
             alertClass = 'alert-success';
             message = 'Updated';
-        } else if (this.props.status === 'error') {
+        } else if (error.test(this.props.status)) {
             alertClass = 'alert-error';
             message = 'An error occurred';
-        } else if (this.props.status === 'fail') {
+        } else if (fail.test(this.props.status)) {
             alertClass = 'alert-error';
             message = 'Failed';
         }

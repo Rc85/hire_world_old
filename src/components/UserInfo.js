@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { EditUser } from '../actions/EditUserActions';
+import Loading from './Loading';
 
 class UserInfo extends Component {
     constructor(props) {
@@ -30,12 +31,12 @@ class UserInfo extends Component {
         let error = /(error|fail)$/;
 
         if (this.state.editing) {
-            button = <button className='btn btn-info btn-sm ml-auto'><FontAwesomeIcon icon={faTimes} onClick={() => {
+            button = <button className='btn btn-info btn-sm ml-auto' onClick={() => {
                 this.setState({
                     editing: false
                 });
-            }} /></button>;
-            value = <form id='edit-user-form' action='/api/edit/user' method='post' onSubmit={(e) => {
+            }}><FontAwesomeIcon icon={faTimes}  /></button>;
+            value = <form id='edit-user-form' action='/api/user/edit' method='post' onSubmit={(e) => {
                 e.preventDefault();
                 
                 this.submitValue(this.state.input);
@@ -57,13 +58,13 @@ class UserInfo extends Component {
                 }} />
             </form>;
         } else {
-            button = <button className='btn btn-info btn-sm ml-auto'><FontAwesomeIcon icon={faEdit} onClick={() => {
+            button = <button className='btn btn-info btn-sm ml-auto' onClick={() => {
                 this.setState({
                     editing: true
                 });
-            }} /></button>;
+            }}><FontAwesomeIcon icon={faEdit} /></button>;
             if (loading.test(this.props.status)) {
-                value = <span><FontAwesomeIcon icon={faCircleNotch} spin /></span>;
+                value = <Loading size='1x' />;
             } else if (error.test(this.props.status)) {
                 value = <span class='edit-user-error'><FontAwesome icon={faTimes} /> Error</span>;
             } else if (success.test(this.props.status)) {
@@ -79,7 +80,7 @@ class UserInfo extends Component {
                     {button}
                 </div>
 
-                <div className='ml-3 mt-3'>
+                <div className='ml-3 mt-3 position-relative'>
                     {value}
                 </div>
             </div>

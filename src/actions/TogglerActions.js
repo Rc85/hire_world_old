@@ -5,9 +5,18 @@
     }
 } */
 
-export const ToggleMenu = (type, state) => {
+export const ToggleMenu = (type, menu, status) => {
     return {
         type: type,
-        state: state
+        menu,
+        status
+    }
+}
+
+export const CloseMenus = () => {
+    return {
+        type: 'CLOSE_MENUS',
+        menu: 'all-menus',
+        status: false
     }
 }

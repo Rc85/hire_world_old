@@ -1,14 +1,14 @@
 #navbar-container {
-    width: 15%;
+    width: 20%;
 }
 
 #navbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    cursor: pointer;
 }
 
 .nav-item {
     width: 15%;
+    cursor: pointer;
 }

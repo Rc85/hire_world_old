@@ -8,6 +8,7 @@ export const LoginUser = (data) => {
         .then(resp => {
             if (resp.data.status === 'login success') {
                 dispatch(LoginSuccess(resp.data.status, resp.data.user));
+                location.herf = '/dashboard';
             } else if (resp.data.status === 'login fail') {
                 dispatch(LoginFail(resp.data.status));
             } else if (resp.data.status === 'login error') {

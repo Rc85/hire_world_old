@@ -45,3 +45,29 @@ h1, h2, h3, h4, h5, h6 {
 hr {
     background: #2988BC;
 }
+
+/* Widths */
+
+.w-5 {
+    width: 5%;
+}
+
+.w-10 {
+    width: 10%;
+}
+
+.w-20 {
+    width: 20%;
+}
+
+.w-40 {
+    width: 40%;
+}
+
+.w-45 {
+    width: 45%;
+}
+
+.w-55 {
+    width: 55%;
+}

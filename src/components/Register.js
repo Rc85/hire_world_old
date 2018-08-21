@@ -8,29 +8,35 @@ import Response from './Response';
 class Register extends Component {
     render() {
         let message;
-        let component;
+        let component = <RegisterForm />;
 
         if (this.props.status === 'register error') {
             message = <div className='alert alert-danger' role='alert'>An error occurred</div>;
-            component = <RegisterForm />;
         } else if (this.props.status === 'register success') {
             message = <div className='alert alert-success' role='alert'>Registration successful</div>;
             component = <Response code={200} header='Success!' message='You are registered. Please check your email to confirm your registration' />;
         }
 
-        return(
-            <section id='register-form' className='blue-panel shallow' style={this.props.show ? {display: 'block'} : {display: 'none'}}>
-                {message}
+        if (this.props.user) {
+            location.href = '/dashboard';
+        } else {
+            return(
+                <section id='register-form' className='main-panel w-75'>
+                    <div className='blue-panel shallow rounded w-100'>
+                        {message}
 
-                { component }
-            </section>
-        )
+                        { component }
+                    </div>
+                </section>
+            )
+        }
     }
 }
 
 const mapStateToProps = state => {
     return {
-        status: state.Register.status
+        status: state.Register.status,
+        user: state.Login.user
     }
 }
 

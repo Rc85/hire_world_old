@@ -4,7 +4,7 @@ export const EditUser = (type, value, user) => {
     return dispatch => {
         dispatch(EditUserBegin(`edit ${type} loading`, user));
 
-        fetch.post('/api/edit/user', {type, value})
+        fetch.post('/api/user/edit', {type, value})
         .then(resp => {
             let success = /success$/;
             let fail = /fail$/;
@@ -51,25 +51,5 @@ const EditUserError = (status, user) => {
         type: 'EDIT_USER_ERROR',
         status,
         user
-    }
-}
-
-export const GetSession = () => {
-    return dispatch => {
-        fetch.post('/api/auth/get-session')
-        .then(resp => {
-            if (resp.data.status === 'get session success') {
-                dispatch(GetSessionSuccess(resp.data.status, resp.data.user));
-            }
-        })
-        .catch(err => console.log(err));
-    }
-}
-
-const GetSessionSuccess = (status, user) => {
-    return {
-        type: 'GET_SESSION_SUCCESS',
-        user,
-        status
     }
 }

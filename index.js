@@ -25,11 +25,14 @@ app.use('/user_files', express.static('user_files'));
 
 app.use(require('./modules/auth'));
 
-app.use(require('./modules/upload'));
+app.use(require('./modules/user/user'));
+app.use(require('./modules/user/profile-pic'));
+app.use(require('./modules/user/services'));
 
-app.use(require('./modules/delete'));
+app.use(require('./modules/admin/category'));
 
-app.use(require('./modules/edit'));
+app.use(require('./modules/fetch/categories'));
+app.use(require('./modules/fetch/services'));
 
 /* app.get('*', (req, resp) => {
     console.log('here');

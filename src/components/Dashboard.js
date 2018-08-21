@@ -10,8 +10,8 @@ class Dashboard extends Component {
         let component;
 
         if (this.props.user) {
-            component = <section id='dashboard'>
-                <section id='tab-bar'>
+            component = <section id='dashboard' className='main-panel'>
+                <section className='tab-bar'>
                     <div className='tab-button active'>Edit</div>
                     <div className='tab-button'>My Listings</div>
                     <div className='tab-button'>Offers</div>

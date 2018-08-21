@@ -1,19 +1,19 @@
 import fetch from 'axios';
-import { GetSession } from '../actions/EditUserActions';
+import { GetSession } from './FetchActions';
 
 export const UploadProfilePic = (file) => {
     return dispatch => {
-        dispatch(FetchBegin())
+        dispatch(UploadBegin('upload loading'))
 
-        fetch.post('/api/upload/profile_pic', file)
+        fetch.post('/api/user/profile-pic/upload', file)
         .then(resp => {
             if (resp.data.status === 'upload success') {
-                dispatch(FetchSuccess(resp.data.status));
+                dispatch(UploadSuccess(resp.data.status));
                 dispatch(GetSession());
             } else if (resp.data.status === 'upload fail') {
-                dispatch(FetchFail(resp.data.status));
+                dispatch(UploadFail(resp.data.status));
             } else if (resp.data.status === 'upload error') {
-                dispatch(FetchError(resp.data.status));
+                dispatch(UploadError(resp.data.status));
             }
         })
         .catch(err => console.log(err));
@@ -21,50 +21,50 @@ export const UploadProfilePic = (file) => {
 }
 
 export const DeleteProfilePic = () => {
+    console.log('and here')
     return dispatch => {
-        dispatch(FetchBegin());
+        dispatch(UploadBegin('delete loading'));
 
-        fetch.post('/api/delete/profile_pic')
+        fetch.post('/api/user/profile-pic/delete')
         .then(resp => {
-            if (resp.data.status === 'success') {
-                dispatch(FetchSuccess(resp.data.status));
+            console.log(resp)
+            if (resp.data.status === 'delete success') {
+                dispatch(UploadSuccess(resp.data.status));
                 dispatch(GetSession());
-            } else if (resp.data.status === 'fail') {
-                dispatch(FetchFail(resp.data.status));
+            } else if (resp.data.status === 'delete fail') {
+                dispatch(UploadFail(resp.data.status));
             } else if (resp.data.status === 'delete error') {
-                dispatch(FetchError(resp.data.status));
+                dispatch(UploadError(resp.data.status));
             }
-
-            return resp;
         })
         .catch(err => console.log(err));
     }
 }
 
-const FetchBegin = () => {
+const UploadBegin = (status) => {
     return {
-        type: 'FETCH_BEGIN',
-        status: 'loading'
-    }
-}
-
-const FetchSuccess = (status) => {
-    return {
-        type: 'FETCH_SUCCESS',
+        type: 'UPLOAD_BEGIN',
         status
     }
 }
 
-const FetchFail = (status) => {
+const UploadSuccess = (status) => {
     return {
-        type: 'FETCH_FAIL',
+        type: 'UPLOAD_SUCCESS',
         status
     }
 }
 
-const FetchError = (status) => {
+const UploadFail = (status) => {
     return {
-        type: 'FETCH_ERROR',
+        type: 'UPLOAD_FAIL',
+        status
+    }
+}
+
+const UploadError = (status) => {
+    return {
+        type: 'UPLOAD_ERROR',
         status
     }
 }

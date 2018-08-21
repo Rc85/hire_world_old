@@ -1,7 +1,7 @@
-const db = require('./db');
 const app = require('express').Router();
+const db = require('../db');
 
-app.post('/api/edit/user', async(req, resp) => {
+app.post('/api/user/edit', async(req, resp) => {
     if (req.session.user) {
         let type = req.body.type;
         let value = req.body.value;

@@ -2,12 +2,17 @@ import React, { Component } from 'react';
 import '../styles/EditUser.css';
 import UserInfo from './UserInfo';
 import UserDetails from './UserDetails';
-import UserProfiles from './UserProfiles';
+import UserServices from './UserServices';
 import UserProfilePic from './UserProfilePic';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+import { GetServices } from '../actions/FetchActions';
 
 class EditUser extends Component {
+    componentDidMount() {
+        this.props.dispatch(GetServices());
+    }
+
     render() {
         let userTitleStatus, userEducationStatus, userGithubStatus, userTwitterStatus, userFacebookStatus, userLinkedInStatus, userWebsiteStatus;
 
@@ -36,7 +41,7 @@ class EditUser extends Component {
         }
 
         return(
-            <section id='edit-user' className='blue-panel shallow w-80'>
+            <section id='edit-user' className='blue-panel shallow three-rounded'>
                 <div className='row'>
                     <div className='col-3'>
                         <UserProfilePic url={this.props.user.avatar_url} editable={true} />
@@ -65,11 +70,11 @@ class EditUser extends Component {
 
                         <hr/>
 
-                        <UserDetails userBio={this.props.user.user_bio} />
+                        <UserDetails />
 
                         <hr/>
 
-                        <UserProfiles userServices={this.props.user.user_services} />
+                        <UserServices />
                     </div>
                 </div>
             </section>

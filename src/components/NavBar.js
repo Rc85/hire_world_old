@@ -2,29 +2,14 @@ import React, { Component } from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import '../styles/NavBar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faTimes, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTimes, faUserCog, faSignOutAlt, faUsersCog, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { ToggleMenu } from '../actions/TogglerActions';
 import { connect } from 'react-redux';
 import { LogoutUser } from '../actions/LoginActions';
 
 class NavBar extends Component {
-    constructor(props) {
-        super(props);
-
-        this.toggleMenu = this.toggleMenu.bind(this);
-        this.handleLogout = this.handleLogout.bind(this);
-    }
-
     toggleMenu() {
-        let menu;
-
-        if (this.props.menuState === false) {
-            menu = true;
-        } else {
-            menu = false;
-        }
-
-        this.props.dispatch(ToggleMenu('TOGGLE_MAIN_MENU', menu));
+        this.props.dispatch(ToggleMenu('TOGGLE_MAIN_MENU', 'main-menu', !this.props.menuState));
     }
 
     handleLogout() {
@@ -34,24 +19,33 @@ class NavBar extends Component {
     render() {
         let menuIcon = <FontAwesomeIcon icon={faBars} size='2x' />;
         let closeIcon = <FontAwesomeIcon icon={faTimes} size='2x' />;
+        let admin, dashboard, login, register, logout;
+
+        if (this.props.user && this.props.user.user_level) {
+            admin = <div className='nav-item' title='Admin'>
+                {this.props.user.user_level > 6 ? <NavLink to='/admin/overview'><FontAwesomeIcon icon={faUsersCog} size='2x' /></NavLink> : ''} 
+            </div>
+        }
+
+        if (this.props.user) {
+            dashboard = <div className='nav-item' title='Dashboard'><NavLink to='/dashboard'><FontAwesomeIcon icon={faUserCog} size='2x' /></NavLink></div>;
+            logout = <div className='nav-item' title='Logout' onClick={this.handleLogout.bind(this)}><FontAwesomeIcon icon={faSignOutAlt} size='2x' /></div>;
+        } else {
+            login = <div className='nav-item' title='Login'><NavLink to='/account/login'><FontAwesomeIcon icon={faSignInAlt} size='2x' /></NavLink></div>;
+            register = <div className='nav-item' title='Register'><NavLink to='/account/register'><FontAwesomeIcon icon={faUserPlus} size='2x' /></NavLink></div>;
+        }
 
         return(
             <nav id='navbar-container'>
                 <div id='navbar'>
-                    <div className='nav-item'>
-                        <NavLink to='/view'>View</NavLink>
-                    </div>
+                    {login}
+                    {register}
+                    {dashboard}
+                    {admin}
+                    {logout}
 
-                    <div className='nav-item'>
-                        {this.props.user ? <NavLink to='/dashboard'><FontAwesomeIcon icon={faUser} size='2x' /></NavLink> : ''}
-                    </div>
-
-                    <div className='nav-item'>
-                        {this.props.user ? <div onClick={this.handleLogout}><FontAwesomeIcon icon={faSignOutAlt} size='2x' /></div> : ''}
-                    </div>
-
-                    <div className='nav-item'>
-                        <span onClick={this.toggleMenu}>{this.props.menuState ? closeIcon : menuIcon}</span>
+                    <div className='nav-item' onClick={this.toggleMenu.bind(this)}>
+                        <span>{this.props.menuState ? closeIcon : menuIcon}</span>
                     </div>
                 </div>
             </nav>
@@ -61,7 +55,7 @@ class NavBar extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        menuState: state.ToggleMenu.main_menu,
+        menuState: state.ToggleMenu.status,
         user: state.Login.user
     }
 }

@@ -7,7 +7,7 @@ class Loading extends Component {
         return(
             <div className='loading-container'>
                 <div className='loading'>
-                    <FontAwesomeIcon icon={faCircleNotch} size='4x' spin />
+                    <FontAwesomeIcon icon={faCircleNotch} size={this.props.size} spin />
                 </div>
             </div>
         )

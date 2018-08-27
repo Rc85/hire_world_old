@@ -20,31 +20,31 @@ const GetSessionSuccess = (status, user) => {
     }
 }
 
-export const GetCategories = () => {
+export const GetSectors = () => {
     return dispatch => {
-        fetch.get('/api/get/categories')
+        fetch.get('/api/get/sectors')
         .then(resp => {
-            if (resp.data.status === 'get categories success') {
-                dispatch(StoreCategories(resp.data.status, resp.data.categories));
-            } else if (resp.data.status === 'get categories error') {
-                dispatch(StoreCategoriesError(resp.data.status));
+            if (resp.data.status === 'get sectors success') {
+                dispatch(StoreSectors(resp.data.status, resp.data.sectors));
+            } else {
+                dispatch(StoreSectorsError(resp.data.status));
             }
         })
         .catch(err => console.log(err));
     }
 }
 
-const StoreCategories = (status, categories) => {
+const StoreSectors = (status, sectors) => {
     return {
-        type: 'STORE_CATEGORIES',
-        categories,
+        type: 'STORE_SECTOR',
+        sectors,
         status
     }
 }
 
-const StoreCategoriesError = (status) => {
+const StoreSectorsError = (status) => {
     return {
-        type: 'STORE_CATEGORIES_ERROR',
+        type: 'STORE_SECTOR_ERROR',
         status
     }
 }
@@ -55,7 +55,7 @@ export const GetServices = () => {
         .then(resp => {
             if (resp.data.status === 'get services success') {
                 dispatch(UpdateServices(resp.data.status, resp.data.services));
-            } else if (resp.data.status === 'get services error') {
+            } else {
                 dispatch(UpdateServicesError(resp.data.status));
             }
         });

@@ -9,9 +9,7 @@ export const LoginUser = (data) => {
             if (resp.data.status === 'login success') {
                 dispatch(LoginSuccess(resp.data.status, resp.data.user));
                 location.herf = '/dashboard';
-            } else if (resp.data.status === 'login fail') {
-                dispatch(LoginFail(resp.data.status));
-            } else if (resp.data.status === 'login error') {
+            } else {
                 dispatch(LoginError(resp.data.status));
             }
         })
@@ -31,13 +29,6 @@ const LoginSuccess = (status, user) => {
         type: 'LOGIN_USER_SUCCESS',
         status,
         user
-    }
-}
-
-const LoginFail = (status) => {
-    return {
-        type: 'LOGIN_USER_FAIL',
-        status
     }
 }
 
@@ -64,5 +55,12 @@ export const LogoutUser = () => {
 const Logout = () => {
     return {
         type: 'LOGOUT_USER'
+    }
+}
+
+export const ResetLoginStatus = user => {
+    return {
+        type: 'RESET_STATUS',
+        user
     }
 }

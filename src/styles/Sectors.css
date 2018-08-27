@@ -1,0 +1,14 @@
+.list-form {
+    background: #F9F6F4;
+    color: #000;
+    padding: 20px;
+}
+
+.listings-header, .listing-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.listings-header {
+    font-weight: bold;
+}

@@ -1,9 +1,32 @@
 .user-services-details {
-    background: #F9F6F4;
-    padding: 10px;
     color: #000;
 }
 
 #add-service-container {
     position: relative;
+}
+
+.user-services-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.user-services-details {
+    white-space: pre-line;
+}
+
+.service-form {
+    background: #F9F6F4;
+    color: #000;
+    padding: 20px;
+}
+
+.service-buttons {
+    min-width: 35px;
+}
+
+.region-container {
+    padding: 20px;
+    border: 1px solid #C4C4C4;
 }

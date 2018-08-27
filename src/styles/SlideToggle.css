@@ -1,0 +1,23 @@
+.slider-container {
+    width: 50px;
+    border-radius: 15px;
+    background: #14FF14;
+    height: 32px;
+    position: relative;
+}
+
+.slider {
+    width: 26px;
+    height: 26px;
+    background: #FFF;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    transition: left 0.25s ease-in-out;
+    cursor: pointer;
+}
+
+.slider-checkbox {
+    display: none;
+}

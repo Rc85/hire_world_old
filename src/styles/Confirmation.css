@@ -1,0 +1,21 @@
+#confirmation-modal {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    position: absolute;
+    left: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3;
+}
+
+.confirmation-dialog {
+    background: #C4C4C4;
+    padding: 20px;
+}
+
+.confirmation-message {
+    color: #000;
+}

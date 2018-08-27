@@ -10,9 +10,7 @@ export const UploadProfilePic = (file) => {
             if (resp.data.status === 'upload success') {
                 dispatch(UploadSuccess(resp.data.status));
                 dispatch(GetSession());
-            } else if (resp.data.status === 'upload fail') {
-                dispatch(UploadFail(resp.data.status));
-            } else if (resp.data.status === 'upload error') {
+            } else {
                 dispatch(UploadError(resp.data.status));
             }
         })
@@ -31,9 +29,7 @@ export const DeleteProfilePic = () => {
             if (resp.data.status === 'delete success') {
                 dispatch(UploadSuccess(resp.data.status));
                 dispatch(GetSession());
-            } else if (resp.data.status === 'delete fail') {
-                dispatch(UploadFail(resp.data.status));
-            } else if (resp.data.status === 'delete error') {
+            } else {
                 dispatch(UploadError(resp.data.status));
             }
         })
@@ -51,13 +47,6 @@ const UploadBegin = (status) => {
 const UploadSuccess = (status) => {
     return {
         type: 'UPLOAD_SUCCESS',
-        status
-    }
-}
-
-const UploadFail = (status) => {
-    return {
-        type: 'UPLOAD_FAIL',
         status
     }
 }

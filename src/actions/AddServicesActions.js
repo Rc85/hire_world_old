@@ -8,9 +8,7 @@ export const AddService = (data) => {
         .then(resp => {
             if (resp.data.status === 'add service success') {
                 dispatch(AddServiceSuccess(resp.data.status, resp.data.services));
-            } else if (resp.data.status === 'add service fail') {
-                dispatch(AddServiceFail(resp.data.status));
-            } else if (resp.data.status === 'add service error') {
+            } else {
                 dispatch(AddServiceError(resp.data.status));
             }
         });
@@ -28,13 +26,6 @@ const AddServiceSuccess = (status, services) => {
     return {
         type: 'ADD_SERVICE_SUCCESS',
         services,
-        status
-    }
-}
-
-const AddServiceFail = status => {
-    return {
-        type: 'ADD_SERVICE_FAIL',
         status
     }
 }

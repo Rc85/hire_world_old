@@ -24,6 +24,7 @@
     "normalize.css": "^8.0.0",
     "pg": "^7.4.3",
     "react": "^16.4.2",
+    "react-country-region-selector": "^1.3.0",
     "react-dom": "^16.4.2",
     "react-dropzone": "^4.3.0",
     "react-redux": "^5.0.7",

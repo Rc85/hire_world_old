@@ -39,7 +39,7 @@
 }
 
 .main-panel {
-    padding: 100px;
+    padding: 100px 200px;
     display: flex;
     flex-direction: column;
 }
@@ -77,6 +77,7 @@
     flex-direction: column;
     width: 100%;
     min-height: 100%;
+    position: relative;
 }
 
 .row-container {
@@ -93,23 +94,6 @@
 
 .submit-btn {
     width: 90px;
-}
-
-.loading-container {
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.5);
-}
-
-.loading {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .menu-container {
@@ -176,6 +160,15 @@
 }
 
 .delete-button {
-    color: #ED463D;
     cursor: pointer;
+}
+
+.required-asterisk {
+    color: #ED463D;
+}
+
+.grey-panel {
+    background: #F9F6F4;
+    padding: 10px;
+    color: #000;
 }

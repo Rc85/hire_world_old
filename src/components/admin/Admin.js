@@ -1,33 +1,28 @@
 import React, { Component } from 'react';
-import { NavLink, Route } from 'react-router-dom';
-import Overview from './Overview';
-import Categories from './Categories';
-import Response from '../Response';
+import TabBar from '../utils/TabBar';
+import Response from '../pages/Response';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import '../../styles/admin/Admin.css'
 
 class Admin extends Component {
     render() {
-        console.log(this.props.user);
-        /* if (this.props.user) {
+        if (this.props.user && this.props.user.user_level > 6) {
             return(
-                <section id='admin' className='main-panel'>
-                    <div className='tab-container'>
-                        <NavLink to='/admin'><div className='tab-button active'>Overview</div></NavLink>
-                        <NavLink to='/admin/categories'><div className='tab-button'>Categories</div></NavLink>
-                    </div>
+                <section id='admin' className='main-panel w-100'>
+                    <TabBar items={[
+                        {name: 'Overview', active: this.props.location.pathname === '/admin/overview' ? true : false, link: '/admin/overview'},
+                        {name: 'Sectors', active: this.props.location.pathname === '/admin/sectors' ? true : false, link: '/admin/sectors'}
+                    ]} />
 
-                    <div className='blue-panel shallow three-rounded'>
-                        <Route exact path='/admin' component={Overview} />
-                        <Route exact path='/admin/categories' component={Categories} />
-                    </div>
+                    {this.props.child}
                 </section>
             )
         } else {
             return(
                 <Response code={403} header={'Unauthorized Access'} message={`You're not authorized to access this page.`} />
             )
-        } */
+        }
     }
 }
 

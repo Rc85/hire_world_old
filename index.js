@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
-    maxAge: 900000
+    maxAge: 8.64e+7
 }));
 
 app.use(function (req, res, next) {
@@ -28,10 +28,11 @@ app.use(require('./modules/auth'));
 app.use(require('./modules/user/user'));
 app.use(require('./modules/user/profile-pic'));
 app.use(require('./modules/user/services'));
+app.use(require('./modules/user/settings'));
 
-app.use(require('./modules/admin/category'));
+app.use(require('./modules/admin/sector'));
 
-app.use(require('./modules/fetch/categories'));
+app.use(require('./modules/fetch/sectors'));
 app.use(require('./modules/fetch/services'));
 
 /* app.get('*', (req, resp) => {

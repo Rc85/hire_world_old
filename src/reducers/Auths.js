@@ -1,5 +1,5 @@
 const loginInitialState = {
-    status: null,
+    status: '',
     user: null
 }
 
@@ -15,7 +15,20 @@ export const Login = (state = loginInitialState, action) => {
         case 'EDIT_USER_BEGIN':
         case 'EDIT_USER_FAIL':
         case 'EDIT_USER_ERROR':
+        case 'SAVE_LOCATIONS_SUCCESS':
+        case 'SAVE_LOCATIONS_BEGIN':
+        case 'SAVE_LOCATIONS_FAIL':
+        case 'SAVE_LOCATIONS_ERROR':
+        case 'SAVE_PROFILE_SUCCESS':
+        case 'SAVE_PROFILE_BEGIN':
+        case 'SAVE_PROFILE_FAIL':
+        case 'SAVE_PROFILE_ERROR':
+        case 'SAVE_EMAIL_SUCCESS':
+        case 'SAVE_EMAIL_BEGIN':
+        case 'SAVE_EMAIL_FAIL':
+        case 'SAVE_EMAIL_ERROR':
             return Object.assign(...state, {status: action.status, user: action.user});
+        case 'RESET_STATUS': return Object.assign(...state, {status: '', user: action.user});
         case 'LOGOUT_USER':
         default: return state;
     }

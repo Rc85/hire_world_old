@@ -7,14 +7,10 @@ export const EditUser = (type, value, user) => {
         fetch.post('/api/user/edit', {type, value})
         .then(resp => {
             let success = /success$/;
-            let fail = /fail$/;
-            let error = /error$/;
 
             if (success.test(resp.data.status)) {
                 dispatch(EditUserSuccess(resp.data.status, resp.data.user));
-            } else if (fail.test(resp.data.status)) {
-                dispatch(EditUserFail(resp.data.status, user));
-            } else if (error.test(resp.data.error)) {
+            } else {
                 dispatch(EditUserError(resp.data.status, user));
             }
         })
@@ -35,14 +31,6 @@ const EditUserSuccess = (status, user) => {
         type: 'EDIT_USER_SUCCESS',
         user,
         status
-    }
-}
-
-const EditUserFail = (status, user) => {
-    return {
-        type: 'EDIT_USER_FAIL',
-        status,
-        user
     }
 }
 

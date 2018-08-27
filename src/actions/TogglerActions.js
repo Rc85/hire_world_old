@@ -1,10 +1,3 @@
-/* export const ToggleTabs = (type, tab) => {
-    return {
-        type: type,
-        tab: tab
-    }
-} */
-
 export const ToggleMenu = (type, menu, status) => {
     return {
         type: type,

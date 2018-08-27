@@ -8,9 +8,7 @@ export const RegisterUser = (data) => {
         .then(resp => {
             if (resp.data.status === 'register success') {
                 dispatch(RegisterSuccess(resp.data.status));
-            } else if (resp.data.status === 'register fail') {
-                dispatch(RegisterFailed(resp.data.status));
-            } else if (resp.data.status === 'register error') {
+            } else {
                 dispatch(RegisterError(resp.data.status));
             }
         })
@@ -28,13 +26,6 @@ const RegisterBegin = () => {
 const RegisterSuccess = (status) => {
     return {
         type: 'REGISTER_USER_SUCCESS',
-        status
-    }
-}
-
-const RegisterFailed = (status) => {
-    return {
-        type: 'REGISTER_USER_FAILED',
         status
     }
 }

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { LoginUser } from '../../actions/LoginActions';
-import '../../styles/Login.css';
 import { connect } from 'react-redux';
 import SubmitButton from '../utils/SubmitButton';
 import { withRouter, Redirect } from 'react-router-dom';

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import '../../styles/Register.css';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Redirect } from 'react-router-dom';
 import RegisterForm from '../includes/page/RegisterForm';
 import Response from '../pages/Response';
+import { Alert } from 'reactstrap';
 
 class Register extends Component {
     render() {
@@ -11,23 +11,23 @@ class Register extends Component {
         let component = <RegisterForm />;
 
         if (this.props.status === 'register error') {
-            message = <div className='alert alert-danger' role='alert'>An error occurred</div>;
+            message = <Alert color='danger'>An error occurred</Alert>;
         } else if (this.props.status === 'register success') {
-            message = <div className='alert alert-success' role='alert'>Registration successful</div>;
-            component = <Response code={200} header='Success!' message='You are registered. Please check your email to confirm your registration' />;
+            message = <Alert color='success'>Registration successful</Alert>;
+            component = <Response code={200} header='Success!' message='You are registered. Please check your email to confirm your registration.' />;
         }
 
         if (this.props.user) {
-            location.href = '/dashboard';
+            return(
+                <Redirect to='/dashboard/edit' />
+            )
         } else {
             return(
-                <section id='register-form' className='main-panel w-75'>
-                    <div className='blue-panel shallow rounded w-100'>
-                        {message}
+                <div>
+                    {message}
 
-                        { component }
-                    </div>
-                </section>
+                    { component }
+                </div>
             )
         }
     }

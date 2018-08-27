@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import '../../../styles/UserServices.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { withRouter } from 'react-router-dom';
@@ -7,7 +6,7 @@ import { connect } from 'react-redux';
 import AddService from './AddService';
 import Loading from '../../utils/Loading';
 import Service from './Service';
-import Alert from '../../utils/Alert';
+import { Button } from 'reactstrap';
 
 class UserServices extends Component {
     constructor(props) {
@@ -64,9 +63,9 @@ class UserServices extends Component {
         if (this.props.services) {
             if (this.props.services.length < this.props.user.services_allowed) {
                 if (this.state.forms.length < 1) {
-                    button = <button className='btn btn-info btn-sm' onClick={this.addServiceForm.bind(this)}><FontAwesomeIcon icon={faPlus} /></button>
+                    button = <Button color='info' size='sm' onClick={this.addServiceForm.bind(this)}><FontAwesomeIcon icon={faPlus} /></Button>
                 } else {
-                    button = <button className='btn btn-danger btn-sm' onClick={this.removeServiceForm.bind(this)}><FontAwesomeIcon icon={faTimes} /></button>
+                    button = <Button color='danger' size='sm' onClick={this.removeServiceForm.bind(this)}><FontAwesomeIcon icon={faTimes} /></Button>
                 }
             }
         }

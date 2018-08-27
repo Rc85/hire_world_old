@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import '../../../styles/UserInfo.css';
 import { faEdit, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
@@ -7,6 +6,7 @@ import { withRouter } from 'react-router-dom';
 import { EditUser } from '../../../actions/EditUserActions';
 import Loading from '../../utils/Loading';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
 
 class UserInfo extends Component {
     constructor(props) {
@@ -32,11 +32,11 @@ class UserInfo extends Component {
         let error = /(error|fail)$/;
 
         if (this.state.editing) {
-            button = <button className='btn btn-info btn-sm ml-auto' onClick={() => {
+            button = <Button color='info' size='sm' className='ml-auto' onClick={() => {
                 this.setState({
                     editing: false
                 });
-            }}><FontAwesomeIcon icon={faTimes}  /></button>;
+            }}><FontAwesomeIcon icon={faTimes}  /></Button>;
             value = <form id='edit-user-form' action='/api/user/edit' method='post' onSubmit={(e) => {
                 e.preventDefault();
                 
@@ -59,11 +59,11 @@ class UserInfo extends Component {
                 }} />
             </form>;
         } else {
-            button = <button className='btn btn-info btn-sm ml-auto' onClick={() => {
+            button = <Button color='info' size='sm' className='ml-auto' onClick={() => {
                 this.setState({
                     editing: true
                 });
-            }}><FontAwesomeIcon icon={faEdit} /></button>;
+            }}><FontAwesomeIcon icon={faEdit} /></Button>;
             if (loading.test(this.props.status)) {
                 value = <Loading size='1x' />;
             } else if (error.test(this.props.status)) {

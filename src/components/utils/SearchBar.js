@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
-import '../styles/SearchBar.css';
+import { Button } from 'reactstrap';
 
 class SearchBar extends Component {
     render() {
@@ -14,7 +14,7 @@ class SearchBar extends Component {
                     
                         <input className='form-control' type='text' name='search' aria-describedby='search-input' />
                         <div className='input-group-append'>
-                            <button className='btn btn-secondary' type='submit' id='search-input' >Search</button>
+                            <Button color='secondary' type='submit' id='search-input' >Search</Button>
                         </div>
                     </div>
                 </form>

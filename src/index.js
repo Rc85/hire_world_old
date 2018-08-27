@@ -4,7 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import './styles/bootstrap.css';
-import './index.css';
+import './styles/index.css';
 import App from './App';
 import { Provider } from 'react-redux';
 import { reducers } from './reducers';

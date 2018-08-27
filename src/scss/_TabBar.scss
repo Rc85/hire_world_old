@@ -1,8 +1,4 @@
-#login-register {
-    justify-content: space-between;
-}
-
-.tab-container {
+.tab-bar {
     display: flex;
 }
 
@@ -17,13 +13,13 @@
     margin-right: 5px;
 }
 
-.tab-button:hover {
-    background: #2988BC;
+.tab-button:hover, .menu-item:hover {
+    background: $theme-highlight;
     cursor: pointer;
-    color: #F9F6F4;
+    color: $theme-fg;
 }
 
 .tab-button.active {
     background: #2F496E;
-    color: #F9F6F4;
+    color: $theme-fg;
 }

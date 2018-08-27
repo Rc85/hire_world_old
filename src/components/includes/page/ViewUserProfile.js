@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import '../../../styles/ViewUserProfile.css';
 import UserReviewRating from './UserReviewRating';
 
 class ViewUserProfile extends Component {

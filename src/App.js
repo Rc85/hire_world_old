@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import './App.css';
 import TopBar from './components/includes/site/TopBar';
 import { Route, withRouter, Switch } from 'react-router-dom';
 import Main from './components/pages/Main';

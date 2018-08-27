@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
+import SubmitButton from '../../utils/SubmitButton';
 
 class ServiceForm extends Component {
     constructor(props) {
@@ -118,12 +120,8 @@ class ServiceForm extends Component {
                 </div>
 
                 <div className='text-right'>
-                    <button className='btn btn-primary mr-1' onClick={() => {
-                        this.props.submit(this.state);
-                    }}>Submit</button>
-                    <button className='btn btn-secondary' onClick={() => {
-                        this.props.cancel();
-                    }}>Cancel</button>
+                    <Button color='primary' className='mr-1' onClick={() => this.props.submit(this.state)}>Submit</Button>
+                    <Button color='secondary' onClick={() => this.props.cancel()}>Cancel</Button>
                 </div>
             </div>
         )

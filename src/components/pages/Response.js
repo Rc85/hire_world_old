@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import '../../styles/Response.css';
 import PropTypes from 'prop-types';
 
 /* Response component is the component to direct to after a success form submission or going to a link that is not found */

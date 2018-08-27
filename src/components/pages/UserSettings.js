@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import '../../styles/UserSettings.css';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import LocationSettings from '../includes/page/LocationSettings';

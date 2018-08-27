@@ -3,7 +3,6 @@ import TabBar from '../utils/TabBar';
 import Response from '../pages/Response';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import '../../styles/admin/Admin.css'
 
 class Admin extends Component {
     render() {

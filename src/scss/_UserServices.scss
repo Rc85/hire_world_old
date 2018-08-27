@@ -17,7 +17,7 @@
 }
 
 .service-form {
-    background: #F9F6F4;
+    background: $theme-fg;
     color: #000;
     padding: 20px;
 }
@@ -28,5 +28,5 @@
 
 .region-container {
     padding: 20px;
-    border: 1px solid #C4C4C4;
+    border: 1px solid $theme-bg;
 }

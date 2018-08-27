@@ -9,6 +9,7 @@ import Alert from '../../utils/Alert';
 import ServiceForm from './ServiceForm';
 import { ToggleService } from '../../../actions/ServiceActions';
 import PropTypes from 'prop-types';
+import { Button, Card, CardBody, CardHeader, CardFooter } from 'reactstrap';
 
 class Service extends Component {
     constructor(props) {
@@ -123,7 +124,7 @@ class Service extends Component {
 
         if (this.state.editing) {
             body = <ServiceForm service={this.props.service} submit={(data) => this.editService(data)} cancel={() => this.setState({editing: false})} />;
-            editButton = <button className='service-buttons btn btn-secondary btn-sm mr-1' onClick={() => this.setState({editing: false})}>Cancel</button>;
+            editButton = <Button color='secondary' size='sm' className='service-buttons mr-1' onClick={() => this.setState({editing: false})}>Cancel</Button>;
         } else {
             body = <div className='services-body'>
                 <small>Renewed {this.props.service.service_created_on}</small>
@@ -146,29 +147,31 @@ class Service extends Component {
                     </div>
                 </div>
             </div>
-            editButton = <button className='service-buttons btn btn-info btn-sm mr-1' onClick={() => this.setState({editing: true})}><FontAwesomeIcon icon={faEdit} /></button>;
+            editButton = <Button color='info' size='sm' className='service-buttons mr-1' onClick={() => this.setState({editing: true})}><FontAwesomeIcon icon={faEdit} /></Button>;
         }
 
         return(
-            <div className='user-services-details card mb-3 rounded'>
-                <h5 className='card-header d-flex justify-content-between'>
-                    {this.props.service.service_name}
-                    
-                    <div>
-                        {editButton}
-                        <button className='service-buttons btn btn-danger btn-sm' onClick={this.confirmDelete.bind(this)} title='Delete'><FontAwesomeIcon icon={faTimes} /></button>
-                    </div>
-                </h5>
+            <Card className='user-services-details mb-3 rounded'>
+                <CardHeader>
+                    <h5 className='d-flex justify-content-between'>
+                        {this.props.service.service_name}
+                        
+                        <div>
+                            {editButton}
+                            <Button color='danger' size='sm' className='service-buttons' onClick={this.confirmDelete.bind(this)} title='Delete'><FontAwesomeIcon icon={faTimes} /></Button>
+                        </div>
+                    </h5>
+                </CardHeader>
 
-                <div className='card-body position-relative'>
+                <CardBody className='position-relative'>
                     {body}
                     {error}
-                </div>
+                </CardBody>
 
-                <div className='card-footer user-services-footer'>
+                <CardFooter className='user-services-footer'>
                     <SlideToggle id={this.props.id} status={this.state.status} onClick={() => this.changeAvailability()} inactiveColor='#ED463D' />
-                </div>
-            </div>
+                </CardFooter>
+            </Card>
         )
     }
 }

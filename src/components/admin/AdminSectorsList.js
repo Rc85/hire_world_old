@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import '../../styles/admin/AdminSectorsList.css';
-import '../../styles/admin/Admin.css';
 import Loading from '../utils/Loading';
 import Menu from '../utils/Menu';
+import { Badge } from 'reactstrap';
 
 class AdminSectorsList extends Component {
     render() {
@@ -18,7 +17,7 @@ class AdminSectorsList extends Component {
                     <div className='w-25'>{sector.sector_created_on}</div>
                     <div className='w-20'>{sector.sector_created_by}</div>
                     <div className='w-10'>
-                        <span className='badge badge-success'>{sector.sector_status}</span>
+                        <Badge color='success'>{sector.sector_status}</Badge>
                     </div>
                     <Menu name={`admin-menu-${sector.sector_id}`} id={sector.sector_id} />
                 </div>

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
-import '../../../styles/NavBar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes, faUserCog, faSignOutAlt, faUsersCog, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { ToggleMenu } from '../../../actions/TogglerActions';

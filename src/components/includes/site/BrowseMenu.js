@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import '../../../styles/BrowseMenu.css';
 import { connect } from 'react-redux';
 import { withRouter, NavLink } from 'react-router-dom';
 
 class BrowseMenu extends Component {
+    
+
     render() {
         let position;
         let sectors;
@@ -15,6 +16,7 @@ class BrowseMenu extends Component {
         }
 
         if (this.props.menu === 'main-menu' && this.props.status) {
+            
             position = {right: '0'}
         } else {
             position = {right: '-15%'}

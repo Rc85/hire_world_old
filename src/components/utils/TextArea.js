@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Button } from 'reactstrap';
 
 class TextArea extends Component {
     constructor(props) {
@@ -28,8 +29,8 @@ class TextArea extends Component {
                 }}>
                 </textarea>
                 <div className='text-right'>
-                    <button className='btn btn-primary mr-1' onClick={this.submit.bind(this)}>Submit</button>
-                    <button className='btn btn-secondary' onClick={this.cancelEditing.bind(this)}>Cancel</button>
+                    <Button color='primary' className='mr-1' onClick={this.submit.bind(this)}>Submit</Button>
+                    <Button color='secondary' onClick={this.cancelEditing.bind(this)}>Cancel</Button>
                 </div>
             </div>
         )

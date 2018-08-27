@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import '../../styles/Confirmation.css';
 import { HideConfirmation } from '../../actions/ConfirmationActions';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
 
 class Confirmation extends Component {
     componentDidMount() {
@@ -25,8 +25,8 @@ class Confirmation extends Component {
                     </div>
 
                     <div className='text-right'>
-                        <button className='btn btn-primary mr-1' onClick={() => {this.confirmation(true)}}>Yes</button>
-                        <button className='btn btn-secondary' onClick={() => {this.confirmation(false)}}>No</button>
+                        <Button color='primary' className='mr-1' onClick={() => {this.confirmation(true)}}>Yes</Button>
+                        <Button color='secondary' onClick={() => {this.confirmation(false)}}>No</Button>
                     </div>
                 </div>
             </div>

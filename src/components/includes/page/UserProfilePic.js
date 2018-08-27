@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import '../../../styles/UserProfilePic.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Dropzone from 'react-dropzone';
@@ -8,6 +7,7 @@ import { connect } from 'react-redux';
 import Loading from '../../utils/Loading';
 import Alert from '../../utils/Alert';
 import { ShowConfirmation } from '../../../actions/ConfirmationActions';
+import { Button } from 'reactstrap';
 
 class UserProfilePic extends Component {
     constructor(props) {
@@ -42,8 +42,8 @@ class UserProfilePic extends Component {
 
         if (this.props.editable) {
             dropzone = <div className='dropzone'><Dropzone ref={(node) => { dropzoneRef = node; }} onDrop={this.onDrop.bind(this)} style={{height: '100%', width: '100%'}} name='profile_pic' /></div>;
-            button = <button className='btn btn-info mr-2' id='add-profile-pic-button' onClick={() => { dropzoneRef.open() }}><FontAwesomeIcon icon={faPlus} /></button>
-            deleteButton = <button className='btn btn-info' id='delete-profile-pic-button' onClick={this.deleteProfilePic.bind(this)}><FontAwesomeIcon icon={faTimes} /></button>
+            button = <Button color='info' className='mr-1' id='add-profile-pic-button' onClick={() => { dropzoneRef.open() }}><FontAwesomeIcon icon={faPlus} /></Button>
+            deleteButton = <Button color='info' id='delete-profile-pic-button' onClick={this.deleteProfilePic.bind(this)}><FontAwesomeIcon icon={faTimes} /></Button>
         }
 
         return(

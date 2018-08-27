@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import userProfilePic from '../../../images/profile.png';
-import '../../../styles/UserReview.css';
 import UserReviewRating from './UserReviewRating';
 
 class UserReview extends Component {

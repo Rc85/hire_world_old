@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import '../styles/Browse.css';
 
 class Browse extends Component {
     render() {
         return(
             <section id='browse' className='container'>
                 <div className='row-container'>
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Artists</div>
 
                         <div className='section-body'>
@@ -19,7 +18,7 @@ class Browse extends Component {
                         </div>
                     </div>
 
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Agencies</div>
 
                         <div className='section-body'>
@@ -27,7 +26,7 @@ class Browse extends Component {
                         </div>
                     </div>
                     
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Childcare</div>
 
                         <div className='section-body'>
@@ -35,11 +34,11 @@ class Browse extends Component {
                         </div>
                     </div>
 
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Consultants</div>
                     </div>
 
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Couriers</div>
 
                         <div className='section-body'>
@@ -47,7 +46,7 @@ class Browse extends Component {
                         </div>
                     </div>
 
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Designers</div>
 
                         <div className='section-body'>
@@ -55,7 +54,7 @@ class Browse extends Component {
                         </div>
                     </div>
 
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Developers</div>
 
                         <div className='section-body'>
@@ -63,7 +62,7 @@ class Browse extends Component {
                         </div>
                     </div>
 
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Events</div>
 
                         <div className='section-body'>
@@ -71,7 +70,7 @@ class Browse extends Component {
                         </div>
                     </div>
 
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Health</div>
 
                         <div className='section-body'>
@@ -79,7 +78,7 @@ class Browse extends Component {
                         </div>
                     </div>
 
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Homecare</div>
 
                         <div className='section-body'>
@@ -87,7 +86,7 @@ class Browse extends Component {
                         </div>
                     </div>
 
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Labourers</div>
 
                         <div className='section-body'>
@@ -95,11 +94,11 @@ class Browse extends Component {
                         </div>
                     </div>
 
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Personal</div>
                     </div>
 
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Petcare</div>
 
                         <div className='section-body'>
@@ -107,7 +106,7 @@ class Browse extends Component {
                         </div>
                     </div>
 
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Repairs</div>
 
                         <div className='section-body'>
@@ -115,7 +114,7 @@ class Browse extends Component {
                         </div>
                     </div>
 
-                    <div className='section-container'>
+                    <div className='section-container mb-2'>
                         <div className='section-header'>Trainers</div>
 
                         <div className='section-body'>

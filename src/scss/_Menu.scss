@@ -1,0 +1,26 @@
+.menu {
+    position: absolute;
+    background: $theme-bg;
+    z-index: 1;
+}
+
+.menu-button, .delete-button {
+    cursor: pointer;
+}
+
+.menu-item {
+    padding: 10px;
+    min-width: 75px;
+    text-align: center;
+    color: #000;
+}
+
+.menu-item:last-child {
+    border: 1px solid $theme-highlight;
+}
+
+.menu-item:not(:last-child) {
+    border-width: 1px 1px 0 1px;
+    border-color: $theme-highlight;
+    border-style: solid;
+}

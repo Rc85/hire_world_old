@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import '../../styles/ViewUser.css';
 import UserProfilePic from '../includes/page/UserProfilePic';
 import ViewUserContacts from '../includes/page/ViewUserContacts';
 import ViewUserProfile from '../includes/page/ViewUserProfile';

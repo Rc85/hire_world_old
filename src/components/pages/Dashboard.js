@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withRouter, NavLink } from 'react-router-dom';
-import '../../styles/Dashboard.css';
+import { withRouter } from 'react-router-dom';
 import Response from '../pages/Response';
 import TabBar from '../utils/TabBar';
+import Loading from '../utils/Loading';
 
 class Dashboard extends Component {
     render() {
-        if (this.props.user) {
+        let blank = /^\s$/;
+        let success = /success$/;
+        let fail = /fail$/;
+
+        if (success.test(this.props.user.status) || this.props.user.user) {
             return(
                 <section id='dashboard' className='main-panel w-100'>
                     <TabBar items={[
@@ -22,9 +26,13 @@ class Dashboard extends Component {
                     {this.props.child}
                 </section>
             )
-        } else {
+        } else if (fail.test(this.props.user.status)) {
             return(
                 <Response code={401} header='Unauthorized Access' message={`You're not logged in`} />
+            )
+        } else if (this.props.user.status === '') {
+            return(
+                <Loading size='7x' />
             )
         }
     }
@@ -32,7 +40,7 @@ class Dashboard extends Component {
 
 const mapStateToProps = state => {
     return {
-        user: state.Login.user
+        user: state.Login
     }
 }
 

@@ -6,6 +6,8 @@ export const GetSession = () => {
         .then(resp => {
             if (resp.data.status === 'get session success') {
                 dispatch(GetSessionSuccess(resp.data.status, resp.data.user));
+            } else {
+                dispatch(GetSessionFail(resp.data.status, null));
             }
         })
         .catch(err => console.log(err));
@@ -15,6 +17,14 @@ export const GetSession = () => {
 const GetSessionSuccess = (status, user) => {
     return {
         type: 'GET_SESSION_SUCCESS',
+        user,
+        status
+    }
+}
+
+const GetSessionFail = (status, user) => {
+    return {
+        type: 'GET_SESSION_FAIL',
         user,
         status
     }

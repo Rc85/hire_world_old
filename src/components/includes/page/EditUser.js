@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import '../../../styles/EditUser.css';
 import UserInfo from './UserInfo';
 import UserDetails from './UserDetails';
 import UserServices from './UserServices';
@@ -8,6 +7,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { GetServices } from '../../../actions/FetchActions';
 import PropTypes from 'prop-types';
+import { Badge } from 'reactstrap';
 
 class EditUser extends Component {
     componentDidMount() {
@@ -45,7 +45,7 @@ class EditUser extends Component {
         }
         
         if (this.props.user.display_fullname) {
-            fullName = <div className='d-flex align-items-start'><h1 className='mr-1'>{this.props.user.user_firstname} {this.props.user.user_lastname}</h1> <h4><span className='badge badge-secondary'>{this.props.user.username}</span></h4></div>;
+            fullName = <div className='d-flex align-items-start'><h1 className='mr-1'>{this.props.user.user_firstname} {this.props.user.user_lastname}</h1> <h4><Badge color='secondary'>{this.props.user.username}</Badge></h4></div>;
         } else {
             fullName = <h1>{this.props.user.username}</h1>;
         }

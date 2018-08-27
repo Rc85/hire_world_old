@@ -7,9 +7,9 @@
 }
 
 #alert.alert-success {
-    background: rgb(0, 255, 0);
+    background: $success;
 }
 
 #alert.alert-error {
-    background: #ED463D;
+    background: $theme-special;
 }

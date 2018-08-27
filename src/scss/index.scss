@@ -1,0 +1,72 @@
+@import 'mixins';
+@import 'variables';
+@import './utils/widths';
+@import './admin/Admin.scss';
+@import 'Alert';
+@import 'App';
+@import 'Browse';
+@import 'BrowseMenu';
+@import 'Confirmation';
+@import 'Loading';
+@import 'Main';
+@import 'Menu';
+@import 'NavBar';
+@import 'RegisterForm';
+@import 'Response';
+@import 'Sectors';
+@import 'SlideToggle';
+@import 'TabBar';
+@import 'TopBar';
+@import 'UserDetails';
+@import 'UserInfo';
+@import 'UserProfilePic';
+@import 'UserServices';
+@import 'UserSettings';
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('../fonts/Montserrat-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'Montserrat Bold';
+    src: url('../fonts/Montserrat-Bold.ttf');
+}
+
+html {
+    min-height: 100vh;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat';
+    background: $theme-bg;
+    color: $theme-fg;
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+}
+
+#root {
+    width: 100%;
+    min-height: 100%;
+}
+
+a {
+    font-weight: bold;
+    color: $theme-fg;
+}
+
+a:hover {
+    color: $theme-fg;
+    text-decoration: underline;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat Bold';
+}
+
+hr {
+    background: $theme-highlight;
+}

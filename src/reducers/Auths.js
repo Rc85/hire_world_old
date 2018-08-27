@@ -12,6 +12,7 @@ export const Login = (state = loginInitialState, action) => {
         case 'LOGIN_USER_SUCCESS':
         case 'EDIT_USER_SUCCESS':
         case 'GET_SESSION_SUCCESS':
+        case 'GET_SESSION_FAIL':
         case 'EDIT_USER_BEGIN':
         case 'EDIT_USER_FAIL':
         case 'EDIT_USER_ERROR':

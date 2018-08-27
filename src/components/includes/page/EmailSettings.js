@@ -28,7 +28,7 @@ class EmailSettings extends Component {
     }
 
     save() {
-        let emailCheck = /^[a-zA-Z0-9_\-.]*@{1}[a-zA-Z0-9_\-]*.([a-zA-Z0-9_\-]*(.[a-zA-Z0-9_\-]*\.))[a-zA-Z0-9_\-]*$/;
+        let emailCheck = /^[a-zA-Z0-9_\-]+(\.{1}[a-zA-Z0-9_\-]*){0,2}@{1}[a-zA-Z0-9_\-]+\.([a-zA-Z0-9_\-]*\.{1}){0,2}[a-zA-Z0-9_\-]{2,}$/;
         
         if (emailCheck.test(this.state.newEmail) && emailCheck.test(this.state.confirmEmail)) {
             if (this.state.newEmail === this.state.confirmEmail) {

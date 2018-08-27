@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import '../../styles/Alert.css';
 import { connect } from 'react-redux';
 
 class Alert extends Component {

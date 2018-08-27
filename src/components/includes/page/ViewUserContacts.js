@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import '../../../styles/ViewUserContacts.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faFacebook } from '@fortawesome/free-brands-svg-icons';

@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import TabBar from '../utils/TabBar';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { AddSector } from '../../actions/AddSectorActions';
 import { FontAwesomeIcon } from '../../../node_modules/@fortawesome/react-fontawesome';
 import { faCircleNotch } from '../../../node_modules/@fortawesome/free-solid-svg-icons';
-import '../../styles/admin/AdminSectors.css';
 import AdminSectorsList from './AdminSectorsList';
+import { Button } from 'reactstrap';
 
 class AdminSectors extends Component {
     constructor(props) {
@@ -43,9 +42,9 @@ class AdminSectors extends Component {
                         }
                     }} />
                     <div className='input-group-append'>
-                        <button type='button' className='btn btn-primary' id='sector-name' onClick={this.addSector} disabled={this.props.status === 'add sector loading' ? true : false}>
+                        <Button color='primary' id='sector-name' onClick={this.addSector} disabled={this.props.status === 'add sector loading' ? true : false}>
                             {this.props.status === 'add sector loading' ? <FontAwesomeIcon icon={faCircleNotch} spin /> : 'Add'}
-                        </button>
+                        </Button>
                     </div>
                 </div>
 

@@ -24,6 +24,7 @@ class Alert extends Component {
 
             setTimeout(() => {
                 alert.style.opacity = 0;
+                this.props.unmount();
             }, 2000);
 
             setTimeout(() => {
@@ -59,6 +60,7 @@ class Alert extends Component {
 Alert.propTypes = {
     status: PropTypes.oneOf(['success', 'error']).isRequired,
     message: PropTypes.string,
+    unmount: PropTypes.func.isRequired,
     left: (props, propName, componentName) => {
         if (props['left'] && !/^[0-9]*px$/.test(props['left'])) {
             return new Error(`Invalid value supplied to props '${propName} for component '${componentName}`);

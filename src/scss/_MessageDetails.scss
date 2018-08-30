@@ -1,0 +1,41 @@
+.message-panel {
+    background: $theme-fg;
+    padding: 10px;
+    color: #000;
+    position: relative;
+
+    &:before {
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 4px;;
+        left: -10px;
+        background: $theme-fg;
+        content: '';
+        transform: rotate(45deg);
+    }
+}
+
+.message-panel-reverse {
+    @extend .message-panel;
+
+    &:before {
+        right: -10px;
+        left: auto;
+    }
+}
+
+.message-row {
+    display: flex;
+}
+
+.message-row-reverse {
+    @extend .message-row;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.message-row, .message-row-reverse {
+    width: 90%;
+}

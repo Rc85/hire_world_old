@@ -14,7 +14,8 @@ class EmailSettings extends Component {
             confirmEmail: '',
             hideEmail: false,
             emailNotifications: false,
-            status: ''
+            status: '',
+            statusMessage: ''
         }
     }
 
@@ -34,28 +35,29 @@ class EmailSettings extends Component {
             if (this.state.newEmail === this.state.confirmEmail) {
                 this.props.dispatch(SaveEmail(this.state, this.props.user.user));
             } else {
-                this.setState({status: 'unmatch'});
+                this.setState({
+                    status: 'error',
+                    statusMessage: 'Emails do not match'
+                });
             }
         } else {
-            this.setState({status: 'invalid email'});
+            this.setState({
+                status: 'error',
+                statusMessage: 'Invalid email format'
+            });
         }
-
-        setTimeout(() => {
-            this.setState({status: ''});
-        }, 2000);
     }
 
     render() {
         let error;
 
-        switch(this.state.status) {
-            case 'invalid email': error = <Alert status='error' message='Invalid email format' />; break;
-            case 'unmatch': error = <Alert status='error' message='Emails do not match' />; break;
+        if (this.state.status) {
+            error = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />
         }
 
         switch(this.props.user.status) {
-            case 'save email error': error = <Alert status='error' message='An error occurred' />; break;
-            case 'save email success': error = <Alert status='success' message='New email saved' />; break;
+            case 'save email error': error = <Alert status='error' message='An error occurred' unmount={() => this.setState({status: '', statusMessage: ''})} />; break;
+            case 'save email success': error = <Alert status='success' message='New email saved' unmount={() => this.setState({status: '', statusMessage: ''})} />; break;
         }
 
         return(
@@ -64,7 +66,7 @@ class EmailSettings extends Component {
                 <div>
                     <label>Change Email:</label>
 
-                    <div className='region-container rounded mb-3'>
+                    <div className='bordered-container rounded mb-3'>
                         <div className='mb-3'>
                             <label htmlFor='new-email'>New Email:</label>
                             <input type='email' name='new_email' id='new-email' className='form-control' onChange={(e) => this.setState({newEmail: e.target.value})} />

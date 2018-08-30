@@ -2,38 +2,23 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import PropTypes from 'prop-types';
-import { Button } from 'reactstrap';
-import SubmitButton from '../../utils/SubmitButton';
 
 class ServiceForm extends Component {
     constructor(props) {
         super(props);
 
-        /* if (this.props.service) {
-            this.state = {
-                name: this.props.service.service_name,
-                detail: this.props.service.service_detail,
-                listUnder: this.props.service.service_listed_under,
-                worldwide: this.props.service.service_worldwide,
-                country: this.props.service.service_country,
-                region: this.props.service.service_region,
-                city: this.props.service.service_city
-            }
-        } else { */
-            this.state = {
-                name: '',
-                detail: '',
-                listUnder: '',
-                worldwide: false,
-                country: '',
-                region: '',
-                city: ''
-            }
-        //}
+        this.state = {
+            name: '',
+            detail: '',
+            listUnder: '',
+            worldwide: false,
+            country: '',
+            region: '',
+            city: ''
+        }
     }
 
     componentDidMount() {
-        console.log(this.props);
         if (this.props.service) {
             this.setState({
                 name: this.props.service.service_name,
@@ -47,8 +32,8 @@ class ServiceForm extends Component {
         } else if (this.props.user.default_location) {
             this.setState({
                 worldwide: this.props.user.user_worldwide,
-                country: this.props.user.user_country === null ? undefined : this.props.user.user_country,
-                region: this.props.user.user_region === null ? undefined : this.props.user.user_region,
+                country: this.props.user.user_country === null ? '' : this.props.user.user_country,
+                region: this.props.user.user_region === null ? '' : this.props.user.user_region,
                 city: this.props.user.user_city
             });
         }
@@ -56,12 +41,6 @@ class ServiceForm extends Component {
 
     render() {
         let options;
-
-        if (this.state.error === 'required fields') {
-            error = <Alert status='error' message='Required fields cannot be blank' />
-        } else if (this.state.error === 'invalid city') {
-            error = <Alert status='error' message='Invalid city name' />
-        }
 
         if (this.props.sectors) {
             options = this.props.sectors.map((sector, i) => {
@@ -79,7 +58,7 @@ class ServiceForm extends Component {
 
                 <label htmlFor='service-details'>Details:</label>
                 <div><small>Be as detail as you can. If your services have sub-services, list them and briefly describe them if they're not already self-explanatory.</small></div>
-                <textarea name='service_details' id='service-details' rows='4' className='form-control w-100 mb-3' placeholder='Try to be as detail as possible' defaultValue={this.state.detail}
+                <textarea name='service_details' id='service-details' rows='10' className='form-control w-100 mb-3' placeholder='Try to be as detail as possible' value={this.state.detail}
                 onChange={(e) => {
                     this.setState({detail: e.target.value});
                 }}></textarea>
@@ -93,7 +72,7 @@ class ServiceForm extends Component {
                     {options}
                 </select>
 
-                <div className='region-container rounded mb-1'>
+                <div className='bordered-container rounded mb-1'>
                     <div><label>Location: <span className='required-asterisk'>*</span></label></div>
 
                     <small>If you have an online business or a product that you sell internationally, select world-wide. If your business is conducted locally, then narrow down your location.</small>
@@ -120,8 +99,8 @@ class ServiceForm extends Component {
                 </div>
 
                 <div className='text-right'>
-                    <Button color='primary' className='mr-1' onClick={() => this.props.submit(this.state)}>Submit</Button>
-                    <Button color='secondary' onClick={() => this.props.cancel()}>Cancel</Button>
+                    <button className='btn btn-primary mr-1' onClick={() => this.props.submit(this.state)}>Submit</button>
+                    <button className='btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button>
                 </div>
             </div>
         )

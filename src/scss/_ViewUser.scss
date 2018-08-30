@@ -1,0 +1,25 @@
+#view-user-services {
+    color: #000;
+}
+
+.view-user-icon {
+    color: $theme-special;
+}
+
+.view-user-info {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.view-user-service-header, .view-user-service-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.view-user-address {
+    white-space: pre-line;
+    border-left: 3px solid $theme-special;
+    padding-left: 10px;
+}

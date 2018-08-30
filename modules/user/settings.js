@@ -11,14 +11,14 @@ app.post('/api/user/settings/locations/save', (req, resp) => {
             if ( result !== undefined && result.rowCount === 1) {
                 delete result.rows[0].user_password;
 
-                resp.send({status: 'save locations success', user: result.rows[0]});
+                resp.send({status: 'success', statusMessage: 'save locations success', user: result.rows[0]});
             } else {
-                resp.send({status: 'save locations fail'});
+                resp.send({status: 'error', statusMessage: 'save locations fail'});
             }
         })
         .catch(err => {
             console.log(err);
-            resp.send({status: 'save locations error'});
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     }
 });
@@ -37,14 +37,14 @@ app.post('/api/user/settings/profile/save', (req, resp) => {
             if ( result !== undefined && result.rowCount === 1) {
                 delete result.rows[0].user_password;
 
-                resp.send({status: 'save profile success', user: result.rows[0]});
+                resp.send({status: 'success', statusMessage: 'save profile success', user: result.rows[0]});
             } else {
-                resp.send({status: 'save profile fail'});
+                resp.send({status: 'error', statusMessage: 'save profile fail'});
             }
         })
         .catch(err => {
             console.log(err);
-            resp.send({status: 'save profile error'});
+            resp.send({status: 'error', statusMessage: 'save profile error'});
         });
     }
 });
@@ -57,40 +57,40 @@ app.post('/api/user/settings/password/change', async(req, resp) => {
         })
         .catch(err => {
             console.log(err);
-            resp.send({status: 'password save error'});
+            resp.send({status: 'error', statusMessage: 'password save error'});
         });
 
         if (password !== undefined && password.rows.length === 1) {
             bcrypt.compare(req.body.currentPassword, password.rows[0].user_password, (err, matched) => {
                 if (err) {
                     console.log(err);
-                    resp.send({status: 'password save error'});
+                    resp.send({status: 'error', statusMessage: 'password save error'});
                 }
 
                 if (matched) {
                     bcrypt.hash(req.body.newPassword, 10, (err, result) => {
                         if (err) {
                             console.log(err);
-                            resp.send({status: 'password save error'});
+                            resp.send({status: 'error', statusMessage: 'password save error'});
                         }
 
                         db.query(`UPDATE users SET user_password = $1 WHERE user_id =$2`, [result, req.session.user.user_id])
                         .then(result => {
                             if (result !== undefined && result.rowCount === 1) {
-                                resp.send({status: 'password save success'});
+                                resp.send({status: 'success', statusMessage: 'password save success'});
                             }
                         })
                         .catch(err => {
                             console.log(err);
-                            resp.send({status: 'password save error'});
+                            resp.send({status: 'error', statusMessage: 'password save error'});
                         });
                     });
                 } else {
-                    resp.send({status: 'incorrect password'});
+                    resp.send({status: 'error', statusMessage: 'incorrect password'});
                 }
             });
         } else {
-            resp.send({status: 'user not found'});
+            resp.send({status: 'error', statusMessage: 'user not found'});
         }
     }
 });
@@ -103,15 +103,38 @@ app.post('/api/user/settings/email/change', (req, resp) => {
             if ( result !== undefined && result.rowCount === 1) {
                 delete result.rows[0].user_password;
 
-                resp.send({status: 'save email success', user: result.rows[0]});
+                resp.send({status: 'success', statusMessage: 'save email success', user: result.rows[0]});
             } else {
-                resp.send({status: 'save email fail'});
+                resp.send({status: 'error', statusMessage: 'save email fail'});
             }
         })
         .catch(err => {
             console.log(err);
-            resp.send({status: 'save email error'});
+            resp.send({status: 'error', statusMessage: 'save email error'});
         });
+    }
+});
+
+app.post('/api/user/settings/contact/save', (req, resp) => {
+    let telCheck = /^\+?\d?\s?\(?\d*\)?\s?(\d|-+){5,}(\d)$/;
+
+    if (telCheck.test(req.body.phone)) {
+        db.query(`UPDATE users SET user_phone = $1, user_address = $2, display_contacts = $3 WHERE user_id = $4 RETURNING *`, [req.body.phone, req.body.address, req.body.display, req.session.user.user_id])
+        .then(result => {
+            if (result !== undefined && result.rowCount === 1) {
+                delete result.rows[0].user_password;
+
+                resp.send({status: 'success', statusMessage: 'save contact success'});
+            } else {
+                resp.send({status: 'error', statusMessage: 'save contact fail'});
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            resp.send({status: 'error', statusMessage: 'save contact error'});
+        });
+    } else {
+        resp.send({status: 'error', statusMessage: 'Invalid phone number'});
     }
 });
 

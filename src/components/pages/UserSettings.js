@@ -5,6 +5,7 @@ import LocationSettings from '../includes/page/LocationSettings';
 import ProfileSettings from '../includes/page/ProfileSettings';
 import EmailSettings from '../includes/page/EmailSettings';
 import PasswordSettings from '../includes/page/PasswordSettings';
+import ContactSettings from '../includes/page/ContactSettings';
 import { ResetLoginStatus } from '../../actions/LoginActions';
 
 class UserSettings extends Component {
@@ -22,6 +23,12 @@ class UserSettings extends Component {
                 <div className='d-flex justify-content-between mb-3'>
                     <ProfileSettings />
 
+                    <ContactSettings />
+                </div>
+
+                <hr/>
+
+                <div className='d-flex justify-content-between mb-3'>
                     <PasswordSettings />
 
                     <EmailSettings />

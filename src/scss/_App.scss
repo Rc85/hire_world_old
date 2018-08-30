@@ -7,6 +7,14 @@
 
 .blue-panel {
     background: #2F496E;
+
+    a {
+        color: $theme-alt-highlight;
+    }
+
+    a:hover {
+        color: $theme-alt-highlight;
+    }
 }
 
 .blue-panel.deep {
@@ -18,7 +26,7 @@
 }
 
 .main-panel {
-    padding: 100px 200px;
+    padding: 100px 400px;
     display: flex;
     flex-direction: column;
 }
@@ -27,6 +35,12 @@
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
     border-top-right-radius: 5px;
+}
+
+.three-rounded-reverse {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-top-left-radius: 5px;
 }
 
 .section-container .section-header {

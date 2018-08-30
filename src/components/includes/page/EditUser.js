@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { GetServices } from '../../../actions/FetchActions';
 import PropTypes from 'prop-types';
-import { Badge } from 'reactstrap';
 
 class EditUser extends Component {
     componentDidMount() {
@@ -15,7 +14,7 @@ class EditUser extends Component {
     }
 
     render() {
-        let userTitleStatus, userEducationStatus, userGithubStatus, userTwitterStatus, userFacebookStatus, userLinkedInStatus, userWebsiteStatus, userInstagramStatus, fullName, businessName, email;
+        let userTitleStatus, userEducationStatus, userGithubStatus, userTwitterStatus, userFacebookStatus, userLinkedInStatus, userWebsiteStatus, userInstagramStatus, fullName, businessName, email, phone, address;
 
         switch(this.props.status) {
             case 'edit user_title loading': userTitleStatus = 'loading'; break;
@@ -45,7 +44,7 @@ class EditUser extends Component {
         }
         
         if (this.props.user.display_fullname) {
-            fullName = <div className='d-flex align-items-start'><h1 className='mr-1'>{this.props.user.user_firstname} {this.props.user.user_lastname}</h1> <h4><Badge color='secondary'>{this.props.user.username}</Badge></h4></div>;
+            fullName = <div className='d-flex align-items-start'><h1 className='mr-1'>{this.props.user.user_firstname} {this.props.user.user_lastname}</h1> <h4><span className='badge badge-secondary'>{this.props.user.username}</span></h4></div>;
         } else {
             fullName = <h1>{this.props.user.username}</h1>;
         }
@@ -56,12 +55,33 @@ class EditUser extends Component {
 
         if (!this.props.user.hide_email) {
             email = <div className='user-info mb-2'>
-                <div className='d-flex'>
+                <div>
                     <h6>Email</h6>
                 </div>
 
                 <div className='ml-3 mt-3'>
                     {this.props.user.user_email}
+                </div>
+            </div>;
+        }
+
+        if (this.props.user.display_contacts) {
+            phone = <div className='user-info mb-2'>
+                <div>
+                    <h6>Phone Number:</h6>
+                </div>
+
+                <div className='ml-3 mt-3'>
+                    {this.props.user.user_phone}
+                </div>
+            </div>;
+            address = <div className='user-info mb-2'>
+                <div>
+                    <h6>Address:</h6>
+                </div>
+
+                <div className='user-address ml-3 mt-3'>
+                    {this.props.user.user_address}
                 </div>
             </div>;
         }
@@ -76,6 +96,10 @@ class EditUser extends Component {
 
                         <div id='user-profile'>
                             {email}
+                            <hr/>
+                            {phone}
+                            <hr/>
+                            {address}
                             <hr/>
                             <UserInfo label='Title' value={this.props.user.user_title} type='user_title' status={userTitleStatus} />
                             <hr/>

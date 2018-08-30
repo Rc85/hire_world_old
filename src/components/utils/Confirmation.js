@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { HideConfirmation } from '../../actions/ConfirmationActions';
 import PropTypes from 'prop-types';
-import { Button } from 'reactstrap';
 
 class Confirmation extends Component {
     componentDidMount() {
@@ -21,12 +20,12 @@ class Confirmation extends Component {
                 <div className='confirmation-dialog rounded'>
                     <div className='confirmation-message mb-3'>
                         {this.props.message}
-                        <div><small>{this.props.note}</small></div>
+                        {this.props.note ? <div><small>{this.props.note}</small></div> : ''}
                     </div>
 
                     <div className='text-right'>
-                        <Button color='primary' className='mr-1' onClick={() => {this.confirmation(true)}}>Yes</Button>
-                        <Button color='secondary' onClick={() => {this.confirmation(false)}}>No</Button>
+                        <button className='btn btn-primary mr-1' onClick={() => {this.confirmation(true)}}>Yes</button>
+                        <button className='btn btn-secondary' onClick={() => {this.confirmation(false)}}>No</button>
                     </div>
                 </div>
             </div>

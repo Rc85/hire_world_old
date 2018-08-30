@@ -2,11 +2,11 @@ import fetch from 'axios';
 
 export const LoginUser = (data) => {
     return dispatch => {
-        dispatch(LoginBegin('login loading'));
+        dispatch(LoginBegin('Logging in'));
 
         fetch.post('/api/auth/login', data)
         .then(resp => {
-            if (resp.data.status === 'login success') {
+            if (resp.data.status === 'Login success') {
                 dispatch(LoginSuccess(resp.data.status, resp.data.user));
                 location.herf = '/dashboard';
             } else {
@@ -19,14 +19,14 @@ export const LoginUser = (data) => {
 
 const LoginBegin = (status) => {
     return {
-        type: 'LOGIN_USER_BEGIN',
+        type: 'LOGIN_USER',
         status
     }
 }
 
 const LoginSuccess = (status, user) => {
     return {
-        type: 'LOGIN_USER_SUCCESS',
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }
@@ -34,7 +34,7 @@ const LoginSuccess = (status, user) => {
 
 const LoginError = (status) => {
     return {
-        type: 'LOGIN_USER_ERROR',
+        type: 'LOGIN_USER',
         status
     }
 }

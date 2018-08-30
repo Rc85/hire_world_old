@@ -34,6 +34,10 @@ app.use(require('./modules/admin/sector'));
 
 app.use(require('./modules/fetch/sectors'));
 app.use(require('./modules/fetch/services'));
+app.use(require('./modules/fetch/user'));
+app.use(require('./modules/fetch/messages'));
+
+app.use(require('./modules/message/messages'));
 
 /* app.get('*', (req, resp) => {
     console.log('here');

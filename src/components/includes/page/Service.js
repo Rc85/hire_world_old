@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faEdit } from '@fortawesome/free-solid-svg-icons';
-import { DeleteService, EditService } from '../../../actions/ServiceActions';
 import { ShowConfirmation } from '../../../actions/ConfirmationActions';
 import SlideToggle from '../../utils/SlideToggle';
 import Alert from '../../utils/Alert';
 import ServiceForm from './ServiceForm';
-import { ToggleService } from '../../../actions/ServiceActions';
 import PropTypes from 'prop-types';
-import { Button, Card, CardBody, CardHeader, CardFooter } from 'reactstrap';
+import { Tooltip } from 'reactstrap';
+import Loading from '../../utils/Loading';
+import fetch from 'axios';
 
 class Service extends Component {
     constructor(props) {
@@ -17,8 +17,10 @@ class Service extends Component {
 
         this.state = {
             editing: false,
-            error: false,
-            status: this.props.service.service_status
+            status: '',
+            statusMessage: '',
+            available: this.props.service.service_status,
+            tooltipOpen: false
         }
     }
 
@@ -45,75 +47,51 @@ class Service extends Component {
     }
 
     deleteService() {
-        this.props.dispatch(DeleteService(this.props.id, this.props.services));
+        this.props.deleteService(this.props.id);
     }
 
     editService(data) {
         let blankCheck = /^\s*$/;
         let cityCheck = /^[a-zA-Z]*$/;
-        let error;
         data['id'] = this.props.id;
 
         if ((blankCheck.test(data.name) || !data.name) || !data.listUnder || (!data.worldwide && blankCheck.test(data.country))) {
-            error = 'required fields';
+            this.setState({status: 'error', statusMessage: 'Required fields cannot be blank'});
+        } else if (!blankCheck.test(data.city) && !cityCheck.test(data.city)) {
+            this.setState({status: 'error', statusMessage: 'Invalid city name'});
         } else {
-            if (!blankCheck.test(data.city) && !cityCheck.test(data.city)) {
-                error = 'invalid city';
-            }
-        }
-
-        if (error === 'required fields') {
-            this.setState({
-                error: 'required fields'
-            });
-
-            setTimeout(() => {
-                this.setState({
-                    error: null
-                })
-            }, 2300);
-        } else if (error === 'invalid city') {
-            this.setState({
-                error: 'invalid city'
-            });
-
-            setTimeout(() => {
-                this.setState({
-                    error: null
-                })
-            }, 2300);
-        } else {
-            this.props.dispatch(EditService(data, this.props.services));
+            this.props.edit(data);
             this.setState({editing: false});
         }
     }
 
     changeAvailability() {
-        if (this.state.status === 'Active') {
-            this.props.dispatch(ToggleService(this.props.id, 'Inactive', this.props.services));
+        this.setState({status: 'Loading'});
 
-            this.setState({
-                status: 'Inactive'
-            });
-        } else if (this.state.status === 'Inactive') {
-            this.props.dispatch(ToggleService(this.props.id, 'Active', this.props.services));
-
-            this.setState({
-                status: 'Active'
-            });
-        }
+        fetch.post('/api/user/services/status', {id: this.props.id, available: this.state.available === 'Active' ? 'Inactive' : 'Active'})
+        .then(resp => {
+            if (resp.data.status === 'service status success') {
+                this.setState({
+                    available: resp.data.available,
+                    status: ''
+                })
+            } else {
+                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, available: resp.data.available});
+            }
+        })
+        .catch(err => console.log(err));
     }
 
     render() {
-        let error, body, editButton;
+        let status, body, editButton;
         let blankCheck = /^\s*$/;
 
-        if (this.state.error === 'required fields') {
-            error = <Alert status='error' message='Required fields cannot be blank' />;
-        } else if (this.state.error === 'invalid city') {
-            error = <Alert status='error' message='Invalid city name' />;
-        } else if (this.props.status === 'edit service error' || this.props.status === 'edit service fail') {
-            error = <Alert status='error' />;
+        if (this.state.status) {
+            if (this.state.status !== 'Loading') {
+                status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} unmount={() => this.setState({status: '', statusMessage: ''})} />
+            } else {
+                status = <Loading size='2x' />
+            }
         }
 
         let location = <div>
@@ -124,7 +102,7 @@ class Service extends Component {
 
         if (this.state.editing) {
             body = <ServiceForm service={this.props.service} submit={(data) => this.editService(data)} cancel={() => this.setState({editing: false})} />;
-            editButton = <Button color='secondary' size='sm' className='service-buttons mr-1' onClick={() => this.setState({editing: false})}>Cancel</Button>;
+            editButton = <button className='btn btn-secondary btn-sm service-buttons mr-1' onClick={() => this.setState({editing: false})}>Cancel</button>;
         } else {
             body = <div className='services-body'>
                 <small>Renewed {this.props.service.service_created_on}</small>
@@ -147,31 +125,30 @@ class Service extends Component {
                     </div>
                 </div>
             </div>
-            editButton = <Button color='info' size='sm' className='service-buttons mr-1' onClick={() => this.setState({editing: true})}><FontAwesomeIcon icon={faEdit} /></Button>;
+            editButton = <button className='btn btn-info btn-sm service-buttons mr-1' onClick={() => this.setState({editing: true})}><FontAwesomeIcon icon={faEdit} /></button>;
         }
 
         return(
-            <Card className='user-services-details mb-3 rounded'>
-                <CardHeader>
-                    <h5 className='d-flex justify-content-between'>
-                        {this.props.service.service_name}
-                        
-                        <div>
-                            {editButton}
-                            <Button color='danger' size='sm' className='service-buttons' onClick={this.confirmDelete.bind(this)} title='Delete'><FontAwesomeIcon icon={faTimes} /></Button>
-                        </div>
-                    </h5>
-                </CardHeader>
+            <div className='card user-services-details mb-3 rounded'>
+                <h5 className='card-header d-flex justify-content-between'>
+                    {this.props.service.service_name}
+                    
+                    <div>
+                        {editButton}
+                        <button id='delete-service-button' className='btn btn-danger btn-sm service-buttons' onClick={this.confirmDelete.bind(this)}><FontAwesomeIcon icon={faTimes} /></button>
+                        <Tooltip placement='right' isOpen={this.state.tooltipOpen} target='delete-service-button' toggle={() => this.setState({tooltipOpen: !this.state.tooltipOpen})}>Delete</Tooltip>
+                    </div>
+                </h5>
 
-                <CardBody className='position-relative'>
+                <div className='card-body position-relative'>
                     {body}
-                    {error}
-                </CardBody>
+                    {status}
+                </div>
 
-                <CardFooter className='user-services-footer'>
-                    <SlideToggle id={this.props.id} status={this.state.status} onClick={() => this.changeAvailability()} inactiveColor='#ED463D' />
-                </CardFooter>
-            </Card>
+                <div className='card-footer user-services-footer'>
+                    <SlideToggle id={this.props.id} status={this.state.available} onClick={() => this.changeAvailability()} inactiveColor='#ED463D' />
+                </div>
+            </div>
         )
     }
 }
@@ -191,13 +168,12 @@ Service.propTypes = {
             service_status: PropTypes.string.isRequired,
             service_worldwide: PropTypes.bool
         })
-    }).isRequired
+    }).isRequired,
+    deleteService: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => {
     return {
-        status: state.Services.status,
-        services: state.Services.services,
         delete: state.Confirmation.option,
         data: state.Confirmation.data
     }

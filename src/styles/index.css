@@ -402,6 +402,12 @@
   width: 100%;
 }
 
+.d-flex-between-start {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
 #sector-name {
   width: 75px;
 }
@@ -441,6 +447,12 @@
 .blue-panel {
   background: #2F496E;
 }
+.blue-panel a {
+  color: #7dd2ff;
+}
+.blue-panel a:hover {
+  color: #7dd2ff;
+}
 
 .blue-panel.deep {
   padding: 100px;
@@ -451,7 +463,7 @@
 }
 
 .main-panel {
-  padding: 100px 200px;
+  padding: 100px 400px;
   display: flex;
   flex-direction: column;
 }
@@ -460,6 +472,12 @@
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
   border-top-right-radius: 5px;
+}
+
+.three-rounded-reverse {
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-top-left-radius: 5px;
 }
 
 .section-container .section-header {
@@ -563,6 +581,26 @@
   color: #000;
 }
 
+.user-address {
+  white-space: pre-line;
+}
+
+.user-message, .user-message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-message-subject {
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  white-space: nowrap;
+}
+
+.user-message-header {
+  font-weight: bold;
+}
+
 .loading-container {
   height: 100%;
   width: 100%;
@@ -612,6 +650,42 @@
   border-style: solid;
 }
 
+.message-panel, .message-panel-reverse {
+  background: #F9F6F4;
+  padding: 10px;
+  color: #000;
+  position: relative;
+}
+.message-panel:before, .message-panel-reverse:before {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 4px;
+  left: -10px;
+  background: #F9F6F4;
+  content: "";
+  transform: rotate(45deg);
+}
+
+.message-panel-reverse:before {
+  right: -10px;
+  left: auto;
+}
+
+.message-row, .message-row-reverse {
+  display: flex;
+}
+
+.message-row-reverse {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.message-row, .message-row-reverse {
+  width: 90%;
+}
+
 #navbar-container {
   width: 20%;
 }
@@ -653,6 +727,12 @@
 
 .listings-header {
   font-weight: bold;
+}
+
+.service-details-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .slider-container {
@@ -727,12 +807,12 @@
   color: #ED463D;
 }
 
-#profile-pic {
+.profile-pic {
   border-radius: 100%;
   position: relative;
 }
 
-#profile-pic:after {
+.profile-pic:after {
   content: "";
   padding-bottom: 100%;
   display: block;
@@ -783,7 +863,7 @@
   min-width: 35px;
 }
 
-.region-container {
+.bordered-container {
   padding: 20px;
   border: 1px solid #C4C4C4;
 }
@@ -797,8 +877,38 @@
 .settings-col {
   display: flex;
   flex-direction: column;
-  width: 30%;
+  width: 45%;
   justify-content: space-between;
+}
+
+#user-address {
+  white-space: pre-line;
+}
+
+#view-user-services {
+  color: #000;
+}
+
+.view-user-icon {
+  color: #ED463D;
+}
+
+.view-user-info {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.view-user-service-header, .view-user-service-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.view-user-address {
+  white-space: pre-line;
+  border-left: 3px solid #ED463D;
+  padding-left: 10px;
 }
 
 @font-face {

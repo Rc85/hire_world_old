@@ -1,42 +1,39 @@
 const app = require('express').Router();
 const db = require('../db');
+const moment = require('moment');
 
-app.post('/api/user/services/add', (req, resp) => {
+app.post('/api/user/services/add', async(req, resp) => {
     if (req.session.user) {
-        db.connect(async(err, client, done) => {
-            if (err) { console.log(err); }
+        let inserted = await db.query(`INSERT INTO user_services (service_name, service_detail, service_provided_by, service_listed_under, service_worldwide, service_country, service_region, service_city) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [req.body.name, req.body.detail, req.session.user.username, req.body.listUnder, req.body.worldwide, req.body.country, req.body.region, req.body.city])
+        .then(result => {
+            if (result !== undefined) {
+                return result;
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            resp.send({status: 'error', statusMessage: 'An error occurred'})
+        });
 
-            let insert = await client.query(`INSERT INTO user_services (service_name, service_detail, service_provided_by, service_listed_under, service_worldwide, service_country, service_region, service_city) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-            [req.body.name, req.body.detail, req.session.user.username, req.body.listUnder, req.body.worldwide, req.body.country, req.body.region, req.body.city])
+        if (inserted.rowCount === 1) {
+            await db.query(`SELECT * FROM user_services WHERE service_provided_by = $1 ORDER BY service_id`, [req.session.user.username])
             .then(result => {
-                if (result !== undefined) {
-                    return result;
+                if (result != undefined) {
+                    for (let i in result.rows) {
+                        result.rows[i].service_created_on = moment(result.rows[i].service_created_on).fromNow();
+                    }
+
+                    resp.send({status: 'success', statusMessage: 'Service added', services: result.rows});
                 }
             })
             .catch(err => {
                 console.log(err);
-                done();
-                resp.send({status: 'add service error'})
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
-
-            if (insert.rowCount === 1) {
-                await client.query(`SELECT * FROM user_services WHERE service_provided_by = $1 ORDER BY service_id`, [req.session.user.username])
-                .then(result => {
-                    done();
-                    if (result !== undefined) {
-                        resp.send({status: 'add service success', services: result.rows});
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                    done();
-                    resp.send({status: 'add service error'});
-                });
-            } else {
-                done();
-                resp.send({status: 'add service fail'});
-            }
-        });
+        } else {
+            resp.send({status: 'error', statusMessage: 'Add service failed'});
+        }
     }
 });
 
@@ -47,32 +44,39 @@ app.post('/api/user/services/delete', (req, resp) => {
 
             let deleted = await client.query(`DELETE FROM user_services WHERE service_id = $1`, [req.body.id])
             .then(result => {
-                console.log(result);
-                if (result !== undefined) {
-                    return result;
-                }
+                return result;
             })
             .catch(err => {
                 console.log(err);
                 done();
-                resp.send({status: 'delete service error'});
+                if (err.code === '23503') {
+                    resp.send({status: 'error', statusMessage: 'Unable to delete with active jobs'});
+                } else {
+                    resp.send({status: 'error', statusMessage: 'An error occurred'});
+                }
             });
 
-            if (deleted.rowCount === 1) {
-                await client.query(`SELECT * FROM user_services WHERE service_provided_by = $1 ORDER BY service_id`, [req.session.user.username])
-                .then(result => {
-                    if (result !== undefined) {
-                        resp.send({status: 'delete service success', services: result.rows});
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
+            if (deleted !== undefined) {
+                if (deleted.rowCount === 1) {
+                    await client.query(`SELECT * FROM user_services WHERE service_provided_by = $1 ORDER BY service_id`, [req.session.user.username])
+                    .then(result => {
+                        if (result !== undefined) {
+                            for (let i in result.rows) {
+                                result.rows[i].service_created_on = moment(result.rows[i].service_created_on).fromNow();
+                            }
+
+                            resp.send({status: 'success', statusMessage: 'Service deleted', services: result.rows});
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        done();
+                        resp.send({status: 'error', statusMessage: 'An error occurred'});
+                    });
+                } else {
                     done();
-                    resp.send({status: 'delete service error'});
-                });
-            } else {
-                done();
-                resp.send({status: 'delete service fail'});
+                    resp.send({status: 'error', statusMessage: 'Delete service failed'});
+                }
             }
         });
     }
@@ -83,35 +87,19 @@ app.post('/api/user/services/status', (req, resp) => {
         db.connect(async(err, client, done) => {
             if (err) { console.log(err); }
 
-            let changed = await client.query(`UPDATE user_services SET service_status = $1 WHERE service_id = $2`, [req.body.available, req.body.id])
+            await client.query(`UPDATE user_services SET service_status = $1 WHERE service_id = $2 RETURNING service_status`, [req.body.available, req.body.id])
             .then(result => {
-                if (result !== undefined) {
-                    return result;
+                if (result !== undefined && result.rowCount === 1) {
+                    resp.send({status: 'success', statusMessage: 'Service status updated', available: result.rows[0].service_status});
+                } else {
+                    resp.send({status: 'error', statusMessage: 'Cannot change availability'});
                 }
             })
             .catch(err => {
                 console.log(err);
                 done();
-                resp.send({status: 'service status error'});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
-
-            if (changed.rowCount === 1) {
-                await client.query(`SELECT * FROM user_services WHERE service_provided_by = $1 ORDER BY service_id`, [req.session.user.username])
-                .then(result => {
-                    done();
-                    if (result !== undefined) {
-                        resp.send({status: 'service status success', services: result.rows});
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                    done();
-                    resp.send({status: 'service status error'});
-                });
-            } else {
-                done();
-                resp.send({status: 'service status fail'});
-            }
         });
     }
 });
@@ -130,7 +118,7 @@ app.post('/api/user/services/edit', (req, resp) => {
             .catch(err => {
                 console.log(err);
                 done();
-                resp.send({status: 'edit service error'});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
 
             if (edited.rowCount === 1) {
@@ -138,17 +126,21 @@ app.post('/api/user/services/edit', (req, resp) => {
                 .then(result => {
                     done();
                     if (result != undefined) {
-                        resp.send({status: 'edit service success', services: result.rows});
+                        for (let i in result.rows) {
+                            result.rows[i].service_created_on = moment(result.rows[i].service_created_on).fromNow();
+                        }
+
+                        resp.send({status: 'success', statusMessage: 'Service updated', services: result.rows});
                     }
                 })
                 .catch(err => {
                     console.log(err);
                     done();
-                    resp.send({status: 'edit service error'});
+                    resp.send({status: 'error', statusMessage: 'An error occurred'});
                 });
             } else {
                 done();
-                resp.send({status: 'edit service fail'});
+                resp.send({status: 'error', statusMessage: 'Edit service failed'});
             }
         });
     }

@@ -5,7 +5,6 @@ import { AddSector } from '../../actions/AddSectorActions';
 import { FontAwesomeIcon } from '../../../node_modules/@fortawesome/react-fontawesome';
 import { faCircleNotch } from '../../../node_modules/@fortawesome/free-solid-svg-icons';
 import AdminSectorsList from './AdminSectorsList';
-import { Button } from 'reactstrap';
 
 class AdminSectors extends Component {
     constructor(props) {
@@ -42,9 +41,9 @@ class AdminSectors extends Component {
                         }
                     }} />
                     <div className='input-group-append'>
-                        <Button color='primary' id='sector-name' onClick={this.addSector} disabled={this.props.status === 'add sector loading' ? true : false}>
+                        <button className='btn btn-primary' id='sector-name' onClick={this.addSector} disabled={this.props.status === 'add sector loading' ? true : false}>
                             {this.props.status === 'add sector loading' ? <FontAwesomeIcon icon={faCircleNotch} spin /> : 'Add'}
-                        </Button>
+                        </button>
                     </div>
                 </div>
 

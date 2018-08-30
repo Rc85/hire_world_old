@@ -18,6 +18,9 @@ import Sectors from './components/pages/Sectors';
 import EditUser from './components/includes/page/EditUser';
 import Admin from './components/admin/Admin';
 import UserSettings from './components/pages/UserSettings';
+import ServiceDetails from './components/pages/ServiceDetails';
+import Messages from './components/includes/page/Messages';
+import MessageDetails from './components/includes/page/MessageDetails';
 
 class App extends Component {
 	constructor(props) {
@@ -61,8 +64,12 @@ class App extends Component {
 						<Route exact path='/view' component={ViewUser} />
 						<Route exact path='/dashboard/edit' render={() => <Dashboard child={<EditUser />} />} />
 						<Route exact path='/dashboard/settings' render={() => <Dashboard child={<UserSettings />} />} />
+						<Route exact path='/dashboard/inquiries' render={() => <Dashboard child={<Messages />} />} />
+						<Route exact path='/dashboard/message/:id/details' render={() => <Dashboard child={<MessageDetails />} />} />
 						<Route exact path='/admin/overview' render={() => <Admin child={<AdminOverview />} />} />
 						<Route exact path='/admin/sectors' render={() => <Admin child={<AdminSectors />} />} />
+						<Route exact path='/service/:id' component={ServiceDetails} />
+						<Route exact path='/user/:username' component={ViewUser} />
 						<Route exact path='/account/login' component={Login} />
 						<Route exact path='/account/register' component={Register} />
 						{sectors}

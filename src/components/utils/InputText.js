@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Button } from 'reactstrap';
 
 class InputText extends Component {
     constructor(props) {
@@ -20,11 +19,11 @@ class InputText extends Component {
                 onKeyDown={(e) => {
                     if (e.keyCode === 13) { this.props.submitCallback(this.state.value); }
                 }} />
-                <Button color='secondary' onClick={(e) => {
+                <button className='btn btn-secondary' onClick={(e) => {
                     e.stopPropagation();
 
                     this.props.cancelCallback();
-                }}>Cancel</Button>
+                }}>Cancel</button>
             </div>
         )
     }

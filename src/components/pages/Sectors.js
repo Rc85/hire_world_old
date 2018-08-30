@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
@@ -13,6 +13,7 @@ class Sectors extends Component {
         this.state = {
             sector: this.props.name,
             status: 'loading',
+            statusMessage: '',
             listings: []
         }
     }
@@ -20,14 +21,16 @@ class Sectors extends Component {
     componentDidMount() {
         fetch.post('/api/get/services/listings', {sector: this.props.name})
         .then(resp => {
-            if (resp.data.status === 'get listings success') {
-                console.log(resp);
+            if (resp.data.status === 'success') {
                 this.setState({
                     status: 'success',
                     listings: resp.data.services
                 });
-            } else if (resp.data.status === 'get listings fail' || resp.data.status === 'get listings error') {
-                this.setState({status: 'error'});
+            } else {
+                this.setState({
+                    status: resp.data.status,
+                    statusMessage: resp.data.statusMessage
+                });
             }
         })
         .catch(err => console.log(err));
@@ -39,18 +42,12 @@ class Sectors extends Component {
         if (this.state.status === 'loading') {
             loading = <Loading size='5x' />
         } else if (this.state.status === 'error') {
-            error = <Alert status='error' />
-        } else if (this.state.status === 'blank title') {
-            error = <Alert status='error' message='Title cannot be blank' />
-        } else if (this.state.status === 'not logged in') {
-            error = <Alert status='error' message={`You're not logged in`} />
-        } else if (this.state.status === 'listing success') {
-            error = <Alert status='success' message={`Listing successful`} />
+            error = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />
         }
 
         let listings = this.state.listings.map((listing, i) => {
             return <div key={i} className='listing-row mb-2'>
-                <div className='w-50'>{listing.service_name}</div>
+                <div className='w-50'><NavLink to={`/service/${listing.service_id}`}>{listing.service_name}</NavLink></div>
                 <div className='w-20'>{listing.service_provided_by}</div>
                 <div className='w-20'>{listing.service_created_on}</div>
                 <div className='w-10'></div>

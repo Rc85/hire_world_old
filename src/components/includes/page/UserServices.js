@@ -6,21 +6,41 @@ import { connect } from 'react-redux';
 import AddService from './AddService';
 import Loading from '../../utils/Loading';
 import Service from './Service';
-import { Button } from 'reactstrap';
+import fetch from 'axios';
+import Alert from '../../utils/Alert';
 
 class UserServices extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            forms: []
+            forms: [],
+            services: [],
+            status: '',
+            statusMessage: ''
         }
+    }
+
+    componentDidMount() {
+        this.setState({status: 'Loading'});
+
+        fetch.get('/api/get/services')
+        .then(resp => {
+            if (resp.data.status === 'get services success') {
+                this.setState({
+                    services: resp.data.services,
+                    status: ''
+                })
+            } else {
+                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            }
+        });
     }
 
     addServiceForm() {
         if (this.state.forms.length < 1) {
             let forms = this.state.forms;
-            forms.push(<AddService callback={this.removeServiceForm.bind(this)} />);
+            forms.push(<AddService add={(data) => this.addService(data)} remove={this.removeServiceForm.bind(this)} />);
 
             this.setState({
                 forms: forms
@@ -37,36 +57,83 @@ class UserServices extends Component {
         });
     }
 
+    addService(data) {
+        this.setState({status: 'Loading'});
+
+        fetch.post('/api/user/services/add', data)
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                let forms = this.state.forms;
+                forms.splice(0, 1);
+
+                this.setState({
+                    services: resp.data.services,
+                    status: '',
+                    forms: forms
+                });
+            } else {
+                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            }
+        })
+        .catch(err => console.log(err));
+    }
+
+    deleteService(id) {
+        this.setState({status: 'Loading'});
+
+        fetch.post('/api/user/services/delete', {id: id})
+        .then(resp => {
+            console.log(resp);
+            if (resp.data.status === 'success') {
+                this.setState({
+                    services: resp.data.services,
+                    status: ''
+                });
+            } else {
+                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            }
+        })
+        .catch(err => console.log(err));
+    }
+
+    editService(data) {
+        this.setState({status: 'Loading'});
+
+        fetch.post('/api/user/services/edit', data)
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({
+                    services: resp.data.services,
+                    status: ''
+                })
+            } else {
+                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            }
+        })
+        .catch(err => console.log(err));
+    }
+
     render() {
         let forms = this.state.forms.map((form, i) => {
             return <div key={i}>
                 {form}
             </div>
         });
-        let services, loading, error, button;
-        //let errorCheck = /error$|fail$/;
+        let status, button;
 
-        if (this.props.status === 'add service loading') {
-            loading = <Loading size='4x' />
-        }
-        
-        /* if (errorCheck.test(this.props.status)) {
-            error = <Alert status='error' />
-        } */
-
-        if (this.props.services) {
-            services = this.props.services.map((service, i) => {
-                return <Service key={i} id={service.service_id} service={service} />
-            });
+        if (this.state.status && this.state.status !== 'Loading') {
+            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />
         }
 
-        if (this.props.services) {
-            if (this.props.services.length < this.props.user.services_allowed) {
-                if (this.state.forms.length < 1) {
-                    button = <Button color='info' size='sm' onClick={this.addServiceForm.bind(this)}><FontAwesomeIcon icon={faPlus} /></Button>
-                } else {
-                    button = <Button color='danger' size='sm' onClick={this.removeServiceForm.bind(this)}><FontAwesomeIcon icon={faTimes} /></Button>
-                }
+        let services = this.state.services.map((service, i) => {
+            return <Service key={i} id={service.service_id} service={service} deleteService={(id) => this.deleteService(id)} edit={(data) => this.editService(data)} />
+        });
+
+        if (this.state.services.length < this.props.user.services_allowed) {
+            if (this.state.forms.length < 1) {
+                button = <button className='btn btn-info btn-sm' onClick={this.addServiceForm.bind(this)}><FontAwesomeIcon icon={faPlus} /></button>
+            } else {
+                button = <button className='btn btn-secondary btn-sm' onClick={this.removeServiceForm.bind(this)}><strong>Cancel</strong></button>
             }
         }
 
@@ -83,7 +150,7 @@ class UserServices extends Component {
                 </div>
 
                 <div className='services-list'>
-                    {loading}
+                    {status}
                     {services}
                 </div>
             </section>
@@ -93,8 +160,6 @@ class UserServices extends Component {
 
 const mapStateToProps = state => {
     return {
-        status: state.Services.status,
-        services: state.Services.services,
         user: state.Login.user
     }
 }

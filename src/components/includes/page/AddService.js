@@ -1,65 +1,51 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { AddService as add } from '../../../actions/AddServicesActions';
 import PropTypes from 'prop-types';
 import ServiceForm from './ServiceForm';
+import Alert from '../../utils/Alert';
 
 class AddService extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            error: null
+            status: '',
+            statusMessage: ''
         }
     }
 
     addService(data) {
         let blankCheck = /^\s*$/;
         let cityCheck = /^[a-zA-Z]*$/;
-        let error;
 
         if ((blankCheck.test(data.name) || !data.name) || !data.listUnder || (!data.worldwide && blankCheck.test(data.country))) {
-            error = 'required fields';
-        } else {
-            if (!blankCheck.test(data.city) && !cityCheck.test(data.city)) {
-                error = 'invalid city';
-            }
-        }
-
-        if (error === 'required fields') {
             this.setState({
-                error: 'required fields'
+                status: 'error',
+                statusMessage: 'Required fields cannot be blank'
             });
-
-            setTimeout(() => {
-                this.setState({
-                    error: null
-                })
-            }, 2300);
-        } else if (error === 'invalid city') {
+        } else if (!blankCheck.test(data.city) && !cityCheck.test(data.city)) {
             this.setState({
-                error: 'invalid city'
+                status: 'error',
+                statusMessage: 'Invalid city name'
             });
-
-            setTimeout(() => {
-                this.setState({
-                    error: null
-                })
-            }, 2300);
         } else {
-            this.props.dispatch(add(data))
-
-            this.props.callback();
+            this.props.add(data)
         }
     }
 
     removeServiceForm() {
-        this.props.callback();
+        this.props.remove();
     }
 
     render() {
+        let error;
+
+        if (this.state.status) {
+            error = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />
+        }
+
         return(
             <div className='add-service mb-3'>
+                {error}
                 <ServiceForm submit={(data) => this.addService(data)} cancel={() => this.removeServiceForm()} />
             </div>
         )
@@ -67,7 +53,8 @@ class AddService extends Component {
 }
 
 AddService.propTypes = {
-    callback: PropTypes.func.isRequired
+    add: PropTypes.func.isRequired,
+    remove: PropTypes.func.isRequired
 }
 
-export default connect()(AddService);
+export default AddService;

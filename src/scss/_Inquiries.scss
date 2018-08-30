@@ -1,0 +1,16 @@
+.user-message {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-message-subject {
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    white-space: nowrap;
+}
+
+.user-message-header {
+    @extend .user-message;
+    font-weight: bold;
+}

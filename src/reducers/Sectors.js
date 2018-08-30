@@ -6,13 +6,13 @@ const sectorsInitialState = {
 export const Sectors = (state = sectorsInitialState, action) => {
     switch(action.type) {
         case 'ADD_CATEGORY_SUCCESS':
-        case 'STORE_SECTOR':
-            return Object.assign(...state, {status: action.status, sectors: action.sectors});
+        case 'UPDATE_SECTORS':
+            return Object.assign({}, state, {status: action.status, sectors: action.sectors});
         case 'ADD_CATEGORY_BEGIN':
         case 'ADD_CATEGORY_FAIL':
         case 'ADD_CATEGORY_ERROR':
-        case 'STORE_SECTOR_ERROR':
-            return Object.assign(...state, {status: action.status});
+        case 'UPDATE_SECTORS_ERROR':
+            return Object.assign({}, state, {status: action.status});
         default: return state;
     }
 }

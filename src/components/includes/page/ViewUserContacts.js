@@ -1,23 +1,42 @@
-import React, { Component } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGithub } from '@fortawesome/free-brands-svg-icons';
-import { faFacebook } from '@fortawesome/free-brands-svg-icons';
-import { faTwitter } from '@fortawesome/free-brands-svg-icons';
-import { faInstagram } from '@fortawesome/free-brands-svg-icons';
-import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
+import { faPhone, faGraduationCap } from '@fortawesome/free-solid-svg-icons';
 
-class ViewUserContacts extends Component {
-    render() {
-        return(
-            <div id='view-user-contacts'>
-                <div><FontAwesomeIcon icon={faGithub} className='user-contact-icon' size='lg' /> Github</div>
-                <div><FontAwesomeIcon icon={faFacebook} className='user-contact-icon' size='lg' /> Facebook</div>
-                <div><FontAwesomeIcon icon={faTwitter} className='user-contact-icon' size='lg' /> Twitter</div>
-                <div><FontAwesomeIcon icon={faInstagram} className='user-contact-icon' size='lg' /> Instagram</div>
-                <div><FontAwesomeIcon icon={faLinkedin} className='user-contact-icon' size='lg' /> LinkedIn</div>
-            </div>
-        )
+const ViewUserContacts = user => {
+    let email, phone, address, education;
+
+    if (user.user.user_email) {
+        email = <div className='mb-3'><FontAwesomeIcon icon={faEnvelope} size='lg' className='view-user-icon' /> <a href={`mailto: ${user.user.user_email}`}>{user.user.user_email}</a></div>
     }
+
+    if (user.user.user_phone) {
+        phone = <div className='mb-3'><FontAwesomeIcon icon={faPhone} size='lg' className='view-user-icon' /> {user.user.user_phone}</div>
+    }
+
+    if (user.user.user_address) {
+        address = <div className='mb-3 view-user-address'>{user.user.user_address}</div>
+    }
+
+    if (user.user.user_education) {
+        education = <div className='mb-3'><FontAwesomeIcon icon={faGraduationCap} className='view-user-icon' size='lg' /> {user.user.user_education}</div>
+    }
+
+    console.log(user);
+    return(
+        <div id='view-user-contacts'>
+            {education}
+            {email}
+            {phone}
+            {address}
+            <hr/>
+        </div>
+    )
+}
+
+ViewUserContacts.propTypes = {
+    user: PropTypes.object
 }
 
 export default ViewUserContacts;

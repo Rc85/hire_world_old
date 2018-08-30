@@ -1,9 +1,9 @@
-#profile-pic {
+.profile-pic {
     border-radius: 100%;
     position: relative;
 }
 
-#profile-pic:after {
+.profile-pic:after {
     content: '';
     padding-bottom: 100%;
     display: block;

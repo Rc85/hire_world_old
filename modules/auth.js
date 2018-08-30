@@ -10,44 +10,45 @@ app.post('/api/auth/register', (req, resp) => {
 
     if (req.body.agreed) {
         if (!usernameCheck.test(req.body.username)) {
-            resp.send({status: 'Invalid username'});
+            resp.send({status: 'error', statusMessage: 'Invalid username'});
         } else if (req.body.password !== req.body.confirmPassword) {
-            resp.send({status: 'Passwords do not match'});
-        } else if (!passwordCheck.test(req.body.password) || !passwordCheck.test(req.body.confirmEmail)) {
-            resp.send({status: 'Passwords length too short or long'});
+            resp.send({status: 'error', statusMessage: 'Passwords do not match'});
+        } else if (!passwordCheck.test(req.body.password) || !passwordCheck.test(req.body.confirmPassword)) {
+            resp.send({status: 'error', statusMessage: 'Passwords length too short or long'});
         } else if (req.body.email !== req.body.confirmEmail) {
-            resp.send({status: 'Emails do not match'});
+            resp.send({status: 'error', statusMessage: 'Emails do not match'});
         } else if (!emailCheck.test(req.body.email) || !emailCheck.test(req.body.confirmEmail)) {
-            resp.send({status: 'Invalid email format'});
+            resp.send({status: 'error', statusMessage: 'Invalid email format'});
         } else if (req.body.firstName !== '') {
             if (!nameCheck.test(req.body.firstName)) {
-                resp.send({status: 'Invalid name'});
+                resp.send({status: 'error', statusMessage: 'Invalid name'});
             }
         } else if (req.body.lastName !== '') {
             if (!nameCheck.test(req.body.lastName)) {
-                resp.send({status: 'Invalid name'});
+                resp.send({status: 'error', statusMessage: 'Invalid name'});
             }
         } else {
-            console.log('here')
             bcrypt.hash(req.body.password, 10, (err, result) => {
                 if (err) { console.log(err); }
 
-                db.query(`INSERT INTO users (username, user_password, user_email, user_firstname, user_lastname, business_name, user_country, user_region, user_city) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING username`, [req.body.username, result, req.body.email, req.body.firstName, req.body.lastName, req.body.businessName, req.body.country, req.body.region, req.body.city])
+                db.query(`INSERT INTO users (username, user_password, user_email, user_firstname, user_lastname, business_name, user_country, user_region, user_city) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, [req.body.username, result, req.body.email, req.body.firstName, req.body.lastName, req.body.businessName, req.body.country, req.body.region, req.body.city])
                 .then(result => {
+                    console.log(result);
                     if (result !== undefined && result.rowCount === 1) {
-                        resp.send({status: 'register success'});
+                        console.log('here')
+                        resp.send({status: 'success', statusMessage: 'Registration successful'});
                     } else {
-                        resp.send({status: 'register fail'});
+                        resp.send({status: 'error', statusMessage: 'Unable to Register'});
                     }
                 })
                 .catch(err => {
                     console.log(err)
-                    resp.send({status: 'register error'});
+                    resp.send({status: 'error', statusMessage: 'An error occurred'});
                 });
             });
         }
     } else {
-        resp.send({status: 'You must agree to the terms of service'});
+        resp.send({status: 'error', statusMessage: 'You must agree to the terms of service'});
     }
 });
 
@@ -58,17 +59,17 @@ app.post('/api/auth/login', async(req, resp) => {
     })
     .catch(err => {
         console.log(err);
-        resp.send({status: 'login error'});
+        resp.send({status: 'An error occurred'});
     });
 
     if (user !== undefined && user.rows.length === 1) {
         if (user.rows[0].user_status === 'Banned') {
-            resp.send({status: 'banned'})
+            resp.send({status: 'Your account has been banned'})
         } else {
             bcrypt.compare(req.body.password, user.rows[0].user_password, (err, match) => {
                 if (err) {
                     console.log(err);
-                    resp.send({status: 'login error'});
+                    resp.send({status: 'An error occurred'});
                 }
 
                 if (match) {
@@ -81,14 +82,14 @@ app.post('/api/auth/login', async(req, resp) => {
 
                     delete user.rows[0].user_password;
 
-                    resp.send({status: 'login success', user: user.rows[0]});
+                    resp.send({status: 'Login success', user: user.rows[0]});
                 } else {
-                    resp.send({status: 'incorrect'});
+                    resp.send({status: 'Incorrect username or password'});
                 }
             });
         }
     } else {
-        resp.send({status: 'incorrect'});
+        resp.send({status: 'Incorrect username or password'});
     }
 });
 

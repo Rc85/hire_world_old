@@ -3,17 +3,22 @@ import { connect } from 'react-redux';
 import { withRouter, Redirect } from 'react-router-dom';
 import RegisterForm from '../includes/page/RegisterForm';
 import Response from '../pages/Response';
-import { Alert } from 'reactstrap';
 
 class Register extends Component {
-    render() {
-        let message;
-        let component = <RegisterForm />;
+    constructor(props) {
+        super(props);
 
-        if (this.props.status === 'register error') {
-            message = <Alert color='danger'>An error occurred</Alert>;
-        } else if (this.props.status === 'register success') {
-            message = <Alert color='success'>Registration successful</Alert>;
+        this.state = {
+            status: '',
+            statusMessage: ''
+        }
+    }
+
+    render() {
+        console.log(this.state.status);
+        let component = <RegisterForm callback={(status, message) => this.setState({status: status, statusMessage: message})}/>;
+
+        if (this.state.status === 'success') {
             component = <Response code={200} header='Success!' message='You are registered. Please check your email to confirm your registration.' />;
         }
 
@@ -24,8 +29,6 @@ class Register extends Component {
         } else {
             return(
                 <div>
-                    {message}
-
                     { component }
                 </div>
             )
@@ -35,7 +38,6 @@ class Register extends Component {
 
 const mapStateToProps = state => {
     return {
-        status: state.Register.status,
         user: state.Login.user
     }
 }

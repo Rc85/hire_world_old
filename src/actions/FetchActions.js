@@ -16,7 +16,7 @@ export const GetSession = () => {
 
 const GetSessionSuccess = (status, user) => {
     return {
-        type: 'GET_SESSION_SUCCESS',
+        type: 'LOGIN_USER_UPDATE',
         user,
         status
     }
@@ -24,7 +24,7 @@ const GetSessionSuccess = (status, user) => {
 
 const GetSessionFail = (status, user) => {
     return {
-        type: 'GET_SESSION_FAIL',
+        type: 'LOGIN_USER_UPDATE',
         user,
         status
     }
@@ -35,26 +35,26 @@ export const GetSectors = () => {
         fetch.get('/api/get/sectors')
         .then(resp => {
             if (resp.data.status === 'get sectors success') {
-                dispatch(StoreSectors(resp.data.status, resp.data.sectors));
+                dispatch(UpdateSectors(resp.data.status, resp.data.sectors));
             } else {
-                dispatch(StoreSectorsError(resp.data.status));
+                dispatch(UpdateSectorsError(resp.data.status));
             }
         })
         .catch(err => console.log(err));
     }
 }
 
-const StoreSectors = (status, sectors) => {
+const UpdateSectors = (status, sectors) => {
     return {
-        type: 'STORE_SECTOR',
+        type: 'UPDATE_SECTORS',
         sectors,
         status
     }
 }
 
-const StoreSectorsError = (status) => {
+const UpdateSectorsError = (status) => {
     return {
-        type: 'STORE_SECTOR_ERROR',
+        type: 'UPDATE_SECTORS_ERROR',
         status
     }
 }

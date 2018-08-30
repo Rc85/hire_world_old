@@ -23,10 +23,10 @@ class Login extends Component {
         let error;
 
         switch(this.props.user.status) {
-            case 'login error': error = <Alert status='error' />; break;
-            case 'login fail': error = <Alert status='error' message='Unable to login' />; break;
-            case 'incorrect': error = <Alert status='error' message='Incorrect username or password' />; break;
-            case 'banned': error = <Alert status='error' message='Your account has been banned' />; break;
+            case 'An error occurred':
+            case 'Incorrect username or password':
+            case 'Your account has been banned':
+                error = <Alert status='error' message={this.props.user.status} unmount={() => this.setState({status: '', statusMessage: ''})} />; break;
         }
 
         if (this.props.user.user) {
@@ -40,28 +40,23 @@ class Login extends Component {
                     <div className='blue-panel shallow rounded'>
                         <h2>Login</h2>
 
-                        <form method='POST' onSubmit={(e) => {
+                        <form onSubmit={(e) => {
                             e.preventDefault();
-
                             this.handleLogin();
                         }}>
                             <div className='form-group'>
                                 <label htmlFor='username'>Username: </label>
-                                <input className='form-control' type='text' name='username' id='login-username' onChange={(e) => {
-                                    this.setState({username: e.target.value});
-                                }} />
+                                <input className='form-control' type='text' name='username' id='login-username' onChange={(e) => this.setState({username: e.target.value})} />
                             </div>
             
                             <div className='form-group'>
                                 <label htmlFor='password'>Password: </label>
-                                <input className='form-control' type='password' name='password' id='login-password' onChange={(e) => {
-                                    this.setState({password: e.target.value});
-                                }} />
+                                <input className='form-control' type='password' name='password' id='login-password' onChange={(e) => this.setState({password: e.target.value})} />
                             </div>
-
+    
                             <div className='text-right'>
-                                <SubmitButton type='submit' loading={!this.props.status ? '' : this.props.status} value='Login' onClick={() => {return false}}/>
-
+                                <SubmitButton type='submit' loading={!this.props.status ? false : this.props.status} value='Login' onClick={() => {return false}}/>
+    
                                 <div className='mt-3'>
                                     Forgot Password
                                 </div>

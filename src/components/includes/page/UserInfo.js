@@ -6,7 +6,6 @@ import { withRouter } from 'react-router-dom';
 import { EditUser } from '../../../actions/EditUserActions';
 import Loading from '../../utils/Loading';
 import PropTypes from 'prop-types';
-import { Button } from 'reactstrap';
 
 class UserInfo extends Component {
     constructor(props) {
@@ -32,11 +31,11 @@ class UserInfo extends Component {
         let error = /(error|fail)$/;
 
         if (this.state.editing) {
-            button = <Button color='info' size='sm' className='ml-auto' onClick={() => {
+            button = <button className='btn btn-info btn-sm ml-auto' onClick={() => {
                 this.setState({
                     editing: false
                 });
-            }}><FontAwesomeIcon icon={faTimes}  /></Button>;
+            }}><FontAwesomeIcon icon={faTimes}  /></button>;
             value = <form id='edit-user-form' action='/api/user/edit' method='post' onSubmit={(e) => {
                 e.preventDefault();
                 
@@ -59,11 +58,11 @@ class UserInfo extends Component {
                 }} />
             </form>;
         } else {
-            button = <Button color='info' size='sm' className='ml-auto' onClick={() => {
+            button = <button className='btn btn-info btn-sm ml-auto' onClick={() => {
                 this.setState({
                     editing: true
                 });
-            }}><FontAwesomeIcon icon={faEdit} /></Button>;
+            }}><FontAwesomeIcon icon={faEdit} /></button>;
             if (loading.test(this.props.status)) {
                 value = <Loading size='1x' />;
             } else if (error.test(this.props.status)) {

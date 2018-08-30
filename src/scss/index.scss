@@ -1,19 +1,24 @@
 @import 'mixins';
 @import 'variables';
 @import './utils/widths';
+@import './utils/flex';
 @import './admin/Admin.scss';
 @import 'Alert';
 @import 'App';
 @import 'Browse';
 @import 'BrowseMenu';
 @import 'Confirmation';
+@import 'EditUser';
+@import 'Inquiries';
 @import 'Loading';
 @import 'Main';
 @import 'Menu';
+@import 'MessageDetails';
 @import 'NavBar';
 @import 'RegisterForm';
 @import 'Response';
 @import 'Sectors';
+@import 'ServiceDetails';
 @import 'SlideToggle';
 @import 'TabBar';
 @import 'TopBar';
@@ -22,6 +27,7 @@
 @import 'UserProfilePic';
 @import 'UserServices';
 @import 'UserSettings';
+@import 'ViewUser';
 
 @font-face {
     font-family: 'Montserrat';

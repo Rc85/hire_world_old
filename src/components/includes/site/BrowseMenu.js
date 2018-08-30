@@ -11,7 +11,7 @@ class BrowseMenu extends Component {
         
         if (this.props.sectors) {
             sectors = this.props.sectors.map((sector, i) => {
-                return <NavLink key={i} className='main-menu-item' to={`/sectors/${sector.sector.toLowerCase()}`} id={`${sector.sector}-link`}>{sector.sector}</NavLink>
+                return <NavLink key={i} className='main-menu-item' to={`/sectors/${sector.sector}`} id={`${sector.sector}-link`}>{sector.sector}</NavLink>
             });
         }
 

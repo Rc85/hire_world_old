@@ -5,7 +5,6 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { EditUser } from '../../../actions/EditUserActions';
 import Loading from '../../utils/Loading';
-import { Button } from 'reactstrap';
 
 class UserDetails extends Component {
     constructor(props) {
@@ -41,7 +40,7 @@ class UserDetails extends Component {
                     });
                 }}
                 ></textarea>
-                <div className='text-right mt-1'><Button color='primary' onClick={() => {
+                <div className='text-right mt-1'><button className='btn btn-primary' onClick={() => {
                     this.submitBio();
 
                     document.getElementById('user-bio-editor').value = '';
@@ -49,7 +48,7 @@ class UserDetails extends Component {
                     this.setState({
                         editor: !this.state.editor
                     });
-                }}>Submit</Button></div>
+                }}>Submit</button></div>
             </div>;
             icon = <FontAwesomeIcon icon={faTimes} />;
         } else {
@@ -67,7 +66,7 @@ class UserDetails extends Component {
                 <div className='d-flex justify-content-between mb-2'>
                     <h6>About</h6>
                     
-                    <Button color='info' size='sm' onClick={this.openEditor.bind(this)}>{icon}</Button>
+                    <button className='btn btn-info btn-sm' onClick={this.openEditor.bind(this)}>{icon}</button>
                 </div>
 
                 {editor}

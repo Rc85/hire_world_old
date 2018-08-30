@@ -7,6 +7,10 @@
 .settings-col {
     display: flex;
     flex-direction: column;
-    width: 30%;
+    width: 45%;
     justify-content: space-between;
+}
+
+#user-address {
+    white-space: pre-line;
 }

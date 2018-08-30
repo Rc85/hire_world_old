@@ -15,7 +15,8 @@ class ProfileSettings extends Component {
             businessName: '',
             displayFullName: false,
             displayBusinessName: false,
-            error: null
+            status: '',
+            statusMessage: ''
         }
     }
 
@@ -36,31 +37,25 @@ class ProfileSettings extends Component {
         let lengthCheck = /^.{40}$/
 
         if (!nameCheck.test(this.state.firstName) || !nameCheck.test(this.state.lastName)) {
-            this.setState({error: 'invalid name'});
+            this.setState({status: 'error', statusMessage: 'Invalid name'});
         } else if (lengthCheck.test(this.state.businessName)) {
-            this.setState({error: 'too long'});
+            this.setState({status: 'error', statusMessage: 'Business name is too long'});
         } else {
             this.props.dispatch(SaveProfile(this.state, this.props.user.user));
         }
-
-        setTimeout(() => {
-            this.setState({error: null});
-        }, 2300);
     }
 
     render() {
         let error;
 
-        if (this.state.error === 'invalid name') {
-            error = <Alert status='error' message='Invalid character(s) in your name' />
-        } else if (this.state.error === 'too long') {
-            error = <Alert status='error' message='Business name is too long' />
+        if (this.state.status) {
+            error = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />
         }
 
         if (this.props.user.status === 'save profile success') {
-            error = <Alert status='success' message='Profile settings saved' />
+            error = <Alert status='success' message='Profile settings saved' unmount={() => this.setState({status: '', statusMessage: ''})} />
         } else if (this.props.user.status === 'save profile error' || this.props.user.status === 'save profile fail') {
-            error = <Alert status='error' message='An error occurred' />
+            error = <Alert status='error' message='An error occurred' unmount={() => this.setState({status: '', statusMessage: ''})} />
         }
 
         return(
@@ -83,8 +78,7 @@ class ProfileSettings extends Component {
 
                 <div className='mb-3'>
                     <label htmlFor='business-name'>Business Name:</label>
-                    <div><small>Maximum 40 characters</small></div>
-                    <input type='text' name='business_name' id='business-name' className='form-control' defaultValue={this.state.businessName} onChange={(e) => this.setState({businessName: e.target.value})} maxLength='40' />
+                    <input type='text' name='business_name' id='business-name' className='form-control' defaultValue={this.state.businessName} onChange={(e) => this.setState({businessName: e.target.value})} maxLength='40' placeholder='Maximum 40 characters' />
                 </div>
 
                 <div className='settings-row mb-3'>

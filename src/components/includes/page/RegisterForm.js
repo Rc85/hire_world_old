@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import SubmitButton from '../../utils/SubmitButton';
 import { withRouter } from 'react-router-dom';
-import { RegisterUser } from '../../../actions/RegisterActions';
-import { Button } from 'reactstrap';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import Alert from '../../utils/Alert';
+import fetch from 'axios';
 
 class RegisterForm extends Component {
     constructor() {
@@ -23,24 +21,33 @@ class RegisterForm extends Component {
             country: '',
             region: '',
             city: '',
-            agreed: false
+            agreed: false,
+            status: '',
+            statusMessage: ''
         }
     }
     
     handleRegister() {
-        this.props.dispatch(RegisterUser(this.state));
+        this.setState({status: 'Registering'});
+
+        fetch.post('/api/auth/register', this.state)
+        .then(resp => {
+            console.log(resp.data);
+            if (resp.data.status === 'success') {
+                this.props.callback(resp.data.status, resp.data.statusMessage);
+            } else {
+                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            }
+        })
+        .catch(err => console.log(err));
     }
 
     render() {
         let error;
-        let success = /success$/;
-        let fail = /(fail|error)$/;
 
-        if (fail.test(this.props.status)) {
-            error = <Alert status='error' />
-        } else if (this.props.status && !fail.test(this.props.status) && !success.test(this.props.status) && this.props.status !== 'loading') {
-            error = <Alert status='error' message={this.props.status} />
-        }
+        if (this.state.status && this.state.status !== 'Registering' && this.state.status !== 'success') {
+            error = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />
+        } 
 
         return(
             <section id='register-form' className='main-panel'>
@@ -123,9 +130,9 @@ class RegisterForm extends Component {
                     
 
                     <div className='text-right'>
-                        <SubmitButton type='submit' loading={this.props.status ? this.props.status : ''} value='Submit' onClick={() => this.handleRegister()}/>
+                        <SubmitButton type='submit' loading={this.state.status === 'Registering' ? true : false} value='Submit' onClick={() => this.handleRegister()}/>
 
-                        <Button type='button' color='secondary' disabled={this.props.status === 'loading' ? true : false} onClick={() => {
+                        <button className='btn btn-secondary' disabled={this.props.status === 'loading' ? true : false} onClick={() => {
                             this.setState({
                                 username: null,
                                 password: null,
@@ -135,7 +142,7 @@ class RegisterForm extends Component {
                             });
                         }}>
                             Clear
-                        </Button>
+                        </button>
                     </div>
                 </div>
             </section>
@@ -143,10 +150,4 @@ class RegisterForm extends Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        status: state.Register.status
-    }
-}
-
-export default withRouter(connect(mapStateToProps)(RegisterForm));
+export default withRouter(RegisterForm);

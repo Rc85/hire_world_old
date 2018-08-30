@@ -20,7 +20,7 @@ export const EditUser = (type, value, user) => {
 
 const EditUserBegin = (status, user) => {
     return {
-        type: 'EDIT_USER_BEGIN',
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }
@@ -28,7 +28,7 @@ const EditUserBegin = (status, user) => {
 
 const EditUserSuccess = (status, user) => {
     return {
-        type: 'EDIT_USER_SUCCESS',
+        type: 'LOGIN_USER_UPDATE',
         user,
         status
     }
@@ -36,7 +36,7 @@ const EditUserSuccess = (status, user) => {
 
 const EditUserError = (status, user) => {
     return {
-        type: 'EDIT_USER_ERROR',
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }

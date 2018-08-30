@@ -13,6 +13,7 @@ class PasswordSettings extends Component {
             newPassword: '',
             confirmPassword: '',
             status: '',
+            statusMessage: '',
             showPassword: false
         }
     }
@@ -22,39 +23,33 @@ class PasswordSettings extends Component {
         let charCheck = /.{6,15}/;
 
         if (blankCheck.test(this.state.currentPassword) || blankCheck.test(this.state.newPassword)) {
-            this.setState({status: 'blank passwords'});
+            this.setState({
+                status: 'error',
+                statusMessage: 'Passwords cannot be blank'
+            });
         } else if (!charCheck.test(this.state.newPassword) || !charCheck.test(this.state.confirmPassword)) {
-            this.setState({status: 'short password'});
+            this.setState({status: 'error', statusMessage: 'Password too short'});
         } else {
             this.setState({status: 'loading'});
 
             if (this.state.newPassword === this.state.confirmPassword) {
                 fetch.post('/api/user/settings/password/change', this.state)
                 .then(resp => {
-                    console.log(resp);
-                    this.setState({status: resp.data.status});
+                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
                 });
             } else {
-                this.setState({status: 'unmatched'});
+                this.setState({status: 'error', statusMessage: 'Passwords do not match'});
             }
         }
-
-        setTimeout(() => {
-            this.setState({status: ''});
-        }, 2000);
     }
 
     render() {
-        let error, showHide;
+        let status, showHide;
 
-        switch(this.state.status) {
-            case 'unmatched': error = <Alert status='error' message='Passwords do not match' />; break;
-            case 'user not found': error = <Alert status='error' message='User not found' />; break;
-            case 'incorrect password': error = <Alert status='error' message='Incorrect password' />; break;
-            case 'password save error': error = <Alert status='error' />; break;
-            case 'password save success': error = <Alert status='success' message='New password saved' />; break;
-            case 'blank passwords': error = <Alert status='error' message='Password cannot be blank' />; break;
-            case 'short password': error = <Alert status='error' message='New password(s) too short' />; break;
+        if (this.state.status === 'Loading') {
+            status = <Loading size='3x' />;
+        } else {
+            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />;
         }
 
         if (this.state.showPassword) {
@@ -65,7 +60,7 @@ class PasswordSettings extends Component {
 
         return(
             <div id='password-settings' className='settings-col'>
-                {error}
+                {status}
                 <div>
                     <div className='d-flex justify-content-between'>
                         <label>Change Password:</label>
@@ -73,7 +68,7 @@ class PasswordSettings extends Component {
                         <span style={{fontWeight: 'bold', cursor: 'pointer'}} onClick={() => this.setState({showPassword: !this.state.showPassword})}>{showHide}</span>
                     </div>
 
-                    <div className='region-container rounded mb-3'>
+                    <div className='bordered-container rounded mb-3'>
                         <div className='mb-3'>
                             <label htmlFor='current-password'>Current Password:</label>
                             <input type={this.state.showPassword ? 'text' : 'password'} name='current_password' id='current-password' className='form-control' onChange={(e) => this.setState({currentPassword: e.target.value})} maxLength='15' />

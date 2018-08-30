@@ -5,6 +5,9 @@ import { connect } from 'react-redux';
 import { SaveLocations } from '../../../actions/SettingsActions';
 import SubmitButton from '../../utils/SubmitButton';
 import Alert from '../../utils/Alert';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
+import { UncontrolledTooltip } from 'reactstrap';
 
 class LocationSettings extends Component {
     constructor(props) {
@@ -16,7 +19,8 @@ class LocationSettings extends Component {
             region: undefined,
             city: null,
             defaultLocation: false,
-            error: null
+            status: '',
+            statusMessage: ''
         }
     }
 
@@ -36,42 +40,43 @@ class LocationSettings extends Component {
         let cityCheck = /^[a-zA-Z]*$/;
 
         if (!this.state.worldwide && !this.state.country) {
-            this.setState({error: 'required fields'});
+            this.setState({
+                status: 'error',
+                statusMessage: 'Required fields cannot be blank'
+            });
         } else if (!cityCheck.test(this.state.city)) {
-            this.setState({error: 'invalid city'});
+            this.setState({
+                status: 'error',
+                statusMessage: 'Invalid city name'
+            });
         } else {
             this.props.dispatch(SaveLocations(this.state, this.props.user.user));
         }
-
-        setTimeout(() => {
-            this.setState({error: null});
-        }, 2300);
     }
 
     render() {
-        let message, error;
+        let message, status;
 
-        if (this.props.user.user) {
-            if (this.props.user.status === 'save locations success') {
-                message = <Alert status='success' message='Locations setting saved' />;
-            } else if (this.props.user.status === 'save locations fail') {
-                message = <Alert status='error' message='Unable to save' />;
-            } else if (this.props.user.status === 'save locations error') {
-                message = <Alert status='error' message='An error occurred' />;
-            }
+        switch(this.props.user.status) {
+            case 'save locations success': message = <Alert status='success' message='Locations setting saved' unmount={() => this.setState({status: '', statusMessage: ''})} />; break;
+            case 'save locations fail': message = <Alert status='error' message='Unable to save' unmount={() => this.setState({status: '', statusMessage: ''})} />; break;
+            case 'save locations error': message = <Alert status='error' message='An error occurred' unmount={() => this.setState({status: '', statusMessage: ''})} />; break;
         }
 
-        if (this.state.error === 'required fields') {
-            error = <Alert status='error' message='Required fields cannot be blank' />
-        } else if (this.state.error === 'invalid city') {
-            error = <Alert status='error' message='Invalid city name' />
+        if (this.state.status) {
+            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />
         }
 
         return(
             <div id='location-settings'>
-                {error}
+                {status}
                 {message}
                 <div className='d-flex align-items-center mb-1'>
+                    <div className='d-flex justify-content-end mr-2'>
+                        <div id='location-tip' className='d-inline-flex'><FontAwesomeIcon icon={faQuestionCircle} size='1x' /></div>
+                        <UncontrolledTooltip target='location-tip' placement='top'>For online business or products that you can ship internationally</UncontrolledTooltip>
+                    </div>
+
                     <span>Worldwide:</span>
 
                     <div className='ml-1'><SlideToggle status={this.state.worldwide ? 'Active' : 'Inactive'} onClick={() => this.setState({

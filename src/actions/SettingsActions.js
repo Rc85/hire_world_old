@@ -20,7 +20,7 @@ export const SaveLocations = (data, user) => {
 
 const SaveLocationsBegin = (status, user) => {
     return {
-        type: 'SAVE_LOCATIONS_BEGIN',
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }
@@ -28,7 +28,7 @@ const SaveLocationsBegin = (status, user) => {
 
 const SaveLocationsFail = (status, user) => {
     return {
-        type: 'SAVE_LOCATIONS_FAIL',
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }
@@ -36,7 +36,7 @@ const SaveLocationsFail = (status, user) => {
 
 const SaveLocationsSuccess = (status, user) => {
     return {
-        type: 'SAVE_LOCATIONS_SUCCESS',
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }
@@ -44,7 +44,7 @@ const SaveLocationsSuccess = (status, user) => {
 
 const SaveLocationsError = (status, user) => {
     return {
-        type: 'SAVE_LOCATIONS_ERROR',
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }
@@ -70,7 +70,7 @@ export const SaveProfile = (data, user) => {
 
 const SaveProfileBegin = (status, user) => {
     return {
-        type: 'SAVE_PROFILE_BEGIN',
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }
@@ -78,7 +78,7 @@ const SaveProfileBegin = (status, user) => {
 
 const SaveProfileFail = (status, user) => {
     return {
-        type: 'SAVE_PROFILE_FAIL',
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }
@@ -86,7 +86,7 @@ const SaveProfileFail = (status, user) => {
 
 const SaveProfileSuccess = (status, user) => {
     return {
-        type: 'SAVE_PROFILE_SUCCESS',
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }
@@ -94,7 +94,7 @@ const SaveProfileSuccess = (status, user) => {
 
 const SaveProfileError = (status, user) => {
     return {
-        type: 'SAVE_PROFILE_ERROR',
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }
@@ -118,7 +118,7 @@ export const SaveEmail = (data, user) => {
 
 const SaveEmailBegin = (status, user) => {
     return {
-        type: 'SAVE_EMAIL_BEGIN',
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }
@@ -126,7 +126,7 @@ const SaveEmailBegin = (status, user) => {
 
 const SaveEmailSuccess = (status, user) => {
     return {
-        type: 'SAVE_EMAIL_SUCCESS',
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }
@@ -134,7 +134,47 @@ const SaveEmailSuccess = (status, user) => {
 
 const SaveEmailError = (status, user) => {
     return {
-        type: 'SAVE_EMAIL_ERROR',
+        type: 'LOGIN_USER_UPDATE',
+        status,
+        user
+    }
+}
+
+export const SaveContact = (data, user) => {
+    return dispatch => {
+        dispatch(SaveContactBegin('save contact loading', user));
+
+        fetch.post('/api/user/settings/contact/save', data)
+        .then(resp => {
+            if (resp.data.status === 'save contact success') {
+                dispatch(SaveContactSuccess(resp.data.status, resp.data.user));
+            } else {
+                dispatch(SaveContactError(resp.data.status, user));
+            }
+        })
+        .catch(err => console.log(err));
+    }
+}
+
+const SaveContactBegin = (status, user) => {
+    return {
+        type: 'LOGIN_USER_UPDATE',
+        status,
+        user
+    }
+}
+
+const SaveContactSuccess = (status, user) => {
+    return {
+        type: 'LOGIN_USER_UPDATE',
+        status,
+        user
+    }
+}
+
+const SaveContactError = (status, user) => {
+    return {
+        type: 'LOGIN_USER_UPDATE',
         status,
         user
     }

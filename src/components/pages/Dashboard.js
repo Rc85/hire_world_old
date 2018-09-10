@@ -1,47 +1,49 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
 import { withRouter } from 'react-router-dom';
-import Response from '../pages/Response';
+import Response from './Response';
 import TabBar from '../utils/TabBar';
 import Loading from '../utils/Loading';
+import PropTypes from 'prop-types';
 
-class Dashboard extends Component {
-    render() {
-        let blank = /^\s$/;
-        let success = /success$/;
-        let fail = /fail$/;
+const Dashboard = props => {
+    let success = /success$/;
+    let fail = /fail$/;
 
-        if (success.test(this.props.user.status) || this.props.user.user) {
-            return(
-                <section id='dashboard' className='main-panel w-100'>
-                    <TabBar items={[
-                        {name: 'Edit', active: this.props.location.pathname === '/dashboard/edit' ? true : false, link: '/dashboard/edit'},
-                        {name: 'Inquiries', active: this.props.location.pathname === '/dashboard/inquiries' ? true : false, link: '/dashboard/inquiries'},
-                        {name: 'Offers', active: this.props.location.pathname === '/dashboard/offers' ? true : false, link: '/dashboard/offers'},
-                        {name: 'Active Jobs', active: this.props.location.pathname === '/dashboard/active-jobs' ? true : false, link: '/dashboard/active-jobs'},
-                        {name: 'Completed', active: this.props.location.pathname === '/dashboard/completed' ? true : false, link: '/dashboard/completed'},
-                        {name: 'Settings', active: this.props.location.pathname === '/dashboard/settings' ? true : false, link: '/dashboard/settings'},
-                    ]} />
+    if (success.test(props.user.status) || props.user.user) {
+        return(
+            <section id='dashboard' className='main-panel w-100'>
+                <TabBar items={[
+                    {name: 'Edit', active: props.location.pathname === '/dashboard/edit' ? true : false, link: '/dashboard/edit'},
+                    {name: 'Inquiries', active: /^\/dashboard\/message(s)?\/Inquire.*/.test(props.location.pathname) ? true : false, link: '/dashboard/messages/Inquire'},
+                    {name: 'Active Jobs', active: /^\/dashboard\/message(s)?\/Active.*/.test(props.location.pathname) ? true : false, link: '/dashboard/messages/Active'},
+                    {name: 'Completed', active: /^\/dashboard\/message(s)?\/Complete.*/.test(props.location.pathname) ? true : false, link: '/dashboard/messages/Complete'},
+                    {name: 'Settings', active: props.location.pathname === '/dashboard/settings' ? true : false, link: '/dashboard/settings'},
+                ]} />
 
-                    {this.props.child}
-                </section>
-            )
-        } else if (fail.test(this.props.user.status)) {
-            return(
-                <Response code={401} header='Unauthorized Access' message={`You're not logged in`} />
-            )
-        } else if (this.props.user.status === '') {
-            return(
-                <Loading size='7x' />
-            )
-        }
+                {props.children}
+            </section>
+        )
+    } else if (fail.test(props.user.status)) {
+        return(
+            <Response code={401} header='Unauthorized Access' message={`You're not logged in`} />
+        )
+    } else if (!props.user.status) {
+        return(
+            <Loading size='7x' />
+        )
+    } else if (!props.user.user) {
+        return(
+            <Response code={500} header='Internal Server Error' message={'An unknown error has occurred. Please contact the administrator.'} />
+        )
+    } else {
+        return(
+            <div></div>
+        )
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.Login
-    }
+Dashboard.propTypes = {
+    user: PropTypes.object.isRequired
 }
 
-export default withRouter(connect(mapStateToProps)(Dashboard));
+export default withRouter(Dashboard);

@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 
-class Alert extends Component {
+export default class Alert extends Component {
     constructor(props) {
         super(props);
     }
@@ -24,11 +23,11 @@ class Alert extends Component {
 
             setTimeout(() => {
                 alert.style.opacity = 0;
-                this.props.unmount();
             }, 2000);
 
             setTimeout(() => {
                 alert.style.display = 'none';
+                this.props.unmount();
             }, 2250);
         }
     }
@@ -37,10 +36,10 @@ class Alert extends Component {
         let alertClass;
         let message;
 
-        if (this.props.status === 'success') {
+        if (/success$/.test(this.props.status)) {
             alertClass = 'alert-success';
             message = 'Updated';
-        } else if (this.props.status === 'error') {
+        } else if (/error$/.test(this.props.status)) {
             alertClass = 'alert-error';
             message = 'An error occurred';
         }
@@ -58,19 +57,17 @@ class Alert extends Component {
 }
 
 Alert.propTypes = {
-    status: PropTypes.oneOf(['success', 'error']).isRequired,
+    status: PropTypes.string.isRequired,
     message: PropTypes.string,
     unmount: PropTypes.func.isRequired,
     left: (props, propName, componentName) => {
-        if (props['left'] && !/^[0-9]*px$/.test(props['left'])) {
+        if (props['left'] && !/^[0-9]*(px|%)$/.test(props['left'])) {
             return new Error(`Invalid value supplied to props '${propName} for component '${componentName}`);
         }
     },
     top: (props, propName, componentName) => {
-        if (props['top'] && !/^[0-9]*px$/.test(props['top'])) {
+        if (props['top'] && !/^[0-9]*(px|%)$/.test(props['top'])) {
             return new Error(`Invalid value supplied to props '${propName} for component '${componentName}`);
         }
     }
 }
-
-export default connect()(Alert);

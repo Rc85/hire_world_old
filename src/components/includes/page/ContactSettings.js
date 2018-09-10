@@ -7,6 +7,7 @@ import { SaveContact } from '../../../actions/SettingsActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 import { UncontrolledTooltip } from 'reactstrap';
+import PropTypes from 'prop-types';
 
 class ContactSettings extends Component {
     constructor(props) {
@@ -24,8 +25,8 @@ class ContactSettings extends Component {
     componentDidMount() {
         if (this.props.user.user) {
             this.setState({
-                phone: this.props.user.user.user_phone,
-                address: this.props.user.user.user_address,
+                phone: this.props.user.user.user_phone || '',
+                address: this.props.user.user.user_address || '',
                 display: this.props.user.user.display_contacts
             });
         }
@@ -85,17 +86,15 @@ class ContactSettings extends Component {
                 </div>
 
                 <div className='text-right'>
-                    <SubmitButton type='button' value='Save' loading={this.props.user.status} onClick={() => this.save()} />
+                    <SubmitButton type='button' value='Save' loading={/loading$/.test(this.props.user.status) ? true : false} onClick={() => this.save()} />
                 </div>
             </div>
         );
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.Login
-    }
+ContactSettings.propTypes = {
+    user: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps)(ContactSettings);
+export default connect()(ContactSettings);

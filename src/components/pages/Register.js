@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { withRouter, Redirect } from 'react-router-dom';
 import RegisterForm from '../includes/page/RegisterForm';
 import Response from '../pages/Response';
@@ -36,10 +35,4 @@ class Register extends Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.Login.user
-    }
-}
-
-export default withRouter(connect(mapStateToProps)(Register));
+export default withRouter(Register);

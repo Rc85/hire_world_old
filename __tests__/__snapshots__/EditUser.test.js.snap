@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Edit user page snapshot 1`] = `
+<MemoryRouter
+  initialEntries={
+    Array [
+      Object {
+        "key": "response",
+        "pathname": "/dashboard/edit",
+      },
+    ]
+  }
+>
+  <withRouter(Dashboard)
+    user={
+      Object {
+        "status": "success",
+        "user": true,
+      }
+    }
+  >
+    <Connect(EditUser)
+      user={
+        Object {
+          "status": "success",
+          "user": true,
+        }
+      }
+    />
+  </withRouter(Dashboard)>
+</MemoryRouter>
+`;

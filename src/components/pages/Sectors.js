@@ -5,7 +5,6 @@ import fetch from 'axios';
 import Loading from '../utils/Loading';
 import Alert from '../utils/Alert';
 
-
 class Sectors extends Component {
     constructor(props) {
         super(props);
@@ -85,10 +84,4 @@ class Sectors extends Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.Login.user
-    }
-}
-
-export default withRouter(connect(mapStateToProps)(Sectors));
+export default withRouter(connect()(Sectors));

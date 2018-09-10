@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
 import NavBar from './NavBar';
-
+import { connect } from 'react-redux';
 
 class TopBar extends Component {
     render() {
@@ -11,10 +11,16 @@ class TopBar extends Component {
                     <NavLink to='/'><h1>M-ploy</h1></NavLink>
                 </div>
 
-                <NavBar />
+                <NavBar user={this.props.user} toggleMenu={() => this.props.toggleMenu()} />
             </section>
         )
     }
 }
 
-export default TopBar;
+const mapStateToProps = state => {
+    return {
+        user: state.Login
+    }
+}
+
+export default connect(mapStateToProps)(TopBar);

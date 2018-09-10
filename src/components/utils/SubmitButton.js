@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 import PropTypes from 'prop-types';
 
-class SubmitButton extends Component {
+export default class SubmitButton extends Component {
     render() {
         return(
             <button type={this.props.type} className='btn btn-primary mr-1' disabled={this.props.loading} onClick={() => this.props.onClick()}>
@@ -19,5 +19,3 @@ SubmitButton.propTypes = {
     loading: PropTypes.bool,
     onClick: PropTypes.func
 }
-
-export default SubmitButton;

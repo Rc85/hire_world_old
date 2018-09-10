@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 import SubmitButton from '../../utils/SubmitButton';
 import fetch from 'axios';
 import Alert from '../../utils/Alert';
-import { connect } from 'react-redux';
 import Loading from '../../utils/Loading';
 
-class ViewUserService extends Component {
+export default class ViewUserService extends Component {
     constructor(props) {
         super(props);
         
@@ -42,6 +41,7 @@ class ViewUserService extends Component {
     }
     
     render() {
+        console.log(this.props.user)
         let inquire, button, status;
 
         if (this.state.status) {
@@ -106,11 +106,3 @@ class ViewUserService extends Component {
 ViewUserService.propTypes = {
     service: PropTypes.object
 }
-
-const mapStateToProps = state => {
-    return {
-        user: state.Login.user
-    }
-}
-
-export default connect(mapStateToProps)(ViewUserService);

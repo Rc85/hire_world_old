@@ -55,7 +55,7 @@ class Login extends Component {
                             </div>
     
                             <div className='text-right'>
-                                <SubmitButton type='submit' loading={!this.props.status ? false : this.props.status} value='Login' onClick={() => {return false}}/>
+                                <SubmitButton type='submit' loading={/loading$/.test(this.props.user.status)} value='Login' onClick={() => {return false}}/>
     
                                 <div className='mt-3'>
                                     Forgot Password
@@ -69,10 +69,4 @@ class Login extends Component {
     }
 }
 
-const mapPropsToState = state => {
-    return {
-        user: state.Login
-    }
-}
-
-export default withRouter(connect(mapPropsToState)(Login));
+export default withRouter(connect()(Login));

@@ -29,12 +29,12 @@ class ServiceForm extends Component {
                 region: this.props.service.service_region,
                 city: this.props.service.service_city
             });
-        } else if (this.props.user.default_location) {
+        } else if (this.props.user && this.props.user.user.default_location) {
             this.setState({
-                worldwide: this.props.user.user_worldwide,
-                country: this.props.user.user_country === null ? '' : this.props.user.user_country,
-                region: this.props.user.user_region === null ? '' : this.props.user.user_region,
-                city: this.props.user.user_city
+                worldwide: this.props.user.user.user_worldwide,
+                country: this.props.user.user.user_country === null ? '' : this.props.user.user.user_country,
+                region: this.props.user.user.user_region === null ? '' : this.props.user.user.user_region,
+                city: this.props.user.user.user_city
             });
         }
     }
@@ -107,13 +107,6 @@ class ServiceForm extends Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        sectors: state.Sectors.sectors,
-        user: state.Login.user
-    }
-}
-
 ServiceForm.propTypes = {
     service: PropTypes.shape({
         service_city: PropTypes.string,
@@ -128,7 +121,14 @@ ServiceForm.propTypes = {
         service_worldwide: PropTypes.bool
     }),
     submit: PropTypes.func.isRequired,
-    cancel: PropTypes.func.isRequired
+    cancel: PropTypes.func.isRequired,
+    user: PropTypes.object
+}
+
+const mapStateToProps = state => {
+    return {
+        sectors: state.Sectors.sectors
+    }
 }
 
 export default connect(mapStateToProps)(ServiceForm);

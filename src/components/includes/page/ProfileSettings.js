@@ -4,6 +4,7 @@ import SlideToggle from '../../utils/SlideToggle';
 import SubmitButton from '../../utils/SubmitButton';
 import Alert from '../../utils/Alert';
 import { SaveProfile } from '../../../actions/SettingsActions';
+import PropTypes from 'prop-types';
 
 class ProfileSettings extends Component {
     constructor(props) {
@@ -87,17 +88,15 @@ class ProfileSettings extends Component {
                 </div>
 
                 <div className='text-right'>
-                    <SubmitButton type='button' value='Save' loading={this.props.user.status} onClick={() => this.save()} />
+                    <SubmitButton type='button' value='Save' loading={/loading$/.test(this.props.user.status)} onClick={() => this.save()} />
                 </div>
             </div>
         )
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.Login
-    }
+ProfileSettings.propTypes = {
+    user: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps)(ProfileSettings);
+export default connect()(ProfileSettings);

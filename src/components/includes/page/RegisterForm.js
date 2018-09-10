@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import SubmitButton from '../../utils/SubmitButton';
-import { withRouter } from 'react-router-dom';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import Alert from '../../utils/Alert';
 import fetch from 'axios';
 
-class RegisterForm extends Component {
+export default class RegisterForm extends Component {
     constructor() {
         super();
 
@@ -32,7 +31,6 @@ class RegisterForm extends Component {
 
         fetch.post('/api/auth/register', this.state)
         .then(resp => {
-            console.log(resp.data);
             if (resp.data.status === 'success') {
                 this.props.callback(resp.data.status, resp.data.statusMessage);
             } else {
@@ -149,5 +147,3 @@ class RegisterForm extends Component {
         )
     }
 }
-
-export default withRouter(RegisterForm);

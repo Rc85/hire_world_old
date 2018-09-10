@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import Alert from '../../utils/Alert';
 import SubmitButton from '../../utils/SubmitButton';
 
-class MessageSender extends Component {
+export default class MessageSender extends Component {
     constructor(props) {
         super(props);
         
         this.state = {
-            subject: '',
             message: '',
             status: '',
             statusMessage: ''
@@ -41,7 +40,7 @@ class MessageSender extends Component {
                 <div className='mb-3'><textarea name='message' rows='10' className='form-control w-100 mb-1' onChange={(e) => this.setState({message: e.target.value})}></textarea></div>
 
                 <div className='text-right'>
-                    <SubmitButton type='button' value='Send' loading={this.state.status === 'Sending' ? true : false} onClick={() => this.props.send(this.state.subject, this.state.message)} />
+                    <SubmitButton type='button' value='Send' loading={this.state.status === 'Sending' ? true : false} onClick={() => this.props.send(this.state.message)} />
                     <button className='btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button>
                 </div>
             </div>
@@ -51,7 +50,11 @@ class MessageSender extends Component {
 
 MessageSender.propTypes = {
     send: PropTypes.func.isRequired,
-    cancel: PropTypes.func.isRequired
+    cancel: PropTypes.func.isRequired,
+    status: PropTypes.string,
+    statusMessage: PropTypes.string,
+    subject: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ])
 }
-
-export default MessageSender;

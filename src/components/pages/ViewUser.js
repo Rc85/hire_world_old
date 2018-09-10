@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
-import UserProfilePic from '../includes/page/UserProfilePic';
 import ViewUserSocialMedia from '../includes/page/ViewUserSocialMedia';
 import ViewUserContacts from '../includes/page/ViewUserContacts';
 import ViewUserProfile from '../includes/page/ViewUserProfile';
 import ViewUserServices from '../includes/page/ViewUserServices';
-import UserReview from '../includes/page/UserReview';
-import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
@@ -48,7 +45,6 @@ class ViewUser extends Component {
         }
 
         if (this.state.user) {
-            avatar = <UserProfilePic url={this.state.user.avatar_url} editable={false}/>;
             contacts = <ViewUserContacts user={this.state.user} />;
             socialMedia = <ViewUserSocialMedia user={this.state.user} />;
             profile = <ViewUserProfile user={this.state.user} />;
@@ -66,8 +62,6 @@ class ViewUser extends Component {
                     <div className='blue-panel shallow rounded'>
                         <div className='row'>
                             <div className='col-3'>
-                                {avatar}
-
                                 {contacts}
                                 {socialMedia}
                             </div>
@@ -85,10 +79,4 @@ class ViewUser extends Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.Login.user
-    }
-}
-
-export default withRouter(connect(mapStateToProps)(ViewUser));
+export default withRouter(ViewUser);

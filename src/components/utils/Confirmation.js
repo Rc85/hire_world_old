@@ -10,6 +10,7 @@ class Confirmation extends Component {
     }
 
     confirmation(bool) {
+        //this.props.option(bool);
         this.props.dispatch(HideConfirmation(bool, this.props.data));
         document.body.style.overflowY = 'auto';
     }
@@ -41,7 +42,10 @@ const mapStateToProps = state => {
 
 Confirmation.propTypes = {
     message: PropTypes.string.isRequired,
-    note: PropTypes.string
+    note: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ])
 }
 
 export default connect(mapStateToProps)(Confirmation);

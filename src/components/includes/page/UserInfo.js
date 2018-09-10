@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { faEdit, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import { EditUser } from '../../../actions/EditUserActions';
 import Loading from '../../utils/Loading';
 import PropTypes from 'prop-types';
@@ -101,4 +100,4 @@ const mapStateToProps = state => {
     }
 }
 
-export default withRouter(connect(mapStateToProps)(UserInfo));
+export default connect(mapStateToProps)(UserInfo);

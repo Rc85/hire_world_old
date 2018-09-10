@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faEdit } from '@fortawesome/free-solid-svg-icons';
-import { ShowConfirmation } from '../../../actions/ConfirmationActions';
+import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 import SlideToggle from '../../utils/SlideToggle';
 import Alert from '../../utils/Alert';
 import ServiceForm from './ServiceForm';
 import PropTypes from 'prop-types';
-import { Tooltip } from 'reactstrap';
 import Loading from '../../utils/Loading';
 import fetch from 'axios';
 
@@ -29,8 +28,13 @@ class Service extends Component {
             if (nextProps.delete && this.props.delete !== nextProps.delete) {
                 if (this.props.id === nextProps.data.id) {
                     this.deleteService();
+                    this.props.dispatch(ResetConfirmation());
                 }
             }
+        }
+
+        if (nextProps.status) {
+            this.setState({status: nextProps.status});
         }
     }
 
@@ -83,15 +87,14 @@ class Service extends Component {
     }
 
     render() {
+        console.log(this.state)
         let status, body, editButton;
         let blankCheck = /^\s*$/;
 
-        if (this.state.status) {
-            if (this.state.status !== 'Loading') {
-                status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} unmount={() => this.setState({status: '', statusMessage: ''})} />
-            } else {
-                status = <Loading size='2x' />
-            }
+        if (this.state.status && this.state.status !== 'Loading') {
+            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} unmount={() => this.setState({status: '', statusMessage: ''})} />
+        } else if (this.state.status && this.state.status === 'Loading') {
+            status = <Loading size='2x' />
         }
 
         let location = <div>
@@ -101,7 +104,7 @@ class Service extends Component {
         </div>
 
         if (this.state.editing) {
-            body = <ServiceForm service={this.props.service} submit={(data) => this.editService(data)} cancel={() => this.setState({editing: false})} />;
+            body = <ServiceForm user={this.props.user} service={this.props.service} submit={(data) => this.editService(data)} cancel={() => this.setState({editing: false})} />;
             editButton = <button className='btn btn-secondary btn-sm service-buttons mr-1' onClick={() => this.setState({editing: false})}>Cancel</button>;
         } else {
             body = <div className='services-body'>
@@ -130,19 +133,18 @@ class Service extends Component {
 
         return(
             <div className='card user-services-details mb-3 rounded'>
+                {status}
                 <h5 className='card-header d-flex justify-content-between'>
                     {this.props.service.service_name}
                     
                     <div>
                         {editButton}
-                        <button id='delete-service-button' className='btn btn-danger btn-sm service-buttons' onClick={this.confirmDelete.bind(this)}><FontAwesomeIcon icon={faTimes} /></button>
-                        <Tooltip placement='right' isOpen={this.state.tooltipOpen} target='delete-service-button' toggle={() => this.setState({tooltipOpen: !this.state.tooltipOpen})}>Delete</Tooltip>
+                        <button id='delete-service-button' className='btn btn-danger btn-sm service-buttons' onClick={this.confirmDelete.bind(this)}><FontAwesomeIcon icon={faTrash} /></button>
                     </div>
                 </h5>
 
                 <div className='card-body position-relative'>
                     {body}
-                    {status}
                 </div>
 
                 <div className='card-footer user-services-footer'>
@@ -174,6 +176,7 @@ Service.propTypes = {
 
 const mapStateToProps = state => {
     return {
+        user: state.Login,
         delete: state.Confirmation.option,
         data: state.Confirmation.data
     }

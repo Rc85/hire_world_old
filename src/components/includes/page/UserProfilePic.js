@@ -100,7 +100,6 @@ UserProfilePic.propTypes = {
 
 const mapStateToProps = state => {
     return {
-        user: state.Login.user,
         delete: state.Confirmation.option,
         data: state.Confirmation.data
     }

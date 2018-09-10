@@ -8,6 +8,7 @@ import Alert from '../../utils/Alert';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 import { UncontrolledTooltip } from 'reactstrap';
+import PropTypes from 'prop-types';
 
 class LocationSettings extends Component {
     constructor(props) {
@@ -108,17 +109,15 @@ class LocationSettings extends Component {
                         <div className='ml-1'><SlideToggle status={this.state.defaultLocation ? 'Active' : 'Inactive'} onClick={() => this.setState({defaultLocation: !this.state.defaultLocation})} /></div>
                     </div>
 
-                    <SubmitButton type='button' value='Save' onClick={() => this.save()} loading={this.props.user.status} />
+                    <SubmitButton type='button' value='Save' loading={/loading$/.test(this.props.user.status)} onClick={() => this.save()} />
                 </div>
             </div>
         )
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.Login
-    }
+LocationSettings.propTypes = {
+    user: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps)(LocationSettings);
+export default connect()(LocationSettings);

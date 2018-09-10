@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ServiceForm from './ServiceForm';
 import Alert from '../../utils/Alert';
 
-class AddService extends Component {
+export default class AddService extends Component {
     constructor(props) {
         super(props);
 
@@ -56,5 +56,3 @@ AddService.propTypes = {
     add: PropTypes.func.isRequired,
     remove: PropTypes.func.isRequired
 }
-
-export default AddService;

@@ -4,8 +4,9 @@ export const LoginUser = (data) => {
     return dispatch => {
         dispatch(LoginBegin('Logging in'));
 
-        fetch.post('/api/auth/login', data)
+        return fetch.post('/api/auth/login', data)
         .then(resp => {
+            console.log(resp);
             if (resp.data.status === 'Login success') {
                 dispatch(LoginSuccess(resp.data.status, resp.data.user));
                 location.herf = '/dashboard';

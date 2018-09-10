@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 import PropTypes from 'prop-types';
 
-class Loading extends Component {
+export default class Loading extends Component {
     render() {
         return(
             <div className='loading-container' style={this.props.background ? {background: `rgba(0, 0, 0, 0.5)`} : {background: 'transparent'}}>
@@ -21,11 +21,9 @@ Loading.defaultProps = {
 
 Loading.propTypes = {
     size: (props) => {
-        if (!/^(([2-9]|10)x|xs|sm|lg)$/.test(props['size'])) {
+        if (!/^(([1-9]|10)x|xs|sm|lg)$/.test(props['size'])) {
             return new Error('Incorrect size input (eg. - "2x", "3x", "lg")');
         }
     },
     background: PropTypes.bool
 }
-
-export default Loading;

@@ -1,24 +1,34 @@
 const app = require('express').Router();
 const db = require('../db');
-const moment = require('moment');
 
 app.post('/api/get/messages', async(req, resp) => {
     if (req.session.user) {
+
+        console.log(req.body)
         let queryString;
 
-        if (req.body.user === 'User') {
-            queryString = `SELECT * FROM messages LEFT JOIN jobs ON job_id = belongs_to_job WHERE job_user = $1 AND message_parent IS NULL ORDER BY new_message_status = 'New', new_message_status = 'Unread', message_date DESC`;
-        } else {
-            queryString = `SELECT * FROM messages LEFT JOIN jobs ON job_id = belongs_to_job WHERE message_sender = $1 AND message_parent IS NULL ORDER BY new_message_status = 'New', new_message_status = 'Unread', message_date DESC`;
+        let deleted = await db.query(`SELECT deleted_job FROM deleted_jobs WHERE deleted_by = $1`, [req.session.user.username]);
+        let deletedArray = [];
+
+        for (let row of deleted.rows) {
+            deletedArray.push(row.deleted_job);
         }
 
-        await db.query(queryString, [req.session.user.username])
+        if (req.body.user === 'User') {
+            queryString = `SELECT * FROM messages
+            LEFT JOIN jobs ON job_id = belongs_to_job
+            WHERE job_user = $1 AND is_reply IS NOT TRUE AND job_stage = $2 AND NOT (job_id = ANY($3))
+            ORDER BY message_status = 'New', message_status = 'Unread', message_date DESC`;
+        } else {
+            queryString = `SELECT * FROM messages
+            LEFT JOIN jobs ON job_id = belongs_to_job
+            WHERE job_client = $1 AND is_reply IS NOT TRUE AND job_stage = $2 AND NOT (job_id = ANY($3))
+            ORDER BY message_status = 'New', message_status = 'Unread', message_date DESC`;
+        }
+
+        await db.query(queryString, [req.session.user.username, req.body.stage, deletedArray])
         .then(result => {
             if (result !== undefined) {
-                for (let i in result.rows) {
-                    result.rows[i].message_date = moment(result.rows[i].message_date).fromNow();
-                }
-                
                 resp.send({status: 'success', messages: result.rows});
             }
         })
@@ -31,56 +41,30 @@ app.post('/api/get/messages', async(req, resp) => {
 
 app.post('/api/get/message', async(req, resp) => {
     if (req.session.user) {
-        let authorized = await db.query(`SELECT message_id FROM messages WHERE (message_recipient = $1 OR message_sender = $1) AND message_id = $2`, [req.session.user.username, req.body.id]);
+        let authorized = await db.query(`SELECT job_client, job_user FROM jobs WHERE (job_client = $1 OR job_user = $1) AND job_id = $2`, [req.session.user.username, req.body.id]);
 
         if (authorized !== undefined && authorized.rows.length === 1) {
-            await db.query(`SELECT jobs.*, messages.*, user_services.service_name, user_services.service_detail, users.avatar_url FROM messages
-            LEFT JOIN jobs ON job_id = belongs_to_job
-            LEFT JOIN user_services ON service_id = job_service_id
-            LEFT JOIN users ON username = message_sender
-            WHERE message_id = $1 OR message_parent = $1
-            ORDER BY message_date DESC`, [req.body.id])
-            .then(result => {
-                console.log(result);
-                if (result !== undefined && result.rows.length > 0) {
-                    for (let i in result.rows) {
-                        result.rows[i].message_date = moment(result.rows[i].message_date).fromNow();
-                        result.rows[i].job_created_date = moment(result.rows[i].job_created_date).fromNow();
-                    }
+            await db.query(`UPDATE jobs SET job_status = '' WHERE job_id = $1`, [req.body.id]);
 
+            await db.query(`SELECT messages.*, users.avatar_url, jobs.job_stage FROM messages
+            LEFT JOIN users ON username = message_sender
+            LEFT JOIN jobs ON job_id = belongs_to_job
+            WHERE belongs_to_job = $1
+            AND job_stage = $2
+            AND message_status != 'Deleted'
+            ORDER BY message_date DESC
+            LIMIT 10 OFFSET $3`, [req.body.id, req.body.stage, req.body.offset])
+            .then(result => {
+                if (result && result.rows.length > 0) {
                     resp.send({status: 'success', messages: result.rows});
                 } else {
-                    resp.send({status: 'error', statusMessage: 'Cannot retrieve the conversation with the other user'});
+                    resp.send({status: 'fetch error', statusMessage: 'No more message to fetch'});
                 }
             })
             .catch(err => {
                 console.log(err);
-                resp.send({status: 'access error', statusMessage: 'An error occurred when trying to retrieve this message'});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
-
-            /* if (originalMessage !== undefined && originalMessage.rows.length === 1) {
-                originalMessage.rows[0].message_date = moment(originalMessage.rows[0].message_date).fromNow();
-                originalMessage.rows[0].job_created_date = moment(originalMessage.rows[0].job_created_date).fromNow();
-
-                await db.query(`SELECT messages.*, users.avatar_url FROM messages LEFT JOIN users ON username = message_sender WHERE message_parent = $1 ORDER BY message_date DESC`, [originalMessage.rows[0].message_id])
-                .then(result => {
-                    if (result !== undefined) {
-                        if (result.rows.length > 0) {
-                            for (let i in result.rows) {
-                                result.rows[i].message_date = moment(result.rows[i].message_date).fromNow();
-                            }
-                        }
-
-                        resp.send({status: 'success', message: originalMessage.rows[0], replies: result.rows});
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                    resp.send({status: 'error', statusMessage: 'Cannot get the message conversation'});
-                });
-            } else {
-                resp.send({status: 'access error', statusMessage: 'The requested message does not exist'});
-            } */
         } else {
             resp.send({status: 'access error', statusMessage: `You're not authorized to view this message`});
         }

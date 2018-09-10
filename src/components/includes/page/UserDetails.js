@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { EditUser } from '../../../actions/EditUserActions';
 import Loading from '../../utils/Loading';
+import PropTypes from 'prop-types';
 
 class UserDetails extends Component {
     constructor(props) {
@@ -23,7 +23,7 @@ class UserDetails extends Component {
     }
 
     submitBio() {
-        this.props.dispatch(EditUser('user_bio', this.state.value, this.props.user))
+        this.props.dispatch(EditUser('user_bio', this.state.value, this.props.user.user))
     }
 
     render() {
@@ -55,10 +55,10 @@ class UserDetails extends Component {
             icon = <FontAwesomeIcon icon={faEdit} />
         }
 
-        if (this.props.editStatus === 'edit user_bio loading') {
+        if (this.props.user.status === 'edit user_bio loading') {
             bio = <Loading size='3x' />
         } else {
-            bio = this.props.user.user_bio;
+            bio = this.props.user.user.user_bio;
         }
 
         return(
@@ -71,17 +71,14 @@ class UserDetails extends Component {
 
                 {editor}
 
-                {this.props.user.user_bio ? <div id='user-bio' className='grey-panel rounded mt-3'>{bio}</div> : ''}
+                {this.props.user.user.user_bio ? <div id='user-bio' className='grey-panel rounded mt-3'>{bio}</div> : ''}
             </section>
         )
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.Login.user,
-        editStatus: state.Login.status
-    }
+UserDetails.propTypes = {
+    user: PropTypes.object.isRequired
 }
 
-export default withRouter(connect(mapStateToProps)(UserDetails));
+export default connect()(UserDetails);

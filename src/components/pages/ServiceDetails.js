@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { withRouter, NavLink } from 'react-router-dom';
 import Loading from '../utils/Loading';
 import fetch from 'axios';
@@ -29,7 +28,7 @@ class ServiceDetails extends Component {
     }
 
     render() {
-        let location;
+        let location, inquire;
 
         if (this.state.service) {
             if (this.state.service.service_worldwide) {
@@ -41,6 +40,20 @@ class ServiceDetails extends Component {
                     {this.state.service.service_city}
                 </div>
             }
+        }
+
+        if (this.props.user) {
+            inquire = <div>
+                <h5>Inquire</h5>
+    
+                <div className='service-inquire'>
+                    <textarea name='inquiry' className='form-control w-100 mb-1' rows='10' placeholder='Describe briefly what you need regarding this service'></textarea>
+    
+                    <div className='text-right'>
+                        <button className='btn btn-primary'>Submit</button>
+                    </div>
+                </div>
+            </div>
         }
 
         if (this.state.status === 'error') {
@@ -86,15 +99,7 @@ class ServiceDetails extends Component {
                                     {location}
                                 </div>
 
-                                <h5>Inquire</h5>
-
-                                <div className='service-inquire'>
-                                    <textarea name='inquiry' className='form-control w-100 mb-1' rows='10' placeholder='Describe briefly what you need regarding this service'></textarea>
-
-                                    <div className='text-right'>
-                                        <button className='btn btn-primary'>Submit</button>
-                                    </div>
-                                </div>
+                                {inquire}
                             </div>
                         </div>
 
@@ -108,10 +113,4 @@ class ServiceDetails extends Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.Login.user
-    }
-}
-
-export default withRouter(connect(mapStateToProps)(ServiceDetails));
+export default withRouter(ServiceDetails);

@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import UserInfo from './UserInfo';
-import UserDetails from './UserDetails';
-import UserServices from './UserServices';
-import UserProfilePic from './UserProfilePic';
+import UserInfo from '../includes/page/UserInfo';
+import UserDetails from '../includes/page/UserDetails';
+import UserServices from '../includes/page/UserServices';
+import UserProfilePic from '../includes/page/UserProfilePic';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import { GetServices } from '../../../actions/FetchActions';
+import { GetServices } from '../../actions/FetchActions';
 import PropTypes from 'prop-types';
 
 class EditUser extends Component {
@@ -16,7 +15,7 @@ class EditUser extends Component {
     render() {
         let userTitleStatus, userEducationStatus, userGithubStatus, userTwitterStatus, userFacebookStatus, userLinkedInStatus, userWebsiteStatus, userInstagramStatus, fullName, businessName, email, phone, address;
 
-        switch(this.props.status) {
+        switch(this.props.user.status) {
             case 'edit user_title loading': userTitleStatus = 'loading'; break;
             case 'edit user_title success': userTitleStatus = 'success'; break;
             case 'edit user_title error': userTitleStatus = 'error'; break;
@@ -43,36 +42,36 @@ class EditUser extends Component {
             case 'edit user_instagram error': userInstagramStatus = 'error'; break;
         }
         
-        if (this.props.user.display_fullname) {
-            fullName = <div className='d-flex align-items-start'><h1 className='mr-1'>{this.props.user.user_firstname} {this.props.user.user_lastname}</h1> <h4><span className='badge badge-secondary'>{this.props.user.username}</span></h4></div>;
+        if (this.props.user.user.display_fullname) {
+            fullName = <div className='d-flex align-items-start'><h1 className='mr-1'>{this.props.user.user.user_firstname} {this.props.user.user.user_lastname}</h1> <h4><span className='badge badge-secondary'>{this.props.user.user.username}</span></h4></div>;
         } else {
-            fullName = <h1>{this.props.user.username}</h1>;
+            fullName = <h1>{this.props.user.user.username}</h1>;
         }
 
-        if (this.props.user.display_business_name) {
-            businessName = <h3>{this.props.user.business_name}</h3>;
+        if (this.props.user.user.display_business_name) {
+            businessName = <h3>{this.props.user.user.business_name}</h3>;
         }
 
-        if (!this.props.user.hide_email) {
+        if (!this.props.user.user.hide_email) {
             email = <div className='user-info mb-2'>
                 <div>
                     <h6>Email</h6>
                 </div>
 
                 <div className='ml-3 mt-3'>
-                    {this.props.user.user_email}
+                    {this.props.user.user.user_email}
                 </div>
             </div>;
         }
 
-        if (this.props.user.display_contacts) {
+        if (this.props.user.user.display_contacts) {
             phone = <div className='user-info mb-2'>
                 <div>
                     <h6>Phone Number:</h6>
                 </div>
 
                 <div className='ml-3 mt-3'>
-                    {this.props.user.user_phone}
+                    {this.props.user.user.user_phone}
                 </div>
             </div>;
             address = <div className='user-info mb-2'>
@@ -81,7 +80,7 @@ class EditUser extends Component {
                 </div>
 
                 <div className='user-address ml-3 mt-3'>
-                    {this.props.user.user_address}
+                    {this.props.user.user.user_address}
                 </div>
             </div>;
         }
@@ -90,7 +89,7 @@ class EditUser extends Component {
             <section id='edit-user' className='blue-panel shallow three-rounded'>
                 <div className='row'>
                     <div className='col-3'>
-                        <UserProfilePic url={this.props.user.avatar_url} editable={true} />
+                        <UserProfilePic url={this.props.user.user.avatar_url} editable={true} />
 
                         <hr/>
 
@@ -101,21 +100,21 @@ class EditUser extends Component {
                             <hr/>
                             {address}
                             <hr/>
-                            <UserInfo label='Title' value={this.props.user.user_title} type='user_title' status={userTitleStatus} />
+                            <UserInfo label='Title' value={this.props.user.user.user_title} type='user_title' status={userTitleStatus} />
                             <hr/>
-                            <UserInfo label='Education' value={this.props.user.user_education} type='user_education' status={userEducationStatus} />
+                            <UserInfo label='Education' value={this.props.user.user.user_education} type='user_education' status={userEducationStatus} />
                             <hr/>
-                            <UserInfo label='Github' value={this.props.user.user_github} type='user_github' status={userGithubStatus} />
+                            <UserInfo label='Github' value={this.props.user.user.user_github} type='user_github' status={userGithubStatus} />
                             <hr/>
-                            <UserInfo label='Twitter' value={this.props.user.user_twitter} type='user_twitter' status={userTwitterStatus} />
+                            <UserInfo label='Twitter' value={this.props.user.user.user_twitter} type='user_twitter' status={userTwitterStatus} />
                             <hr/>
-                            <UserInfo label='Facebook' value={this.props.user.user_facebook} type='user_facebook' status={userFacebookStatus} />
+                            <UserInfo label='Facebook' value={this.props.user.user.user_facebook} type='user_facebook' status={userFacebookStatus} />
                             <hr/>
-                            <UserInfo label='Instagram' value={this.props.user.user_instagram} type='user_instagram' status={userInstagramStatus} />
+                            <UserInfo label='Instagram' value={this.props.user.user.user_instagram} type='user_instagram' status={userInstagramStatus} />
                             <hr/>
-                            <UserInfo label='LinkedIn' value={this.props.user.user_linkedin} type='user_linkedin' status={userLinkedInStatus} />
+                            <UserInfo label='LinkedIn' value={this.props.user.user.user_linkedin} type='user_linkedin' status={userLinkedInStatus} />
                             <hr/>
-                            <UserInfo label='Website' value={this.props.user.user_website} type='user_website' status={userWebsiteStatus} />
+                            <UserInfo label='Website' value={this.props.user.user.user_website} type='user_website' status={userWebsiteStatus} />
                         </div>
                     </div>
                     
@@ -125,11 +124,11 @@ class EditUser extends Component {
 
                         <hr/>
 
-                        <UserDetails />
+                        <UserDetails user={this.props.user} />
 
                         <hr/>
 
-                        <UserServices />
+                        <UserServices user={this.props.user} />
                     </div>
                 </div>
             </section>
@@ -138,14 +137,8 @@ class EditUser extends Component {
 }
 
 EditUser.propTypes = {
+    user: PropTypes.object.isRequired,
     status: PropTypes.string
 }
 
-const mapPropsTostate = state => {
-    return {
-        user: state.Login.user,
-        status: state.Login.status
-    }
-}
-
-export default withRouter(connect(mapPropsTostate)(EditUser));
+export default connect()(EditUser);

@@ -7,23 +7,24 @@ import EmailSettings from '../includes/page/EmailSettings';
 import PasswordSettings from '../includes/page/PasswordSettings';
 import ContactSettings from '../includes/page/ContactSettings';
 import { ResetLoginStatus } from '../../actions/LoginActions';
+import PropTypes from 'prop-types';
 
 class UserSettings extends Component {
     componentWillUnmount() {
-        this.props.dispatch(ResetLoginStatus(this.props.user));
+        this.props.dispatch(ResetLoginStatus(this.props.user.user));
     }
 
     render() {
         return(
             <div className='blue-panel shallow three-rounded'>
-                <LocationSettings />
+                <LocationSettings user={this.props.user} />
 
                 <hr/>
 
                 <div className='d-flex justify-content-between mb-3'>
-                    <ProfileSettings />
+                    <ProfileSettings user={this.props.user} />
 
-                    <ContactSettings />
+                    <ContactSettings user={this.props.user} />
                 </div>
 
                 <hr/>
@@ -31,17 +32,15 @@ class UserSettings extends Component {
                 <div className='d-flex justify-content-between mb-3'>
                     <PasswordSettings />
 
-                    <EmailSettings />
+                    <EmailSettings user={this.props.user} />
                 </div>
             </div>
         )
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.Login.user
-    }
+UserSettings.propTypes = {
+    user: PropTypes.object.isRequired
 }
 
-export default withRouter(connect(mapStateToProps)(UserSettings));
+export default withRouter(connect()(UserSettings));

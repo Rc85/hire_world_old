@@ -30,9 +30,9 @@ class PasswordSettings extends Component {
         } else if (!charCheck.test(this.state.newPassword) || !charCheck.test(this.state.confirmPassword)) {
             this.setState({status: 'error', statusMessage: 'Password too short'});
         } else {
-            this.setState({status: 'loading'});
-
             if (this.state.newPassword === this.state.confirmPassword) {
+                this.setState({status: 'Loading'});
+
                 fetch.post('/api/user/settings/password/change', this.state)
                 .then(resp => {
                     this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
@@ -48,7 +48,7 @@ class PasswordSettings extends Component {
 
         if (this.state.status === 'Loading') {
             status = <Loading size='3x' />;
-        } else {
+        } else if (this.state.status === 'success' || this.state.status === 'error') {
             status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />;
         }
 
@@ -87,7 +87,7 @@ class PasswordSettings extends Component {
                 </div>
 
                 <div className='text-right'>
-                    <SubmitButton type='button' value='Save' onClick={() => this.save()} loading={this.state.status} />
+                    <SubmitButton type='button' value='Save' onClick={() => this.save()} loading={this.state.status === 'Loading' ? true : false} />
                 </div>
             </div>
         )

@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Alert from '../../utils/Alert';
 import SubmitButton from '../../utils/SubmitButton';
 import { SaveEmail } from '../../../actions/SettingsActions';
+import PropTypes from 'prop-types';
 
 class EmailSettings extends Component {
     constructor(props) {
@@ -90,17 +91,15 @@ class EmailSettings extends Component {
                 </div>
 
                 <div className='text-right'>
-                    <SubmitButton type='button' value='Save' loading={this.state.status} onClick={() => this.save()} />
+                    <SubmitButton type='button' value='Save' loading={/loading$/.test(this.state.status)} onClick={() => this.save()} />
                 </div>
             </div>
         )
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.Login
-    }
+EmailSettings.propTypes = {
+    user: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps)(EmailSettings);
+export default connect()(EmailSettings);

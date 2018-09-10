@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 let sliderContainer, slider, sliderCheckbox;
 
-class SlideToggle extends Component {
+export default class SlideToggle extends Component {
     componentDidMount() {
         if (this.props.status === 'Active') {
             sliderContainer.style.background = '#14FF14';
@@ -46,5 +46,3 @@ SlideToggle.propTypes = {
     onClick: PropTypes.func.isRequired,
     inactiveColor: PropTypes.string
 }
-
-export default SlideToggle;

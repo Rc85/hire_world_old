@@ -3,6 +3,7 @@
     padding: 10px;
     color: #000;
     position: relative;
+    white-space: pre-line;
 
     &:before {
         width: 20px;
@@ -38,4 +39,10 @@
 
 .message-row, .message-row-reverse {
     width: 90%;
+}
+
+.offer-detail-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
 }

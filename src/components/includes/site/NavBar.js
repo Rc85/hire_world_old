@@ -1,16 +1,11 @@
 import React, { Component } from 'react';
-import { NavLink, withRouter } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes, faUserCog, faSignOutAlt, faUsersCog, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
-import { ToggleMenu } from '../../../actions/TogglerActions';
 import { connect } from 'react-redux';
 import { LogoutUser } from '../../../actions/LoginActions';
 
 class NavBar extends Component {
-    toggleMenu() {
-        this.props.dispatch(ToggleMenu('TOGGLE_MAIN_MENU', 'main-menu', !this.props.menuState));
-    }
-
     handleLogout() {
         this.props.dispatch(LogoutUser());
     }
@@ -20,13 +15,13 @@ class NavBar extends Component {
         let closeIcon = <FontAwesomeIcon icon={faTimes} size='2x' />;
         let admin, dashboard, login, register, logout;
 
-        if (this.props.user && this.props.user.user_level) {
+        if (this.props.user.user && this.props.user.user.user_level) {
             admin = <div className='nav-item' title='Admin'>
-                {this.props.user.user_level > 6 ? <NavLink to='/admin/overview'><FontAwesomeIcon icon={faUsersCog} size='2x' /></NavLink> : ''} 
+                {this.props.user.user.user_level > 6 ? <NavLink to='/admin/overview'><FontAwesomeIcon icon={faUsersCog} size='2x' /></NavLink> : ''} 
             </div>
         }
 
-        if (this.props.user) {
+        if (this.props.user.user) {
             dashboard = <div className='nav-item' title='Dashboard'><NavLink to='/dashboard/edit'><FontAwesomeIcon icon={faUserCog} size='2x' /></NavLink></div>;
             logout = <div className='nav-item' title='Logout' onClick={this.handleLogout.bind(this)}><FontAwesomeIcon icon={faSignOutAlt} size='2x' /></div>;
         } else {
@@ -43,7 +38,7 @@ class NavBar extends Component {
                     {admin}
                     {logout}
 
-                    <div className='nav-item' onClick={this.toggleMenu.bind(this)}>
+                    <div id='browse-menu-button' className='nav-item' onClick={() => this.props.toggleMenu()}>
                         <span>{this.props.menuState ? closeIcon : menuIcon}</span>
                     </div>
                 </div>
@@ -54,9 +49,8 @@ class NavBar extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        menuState: state.ToggleMenu.status,
-        user: state.Login.user
+        menuState: state.ToggleMenu.status
     }
 }
 
-export default withRouter(connect(mapStateToProps)(NavBar));
+export default connect(mapStateToProps)(NavBar);

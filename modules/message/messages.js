@@ -88,27 +88,6 @@ app.post('/api/message/reply', async(req, resp) => {
     }
 });
 
-app.post('/api/message/close', async(req, resp) => {
-    if (req.session.user) {
-        let authorized = await db.query(`SELECT job_user FROM jobs WHERE job_id = $1`, [req.body.job_id]);
-
-        if (req.session.user.username === authorized.rows[0].job_user) {
-            await db.query(`UPDATE jobs SET job_status = 'Closed' WHERE job_id = $1 RETURNING *`, [req.body.job_id])
-            .then(result => {
-                if (result && result.rows.length === 1) {
-                    resp.send({status: 'success', statusMessage: 'Inquiry closed', job: result.rows[0]});
-                } else {
-                    resp.send({status: 'error', statusMessage: 'The inquiry does not exist'});
-                }
-            })
-            .catch(err => {
-                console.log(err);
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
-            })
-        }
-    }
-});
-
 app.post('/api/message/delete', async(req, resp) => {
     if (req.session.user) {
         let authorized = await db.query(`SELECT message_sender FROM messages WHERE message_id = $1`, [req.body.message_id]);

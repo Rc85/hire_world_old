@@ -30,7 +30,7 @@ export default class MessageSender extends Component {
         }
 
         return (
-            <div>
+            <div className='mb-3'>
                 {status}
                 <div className='mb-3'>
                     <div><label>Subject:</label></div>

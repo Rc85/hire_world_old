@@ -8,7 +8,7 @@ const ViewUserContacts = user => {
     let email, phone, address, education;
 
     if (user.user.user_email) {
-        email = <div className='mb-3'><FontAwesomeIcon icon={faEnvelope} size='lg' className='view-user-icon' /> <a href={`mailto: ${user.user.user_email}`}>{user.user.user_email}</a></div>
+        email = <div className='mb-3'><FontAwesomeIcon icon={faEnvelope} size='lg' className='view-user-icon' /> <NavLink to={`mailto: ${user.user.user_email}`}>{user.user.user_email}</NavLink></div>
     }
 
     if (user.user.user_phone) {

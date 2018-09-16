@@ -22,7 +22,7 @@ class NavBar extends Component {
         }
 
         if (this.props.user.user) {
-            dashboard = <div className='nav-item' title='Dashboard'><NavLink to='/dashboard/edit'><FontAwesomeIcon icon={faUserCog} size='2x' /></NavLink></div>;
+            dashboard = <div className='nav-item' title='Dashboard'><NavLink to='/dashboard/listings'><FontAwesomeIcon icon={faUserCog} size='2x' /></NavLink></div>;
             logout = <div className='nav-item' title='Logout' onClick={this.handleLogout.bind(this)}><FontAwesomeIcon icon={faSignOutAlt} size='2x' /></div>;
         } else {
             login = <div className='nav-item' title='Login'><NavLink to='/account/login'><FontAwesomeIcon icon={faSignInAlt} size='2x' /></NavLink></div>;

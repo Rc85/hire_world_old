@@ -4,7 +4,7 @@ const moment = require('moment');
 
 app.get('/api/get/services', async(req, resp) => {
     if (req.session.user) {
-        await db.query(`SELECT * FROM user_services WHERE service_provided_by = $1 AND service_status != 'Deleted' ORDER BY service_id`, [req.session.user.username])
+        await db.query(`SELECT * FROM user_services WHERE service_provided_by = $1 AND service_status != 'Deleted' ORDER BY service_created_on DESC`, [req.session.user.username])
         .then(result => {
             if (result !== undefined) {
                 resp.send({status: 'get services success', services: result.rows});

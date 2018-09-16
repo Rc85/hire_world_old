@@ -6,12 +6,6 @@
     position: relative;
 }
 
-.user-services-footer {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
-
 .user-services-details {
     white-space: pre-line;
 }
@@ -25,4 +19,12 @@
 .bordered-container {
     padding: 20px;
     border: 1px solid $theme-bg;
+}
+
+#user-services a {
+    color: #000;
+
+    &:hover {
+        text-decoration: underline;
+    }
 }

@@ -78,7 +78,7 @@ class LocationSettings extends Component {
                         <UncontrolledTooltip target='location-tip' placement='top'>For online business or products that you can ship internationally</UncontrolledTooltip>
                     </div>
 
-                    <span>Worldwide:</span>
+                    <span>Worldwide/Online:</span>
 
                     <div className='ml-1'><SlideToggle status={this.state.worldwide ? 'Active' : 'Inactive'} onClick={() => this.setState({
                         worldwide: !this.state.worldwide,

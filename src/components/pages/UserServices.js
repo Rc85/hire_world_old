@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import AddService from './AddService';
-import Service from './Service';
+import AddService from '../includes/page/AddService';
+import Service from '../includes/page/Service';
 import fetch from 'axios';
-import Alert from '../../utils/Alert';
+import Alert from '../utils/Alert';
 import PropTypes from 'prop-types';
 
 class UserServices extends Component {
@@ -108,9 +109,9 @@ class UserServices extends Component {
         }
 
         return(
-            <section id='user-services'>
+            <section id='user-services' className='blue-panel shallow three-rounded'>
                 <div className='d-flex justify-content-between mb-3'>
-                    <h6>Services</h6>
+                    <h6>Listings</h6>
 
                     {button}
                 </div>
@@ -132,4 +133,4 @@ UserServices.propTypes = {
     user: PropTypes.object.isRequired
 }
 
-export default connect()(UserServices);
+export default withRouter(connect()(UserServices));

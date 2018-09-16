@@ -81,7 +81,7 @@ export default class ViewUserService extends Component {
                     <div className='view-user-service-header'>
                         <h4>{this.props.service.service_name}</h4>
                         <div className='d-flex'>
-                            <a href={`/sectors/${this.props.service.service_listed_under}`}><div className='badge badge-dark'>{this.props.service.service_listed_under}</div></a>
+                            <NavLink to={`/sectors/${this.props.service.service_listed_under}`}><div className='badge badge-dark'>{this.props.service.service_listed_under}</div></NavLink>
                         </div>
                     </div>
 

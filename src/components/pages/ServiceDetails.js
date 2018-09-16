@@ -3,6 +3,8 @@ import { withRouter, NavLink } from 'react-router-dom';
 import Loading from '../utils/Loading';
 import fetch from 'axios';
 import Response from '../pages/Response';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationTriangle, faHeart } from '@fortawesome/free-solid-svg-icons';
 
 class ServiceDetails extends Component {
     constructor(props) {
@@ -71,7 +73,6 @@ class ServiceDetails extends Component {
                         <div className='service-details-header'>
                             <div className='d-inline-flex'>
                                 <h2>{this.state.service.service_name}</h2>
-                                <NavLink to='/sectors/Artists' className='ml-1'><span className='badge badge-light'>{this.state.service.service_listed_under}</span></NavLink>
                             </div>
                             
                             <span>Renewed {this.state.service.service_created_on}</span>
@@ -87,24 +88,28 @@ class ServiceDetails extends Component {
                             </div>
 
                             <div className='col-4'>
-                                <h5>Service Provider</h5>
+                                <h5>Listing Owner</h5>
 
                                 <div className='mb-3'>
                                     <NavLink to={`/user/${this.state.service.service_provided_by}`}>{this.state.service.service_provided_by}</NavLink>
                                 </div>
                                 
-                                <h5>Service Location</h5>
+                                <h5>Listing Location</h5>
 
                                 <div className='mb-3'>
                                     {location}
                                 </div>
+
+                                <h5>Listed Under</h5>
+
+                                <div className='mb-3'><NavLink to='/sectors/Artists' className='ml-1'>{this.state.service.service_listed_under}</NavLink></div>
 
                                 {inquire}
                             </div>
                         </div>
 
                         <div className='service-footer'>
-                            <small>Save | Report</small>
+                            <FontAwesomeIcon icon={faHeart} size='sm' /> <FontAwesomeIcon icon={faExclamationTriangle} size='sm' />
                         </div>
                     </div>
                 </section>

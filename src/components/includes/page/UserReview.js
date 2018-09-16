@@ -27,7 +27,7 @@ class UserReview extends Component {
                             <div className='review-body'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Suscipit ut tempore error eaque saepe totam repudiandae pariatur libero maxime nisi excepturi et doloribus quaerat vero itaque asperiores porro, consequatur voluptatibus.</div>
 
                             <div className='review-footer'>
-                                <a href='/review/report'>Report</a>
+                                <NavLink to='/review/report'>Report</NavLink>
                             </div>
                         </div>
                     </div>
@@ -50,7 +50,7 @@ class UserReview extends Component {
                             <div className='review-body'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Suscipit ut tempore error eaque saepe totam repudiandae pariatur libero maxime nisi excepturi et doloribus quaerat vero itaque asperiores porro, consequatur voluptatibus.</div>
 
                             <div className='review-footer'>
-                                <a href='/review/report'>Report</a>
+                                <NavLink to='/review/report'>Report</NavLink>
                             </div>
                         </div>
                     </div>

@@ -59,10 +59,12 @@ class Service extends Component {
         let cityCheck = /^[a-zA-Z]*$/;
         data['id'] = this.props.id;
 
-        if ((blankCheck.test(data.name) || !data.name) || !data.listUnder || (!data.worldwide && blankCheck.test(data.country))) {
+        if ((blankCheck.test(data.service_name) || !data.service_name) || !data.service_listed_under || (!data.service_worldwide && blankCheck.test(data.service_country))) {
             this.setState({status: 'error', statusMessage: 'Required fields cannot be blank'});
-        } else if (!blankCheck.test(data.city) && !cityCheck.test(data.city)) {
+        } else if (!blankCheck.test(data.service_city) && !cityCheck.test(data.service_city)) {
             this.setState({status: 'error', statusMessage: 'Invalid city name'});
+        } else if (!data.service_negotiable && (blankCheck.test(data.service_price_rate) && blankCheck.test(data.service_price_rate_type) || (!data.service_price_rate && !data.service_price_rate_type))) {
+            this.setState({status: 'error', statusMessage: 'Please enter your rate'});
         } else {
             this.props.edit(data);
             this.setState({editing: false});
@@ -89,50 +91,37 @@ class Service extends Component {
     render() {
         console.log(this.state)
         let status, body, editButton;
-        let blankCheck = /^\s*$/;
 
         if (this.state.status && this.state.status !== 'Loading') {
-            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} unmount={() => this.setState({status: '', statusMessage: ''})} />
+            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} unmount={() => this.setState({status: '', statusMessage: ''})} top={window.pageYOffset + 'px'} />
         } else if (this.state.status && this.state.status === 'Loading') {
             status = <Loading size='2x' />
         }
-
-        let location = <div>
-            {blankCheck.test(this.props.service.service_city) ? '' : <span>{this.props.service.service_city}, </span>}
-            {blankCheck.test(this.props.service.service_region) ? '' : <span>{this.props.service.service_region}, </span>}
-            <span>{this.props.service.service_country}</span>
-        </div>
 
         if (this.state.editing) {
             body = <ServiceForm user={this.props.user} service={this.props.service} submit={(data) => this.editService(data)} cancel={() => this.setState({editing: false})} />;
             editButton = <button className='btn btn-secondary btn-sm service-buttons mr-1' onClick={() => this.setState({editing: false})}>Cancel</button>;
         } else {
-            body = <div className='services-body'>
-                <small>Renewed {this.props.service.service_created_on}</small>
-                <div className='mb-3'>
-                    <label>Details:</label>
-                    <div className='grey-panel rounded user-services-details'>
-                        {this.props.service.service_detail}
-                    </div>
-                </div>
-
-                <div className='d-flex justify-content-between'>
-                    <div className='w-35'>
-                        <label>Listed Under:</label>
-                        <div className='grey-panel rounded'>{this.props.service.service_listed_under}</div>
-                    </div>
-    
-                    <div className='w-60'>
-                        <label>Location</label>
-                        <div className='grey-panel rounded'>{this.props.service.service_worldwide ? <span>World-wide</span> :  location}</div>
-                    </div>
-                </div>
-            </div>
             editButton = <button className='btn btn-info btn-sm service-buttons mr-1' onClick={() => this.setState({editing: true})}><FontAwesomeIcon icon={faEdit} /></button>;
         }
 
         return(
-            <div className='card user-services-details mb-3 rounded'>
+            <div className='grey-panel user-services-details mb-3 rounded'>
+                <div className='d-flex-between-center'>
+                    <div><NavLink to={`/service/${this.props.service.service_id}`}>{this.props.service.service_name}</NavLink></div>
+
+                    <div className='d-flex-between-center'>
+                        <div className='mr-1'>{this.props.service.service_created_on}</div>
+                        {editButton}
+                        <button id='delete-service-button' className='btn btn-danger btn-sm service-buttons mr-1' onClick={this.confirmDelete.bind(this)}><FontAwesomeIcon icon={faTrash} /></button>
+                        <SlideToggle id={this.props.id} status={this.state.available} onClick={() => this.changeAvailability()} inactiveColor='#ED463D' />
+                    </div>
+                </div>
+
+                {status}
+                {body}
+            </div>
+            /* <div className='card user-services-details mb-3 rounded'>
                 {status}
                 <h5 className='card-header d-flex justify-content-between'>
                     {this.props.service.service_name}
@@ -150,7 +139,7 @@ class Service extends Component {
                 <div className='card-footer user-services-footer'>
                     <SlideToggle id={this.props.id} status={this.state.available} onClick={() => this.changeAvailability()} inactiveColor='#ED463D' />
                 </div>
-            </div>
+            </div> */
         )
     }
 }

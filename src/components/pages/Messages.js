@@ -131,13 +131,13 @@ class Messages extends Component {
     deleteMessage(id, index) {
         this.setState({status: 'Loading'});
 
-        fetch.post('/api/jobs/delete', {id: id})
+        fetch.post('/api/jobs/delete', {ids: [id]})
         .then(resp => {
             if (resp.data.status === 'success') {
                 let messages = this.state.messages;
                 messages.splice(index, 1);
 
-                this.setState({messages: messages});
+                this.setState({status: '', messages: messages});
             } else {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
@@ -156,13 +156,14 @@ class Messages extends Component {
         
         if (this.state.messages) {
             messages = this.state.messages.map((message, i) => {
+                console.log(message)
                 return <div key={i} className='user-message mb-3'>
                     <div className='w-5'><input type='checkbox' name='select-message' id={message.job_id} className='select-message-checkbox' onChange={(e) => this.selectMessage(e.target)}/></div>
                     <div className='w-5'>{message.job_id}</div>
-                    <div className='user-message-subject w-40'><NavLink to={`/dashboard/message/${this.props.match.params.stage}/${message.job_id}/details`}>{message.job_subject}</NavLink> {message.job_user === this.props.user.user.username && message.job_status === 'New' ? <span className='badge badge-success'>{message.job_status}</span> : ''}</div>
+                    <div className='user-message-subject w-35'><NavLink to={`/dashboard/message/${this.props.match.params.stage}/${message.job_id}/details`}>{message.job_subject}</NavLink> {message.job_user === this.props.user.user.username && message.job_is_new ? <span className='badge badge-success'>{message.job_status}</span> : ''}</div>
                     <div className='w-20'>{moment(message.message_date).fromNow()}</div>
-                    <div className='w-20'>{this.props.user.user.user_type === 'User' ? message.message_sender : message.message_recipient}</div>
-                    <div className='w-5'>{message.job_status === 'Closed' || message.job_status === 'Declined' ? <div className='badge badge-danger'>{message.job_status}</div> : ''}</div>
+                    <div className='w-20'>{message.message_sender === this.props.user.user.username ? message.message_recipient : message.message_sender}</div>
+                    <div className='w-10'>{message.job_status === 'Closed' ? <span className='badge badge-danger'>{message.job_status}</span> : ''}{message.job_status === 'Abandoning' ? <span className='badge badge-warning'>{message.job_status}</span> : ''}{message.job_stage === 'Abandoned' ? <span className='badge badge-danger'>{message.job_stage}</span> : ''}{message.job_stage === 'Incomplete' ? <span className='badge badge-warning'>{message.job_stage}</span> : ''}</div>
                     <div className='w-5 text-right'><button className='btn btn-secondary btn-sm' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to delete this message?', false, {action: 'delete message', id: message.job_id, index: i}))}><FontAwesomeIcon icon={faTrash} /></button></div>
                 </div>
             });
@@ -174,10 +175,10 @@ class Messages extends Component {
                 <div className='user-message-header mb-3'>
                     <div className='w-5'><input type='checkbox' name='select-message' id='select-all-checkbox' onClick={(e) => this.selectAllMessage(e.target)} /></div>
                     <div className='w-5'>ID</div>
-                    <div className='w-40'>Subject</div>
+                    <div className='w-35'>Subject</div>
                     <div className='w-20'>Last Message</div>
                     <div className='w-20'>{this.props.user.user.user_type === 'User' ? 'From' : 'To'}</div>
-                    <div className='w-5'></div>
+                    <div className='w-10'></div>
                     <div className='w-5 text-right'>
                         <button className='btn btn-secondary btn-sm' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to delete the selected messages?', false, {action: 'delete selected'}))}><FontAwesomeIcon icon={faTrash} /></button>
                     </div>

@@ -21,7 +21,7 @@ app.post('/api/offer/submit', (req, resp) => {
 
                         let messageBody = `An offer has been created and is awaiting response.`
 
-                        let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, is_reply) VALUES ($1, $2, $3, $4) RETURNING *`, [req.body.job_id, messageBody, 'Update', true])
+                        let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, is_reply, message_recipient) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [req.body.job_id, messageBody, 'Update', true, req.body.recipient])
 
                         await client.query('COMMIT')
                         .then(() => {

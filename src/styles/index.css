@@ -408,6 +408,18 @@
   align-items: flex-start;
 }
 
+.d-flex-between-center {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.d-flex-between-end {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
 .d-flex-center-start {
   display: flex;
   justify-content: center;
@@ -560,6 +572,14 @@
 
 .keep-format {
   white-space: pre-line;
+}
+
+.badge-dark a {
+  color: #FFF;
+}
+
+.badge-light a {
+  color: #000;
 }
 
 #browse {
@@ -880,12 +900,6 @@
   position: relative;
 }
 
-.user-services-footer {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
 .user-services-details {
   white-space: pre-line;
 }
@@ -899,6 +913,13 @@
 .bordered-container {
   padding: 20px;
   border: 1px solid #C4C4C4;
+}
+
+#user-services a {
+  color: #000;
+}
+#user-services a:hover {
+  text-decoration: underline;
 }
 
 .settings-row {

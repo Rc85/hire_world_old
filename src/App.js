@@ -80,6 +80,7 @@ class App extends Component {
 					<Switch>
 						<Route exact path='/' component={Pages.Main} />
 						<Route exact path='/view' component={Pages.ViewUser} />
+						<Route exact path='/dashboard/listings' render={() => <Pages.Dashboard user={this.props.user}><Pages.UserServices user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/settings' render={() => <Pages.Dashboard user={this.props.user}><Pages.UserSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/messages/:stage' render={() => <Pages.Dashboard user={this.props.user}><Pages.Messages user={this.props.user} /></Pages.Dashboard>} />} />

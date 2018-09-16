@@ -31,10 +31,7 @@ app.post('/api/jobs/delete', (req, resp) => {
                             deletedArray.push(row.deleted_job);
                         }
 
-                        console.log(deletedArray)
-
                         let jobs = await client.query(`SELECT * FROM jobs WHERE job_stage = $1 AND NOT (job_id = ANY($2)) ORDER BY job_created_date DESC`, [req.body.stage, deletedArray]);
-                        console.log(jobs);
 
                         await client.query('COMMIT')
                         .then(() => {
@@ -173,6 +170,131 @@ app.post('/api/job/complete/:decision', (req, resp) => {
                     resp.send({status: 'error', statusMessage: 'An error occurred'});
                 });
             }
+        });
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
+    }
+});
+
+app.post('/api/job/close', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
+
+            (async() => {
+                try {
+                    await client.query(`BEGIN`);
+
+                    let authorized = await client.query(`SELECT job_user FROM jobs WHERE job_id = $1`, [req.body.job_id]);
+
+                    if (req.session.user.username === authorized.rows[0].job_user) {
+                        await client.query(`UPDATE jobs SET job_status = 'Closed' WHERE job_id = $1`, [req.body.job_id])
+                        await client.query(`UPDATE messages SET message_status = '' WHERE belongs_to_job = $1`, [req.body.job_id]);
+
+                        let job = await client.query(`SELECT * FROM jobs
+                        LEFT JOIN user_services ON service_id = job_service_id
+                        WHERE job_id = $1`, [req.body.job_id]);
+
+                        await client.query(`COMMIT`)
+                        .then(() => {
+                            resp.send({status: 'success', statusMessage: 'Inquiry closed', job: job.rows[0]});
+                        });
+                    } else {
+                        throw new Error(`You're not authorized`);
+                    }
+                } catch (e) {
+                    await client.query(`ROLLBACK`);
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                console.log(err);
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
+        });
+    }
+});
+
+app.post('/api/job/abandon', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
+
+            (async() => {
+                try {
+                    await client.query(`BEGIN`);
+
+                    let authorized = await client.query(`SELECT job_user FROM jobs WHERE job_id = $1`, [req.body.job_id]);
+
+                    if (req.session.user.username === authorized.rows[0].job_user) {
+                        let job = await client.query(`UPDATE jobs SET job_status = $1, job_abandoned_date = current_timestamp WHERE job_id = $2 RETURNING *`, ['Abandoning', req.body.job_id]);
+
+                        let messageBody = `The other party has decided to abandon this job.
+                        
+                        REASON: ${req.body.reason}
+                        
+                        Should you agree to abandon this job, it will not negatively impact the other party's reputation. If you do not decide within 3 weeks, the job will automatically be deemed as abandoned and will negatively impact the other party's reputation.`;
+
+                        let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [req.body.job_id, messageBody, req.body.recipient, 'Abandonment', true])
+
+                        await client.query(`COMMIT`)
+                        .then(() => {
+                            resp.send({status: 'success', message: message.rows[0], job: job.rows[0]});
+                        });
+                    } else {
+                        throw new Error(`You're not authorized`);
+                    }
+                } catch (e) {
+                    await client.query(`ROLLBACK`);
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                console.log(err);
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
+        });
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
+    }
+});
+
+app.post('/api/job/abandon/:decision', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
+
+            (async() => {
+                try {
+                    let job;
+
+                    await client.query('BEGIN');
+                    
+                    if (req.params.decision === 'approve') {
+                        job = await client.query(`UPDATE jobs SET job_stage = 'Incomplete', job_status = '' WHERE job_id = $1 RETURNING *`, [req.body.job_id]);
+                    } else if (req.params.decision === 'decline') {
+                        job = await client.query(`UPDATE jobs SET job_stage = 'Abandoned', job_status = '' WHERE job_id = $1 RETURNING *`, [req.body.job_id]);
+                    }
+
+                    await client.query(`COMMIT`)
+                    .then(() => {
+                        resp.send({status: 'success', job: job.rows[0]});
+                    });
+                } catch (e) {
+                    await client.query(`ROLLBACK`);
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                console.log(err);
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
         });
     } else {
         resp.send({status: 'error', statusMessage: `You're not logged in`});

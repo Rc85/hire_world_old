@@ -1,17 +1,12 @@
 import React, { Component } from 'react';
 import UserInfo from '../includes/page/UserInfo';
 import UserDetails from '../includes/page/UserDetails';
-import UserServices from '../includes/page/UserServices';
+//import UserServices from '../includes/page/UserServices';
 import UserProfilePic from '../includes/page/UserProfilePic';
 import { connect } from 'react-redux';
-import { GetServices } from '../../actions/FetchActions';
 import PropTypes from 'prop-types';
 
 class EditUser extends Component {
-    componentDidMount() {
-        this.props.dispatch(GetServices());
-    }
-
     render() {
         let userTitleStatus, userEducationStatus, userGithubStatus, userTwitterStatus, userFacebookStatus, userLinkedInStatus, userWebsiteStatus, userInstagramStatus, fullName, businessName, email, phone, address;
 
@@ -61,6 +56,8 @@ class EditUser extends Component {
                 <div className='ml-3 mt-3'>
                     {this.props.user.user.user_email}
                 </div>
+
+                <hr/>
             </div>;
         }
 
@@ -73,6 +70,8 @@ class EditUser extends Component {
                 <div className='ml-3 mt-3'>
                     {this.props.user.user.user_phone}
                 </div>
+
+                <hr/>
             </div>;
             address = <div className='user-info mb-2'>
                 <div>
@@ -82,6 +81,8 @@ class EditUser extends Component {
                 <div className='user-address ml-3 mt-3'>
                     {this.props.user.user.user_address}
                 </div>
+
+                <hr/>
             </div>;
         }
 
@@ -95,11 +96,8 @@ class EditUser extends Component {
 
                         <div id='user-profile'>
                             {email}
-                            <hr/>
                             {phone}
-                            <hr/>
                             {address}
-                            <hr/>
                             <UserInfo label='Title' value={this.props.user.user.user_title} type='user_title' status={userTitleStatus} />
                             <hr/>
                             <UserInfo label='Education' value={this.props.user.user.user_education} type='user_education' status={userEducationStatus} />
@@ -126,9 +124,9 @@ class EditUser extends Component {
 
                         <UserDetails user={this.props.user} />
 
-                        <hr/>
+                        {/* <hr/>
 
-                        <UserServices user={this.props.user} />
+                        <UserServices user={this.props.user} /> */}
                     </div>
                 </div>
             </section>

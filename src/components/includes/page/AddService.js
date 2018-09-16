@@ -27,6 +27,13 @@ export default class AddService extends Component {
                 status: 'error',
                 statusMessage: 'Invalid city name'
             });
+        } else if (!data.negotiable) {
+            if (blankCheck.test(data.price_rate) && blankCheck.test(data.priceType)) {
+                this.setState({
+                    status: 'error',
+                    statusMessage: 'Price is required'
+                });
+            }
         } else {
             this.props.add(data)
         }

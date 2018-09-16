@@ -18,7 +18,13 @@ class ConfirmMessage extends Component {
 
         let buttons = <div className='mb-3'>
             <button className='btn btn-success mr-1' onClick={() => this.props.approve()}>Approve</button>
-            <button className='btn btn-danger' onClick={() => this.setState({decline: true})}>Decline</button>
+            <button className='btn btn-danger' onClick={() => {
+                if (this.props.prompt) {
+                    this.setState({decline: true});
+                } else {
+                    this.props.decline();
+                }
+            }}>Decline</button>
         </div>;
 
         if (this.props.job.job_user_complete === false && this.props.job.job_client_complete === false) {
@@ -43,7 +49,7 @@ class ConfirmMessage extends Component {
             <div className={`alert alert-${alertClass} mb-3 p-2`} role='alert'>
                 <small className='text-muted'>Sent {moment(this.props.message.message_date).from()} {this.props.message.message_modified_date ? <span>(Resent {moment(this.props.message.message_modified_date).fromNow()})</span> : ''}</small>
 
-                <div className='text-center mb-3'><strong>{this.props.message.message_body}</strong></div>
+                <div className='text-center mb-3 keep-format'><strong>{this.props.message.message_body}</strong></div>
 
                 <hr/>
 

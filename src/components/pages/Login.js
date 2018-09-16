@@ -31,7 +31,7 @@ class Login extends Component {
 
         if (this.props.user.user) {
             return(
-                <Redirect to='/dashboard/edit' />
+                <Redirect to='/dashboard/listings' />
             )
         } else {
             return(

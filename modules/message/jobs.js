@@ -1,9 +1,10 @@
 const app = require('express').Router();
 const db = require('../db');
+const cryptojs = require('crypto-js');
 
 app.post('/api/jobs/delete', (req, resp) => {
     if (req.session.user) {
-        db.connect(async(err, client, done) => {
+        db.connect((err, client, done) => {
             if (err) console.log(err);
 
             (async() => {
@@ -57,7 +58,7 @@ app.post('/api/jobs/delete', (req, resp) => {
 
 app.post('/api/job/complete', (req, resp) => {
     if (req.session.user) {
-        db.connect(async(err, client, done) => {
+        db.connect((err, client, done) => {
             if (err) console.log(err);
 
             (async() => {
@@ -66,12 +67,12 @@ app.post('/api/job/complete', (req, resp) => {
 
                     let authorized = await client.query(`SELECT job_user, job_user_complete, job_client_complete FROM jobs WHERE job_id = $1`, [req.body.job_id]);
 
-                    if (authorized.rows[0].job_user === req.session.user.username && !authorized.rows[0].job_user_complete) {
+                    if (authorized.rows[0].job_user === req.session.user.username && !authorized.rows[0].job_user_complete) { 
                         let job = await client.query(`UPDATE jobs SET job_user_complete = $1, job_client_complete = $2 WHERE job_id = $3 RETURNING *`, [true, null, req.body.job_id]);
 
                         let messageBody = `The other party has requested approval to complete this job.`;
 
-                        let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, message_recipient, is_reply) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (belongs_to_job, message_body, message_type) WHERE message_type = 'Confirmation' AND message_body = 'The other party has requested approval to complete this job.' DO UPDATE SET message_modified_date = current_timestamp RETURNING *`, [req.body.job_id, messageBody, 'Confirmation', req.body.recipient, true])
+                        let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, message_recipient, is_reply) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (belongs_to_job, message_body, message_type) WHERE message_type = 'Confirmation' AND message_body = 'The other party has requested approval to complete this job.' DO UPDATE SET message_modified_date = current_timestamp RETURNING *`, [req.body.job_id, messageBody, 'Confirmation', req.body.recipient, true]);
                         
                         await client.query('COMMIT')
                         .then(() => {
@@ -99,19 +100,27 @@ app.post('/api/job/complete', (req, resp) => {
 
 app.post('/api/job/complete/:decision', (req, resp) => {
     if (req.session.user) {
-        db.connect(async(err, client, done) => {
+        db.connect((err, client, done) => {
             if (err) console.log(err);
+            console.log(req.body)
 
             if (req.params.decision === 'approve') {
                 (async() => {
                     try {
                         await client.query('BEGIN');
 
-                        let authorized = await client.query(`SELECT job_client FROM jobs WHERE job_id = $1`, [req.body.job_id]);
+                        let authorized = await client.query(`SELECT job_user, job_client FROM jobs WHERE job_id = $1`, [req.body.job_id]);
 
                         if (req.session.user.username === authorized.rows[0].job_client) {
-                            await client.query(`UPDATE jobs SET job_client_complete = $1 WHERE job_id = $2`, [true, req.body.job_id]);
-                            await client.query(`UPDATE jobs SET job_stage = 'Complete' WHERE job_id = $1`, [req.body.job_id]);
+                            await client.query(`UPDATE jobs SET job_client_complete = $1, job_stage = 'Complete', job_status = 'Complete' WHERE job_id = $2`, [true, req.body.job_id]);
+
+                            let encryptUserToken = cryptojs.AES.encrypt(authorized.rows[0].job_user, 'authorize authentic review');
+                            let encryptClientToken = cryptojs.AES.encrypt(authorized.rows[0].job_client, 'authorize authentic review');
+                            let userToken = encodeURIComponent(encryptUserToken.toString());
+                            let clientToken = encodeURIComponent(encryptClientToken.toString());
+
+                            await client.query(`INSERT INTO user_reviews (reviewer, reviewing, review_token, review_job_id) VALUES ($1, $2, $3, $4)`, [authorized.rows[0].job_user, authorized.rows[0].job_client, userToken, req.body.job_id]);
+                            await client.query(`INSERT INTO user_reviews (reviewer, reviewing, review_token, review_job_id) VALUES ($1, $2, $3, $4)`, [authorized.rows[0].job_client, authorized.rows[0].job_user, clientToken, req.body.job_id]);
 
                             let messageBody = `Your request has been approved. Please take the time to review the other party.`;
 
@@ -275,9 +284,9 @@ app.post('/api/job/abandon/:decision', (req, resp) => {
                     await client.query('BEGIN');
                     
                     if (req.params.decision === 'approve') {
-                        job = await client.query(`UPDATE jobs SET job_stage = 'Incomplete', job_status = '' WHERE job_id = $1 RETURNING *`, [req.body.job_id]);
+                        job = await client.query(`UPDATE jobs SET job_stage = 'Incomplete', job_status = 'Incomplete' WHERE job_id = $1 RETURNING *`, [req.body.job_id]);
                     } else if (req.params.decision === 'decline') {
-                        job = await client.query(`UPDATE jobs SET job_stage = 'Abandoned', job_status = '' WHERE job_id = $1 RETURNING *`, [req.body.job_id]);
+                        job = await client.query(`UPDATE jobs SET job_stage = 'Abandoned', job_status = 'Abandoned' WHERE job_id = $1 RETURNING *`, [req.body.job_id]);
                     }
 
                     await client.query(`COMMIT`)

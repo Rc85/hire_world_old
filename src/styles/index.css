@@ -444,6 +444,22 @@
   align-items: center;
 }
 
+.d-flex-end-center {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.d-flex-center {
+  display: flex;
+  align-items: center;
+}
+
+.d-flex-end {
+  display: flex;
+  align-items: flex-end;
+}
+
 #sector-name {
   width: 75px;
 }
@@ -566,6 +582,11 @@
   color: #000;
 }
 
+.dark-grey-panel {
+  background: #6F6F6F;
+  padding: 10px;
+}
+
 .btn-sm {
   min-width: 35px;
 }
@@ -580,6 +601,25 @@
 
 .badge-light a {
   color: #000;
+}
+
+.border-blue {
+  border: 1px solid #2F496E;
+}
+
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+.bordered-container {
+  padding: 20px;
+  border: 1px solid #C4C4C4;
+}
+
+.dark-bordered-container {
+  padding: 20px;
+  border: 1px solid #6F6F6F;
 }
 
 #browse {
@@ -633,22 +673,6 @@
 
 .user-address {
   white-space: pre-line;
-}
-
-.user-message, .user-message-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.user-message-subject {
-  text-overflow: ellipsis;
-  overflow-x: hidden;
-  white-space: nowrap;
-}
-
-.user-message-header {
-  font-weight: bold;
 }
 
 .loading-container {
@@ -743,6 +767,27 @@
   flex-wrap: wrap;
 }
 
+.user-message-subject {
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  white-space: nowrap;
+}
+
+.user-message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-weight: bold;
+}
+
+.review-star {
+  color: #6F6F6F;
+  cursor: pointer;
+}
+.review-star:hover, .review-star.active {
+  color: #ffc107;
+}
+
 #navbar-container {
   width: 20%;
 }
@@ -758,9 +803,24 @@
   cursor: pointer;
 }
 
-.form-row {
+.reg-account-type {
+  width: 30%;
+  padding: 10px;
+  cursor: pointer;
+  background: #C4C4C4;
+  border-radius: 0.25rem;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+.reg-account-type.active {
+  background: #2988BC;
+}
+
+.reg-price-color {
+  color: lime;
+  font-weight: bold;
+  font-size: 1.4rem;
 }
 
 .response {
@@ -769,6 +829,52 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.review-button-tooltip-container {
+  padding-bottom: 5px;
+  position: absolute;
+  bottom: calc(100% + 2.5px);
+  right: calc(-100% - 5px);
+}
+
+.review-button-tooltip {
+  background: #000;
+  border-radius: 0.2rem;
+  padding: 10px;
+  white-space: nowrap;
+}
+
+.review-button-tooltip-arrow {
+  position: absolute;
+  bottom: -5px;
+  left: calc(50% - 5px);
+  width: 10px;
+  height: 10px;
+  transform: rotate(45deg);
+  background: #000;
+}
+
+.review-button-container {
+  position: relative;
+}
+
+.input-group-text.seperator {
+  border-radius: 0 !important;
+}
+
+.no-border-radius-right {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.no-border-radius {
+  border-radius: 0 !important;
+}
+
+.no-border-radius-left {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
 }
 
 .list-form {
@@ -864,6 +970,10 @@
   color: #ED463D;
 }
 
+.user-info {
+  position: relative;
+}
+
 .profile-pic {
   border-radius: 100%;
   position: relative;
@@ -910,11 +1020,6 @@
   padding: 20px;
 }
 
-.bordered-container {
-  padding: 20px;
-  border: 1px solid #C4C4C4;
-}
-
 #user-services a {
   color: #000;
 }
@@ -942,27 +1047,41 @@
 #view-user-services {
   color: #000;
 }
+#view-user-services h5 {
+  color: #FFF;
+}
+#view-user-services a {
+  color: #000;
+}
+#view-user-services a:hover {
+  text-decoration: underline;
+}
 
 .view-user-icon {
   color: #ED463D;
 }
 
-.view-user-info {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
+#user-reviews {
+  color: #000;
+}
+#user-reviews a {
+  color: #2988BC;
+}
+#user-reviews a:hover {
+  text-decoration: underline;
 }
 
-.view-user-service-header, .view-user-service-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.user-review-star {
+  color: #6F6F6F;
 }
 
-.view-user-address {
-  white-space: pre-line;
-  border-left: 3px solid #ED463D;
-  padding-left: 10px;
+.user-review-star.active {
+  color: #ffc107;
+}
+
+.review-buttons {
+  color: #2988BC;
+  cursor: pointer;
 }
 
 @font-face {
@@ -986,11 +1105,6 @@ body {
   min-height: 100vh;
   display: flex;
   overflow-x: hidden;
-}
-
-#root {
-  width: 100%;
-  min-height: 100%;
 }
 
 a {

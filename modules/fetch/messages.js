@@ -12,17 +12,11 @@ app.post('/api/get/messages', async(req, resp) => {
             deletedArray.push(row.deleted_job);
         }
 
-        if (req.body.user === 'User') {
-            queryString = `SELECT * FROM messages
-            LEFT JOIN jobs ON job_id = belongs_to_job
-            WHERE job_user = $1 AND is_reply IS NOT TRUE ${req.body.stage === 'Abandoned' ? `AND job_stage IN ($2, 'Incomplete')` : `AND job_stage = $2`} AND NOT (job_id = ANY($3))
-            ORDER BY message_status = 'New' DESC, message_date DESC`;
-        } else {
-            queryString = `SELECT * FROM messages
-            LEFT JOIN jobs ON job_id = belongs_to_job
-            WHERE job_client = $1 AND is_reply IS NOT TRUE ${req.body.stage === 'Abandoned' ? `AND job_stage IN ($2, 'Incomplete')` : `AND job_stage = $2`} AND NOT (job_id = ANY($3))
-            ORDER BY message_status = 'New' DESC, message_date DESC`;
-        }
+        queryString = `SELECT * FROM messages
+        LEFT JOIN jobs ON job_id = belongs_to_job
+        LEFT JOIN (SELECT * FROM user_reviews WHERE reviewer = $1) rt ON review_job_id = job_id
+        WHERE (message_recipient = $1 OR message_sender = $1) AND is_reply IS NOT TRUE ${req.body.stage === 'Abandoned' ? `AND job_stage IN ($2, 'Incomplete')` : `AND job_stage = $2`} AND NOT (job_id = ANY($3))
+        ORDER BY message_status = 'New' DESC, message_date DESC`;
 
         await db.query(queryString, [req.session.user.username, req.body.stage, deletedArray])
         .then(result => {
@@ -44,8 +38,9 @@ app.post('/api/get/message', async(req, resp) => {
         if (authorized !== undefined && authorized.rows.length === 1) {
             await db.query(`UPDATE jobs SET job_is_new = false WHERE job_id = $1`, [req.body.job_id]);
 
-            await db.query(`SELECT messages.*, users.avatar_url, jobs.job_stage FROM messages
+            await db.query(`SELECT messages.*, user_profiles.avatar_url, jobs.job_stage FROM messages
             LEFT JOIN users ON username = message_sender
+            LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
             LEFT JOIN jobs ON job_id = belongs_to_job
             WHERE belongs_to_job = $1
             ${req.body.stage === 'Abandoned' ? `AND job_stage IN ('Abandoned', 'Incomplete')` : `AND job_stage = $2`}

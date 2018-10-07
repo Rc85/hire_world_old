@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
+import { NavLink } from 'react-router-dom';
 
 class UserMessage extends Component {
     constructor(props) {
@@ -45,7 +46,10 @@ class UserMessage extends Component {
 
         if (this.props.job.job_stage !== 'Complete') {
             editButton = <button className='btn btn-info btn-sm mr-1' onClick={() => this.setState({editing: true})}><FontAwesomeIcon icon={faEdit} /></button>;
-            deleteButton = <button className='btn btn-danger btn-sm' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to delete this message?', 'This action cannot be reverted', {action: 'delete message', id: this.props.message.message_id}))}><FontAwesomeIcon icon={faTrash} /></button>;
+
+            if (this.props.message.is_reply) {
+                deleteButton = <button className='btn btn-danger btn-sm' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to delete this message?', 'This action cannot be reverted', {action: 'delete message', id: this.props.message.message_id}))}><FontAwesomeIcon icon={faTrash} /></button>;
+            }
         }
 
         if (this.props.user.username === this.props.message.message_sender) {
@@ -70,7 +74,7 @@ class UserMessage extends Component {
             <div className={`${this.props.rowClass} mb-3`}>
                 <div className='col-2'>
                     <div className={`profile-pic w-75 ${this.props.profilePicAlignment}`} style={{background: `url(${this.props.message.avatar_url}) center top / cover`}}></div>
-                    <div className={`w-75 text-center ${this.props.profilePicAlignment}`}>{this.props.message.message_sender}</div>
+                    <div className={`w-75 text-center ${this.props.profilePicAlignment}`}><NavLink to={`/user/${this.props.message.message_sender}`}>{this.props.message.message_sender}</NavLink></div>
                     <div></div>
                 </div>
                 <div className='col-10'>

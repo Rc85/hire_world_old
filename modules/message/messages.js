@@ -9,18 +9,18 @@ app.post('/api/message/submit', (req, resp) => {
             let blankCheck = /^\s*$/;
 
             if (blankCheck.test(req.body.subject) || blankCheck.test(req.body.message)) {
-                resp.send({status: 'error', statusMessage: 'Subject or message cannot be blank'});
+                resp.send({status: 'send error', statusMessage: 'Subject or message cannot be blank'});
             } else {
                 (async() => {
                     try {
                         await client.query('BEGIN');
 
-                        let job = await client.query(`INSERT INTO jobs (job_client, job_service_id, job_user, job_subject) VALUES ($1, $2, $3, $4) RETURNING job_id`, [req.session.user.username, req.body.service.service_id, req.body.service.service_provided_by, req.body.subject]);
+                        let job = await client.query(`INSERT INTO jobs (job_client, job_service_id, job_user, job_subject) VALUES ($1, $2, $3, $4) RETURNING job_id`, [req.session.user.username, req.body.listing.listing_id, req.body.listing.listing_user, req.body.subject]);
                         await client.query(`INSERT INTO messages (belongs_to_job, message_sender, message_recipient, message_body) VALUES ($1, $2, $3, $4)`,
-                        [job.rows[0].job_id, req.session.user.username, req.body.service.service_provided_by, req.body.message]);
+                        [job.rows[0].job_id, req.session.user.username, req.body.listing.listing_user, req.body.message]);
                         await client.query('COMMIT')
                         .then(() => {
-                            resp.send({status: 'success', statusMessage: 'Message sent'});
+                            resp.send({status: 'send success', statusMessage: 'Message sent'});
                         })
                     } catch (e) {
                         await client.query('ROLLBACK');
@@ -32,9 +32,9 @@ app.post('/api/message/submit', (req, resp) => {
                 .catch(err => {
                     console.log(err);
                     if (err.code === '23505') {
-                        resp.send({status: 'error', statusMessage: 'You already have an active inquiry'});
+                        resp.send({status: 'send error', statusMessage: 'You already have an active inquiry'});
                     } else {
-                        resp.send({status: 'error', statusMessage: 'Fail to send message'});
+                        resp.send({status: 'send error', statusMessage: 'Fail to send message'});
                     }
                 })
             }
@@ -63,14 +63,14 @@ app.post('/api/message/reply', async(req, resp) => {
                             let newMessage = await client.query(`INSERT INTO messages (belongs_to_job, message_sender, message_recipient, message_body, is_reply) VALUES ($1, $2, $3, $4, $5) RETURNING message_id`,
                             [req.body.job_id, req.session.user.username, req.body.recipient, req.body.message, true])
                             
-                            let reply = await client.query(`SELECT messages.*, users.avatar_url FROM messages LEFT JOIN users ON username = message_sender WHERE message_id = $1`, [newMessage.rows[0].message_id]);
+                            let reply = await client.query(`SELECT messages.*, user_profiles.avatar_url FROM messages LEFT JOIN users ON username = message_sender LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id WHERE message_id = $1`, [newMessage.rows[0].message_id]);
 
                             await client.query('COMMIT')
                             .then(() => {
-                                resp.send({status: 'success', statusMessage: 'Message sent', reply: reply.rows[0]});
+                                resp.send({status: 'send success', statusMessage: 'Message sent', reply: reply.rows[0]});
                             })
                         } else {
-                            throw 'Job is closed';
+                            resp.send({status: 'error', statusMessage: 'Job is closed'});
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
@@ -81,7 +81,7 @@ app.post('/api/message/reply', async(req, resp) => {
                 })()
                 .catch(err => {
                     console.log(err);
-                    resp.send({status: 'error', statusMessage: 'Fail to send reply'});
+                    resp.send({status: 'send error', statusMessage: 'Fail to send reply'});
                 });
             }
         });
@@ -124,14 +124,14 @@ app.post('/api/message/edit', (req, resp) => {
                     if (req.session.user.username === authorized.rows[0].message_sender) {
                         await client.query(`UPDATE messages SET message_body = $1, message_modified_date = current_timestamp WHERE message_id = $2`, [req.body.message, req.body.message_id]);
                         
-                        let message = await client.query(`SELECT messages.*, users.avatar_url FROM messages LEFT JOIN users ON users.username = messages.message_sender WHERE message_id = $1`, [req.body.message_id]);
+                        let message = await client.query(`SELECT messages.*, user_profiles.avatar_url FROM messages LEFT JOIN users ON users.username = messages.message_sender LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id WHERE message_id = $1`, [req.body.message_id]);
 
                         await client.query('COMMIT')
                         .then(() => {
                             resp.send({status: 'success', message: message.rows[0]});
                         })
                     } else {
-                        throw `You're not authorized`;
+                        resp.send({status: 'error', statusMessage: `You're not authorized`});
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
@@ -142,7 +142,7 @@ app.post('/api/message/edit', (req, resp) => {
             })()
             .catch(err => {
                 console.log(err);
-                resp.send({status: 'error', statusMessage: `You're not authorized`});
+                resp.send({status: 'error', statusMessage: `An error occurred`});
             });
         });
     }   

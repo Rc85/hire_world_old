@@ -1,0 +1,14 @@
+#user-reviews {
+    color: #000;
+
+    a { color: $theme-highlight }
+    a:hover { text-decoration: underline }
+}
+
+.user-review-star { color: $theme_darkgrey }
+.user-review-star.active { color: #ffc107 }
+
+.review-buttons {
+    color: $theme-highlight;
+    cursor: pointer;
+}

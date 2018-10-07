@@ -1,0 +1,21 @@
+.user-message-subject {
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    white-space: nowrap;
+}
+
+.user-message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-weight: bold;
+}
+
+.review-star {
+    color: $theme_darkgrey;
+    cursor: pointer;
+    
+    &:hover, &.active {
+        color: #ffc107;
+    }
+}

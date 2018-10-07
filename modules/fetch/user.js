@@ -3,7 +3,11 @@ const db = require('../db');
 const moment = require('moment');
 
 app.post('/api/get/user', async(req, resp) => {
-    let user = await db.query(`SELECT user_id, username, user_email, user_created_on, avatar_url, user_title, user_education, user_bio, user_github, user_twitter, user_facebook, user_website, user_linkedin, user_firstName, user_lastname, user_instagram, business_name, user_phone, user_address, hide_email, display_business_name, display_fullname, display_contacts FROM users WHERE username = $1 AND user_status = 'Active'`, [req.body.username])
+    let user = await db.query(`SELECT users.username, users.user_email, users.user_last_login, user_profiles.*, user_settings.*, user_listings.listing_id, user_listings.listing_status FROM users
+    LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
+    LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
+    LEFT JOIN user_listings ON users.username = user_listings.listing_user
+    WHERE users.username = $1 AND users.user_status = 'Active'`, [req.body.username])
     .then(result => {
         return result;
     })
@@ -37,25 +41,54 @@ app.post('/api/get/user', async(req, resp) => {
             delete user.rows[0].display_fullname;
             delete user.rows[0].display_contacts;
 
-            user.rows[0].user_created_on = moment(user.rows[0].user_created_on).fromNow();
+            let reviews = await db.query(`SELECT user_reviews.*, user_profiles.avatar_url FROM user_reviews
+            LEFT JOIN users ON users.username = user_reviews.reviewer
+            LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+            WHERE user_reviews.reviewing = $1 AND user_reviews.review IS NOT NULL
+            ORDER BY user_reviews.review_date DESC`, [req.body.username]);
 
-            await db.query(`SELECT * FROM user_services WHERE service_provided_by = $1 AND service_status = 'Active' ORDER BY service_id`, [req.body.username])
-            .then(result => {
-                if (result !== undefined) {
-                    for (let i in result.rows) {
-                        result.rows[i].service_created_on = moment(result.rows[i].service_created_on).fromNow();
-                    }
+            let stats = await db.query(`SELECT
+                (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_stage = 'Complete'),
+                (SELECT COUNT(job_id) AS job_abandon FROM jobs WHERE job_stage = 'Abandon'),
+                (SELECT (SUM(review_rating) / COUNT(review_id)) AS rating FROM user_reviews WHERE reviewing = $1),
+                (SELECT COUNT(review_id) AS job_count FROM user_reviews WHERE review IS NOT NULL AND reviewing = $1),
+                user_view_count.view_count,
+                users.user_last_login FROM users
+            LEFT JOIN user_reviews ON users.username = user_reviews.reviewing
+            LEFT JOIN user_view_count ON user_view_count.viewing_user = users.username
+            LEFT JOIN jobs ON jobs.job_id = user_reviews.review_job_id
+            WHERE username = $1
+            LIMIT 1;`, [req.body.username]);
 
-                    resp.send({status: 'success', user: user.rows[0], services: result.rows});
-                }
-            })
-            .catch(err => {
-                console.log(err);
-                resp.send({status: 'error', statusMessage: `An error occurred while trying to retrieve the user's profile`});
-            });
+            await db.query(`INSERT INTO user_view_count (viewing_user, view_count) VALUES ($1, $2) ON CONFLICT (viewing_user) DO UPDATE SET view_count = user_view_count.view_count + 1`, [req.body.username, 1]);
+
+            resp.send({status: 'success', user: user.rows[0], reviews: reviews.rows, stats: stats.rows[0]});
         } else {
-            resp.send({status: 'error', statusMessage: `The requested user's profile does not exist`});
+            resp.send({status: 'error page', statusMessage: `The requested user's profile does not exist`});
         }
+    }
+});
+
+app.post('/api/get/titles', (req, resp) => {
+    if (req.session.user) {
+        db.query(`SELECT user_title FROM user_profiles`)
+        .then(result => {
+            let titles = [];
+
+            for (let title of result.rows) {
+                if (title.user_title) {
+                    titles.push(title.user_title);
+                }
+            }
+
+            console.log(titles);
+
+            resp.send({status: 'success', titles: titles})
+        })
+        .catch(err => {
+            console.log(err);
+            resp.send({status: 'error'});
+        });
     }
 });
 

@@ -8,7 +8,7 @@ import Response from '../pages/Response';
 import OfferDetails from '../includes/page/OfferDetails';
 import ConfirmMessage from '../includes/page/ConfirmMessage';
 import SystemMessage from '../includes/page/SystemMessage';
-import { withRouter } from 'react-router-dom';
+import { withRouter, NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretDown, faTimes, faCaretUp, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { GetMessage, SendMessage } from '../utils/Utils';
@@ -30,7 +30,7 @@ class MessageDetails extends Component {
             serviceDetails: false,
             send: false,
             makeOffer: false,
-            offset: 0,
+            offset: 10,
             fetchStatus: '',
             offer: null,
             confirmAccept: false,
@@ -84,13 +84,13 @@ class MessageDetails extends Component {
 
             if (nextProps.confirm.data.action === 'hire') {
                 this.submitOffer({
-                    price: this.state.job.service_price_rate,
-                    currency: this.state.job.service_price_currency,
+                    price: this.state.job.listing_price,
+                    currency: this.state.job.listing_price_currency,
                     numberOfPayments: 0,
                     date: '',
                     term: '',
                     offerType: 'User Determined',
-                    paymentType: this.state.job.service_price_rate_type,
+                    paymentType: this.state.job.listing_price_type,
                     amountType: '',
                     paymentPeriod: '',
                     payments: [],
@@ -106,10 +106,9 @@ class MessageDetails extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.match.params.id !== this.props.match.params.id) {
-            fetch.post('/api/get/offer', {id: this.props.match.params.id, stage: this.props.match.params.stage})
+        if (prevProps.location.key !== this.props.location.key) {
+            fetch.post('/api/get/offer', {job_id: this.props.match.params.id, stage: this.props.match.params.stage})
             .then(resp => {
-                console.log(resp)
                 if (resp.data.status === 'success') {
                     this.setState({
                         status: '',
@@ -117,12 +116,12 @@ class MessageDetails extends Component {
                         job: resp.data.job
                     });
 
-                    fetch.post('/api/get/message', {id: this.props.match.params.id, offset: 0, stage: this.props.match.params.stage})
+                    fetch.post('/api/get/message', {job_id: this.props.match.params.id, offset: 0, stage: this.props.match.params.stage})
                     .then(resp => {
-                        if (resp.status === 'success') {
-                            this.setState({status: '', messages: resp.messages});
+                        if (resp.data.status === 'success') {
+                            this.setState({status: '', messages: resp.data.messages, fetchStatus: '', offset: 10});
                         } else if (resp.status === 'access error') {
-                            this.setState({status: resp.status, statusMessage: resp.statusMessage})
+                            this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage})
                         }
                     })
                     .catch(err => console.log(err));
@@ -137,18 +136,20 @@ class MessageDetails extends Component {
     componentDidMount() {
         setTimeout(() => {
             window.addEventListener('scroll', this.scrollFetch = () => {
+                console.log('scroll')
                 if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
                     if (this.state.fetchStatus !== 'Complete' && this.state.messages.length % 10 === 0) {
                         this.setState({fetchStatus: 'Fetching'});
 
-                        fetch.post('/api/get/message', {id: this.props.match.params.id, offset: 0, stage: this.props.match.params.stage})
+                        fetch.post('/api/get/message', {job_id: this.props.match.params.id, offset: this.state.offset, stage: this.props.match.params.stage})
                         .then(resp => {
+                            console.log(resp)
                             let messages = this.state.messages;
 
                             if (resp.data.status !== 'fetch error') {
                                 messages.push(...resp.data.messages);
 
-                                if (resp.messages.length < 10) {
+                                if (resp.data.messages.length < 10) {
                                     this.setState({messages: messages, offset: this.state.offset + 10, fetchStatus: 'Complete'});
                                 } else {
                                     this.setState({messages: messages, offset: this.state.offset + 10, fetchStatus: ''});
@@ -165,7 +166,6 @@ class MessageDetails extends Component {
 
         fetch.post('/api/get/offer', {job_id: this.props.match.params.id, stage: this.props.match.params.stage})
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({
                     status: '',
@@ -210,7 +210,7 @@ class MessageDetails extends Component {
             job_id: this.state.job.job_id
         })
         .then(resp => {
-            if (resp.data.status === 'success') {
+            if (resp.data.status === 'send success') {
                 let messages = this.state.messages;
                 
                 messages.unshift(resp.data.reply);
@@ -356,6 +356,7 @@ class MessageDetails extends Component {
 
         fetch.post('/api/job/complete/approve', {job_id: this.state.job.job_id, recipient: this.state.job.job_user})
         .then(resp => {
+            console.log(resp)
             if (resp.data.status === 'job complete') {
                 this.setState({status: resp.data.status});
             } else {
@@ -437,22 +438,22 @@ class MessageDetails extends Component {
                     <div className='col-3'>
                         <div className='mb-1'><strong>Listing Title:</strong></div>
                         <div className='mb-1'><strong>Listed By:</strong></div>
-                        {this.state.job && !this.state.job.service_negotiable ? <div className='mb-1'><strong>Price Rate:</strong></div> : ''}
-                        {this.state.job && !this.state.job.service_negotiable ? <div className='mb-1'><strong>Charged Method:</strong></div> : ''}
+                        {this.state.job && !this.state.job.listing_negotiable ? <div className='mb-1'><strong>Price Rate:</strong></div> : <div className='mb-1'><strong>Asking Price:</strong></div>}
+                        <div className='mb-1'><strong>Charged Method:</strong></div>
                         <div className='mb-1'><strong>Job Created:</strong></div>
                     </div>
                     
                     <div className='col-9'>
-                        <div className='d-flex-between-start mb-1'><span>{this.state.job ? this.state.job.service_name : ''}</span></div>
+                        <div className='d-flex-between-start mb-1'><span>{this.state.job ? this.state.job.listing_title : ''}</span></div>
                         <div className='mb-1'>{this.state.job ? this.state.job.job_user : ''}</div>
-                        {this.state.job && !this.state.job.service_negotiable ? <div className='mb-1'>${this.state.job.service_price_rate}</div> : ''}
-                        {this.state.job && !this.state.job.service_negotiable ? <div className='mb-1'>{this.state.job.service_price_rate_type}</div> : ''}
-                        <div className='mb-1'>{this.state.job ? moment(this.state.job.job_created_date).fromNow() : ''}</div>
+                        <div className='mb-1'>${this.state.job.listing_price}</div>
+                        <div className='mb-1'>{this.state.job.listing_price_type} {this.state.job.listing_price_currency}</div>
+                        <div className='mb-1'>{this.state.job ? moment(this.state.job.listing_created_date).fromNow() : ''}</div>
                     </div>
                 </div>
 
                 <div className='bordered-container rounded mt-3'>
-                    {this.state.job.service_detail}
+                    {this.state.job.listing_detail}
                 </div>
             </div>
         }
@@ -486,7 +487,7 @@ class MessageDetails extends Component {
 
         if (this.state.job && this.state.job.job_status !== 'Closed' && this.state.job.job_stage !== 'Complete') {
             if (!this.state.send) {
-                sendButton = <button className='btn btn-primary' onClick={() => this.setState({send: true, makeOffer: false})}>Message</button>;
+                sendButton = <button className='btn btn-primary mr-1' onClick={() => this.setState({send: true, makeOffer: false})}>Message</button>;
             } else {
                 sendMessage = <MessageSender send={(message) => this.send(message)} cancel={() => this.setState({send: !this.state.send})} status={this.state.status} statusMessage={this.state.statusMessage} subject={this.state.job.job_subject} />;
             }
@@ -497,7 +498,7 @@ class MessageDetails extends Component {
         }
 
         if (this.state.job && this.props.user.user.username !== this.state.job.job_user && this.props.match.params.stage === 'Inquire') {
-            if (this.state.job.service_negotiable) {
+            if (this.state.job.listing_negotiable) {
                 if (!this.state.makeOffer) {
                     if (this.state.job.job_status !== 'Closed') {
                         offerButton = <button className='btn btn-success mr-1' onClick={() => this.setState({makeOffer: true, send: false})}>{this.state.offer ? 'Edit Offer' : 'Make Offer'}</button>
@@ -505,7 +506,7 @@ class MessageDetails extends Component {
                 } else {
                     sendMessage = <OfferSender offer={this.state.offer} submit={(data) => this.submitOffer(data)} cancel={() => this.setState({makeOffer: false})} delete={() => this.deleteOffer()}/>;
                 }
-            } else if (!this.state.job.service_negotiable && !this.state.offer) {
+            } else if (!this.state.job.listing_negotiable && !this.state.offer) {
                 offerButton = <button className='btn btn-success mr-1' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to send a hire request?', false, {action: 'hire'}))}>Hire</button>
             }
         }
@@ -581,13 +582,13 @@ class MessageDetails extends Component {
         } else if (this.state.status === 'offer accepted') {
             return(
                 <div className='blue-panel rounded w-100'>
-                    <Response header='Congratulations' message={`You've accepted the other party's offer. Keep up the good work!`} />
+                    <Response header='Congratulations' message={`The offer was accepted and a job has been created. Keep up the good work!`} />
                 </div>
             )
         } else if (this.state.status === 'job complete') {
             return(
                 <div className='blue-panel rounded w-100'>
-                    <Response header='Congratulations' message={`The job is completed. Be sure to give the other party a review.`} />
+                    <Response header='Congratulations' message={`The job has been successfully completed! Be sure to give the other party a review using the link in the 'Completed' tab.`} />
                 </div>
             )
         } else {
@@ -599,6 +600,13 @@ class MessageDetails extends Component {
                         <small className='text-white-50'>Job ID: {this.state.job ? this.state.job.job_id : ''}</small>
                         <div className='d-flex'>
                             <button className='btn btn-secondary mr-1' onClick={() => this.props.history.goBack()}>Back</button>
+                            {closeButton}
+
+                            {completeButton}
+                            {completeButton ? <UncontrolledTooltip placement='top' target='complete-job-button' delay={{show: 0, hide: 0}}>{!this.state.job.job_user_complete ? <span>Complete Job<br />This will send an approval for completion to the other party</span> : <span>Sent</span>}</UncontrolledTooltip> : ''}
+
+                            {incompleteButton}
+                            {incompleteButton ? <UncontrolledTooltip place='top' target='abandon-job-button' delay={{show: 0, hide: 0}}>Abandon Job<br />NOTE: Abandoning a job may negatively impact your reputation. See FAQs for more details.</UncontrolledTooltip> : ''}
                         </div>
                     </div>
 
@@ -614,24 +622,15 @@ class MessageDetails extends Component {
 
                     <div className='messages-container'>
                         {offerConfirmation}
-                        <div className='d-flex-between-start mb-3'>
-                            <h3>
-                                {this.state.job ? this.state.job.job_subject : ''} {this.state.job && this.state.job.job_status === 'Closed' ? <span className='badge badge-danger'>Closed</span> : '' } {this.state.job && this.state.job.job_stage === 'Complete' ? <span className='badge badge-success'>Completed</span> : ''} {incompleteStatus}
-                            </h3>
 
-                            <div className='d-flex'>
-                                {closeButton}
+                        <h3 className='mb-1'>
+                            {this.state.job ? this.state.job.job_subject : ''} {this.state.job && this.state.job.job_status === 'Closed' ? <span className='badge badge-danger'>Closed</span> : '' } {this.state.job && this.state.job.job_stage === 'Complete' ? <span className='badge badge-success'>Completed</span> : ''} {incompleteStatus}
+                        </h3>
 
-                                {completeButton}
-                                {completeButton ? <UncontrolledTooltip placement='top' target='complete-job-button' delay={{show: 0, hide: 0}}>{!this.state.job.job_user_complete ? <span>Complete Job<br />This will send an approval for completion to the other party</span> : <span>Sent</span>}</UncontrolledTooltip> : ''}
-
-                                {incompleteButton}
-                                {incompleteButton ? <UncontrolledTooltip place='top' target='abandon-job-button' delay={{show: 0, hide: 0}}>Abandon Job<br />NOTE: Abandoning a job will impact your reputation within the community.</UncontrolledTooltip> : ''}
-
-                                {offerButton}
-
-                                {sendButton}
-                            </div>
+                        <div className='d-flex justify-content-end mb-3'>
+                            {offerButton}
+                            {sendButton}
+                            <NavLink to={`/dashboard/message/${this.props.match.params.stage}/${this.props.match.params.id}/details`}><button className='btn btn-info'>Refresh</button></NavLink>
                         </div>
 
                         <div className='mb-3'>

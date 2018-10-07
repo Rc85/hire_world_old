@@ -1,4 +1,20 @@
-.form-row {
+.reg-account-type {
+    width: 30%;
+    padding: 10px;
+    cursor: pointer;
+    background: $theme-bg;
+    border-radius: 0.25rem;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+
+    &.active {
+        background: $theme-highlight;
+    }
+}
+
+.reg-price-color {
+    color: rgb(0, 255, 0);
+    font-weight: bold;
+    font-size: 1.4rem;
 }

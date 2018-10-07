@@ -18,7 +18,7 @@ app.get('/api/get/services', async(req, resp) => {
 });
 
 app.post('/api/get/services/listings', (req, resp) => {
-    db.query(`SELECT * FROM user_services WHERE service_status = 'Active' AND service_listed_under = $1 ORDER BY service_created_on`, [req.body.sector])
+    db.query(`SELECT * FROM user_services LEFT JOIN (SELECT (SUM(review_rating) / COUNT(review_id)) AS rating, reviewing FROM user_reviews GROUP BY reviewing) ur ON reviewing = service_provided_by WHERE service_status = 'Active' AND service_listed_under = $1 ORDER BY service_created_on`, [req.body.sector])
     .then(result => {
         if (result !== undefined) {
             resp.send({status: 'success', statusMessage: 'get listings success', services: result.rows});

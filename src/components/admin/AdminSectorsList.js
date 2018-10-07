@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import Loading from '../utils/Loading';
-import Menu from '../utils/Menu';
+//import Menu from '../utils/Menu';
 
 class AdminSectorsList extends Component {
     render() {
@@ -18,7 +18,7 @@ class AdminSectorsList extends Component {
                     <div className='w-10'>
                         <span className='badge badge-success'>{sector.sector_status}</span>
                     </div>
-                    <Menu name={`admin-menu-${sector.sector_id}`} id={sector.sector_id} />
+                    {/* <Menu name={`admin-menu-${sector.sector_id}`} id={sector.sector_id} /> */}
                 </div>
             });
         } else {

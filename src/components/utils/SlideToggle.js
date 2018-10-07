@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 
 let sliderContainer, slider, sliderCheckbox;
 
-export default class SlideToggle extends Component {
+class SlideToggle extends Component {
     componentDidMount() {
-        if (this.props.status === 'Active') {
+        if (this.props.status) {
             sliderContainer.style.background = '#14FF14';
             slider.style.left = '3px';
         } else {
@@ -15,11 +15,11 @@ export default class SlideToggle extends Component {
     }
 
     componentDidUpdate() {
-        if (this.props.status === 'Active') {
+        if (this.props.status) {
             sliderContainer.style.background = '#14FF14';
             slider.style.left = '3px';
             sliderCheckbox.checked = true;
-        } else if (this.props.status === 'Inactive') {
+        } else {
             sliderContainer.style.background = this.props.inactiveColor;
             slider.style.left = 'calc(50% - 4px)';
             sliderCheckbox.checked = false;
@@ -30,7 +30,7 @@ export default class SlideToggle extends Component {
         return(
             <div ref={node => {sliderContainer = node}} className='slider-container'>
                 <div ref={node => {slider = node}} className='slider' onClick={() => this.props.onClick()}>
-                    <input ref={node => {sliderCheckbox = node}} className='slider-checkbox' type='checkbox' id={this.props.id} defaultChecked={this.props.status === 'Active' ? true : false} />
+                    <input ref={node => {sliderCheckbox = node}} className='slider-checkbox' type='checkbox' id={this.props.id} defaultChecked={this.props.status} />
                 </div>
             </div>
         )
@@ -38,11 +38,15 @@ export default class SlideToggle extends Component {
 }
 
 SlideToggle.defaultProps = {
+    status: false,
     inactiveColor: '#C4C4C4',
 }
 
 SlideToggle.propTypes = {
-    status: PropTypes.string.isRequired,
+    status: PropTypes.bool.isRequired,
     onClick: PropTypes.func.isRequired,
-    inactiveColor: PropTypes.string
+    inactiveColor: PropTypes.string,
+    id: PropTypes.string
 }
+
+export default SlideToggle;

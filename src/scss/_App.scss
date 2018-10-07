@@ -93,6 +93,11 @@
     color: #000;
 }
 
+.dark-grey-panel {
+    background: $theme-darkgrey;
+    padding: 10px;
+}
+
 .btn-sm {
     min-width: 35px;
 }
@@ -107,4 +112,23 @@
 
 .badge-light a {
     color: #000;
+}
+
+.border-blue {
+    border: 1px solid $theme-blue;
+}
+
+#root {
+    width: 100%;
+    min-height: 100%;
+}
+
+.bordered-container {
+    padding: 20px;
+    border: 1px solid $theme-bg;
+}
+
+.dark-bordered-container {
+    padding: 20px;
+    border: 1px solid $theme-darkgrey;
 }

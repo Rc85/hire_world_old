@@ -11,7 +11,7 @@ class TopBar extends Component {
                     <NavLink to='/'><h1>M-ploy</h1></NavLink>
                 </div>
 
-                <NavBar user={this.props.user} toggleMenu={() => this.props.toggleMenu()} />
+                <NavBar user={this.props.user} toggleMenu={() => this.props.toggleMenu()} menuOpen={this.props.menuOpen} />
             </section>
         )
     }

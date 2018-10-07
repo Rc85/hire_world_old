@@ -4,6 +4,7 @@ import SubmitButton from '../../utils/SubmitButton';
 import fetch from 'axios';
 import Alert from '../../utils/Alert';
 import Loading from '../../utils/Loading';
+import { NavLink } from 'react-router-dom';
 
 export default class ViewUserService extends Component {
     constructor(props) {
@@ -75,26 +76,10 @@ export default class ViewUserService extends Component {
         }
 
         return (
-            <div className='view-user-service card mb-3'>
+            <div className='view-user-service grey-panel rounded mb-3'>
                 {status}
-                <div className='card-header'>
-                    <div className='view-user-service-header'>
-                        <h4>{this.props.service.service_name}</h4>
-                        <div className='d-flex'>
-                            <NavLink to={`/sectors/${this.props.service.service_listed_under}`}><div className='badge badge-dark'>{this.props.service.service_listed_under}</div></NavLink>
-                        </div>
-                    </div>
-
-                    <span>{this.props.service.service_worldwide}{this.props.service.service_region || this.props.service.service_city ? this.props.service.service_country + ', ' : this.props.service.service_country } {this.props.service.service_city ? this.props.service.service_region + ', ' : this.props.service.service_region} {this.props.service.service_city}</span>
-                </div>
-
-                <div className='card-body'>
-                    <div className='mb-3'>{this.props.service.service_detail}</div>
-                    {inquire}
-                </div>
-
-                <div className='card-footer view-user-service-footer'>
-                    <div>{button}</div>
+                <div className='d-flex-between-center'>
+                    <NavLink to={`/service/${this.props.service.service_id}`}>{this.props.service.service_name}</NavLink>
 
                     <small>Renewed {this.props.service.service_created_on}</small>
                 </div>

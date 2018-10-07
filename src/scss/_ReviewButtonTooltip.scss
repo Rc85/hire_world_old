@@ -1,0 +1,27 @@
+.review-button-tooltip-container {
+    padding-bottom: 5px;
+    position: absolute;
+    bottom: calc(100% + 2.5px);
+    right: calc(-100% - 5px);
+}
+
+.review-button-tooltip {
+    background: #000;
+    border-radius: 0.2rem;
+    padding: 10px;
+    white-space: nowrap;
+}
+
+.review-button-tooltip-arrow {
+    position: absolute;
+    bottom: -5px;
+    left: calc(50% - 5px);
+    width: 10px;
+    height: 10px;
+    transform: rotate(45deg);
+    background: #000;
+}
+
+.review-button-container {
+    position: relative;
+}

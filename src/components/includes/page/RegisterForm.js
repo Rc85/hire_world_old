@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import SubmitButton from '../../utils/SubmitButton';
-import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import Alert from '../../utils/Alert';
 import fetch from 'axios';
+import { NavLink } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 
 export default class RegisterForm extends Component {
     constructor() {
@@ -16,10 +19,10 @@ export default class RegisterForm extends Component {
             confirmEmail: '',
             firstName: '',
             lastName: '',
-            businessName: '',
             country: '',
             region: '',
             city: '',
+            accountType: 'User',
             agreed: false,
             status: '',
             statusMessage: ''
@@ -31,6 +34,7 @@ export default class RegisterForm extends Component {
 
         fetch.post('/api/auth/register', this.state)
         .then(resp => {
+            console.log(resp)
             if (resp.data.status === 'success') {
                 this.props.callback(resp.data.status, resp.data.statusMessage);
             } else {
@@ -40,90 +44,175 @@ export default class RegisterForm extends Component {
         .catch(err => console.log(err));
     }
 
+    generateExpireYear() {
+        let now = new Date();
+        let year = now.getUTCFullYear();
+        let years = [];
+        
+        for (let i = 0; i < 5; i++) {
+            let expireYear = year + i;
+
+            years.push(expireYear);
+        }
+
+        return years;
+    }
+
     render() {
-        let error;
+        console.log(this.state)
+        let status, payment;
 
         if (this.state.status && this.state.status !== 'Registering' && this.state.status !== 'success') {
-            error = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />
+            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />
         } 
+
+        if (this.state.accountType !== 'User') {
+            payment = <div className='bordered-container rounded mb-3'>
+                <div className='d-flex-between-center'>
+                    <div><strong>Account Type:</strong> {this.state.accountType}</div>
+                    <div><span className='reg-price-color'>{this.state.accountType === 'Listing' ? '$5' : '$10'}</span> / month</div>
+                </div>
+
+                <hr/>
+
+                <div className='mb-3'>
+                    <div><label htmlFor='cc-name'>Name on Card:</label></div>
+                    <input type='text' name='cc_name' id='cc-name' className='form-control' required />
+                </div>
+
+                <div className='mb-3'>
+                    <div><label htmlFor='cc-number'>Credit Card Number:</label></div>
+                    <input type='text' name='cc_number' id='cc-number' className='form-control' minLength='16' maxLength='16' required />
+                </div>
+
+                <div className='d-flex-between-start mb-3'>
+                    <div className='w-45'>
+                        <div><label>Expiry Date:</label></div>
+                        <div className='d-flex'>
+                            <select name='cc_expire_month' id='cc-expire-month' className='form-control mr-1' required>
+                                <option value='01'>01</option>
+                                <option value='02'>02</option>
+                                <option value='03'>03</option>
+                                <option value='04'>04</option>
+                                <option value='05'>05</option>
+                                <option value='06'>06</option>
+                                <option value='07'>07</option>
+                                <option value='08'>08</option>
+                                <option value='09'>09</option>
+                                <option value='10'>10</option>
+                                <option value='11'>11</option>
+                                <option value='12'>12</option>
+                            </select>
+    
+                            <select name='cc_expire_year' id='cc-expire-year' className='form-control' required>
+                                {this.generateExpireYear().map((year, i) => {
+                                    return <option key={i} value={year}>{year}</option>
+                                })}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className='w-45'>
+                        <div><label htmlFor='cvc'>CVC:</label></div>
+                        <input type='text' name='cvc' id='cvc' className='form-control' minLength='3' maxLength='3' required />
+                    </div>
+                </div>
+            </div>
+        }
 
         return(
             <section id='register-form' className='main-panel'>
                 <div className='blue-panel shallow rounded w-100'>
-                    {error}
-                    <h2>Register</h2>
-                    
-                    <div className='form-row mb-3'>
-                        <label htmlFor='reg-username'>Username: </label>
+                    {status}
+                    <div className='text-right'><small><em>All fields required</em></small></div>
+
+                    <div className='mb-3'>
+                        <label htmlFor='reg-username'>Username:</label>
                         <input className='form-control' type='text' name='username' id='reg-username' required onChange={(e) => this.setState({username: e.target.value})} placeholder='5-15 alpha-numeric, dash, and underscore' minLength='3' maxLength='15' />
                     </div>
 
-                    <div className='form-row mb-3'>
+                    <div className='d-flex-between-start mb-3'>
                         <div className='w-45'>
-                            <div><label htmlFor='reg-password'>Password: </label></div>
+                            <div><label htmlFor='reg-fname'>First Name:</label></div>
+                            <input className='form-control' type='text' name='fname' id='reg-fname' onChange={(e) => this.setState({firstName: e.target.value.charAt(0).toUpperCase() + e.target.value.substr(1)})} required maxLength='15' />
+                        </div>
+
+                        <div className='w-45'>
+                            <div><label htmlFor='reg-lname'>Last Name:</label></div>
+                            <input className='form-control' type='text' name='lname' id='reg-lname' onChange={(e) => this.setState({lastName: e.target.value.charAt(0).toUpperCase() + e.target.value.substr(1)})} required maxLength='15' />
+                        </div>
+                    </div>
+
+                    <div className='d-flex-between-start mb-3'>
+                        <div className='w-45'>
+                            <div><label htmlFor='reg-password'>Password:</label></div>
                             <input className='form-control' type='password' name='password' id='reg-password' required onChange={(e) => this.setState({password: e.target.value})} placeholder='6-20 characters' minLength='6' maxLength='20' />
                         </div>
 
                         <div className='w-45'>
-                            <div><label htmlFor='reg-confirm-password'>Confirm Password: </label></div>
-                            <input className='form-control' type='password' name='confirm_password' id='reg-confirm-password' required onChange={(e) => this.setState({confirmPassword: e.target.value})} minLength='6' maxLength='20' />
+                            <div><label htmlFor='reg-confirm-password'>Confirm Password:</label></div>
+                            <input className='form-control' type='password' name='confirm_password' id='reg-confirm-password' required onChange={(e) => this.setState({confirmPassword: e.target.value})} minLength='6' maxLength='20' autoComplete='off' />
                         </div>
                     </div>
 
-                    <div className='form-row mb-3'>
+                    <div className='d-flex-between-start mb-3'>
                         <div className='w-45'>
-                            <div><label htmlFor='reg-email'>Email: </label></div>
+                            <div><label htmlFor='reg-email'>Email:</label></div>
                             <input className='form-control' type='email' name='email' id='reg-email' required onChange={(e) => this.setState({email: e.target.value})} />
                         </div>
 
                         <div className='w-45'>
-                            <div><label htmlFor='reg-confirm-email'>Confirm Email: </label></div>
-                            <input className='form-control' type='email' name='confirm_email' id='reg-confirm-email' required onChange={(e) => this.setState({confirmEmail: e.target.value})} />
-                        </div>
-                    </div>
-
-                    <h5>Optional</h5>
-
-                    <hr/>
-
-                    <div className='form-row mb-3'>
-                        <div className='form-col w-45'>
-                            <div className='mb-3'>
-                                <div><label htmlFor='reg-fname'>First Name: </label></div>
-                                <input className='form-control' type='text' name='fname' id='reg-fname' onChange={(e) => this.setState({firstName: e.target.value})} />
-                            </div>
-
-                            <div className='mb-3'>
-                                <div><label htmlFor='reg-lname'>Last Name: </label></div>
-                                <input className='form-control' type='text' name='lname' id='reg-lname' onChange={(e) => this.setState({lastName: e.target.value})} />
-                            </div>
-
-                            <div className='mb-3'>
-                                <div><label htmlFor='reg-bname'>Business Name: </label></div>
-                                <input className='form-control' type='text' name='bname' id='reg-bname' onChange={(e) => this.setState({businessName: e.target.value})} />
-                            </div>
-                        </div>
-
-                        <div className='form-col w-45'>
-                            <div className='mb-3'>
-                                <div><label htmlFor='reg-country'>Country: </label></div>
-                                <CountryDropdown classes='form-control' value={this.state.country} onChange={(val) => this.setState({country: val})} />
-                            </div>
-
-                            <div className='mb-3'>
-                                <div><label htmlFor='reg-region'>Region:</label></div>
-                                <RegionDropdown classes='form-control' value={this.state.region} country={this.state.country} onChange={(val) => this.setState({region: val})} />
-                            </div>
-
-                            <div className='mb-3'>
-                                <div><label htmlFor='reg-city'>City: </label></div>
-                                <input className='form-control' type='text' name='lname' id='reg-city' onChange={(e) => this.setState({city: e.target.value})} />
-                            </div>
+                            <div><label htmlFor='reg-confirm-email'>Confirm Email:</label></div>
+                            <input className='form-control' type='email' name='confirm_email' id='reg-confirm-email' required onChange={(e) => this.setState({confirmEmail: e.target.value})} autoComplete='off' />
                         </div>
                     </div>
 
                     <div className='mb-3'>
-                        <input type='checkbox' name='agree' id='reg-agree'  onChange={() => this.setState({agreed: !this.state.agree})} /> <label className='form-check-label' htmlFor='reg-agree'>I read, understand, and agree with the terms of service.</label>
+                        <label>Country:</label>
+                        <CountryDropdown classes='form-control' value={this.state.country} onChange={(val) => {this.setState({country: val})}} />
+                    </div>
+
+                    <div className='mb-3'>
+                        <label>Region:</label>
+                        <RegionDropdown classes='form-control' value={this.state.region} country={this.state.country} onChange={(val) => this.setState({region: val})} />
+                    </div>
+
+                    <div className='mb-3'>
+                        <label>City:</label>
+                        <input type='text' name='city' className='form-control' onChange={(e) => this.setState({city: e.target.value})} defaultValue={this.state.city} />
+                    </div>
+
+                    <div className='mb-3'>
+                        <div className='d-flex-between-center'>
+                            <label htmlFor='account-type'>Account Type:</label>
+                            <NavLink to='/pricing'><small>Learn more</small></NavLink>
+                        </div>
+
+                        <div className='d-flex-between-start'>
+                            <div className={this.state.accountType === 'User' ? 'reg-account-type active' : 'reg-account-type'} onClick={() => this.setState({accountType: 'User'})}>
+                                User
+
+                                {this.state.accountType === 'User' ? <FontAwesomeIcon icon={faCheck} /> : ''}
+                            </div>
+
+                            <div className={this.state.accountType === 'Listing' ? 'reg-account-type active' : 'reg-account-type'} onClick={() => this.setState({accountType: 'Listing'})}>
+                                Listing
+
+                                {this.state.accountType === 'Listing' ? <FontAwesomeIcon icon={faCheck} /> : ''}
+                            </div>
+
+                            <div className={this.state.accountType === 'Business' ? 'reg-account-type active' : 'reg-account-type'} onClick={() => this.setState({accountType: 'Business'})}>
+                                Business
+
+                                {this.state.accountType === 'Business' ? <FontAwesomeIcon icon={faCheck} /> : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    {payment}
+
+                    <div className='mb-3'>
+                        <input type='checkbox' name='agree' id='reg-agree' onClick={() => this.setState({agreed: !this.state.agreed})} /> <label className='form-check-label' htmlFor='reg-agree'>I read, understand, and agree with the terms of service.</label>
                     </div>
                     
 

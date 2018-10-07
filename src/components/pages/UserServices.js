@@ -111,7 +111,7 @@ class UserServices extends Component {
         return(
             <section id='user-services' className='blue-panel shallow three-rounded'>
                 <div className='d-flex justify-content-between mb-3'>
-                    <h6>Listings</h6>
+                    <h5>Listings</h5>
 
                     {button}
                 </div>

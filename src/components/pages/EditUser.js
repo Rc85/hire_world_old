@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import UserInfo from '../includes/page/UserInfo';
 import UserDetails from '../includes/page/UserDetails';
-//import UserServices from '../includes/page/UserServices';
+import { NavLink } from 'react-router-dom';
 import UserProfilePic from '../includes/page/UserProfilePic';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import UserTitle from '../includes/page/UserTitle';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBuilding } from '@fortawesome/free-regular-svg-icons';
 
 class EditUser extends Component {
     render() {
@@ -38,19 +41,27 @@ class EditUser extends Component {
         }
         
         if (this.props.user.user.display_fullname) {
-            fullName = <div className='d-flex align-items-start'><h1 className='mr-1'>{this.props.user.user.user_firstname} {this.props.user.user.user_lastname}</h1> <h4><span className='badge badge-secondary'>{this.props.user.user.username}</span></h4></div>;
-        } else {
-            fullName = <h1>{this.props.user.user.username}</h1>;
+            fullName = <div className='user-info mb-2'>
+                <div>
+                    <h5>Name</h5>
+                </div>
+
+                <div className='ml-3 mt-3'>
+                    {this.props.user.user.user_firstname} {this.props.user.user.user_lastname}
+                </div>
+
+                <hr/>
+            </div>;
         }
 
-        if (this.props.user.user.display_business_name) {
-            businessName = <h3>{this.props.user.user.business_name}</h3>;
+        if (this.props.user.user.user_business_name) {
+            businessName = <h3><FontAwesomeIcon icon={faBuilding} className='view-user-icon' /> {this.props.user.user.user_business_name}</h3>;
         }
 
         if (!this.props.user.user.hide_email) {
             email = <div className='user-info mb-2'>
                 <div>
-                    <h6>Email</h6>
+                    <h5>Email</h5>
                 </div>
 
                 <div className='ml-3 mt-3'>
@@ -61,10 +72,10 @@ class EditUser extends Component {
             </div>;
         }
 
-        if (this.props.user.user.display_contacts) {
+        if (this.props.user.user.user_phone) {
             phone = <div className='user-info mb-2'>
                 <div>
-                    <h6>Phone Number:</h6>
+                    <h5>Phone Number:</h5>
                 </div>
 
                 <div className='ml-3 mt-3'>
@@ -73,9 +84,12 @@ class EditUser extends Component {
 
                 <hr/>
             </div>;
+        }
+
+        if (this.props.user.user.user_address) {
             address = <div className='user-info mb-2'>
                 <div>
-                    <h6>Address:</h6>
+                    <h5>Address:</h5>
                 </div>
 
                 <div className='user-address ml-3 mt-3'>
@@ -89,16 +103,17 @@ class EditUser extends Component {
         return(
             <section id='edit-user' className='blue-panel shallow three-rounded'>
                 <div className='row'>
-                    <div className='col-3'>
+                    <div className='col-2'>
                         <UserProfilePic url={this.props.user.user.avatar_url} editable={true} />
 
                         <hr/>
 
                         <div id='user-profile'>
+                            {fullName}
                             {email}
                             {phone}
                             {address}
-                            <UserInfo label='Title' value={this.props.user.user.user_title} type='user_title' status={userTitleStatus} />
+                            <UserTitle user={this.props.user.user} />
                             <hr/>
                             <UserInfo label='Education' value={this.props.user.user.user_education} type='user_education' status={userEducationStatus} />
                             <hr/>
@@ -116,8 +131,8 @@ class EditUser extends Component {
                         </div>
                     </div>
                     
-                    <div className='col-9'>
-                        {fullName}
+                    <div className='col-10'>
+                        <NavLink to={`/user/${this.props.user.user.username}`}><h1>{this.props.user.user.username}</h1></NavLink>
                         {businessName}
 
                         <hr/>

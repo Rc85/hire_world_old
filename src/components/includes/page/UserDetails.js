@@ -64,7 +64,7 @@ class UserDetails extends Component {
         return(
             <section id='user-details'>
                 <div className='d-flex justify-content-between mb-2'>
-                    <h6>About</h6>
+                    <h5>About</h5>
                     
                     <button className='btn btn-info btn-sm' onClick={this.openEditor.bind(this)}>{icon}</button>
                 </div>

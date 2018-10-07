@@ -6,6 +6,7 @@ app.post('/api/get/offer', (req, resp) => {
         db.connect((err, client, done) => {
             if (err) console.log(err);
 
+            console.log(req.body);
             (async() => {
                 try {
                     await client.query('BEGIN');
@@ -14,8 +15,8 @@ app.post('/api/get/offer', (req, resp) => {
 
                     if (authorized !== undefined && authorized.rows.length === 1) {
                         let job = await client.query(`SELECT * FROM jobs
-                        LEFT JOIN user_services ON service_id = job_service_id
-                        WHERE job_id = $1 ${req.body.stage === 'Abandoned' ? `AND job_stage IN ($2, 'Incomplete')` : 'AND job_stage = $2'} AND job_status != 'Deleted'`, [req.body.job_id, req.body.stage])
+                        LEFT JOIN user_listings ON listing_id = job_service_id
+                        WHERE job_id = $1 ${req.body.stage === 'Abandoned' ? `AND job_stage IN ($2, 'Incomplete')` : 'AND job_stage = $2'}`, [req.body.job_id, req.body.stage]);
 
                         let offer = await client.query(`SELECT * FROM offers WHERE offer_for_job = $1 AND offer_status != 'Deleted'`, [req.body.job_id])
 

@@ -59,7 +59,7 @@ export default class Alert extends Component {
 Alert.propTypes = {
     status: PropTypes.string.isRequired,
     message: PropTypes.string,
-    unmount: PropTypes.func.isRequired,
+    unmount: PropTypes.func,
     left: (props, propName, componentName) => {
         if (props['left'] && !/^[0-9]*(px|%)$/.test(props['left'])) {
             return new Error(`Invalid value supplied to props '${propName} for component '${componentName}`);

@@ -9,14 +9,16 @@
 @import 'BrowseMenu';
 @import 'Confirmation';
 @import 'EditUser';
-@import 'Inquiries';
 @import 'Loading';
 @import 'Main';
 @import 'Menu';
 @import 'MessageDetails';
+@import 'Messages';
 @import 'NavBar';
 @import 'RegisterForm';
 @import 'Response';
+@import 'ReviewButtonTooltip';
+@import 'SearchListing';
 @import 'Sectors';
 @import 'ServiceDetails';
 @import 'SlideToggle';
@@ -28,6 +30,7 @@
 @import 'UserServices';
 @import 'UserSettings';
 @import 'ViewUser';
+@import 'ViewUserReview';
 
 @font-face {
     font-family: 'Montserrat';
@@ -52,11 +55,6 @@ body {
     min-height: 100vh;
     display: flex;
     overflow-x: hidden;
-}
-
-#root {
-    width: 100%;
-    min-height: 100%;
 }
 
 a {

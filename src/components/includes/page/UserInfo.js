@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { EditUser } from '../../../actions/EditUserActions';
 import Loading from '../../utils/Loading';
 import PropTypes from 'prop-types';
+import Alert from '../../utils/Alert';
 
 class UserInfo extends Component {
     constructor(props) {
@@ -23,7 +24,7 @@ class UserInfo extends Component {
     }
 
     render() {
-        let button;
+        let button, status;
         let value = this.props.value;
         let success = /success$/;
         let loading = /loading$/;
@@ -35,37 +36,25 @@ class UserInfo extends Component {
                     editing: false
                 });
             }}><FontAwesomeIcon icon={faTimes}  /></button>;
-            value = <form id='edit-user-form' action='/api/user/edit' method='post' onSubmit={(e) => {
-                e.preventDefault();
-                
-                this.submitValue(this.state.input);
-
-                this.setState({
-                    editing: false
-                });
-            }}>
-                <input className='form-control' type='text' name={this.props.type}
-                onKeyDown={(e) => {
-                    if (e.keycode === 13) {
-                        document.getElementById('edit-user-form').submit();
-                    }
-                }}
-                onChange={(e) => {
-                    this.setState({
-                        input: e.target.value
-                    })
-                }} />
-            </form>;
+            value = <input className='form-control' type='text' name={this.props.type}
+            onKeyDown={(e) => {
+                if (e.keyCode === 13) {
+                    this.submitValue(this.state.input);
+                    this.setState({editing: false});
+                }
+            }}
+            onChange={(e) => this.setState({input: e.target.value})} />;
         } else {
             button = <button className='btn btn-info btn-sm ml-auto' onClick={() => {
                 this.setState({
                     editing: true
                 });
             }}><FontAwesomeIcon icon={faEdit} /></button>;
+
             if (loading.test(this.props.status)) {
-                value = <Loading size='1x' />;
+                status = <Loading size='1x' />;
             } else if (error.test(this.props.status)) {
-                value = <span class='edit-user-error'><FontAwesome icon={faTimes} /> Error</span>;
+                status = <Alert status='error' message='An error occurred' />;
             } else if (success.test(this.props.status)) {
                 value = this.props.value;
             }
@@ -73,13 +62,14 @@ class UserInfo extends Component {
 
         return(
             <div className='user-info mb-2'>
+                {status}
                 <div className='d-flex'>
-                    <h6>{this.props.label}</h6>
+                    <h5>{this.props.label}</h5>
 
-                    {button}
+                    <button className='btn btn-info btn-sm ml-auto' onClick={() => this.setState({editing: !this.state.editing})}><FontAwesomeIcon icon={faEdit} /></button>
                 </div>
 
-                <div className='ml-3 mt-3 position-relative'>
+                <div className='ml-3 mt-3 text-truncate'>
                     {value}
                 </div>
             </div>

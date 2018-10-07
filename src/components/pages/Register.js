@@ -14,14 +14,13 @@ class Register extends Component {
     }
 
     render() {
-        console.log(this.state.status);
         let component = <RegisterForm callback={(status, message) => this.setState({status: status, statusMessage: message})}/>;
 
         if (this.state.status === 'success') {
             component = <Response code={200} header='Success!' message='You are registered. Please check your email to confirm your registration.' />;
         }
 
-        if (this.props.user) {
+        if (this.props.user.user) {
             return(
                 <Redirect to='/dashboard/edit' />
             )

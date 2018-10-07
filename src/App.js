@@ -72,7 +72,7 @@ class App extends Component {
 		return (
 			<div className='col-container'>
 				{confirmation}
-				<TopBar toggleMenu={() => this.setState({mainMenu: !this.state.mainMenu})} />
+				<TopBar toggleMenu={() => this.setState({mainMenu: !this.state.mainMenu})} menuOpen={this.state.mainMenu} />
 
 				<div className='position-relative'>{this.menu}</div>
 
@@ -80,17 +80,17 @@ class App extends Component {
 					<Switch>
 						<Route exact path='/' component={Pages.Main} />
 						<Route exact path='/view' component={Pages.ViewUser} />
-						<Route exact path='/dashboard/listings' render={() => <Pages.Dashboard user={this.props.user}><Pages.UserServices user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/list' render={() => <Pages.Dashboard user={this.props.user}><Pages.ListSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/settings' render={() => <Pages.Dashboard user={this.props.user}><Pages.UserSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/messages/:stage' render={() => <Pages.Dashboard user={this.props.user}><Pages.Messages user={this.props.user} /></Pages.Dashboard>} />} />
 						<Route exact path='/dashboard/message/:stage/:id/details' render={() => <Pages.Dashboard user={this.props.user}><Pages.MessageDetails user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/admin/overview' render={() => <Admin child={<AdminOverview />} />} />
 						<Route exact path='/admin/sectors' render={() => <Admin child={<AdminSectors />} />} />
-						<Route exact path='/service/:id' render={() => <Pages.ServiceDetails user={this.props.user} />} />
+						<Route exact path='/listing/:id' render={() => <Pages.ListingDetails user={this.props.user} />} />
 						<Route exact path='/user/:username' render={() => <Pages.ViewUser user={this.props.user} />} />
 						<Route exact path='/account/login' render={() => <Pages.Login user={this.props.user} />} />
-						<Route exact path='/account/register' render={() => <Pages.Register user={this.props.uer} />} />
+						<Route exact path='/account/register' render={() => <Pages.Register user={this.props.user} />} />
 						{sectors}
 						<Route exact path='/sectors/:sector' component={Pages.Sectors} />
 						<Route render={() => <Pages.Response code={404} header={'Not Found'} message={`This page you're trying to access does not exist.`} />} />
@@ -106,8 +106,6 @@ const mapStateToProps = (state) => {
 		user: state.Login,
 		confirmation: state.Confirmation,
 		sectors: state.Sectors.sectors,
-		menu: state.ToggleMenu.menu,
-        status: state.ToggleMenu.status,
 	}
 }
 

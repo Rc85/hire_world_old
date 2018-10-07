@@ -3,16 +3,17 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
 import { faPhone, faGraduationCap } from '@fortawesome/free-solid-svg-icons';
+import { NavLink } from 'react-router-dom';
 
 const ViewUserContacts = user => {
     let email, phone, address, education;
 
     if (user.user.user_email) {
-        email = <div className='mb-3'><FontAwesomeIcon icon={faEnvelope} size='lg' className='view-user-icon' /> <NavLink to={`mailto: ${user.user.user_email}`}>{user.user.user_email}</NavLink></div>
+        email = <div className='d-flex mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faEnvelope} size='lg' className='view-user-icon' /></div> <NavLink to={`mailto: ${user.user.user_email}`}>{user.user.user_email}</NavLink></div>
     }
 
     if (user.user.user_phone) {
-        phone = <div className='mb-3'><FontAwesomeIcon icon={faPhone} size='lg' className='view-user-icon' /> {user.user.user_phone}</div>
+        phone = <div className='d-flex mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faPhone} size='lg' className='view-user-icon' /></div> {user.user.user_phone}</div>
     }
 
     if (user.user.user_address) {
@@ -20,19 +21,22 @@ const ViewUserContacts = user => {
     }
 
     if (user.user.user_education) {
-        education = <div className='mb-3'><FontAwesomeIcon icon={faGraduationCap} className='view-user-icon' size='lg' /> {user.user.user_education}</div>
+        education = <div className='d-flex mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faGraduationCap} className='view-user-icon' size='lg' /></div> {user.user.user_education}</div>
     }
 
-    console.log(user);
-    return(
-        <div id='view-user-contacts'>
-            {education}
-            {email}
-            {phone}
-            {address}
-            <hr/>
-        </div>
-    )
+    if (email || phone || address || education) {
+        return(
+            <div id='view-user-contacts'>
+                {education}
+                {email}
+                {phone}
+                {address}
+                <hr/>
+            </div>
+        )
+    }
+
+    return null;
 }
 
 ViewUserContacts.propTypes = {

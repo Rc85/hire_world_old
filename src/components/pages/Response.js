@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
  * @property {String} header A header/title of the response
  * @property {String} message The message regarding the response
  */
-export default class Response extends Component {
+class Response extends Component {
     render() {
         return(
             <div className='response main-panel'>
@@ -32,3 +32,5 @@ Response.propTypes = {
     header: PropTypes.string,
     message: PropTypes.string
 }
+
+export default Response;

@@ -8,11 +8,17 @@ const ViewUserServices = props => {
         return <ViewUserService key={i} user={props.user} service={service} />
     });
 
-    return(
-        <div id='view-user-services'>
-            {userServices}
-        </div>
-    )
+    if (userServices.length > 0) {
+        return(
+            <div id='view-user-services'>
+                <h5>Listings</h5>
+
+                {userServices}
+            </div>
+        )
+    }
+
+    return null;
 }
 
 ViewUserServices.propTypes = {

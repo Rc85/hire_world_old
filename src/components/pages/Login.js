@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { LoginUser } from '../../actions/LoginActions';
+import { LoginUser, ResetLogin } from '../../actions/LoginActions';
 import { connect } from 'react-redux';
 import SubmitButton from '../utils/SubmitButton';
 import { withRouter, Redirect } from 'react-router-dom';
@@ -11,7 +11,9 @@ class Login extends Component {
 
         this.state  = {
             username: null,
-            password: null
+            password: null,
+            status: '',
+            statusMessage: ''
         }
     }
 
@@ -20,23 +22,20 @@ class Login extends Component {
     }
 
     render() {
-        let error;
+        let status;
 
-        switch(this.props.user.status) {
-            case 'An error occurred':
-            case 'Incorrect username or password':
-            case 'Your account has been banned':
-                error = <Alert status='error' message={this.props.user.status} unmount={() => this.setState({status: '', statusMessage: ''})} />; break;
+        if (this.props.user.status === 'error') {
+            status = <Alert status={this.props.user.status} message={this.props.user.statusMessage} unmount={() => this.props.dispatch(ResetLogin(this.props.user))} />
         }
 
         if (this.props.user.user) {
             return(
-                <Redirect to='/dashboard/listings' />
+                <Redirect to='/dashboard/edit' />
             )
         } else {
             return(
                 <section id='login' className='main-panel'>
-                    {error}
+                    {status}
                     <div className='blue-panel shallow rounded'>
                         <h2>Login</h2>
 

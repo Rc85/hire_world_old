@@ -10,16 +10,18 @@ const Dashboard = props => {
     let fail = /fail$/;
 
     if (success.test(props.user.status) || props.user.user) {
+        console.log(props.user);
+
         return(
             <section id='dashboard' className='main-panel w-100'>
                 <TabBar items={[
-                    {name: 'Listings', active: props.location.pathname === '/dashboard/listings' ? true : false, link: '/dashboard/listings'},
-                    {name: 'Edit', active: props.location.pathname === '/dashboard/edit' ? true : false, link: '/dashboard/edit'},
-                    {name: 'Inquiries', active: /^\/dashboard\/message(s)?\/Inquire.*/.test(props.location.pathname) ? true : false, link: '/dashboard/messages/Inquire'},
-                    {name: 'Active Jobs', active: /^\/dashboard\/message(s)?\/Active.*/.test(props.location.pathname) ? true : false, link: '/dashboard/messages/Active'},
-                    {name: 'Completed', active: /^\/dashboard\/message(s)?\/Complete.*/.test(props.location.pathname) ? true : false, link: '/dashboard/messages/Complete'},
-                    {name: 'Abandoned', active: /^\/dashboard\/message(s)?\/Abandoned.*/.test(props.location.pathname) ? true : false, link: '/dashboard/messages/Abandoned'},
-                    {name: 'Settings', active: props.location.pathname === '/dashboard/settings' ? true : false, link: '/dashboard/settings'},
+                    {name: 'Edit', active: props.location.pathname === '/dashboard/edit', link: '/dashboard/edit'},
+                    {name: 'List', active: props.location.pathname === '/dashboard/list', link: '/dashboard/list'},
+                    {name: 'Inquiries', active: /^\/dashboard\/message(s)?\/Inquire.*/.test(props.location.pathname), link: '/dashboard/messages/Inquire'},
+                    {name: 'Active Jobs', active: /^\/dashboard\/message(s)?\/Active.*/.test(props.location.pathname), link: '/dashboard/messages/Active'},
+                    {name: 'Completed', active: /^\/dashboard\/message(s)?\/Complete.*/.test(props.location.pathname), link: '/dashboard/messages/Complete'},
+                    {name: 'Abandoned', active: /^\/dashboard\/message(s)?\/Abandoned.*/.test(props.location.pathname), link: '/dashboard/messages/Abandoned'},
+                    {name: 'Settings', active: props.location.pathname === '/dashboard/settings', link: '/dashboard/settings'},
                 ]} />
 
                 {props.children}

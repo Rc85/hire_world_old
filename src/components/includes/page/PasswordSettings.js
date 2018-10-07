@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import fetch from 'axios';
 import Alert from '../../utils/Alert';
 import SubmitButton from '../../utils/SubmitButton';
+import Loading from '../../utils/Loading';
 
 class PasswordSettings extends Component {
     constructor(props) {
@@ -59,7 +60,7 @@ class PasswordSettings extends Component {
         }
 
         return(
-            <div id='password-settings' className='settings-col'>
+            <div id='password-settings' className='position-relative'>
                 {status}
                 <div>
                     <div className='d-flex justify-content-between'>
@@ -87,7 +88,7 @@ class PasswordSettings extends Component {
                 </div>
 
                 <div className='text-right'>
-                    <SubmitButton type='button' value='Save' onClick={() => this.save()} loading={this.state.status === 'Loading' ? true : false} />
+                    <SubmitButton type='button' value='Save' onClick={() => this.save()} loading={this.state.status === 'Loading'} />
                 </div>
             </div>
         )

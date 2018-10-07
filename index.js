@@ -24,11 +24,13 @@ app.use(express.static('dist'));
 app.use('/user_files', express.static('user_files'));
 
 app.use(require('./modules/auth'));
+app.use(require('./modules/listings'));
 
 app.use(require('./modules/user/user'));
-app.use(require('./modules/user/profile-pic'));
 app.use(require('./modules/user/services'));
 app.use(require('./modules/user/settings'));
+app.use(require('./modules/user/review'));
+app.use(require('./modules/user/listings'));
 
 app.use(require('./modules/admin/sector'));
 
@@ -37,6 +39,7 @@ app.use(require('./modules/fetch/services'));
 app.use(require('./modules/fetch/user'));
 app.use(require('./modules/fetch/messages'));
 app.use(require('./modules/fetch/offers'));
+app.use(require('./modules/fetch/listings'));
 
 app.use(require('./modules/message/messages'));
 app.use(require('./modules/message/offers'));

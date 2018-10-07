@@ -5,6 +5,7 @@ import fetch from 'axios';
 import Response from '../pages/Response';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle, faHeart } from '@fortawesome/free-solid-svg-icons';
+import MessageSender from '../includes/page/MessageSender';
 
 class ServiceDetails extends Component {
     constructor(props) {
@@ -20,11 +21,21 @@ class ServiceDetails extends Component {
     componentDidMount() {
         fetch.post('/api/get/service/detail', {id: this.props.match.params.id})
         .then(resp => {
-            this.setState({
-                service: resp.data.service,
-                status: resp.data.status,
-                statusMessage: resp.data.statusMessage
-            });
+            if (resp.data.status === 'success') {
+                this.setState({status: '', service: resp.data.service});
+            } else {
+                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            }
+        })
+        .catch(err => console.log(err));
+    }
+
+    send(message, subject) {
+        this.setState({status: 'Sending'});
+
+        fetch.post('/api/message/submit', {subject: subject, message: message, service: this.state.service})
+        .then(resp => {
+            this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
         })
         .catch(err => console.log(err));
     }
@@ -48,19 +59,13 @@ class ServiceDetails extends Component {
             inquire = <div>
                 <h5>Inquire</h5>
     
-                <div className='service-inquire'>
-                    <textarea name='inquiry' className='form-control w-100 mb-1' rows='10' placeholder='Describe briefly what you need regarding this service'></textarea>
-    
-                    <div className='text-right'>
-                        <button className='btn btn-primary'>Submit</button>
-                    </div>
-                </div>
+                <MessageSender send={(message, subject) => this.send(message, subject)} status={this.state.status} statusMessage={this.state.statusMessage} />
             </div>
         }
 
         if (this.state.status === 'error') {
             return(
-                <Response header='An Error Occurred' message={this.state.statusMessage} />
+                <Response code={500} header='Internal Server Error' message={this.state.statusMessage} />
             )
         } else if (this.state.status === 'Loading') {
             return(

@@ -7,11 +7,11 @@ export const LoginUser = (data) => {
         return fetch.post('/api/auth/login', data)
         .then(resp => {
             console.log(resp);
-            if (resp.data.status === 'Login success') {
-                dispatch(LoginSuccess(resp.data.status, resp.data.user));
+            if (resp.data.status === 'success') {
+                dispatch(LoginSuccess(resp.data.status, resp.data.user, resp.data.statusMessage));
                 location.herf = '/dashboard';
-            } else {
-                dispatch(LoginError(resp.data.status));
+            } else if (resp.data.status === 'error') {
+                dispatch(LoginError(resp.data.status, resp.data.statusMessage));
             }
         })
         .catch(err => console.log(err));
@@ -25,18 +25,20 @@ const LoginBegin = (status) => {
     }
 }
 
-const LoginSuccess = (status, user) => {
+const LoginSuccess = (status, user, statusMessage) => {
     return {
         type: 'LOGIN_USER_UPDATE',
         status,
+        statusMessage,
         user
     }
 }
 
-const LoginError = (status) => {
+const LoginError = (status, statusMessage) => {
     return {
-        type: 'LOGIN_USER',
-        status
+        type: 'LOGIN_USER_ERROR',
+        status,
+        statusMessage
     }
 }
 
@@ -59,9 +61,17 @@ const Logout = () => {
     }
 }
 
-export const ResetLoginStatus = user => {
+export const UpdateUser = user => {
     return {
-        type: 'RESET_STATUS',
+        type: 'USER_UPDATE',
         user
+    }
+}
+
+export const ResetLogin = () => {
+    return {
+        type: 'LOGIN_USER_ERROR',
+        status: null,
+        statusMessage: null
     }
 }

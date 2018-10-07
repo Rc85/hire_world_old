@@ -2,139 +2,204 @@ const app = require('express').Router();
 const db = require('../db');
 const bcrypt = require('bcrypt');
 
-app.post('/api/user/settings/locations/save', (req, resp) => {
-    if (req.session.user) {
-        db.query(`UPDATE users SET user_country = $1, user_region = $2, user_city = $3, user_worldwide = $4, default_location = $5
-        WHERE user_id = $6 RETURNING *`,
-        [req.body.country, req.body.region, req.body.city, req.body.worldwide, req.body.defaultLocation, req.session.user.user_id])
-        .then(result => {
-            if ( result !== undefined && result.rowCount === 1) {
-                delete result.rows[0].user_password;
-
-                resp.send({status: 'success', statusMessage: 'save locations success', user: result.rows[0]});
-            } else {
-                resp.send({status: 'error', statusMessage: 'save locations fail'});
-            }
-        })
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
-        });
-    }
-});
-
 app.post('/api/user/settings/profile/save', (req, resp) => {
     if (req.session.user) {
-        let firstName = req.body.firstName.charAt(0).toUpperCase() + req.body.firstName.slice(1);
-        let lastName = req.body.lastName.charAt(0).toUpperCase() + req.body.lastName.slice(1);
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
 
-        console.log(firstName, lastName);
+            (async() => {
+                try {
+                    await client.query(`BEGIN`);
 
-        db.query(`UPDATE users SET user_firstname = $1, user_lastname = $2, business_name = $3, display_business_name = $4, display_fullname = $5
-        WHERE user_id = $6 RETURNING *`,
-        [firstName, lastName, req.body.businessName, req.body.displayBusinessName, req.body.displayFullName, req.session.user.user_id])
-        .then(result => {
-            if ( result !== undefined && result.rowCount === 1) {
-                delete result.rows[0].user_password;
+                    await client.query(`UPDATE user_profiles SET user_business_name = $1, user_city = $2, user_region = $3, user_country = $4, user_worldwide = $5, user_address = $6, user_phone = $7, user_city_code = $8 WHERE user_profile_id = $9`, [req.body.businessName, req.body.city, req.body.region, req.body.country, req.body.worldwide, req.body.address, req.body.phone, req.body.code, req.session.user.user_id]);
 
-                resp.send({status: 'success', statusMessage: 'save profile success', user: result.rows[0]});
-            } else {
-                resp.send({status: 'error', statusMessage: 'save profile fail'});
-            }
-        })
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'save profile error'});
+                    let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
+
+                    await client.query(`COMMIT`)
+                    .then(() => resp.send({status: 'success', statusMessage: 'Profile saved', user: user.rows[0]}));
+                } catch (e) {
+                    await client.query(`ROLLBACK`);
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                console.log(err);
+                resp.send({status:  'error', statusMessage: 'An error occurred'});
+            });
         });
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
     }
 });
 
-app.post('/api/user/settings/password/change', async(req, resp) => {
+app.post('/api/user/settings/password/change', (req, resp) => {
     if (req.session.user) {
-        let password = await db.query(`SELECT user_password FROM users WHERE user_id = $1`, [req.session.user.user_id])
-        .then(result => {
-            return result;
-        })
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'password save error'});
-        });
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
+            
+            (async() => {
+                try {
+                    await client.query('COMMIT');
 
-        if (password !== undefined && password.rows.length === 1) {
-            bcrypt.compare(req.body.currentPassword, password.rows[0].user_password, (err, matched) => {
-                if (err) {
-                    console.log(err);
-                    resp.send({status: 'error', statusMessage: 'password save error'});
-                }
+                    let authorized = await client.query(`SELECT user_password FROM users WHERE user_id = $1`, [req.session.user.user_id]);
 
-                if (matched) {
-                    bcrypt.hash(req.body.newPassword, 10, (err, result) => {
-                        if (err) {
-                            console.log(err);
-                            resp.send({status: 'error', statusMessage: 'password save error'});
-                        }
+                    if (authorized && authorized.rows.length === 1) {
+                        bcrypt.compare(req.body.currentPassword, authorized.rows[0].user_password, (err, matched) => {
+                            if (err) console.log(err);
 
-                        db.query(`UPDATE users SET user_password = $1 WHERE user_id =$2`, [result, req.session.user.user_id])
-                        .then(result => {
-                            if (result !== undefined && result.rowCount === 1) {
-                                resp.send({status: 'success', statusMessage: 'password save success'});
+                            if (matched) {
+                                bcrypt.hash(req.body.newPassword, 10, async(err, result) => {
+                                    if (err) console.log(err);
+                                    
+                                    await client.query(`UPDATE users SET user_password = $1 WHERE user_id = $2`, [result, req.session.user.user_id]);
+
+                                    let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
+
+                                    await client.query('COMMIT')
+                                    .then(() => resp.send({status: 'success', statusMessage: 'Password saved', user: user.rows[0]}));
+                                });
+                            } else {
+                                resp.send({status: 'error', statusMessage: 'Incorrect password'});
                             }
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            resp.send({status: 'error', statusMessage: 'password save error'});
                         });
-                    });
-                } else {
-                    resp.send({status: 'error', statusMessage: 'incorrect password'});
+                    } else {
+                        resp.send({status: 'error', statusMessage: 'User does not exist'});
+                    }
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
                 }
+            })()
+            .catch(err => {
+                console.log(err);
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
-        } else {
-            resp.send({status: 'error', statusMessage: 'user not found'});
-        }
+        });
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
     }
 });
 
 app.post('/api/user/settings/email/change', (req, resp) => {
     if (req.session.user) {
-        db.query(`UPDATE users SET user_email = $1, hide_email = $2 WHERE user_id = $3 RETURNING *`,
-        [req.body.newEmail, req.body.hideEmail, req.session.user.user_id])
-        .then(result => {
-            if ( result !== undefined && result.rowCount === 1) {
-                delete result.rows[0].user_password;
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
 
-                resp.send({status: 'success', statusMessage: 'save email success', user: result.rows[0]});
+            if (req.body.newEmail === req.body.confirmEmail) {
+                (async() => {
+                    try {
+                        await client.query('BEGIN');
+                        await client.query(`UPDATE users SET user_email = $1 WHERE user_id = $2`, [req.body.newEmail, req.session.user.user_id]);
+
+                        let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
+
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success', statusMessage: 'Email saved', user: user.rows[0]}));
+                    } catch (e) {
+                        await client.query('ROLLBACK');
+                        throw e;
+                    } finally {
+                        done();
+                    }
+                })()
+                .catch(err => {
+                    console.log(err);
+                    resp.send({status: 'error', statusMessage: 'An error occurred'});
+                });
             } else {
-                resp.send({status: 'error', statusMessage: 'save email fail'});
+                resp.send({status: 'error', statusMessage: 'Emails do not match'});
             }
-        })
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'save email error'});
         });
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
     }
 });
 
-app.post('/api/user/settings/contact/save', (req, resp) => {
-    let telCheck = /^\+?\d?\s?\(?\d*\)?\s?(\d|-+){5,}(\d)$/;
+app.post('/api/user/settings/change', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
 
-    if (telCheck.test(req.body.phone)) {
-        db.query(`UPDATE users SET user_phone = $1, user_address = $2, display_contacts = $3 WHERE user_id = $4 RETURNING *`, [req.body.phone, req.body.address, req.body.display, req.session.user.user_id])
-        .then(result => {
-            if (result !== undefined && result.rowCount === 1) {
-                delete result.rows[0].user_password;
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+                    await client.query(`UPDATE user_settings SET hide_email = $1, display_fullname = $2, email_notifications = $3, allow_messaging = $4 WHERE user_setting_id = $5`, [req.body.state.hide_email, req.body.state.display_fullname, req.body.state.email_notifications, req.body.state.allow_messaging, req.session.user.user_id]);
 
-                resp.send({status: 'success', statusMessage: 'save contact success'});
-            } else {
-                resp.send({status: 'error', statusMessage: 'save contact fail'});
-            }
-        })
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'save contact error'});
+                    let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
+
+                    await client.query('COMMIT')
+                    .then(() => resp.send({status: 'success', user: user.rows[0]}));
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                console.log(err);
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
         });
     } else {
-        resp.send({status: 'error', statusMessage: 'Invalid phone number'});
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
+    }
+});
+
+app.post('/api/user/profile/update', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
+
+            let valueCheck = /^[a-zA-Z0-9\s\-_.,()\/+]*$/;
+
+            if (valueCheck.test(req.body.value)) {
+                (async() => {
+                    try {
+                        await client.query('COMMIT');
+                        let column = await client.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'user_profiles' AND column_name = $1`, [req.body.column]);
+
+                        if (column && column.rows.length === 1) {
+                            await client.query(`UPDATE user_profiles SET ${column.rows[0].column_name} = $1 WHERE user_profile_id = $2`, [req.body.value, req.session.user.user_id])
+
+                            let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
+
+                            let titleResults = await client.query(`SELECT user_title FROM user_profiles`);
+
+                            let titles = [];
+
+                            for (let title of titleResults.rows) {
+                                titles.push(title.user_title);
+                            }
+
+                            console.log(titles);
+                            
+                            await client.query('COMMIT')
+                            .then(() => resp.send({status: 'success', user: user.rows[0], titles: titles}));
+                        } else {
+                            resp.send({status: 'error', statusMessage: 'An error occurred'});
+                        }
+                    } catch (e) {
+                        await client.query('ROLLBACK');
+                        throw e;
+                    } finally {
+                        done();
+                    }
+                })()
+                .catch(err => {
+                    console.log(err);
+                    resp.send({status: 'error', statusMessage: 'An error occurred'});
+                });
+            } else {
+                resp.send({status: 'error', statusMessage: 'Invalid characters'});
+            }
+        });
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
     }
 });
 

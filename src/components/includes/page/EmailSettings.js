@@ -3,8 +3,9 @@ import SlideToggle from '../../utils/SlideToggle';
 import { connect } from 'react-redux';
 import Alert from '../../utils/Alert';
 import SubmitButton from '../../utils/SubmitButton';
-import { SaveEmail } from '../../../actions/SettingsActions';
+import { UpdateUser } from '../../../actions/LoginActions';
 import PropTypes from 'prop-types';
+import fetch from 'axios';
 
 class EmailSettings extends Component {
     constructor(props) {
@@ -13,8 +14,6 @@ class EmailSettings extends Component {
         this.state = {
             newEmail: '',
             confirmEmail: '',
-            hideEmail: false,
-            emailNotifications: false,
             status: '',
             statusMessage: ''
         }
@@ -34,7 +33,14 @@ class EmailSettings extends Component {
         
         if (emailCheck.test(this.state.newEmail) && emailCheck.test(this.state.confirmEmail)) {
             if (this.state.newEmail === this.state.confirmEmail) {
-                this.props.dispatch(SaveEmail(this.state, this.props.user.user));
+                fetch.post('/api/user/settings/email/change', this.state)
+                .then(resp => {
+                    if (resp.data.status === 'success') {
+                        this.props.dispatch(UpdateUser(resp.data.user));
+                    }
+
+                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                })
             } else {
                 this.setState({
                     status: 'error',
@@ -62,7 +68,7 @@ class EmailSettings extends Component {
         }
 
         return(
-            <div id='email-settings' className='settings-col'>
+            <div id='email-settings'>
                 {error}
                 <div>
                     <label>Change Email:</label>
@@ -75,19 +81,9 @@ class EmailSettings extends Component {
 
                         <div className='mb-3'>
                             <label htmlFor='confirm-email'>Confirm Email:</label>
-                            <input type='email' name='confirm_email' id='confirm-email' className='form-control' onChange={(e) => this.setState({confirmEmail: e.target.value})} />
+                            <input type='email' name='confirm_email' id='confirm-email' className='form-control' onChange={(e) => this.setState({confirmEmail: e.target.value})} autoComplete='off' />
                         </div>
                     </div>
-                </div>
-
-                <div className='settings-row mb-3'>
-                    <span>Hide Email:</span>
-                    <SlideToggle status={this.state.hideEmail ? 'Active' : 'Inactive'} onClick={() => this.setState({hideEmail: !this.state.hideEmail})} />
-                </div>
-
-                <div className='settings-row mb-3'>
-                    <span>Email Notifications:</span>
-                    <SlideToggle status={this.state.emailNotifications ? 'Active' : 'Inactive'} onClick={() => this.setState({emailNotifications: !this.state.emailNotifications})} />
                 </div>
 
                 <div className='text-right'>

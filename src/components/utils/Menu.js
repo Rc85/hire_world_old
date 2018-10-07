@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretSquareDown, faMinusSquare } from '@fortawesome/free-regular-svg-icons';
-import { ToggleMenu } from '../../actions/TogglerActions';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -15,8 +14,6 @@ class Menu extends Component {
         } else {
             status = false;
         }
-
-        this.props.dispatch(ToggleMenu('TOGGLE_MENU', this.props.name, status));
     }
 
     render() {
@@ -50,11 +47,4 @@ Menu.propTypes = {
     id: PropTypes.number.isRequired
 }
 
-const mapStateToProps = state => {
-    return {
-        menu: state.ToggleMenu.menu,
-        status: state.ToggleMenu.status
-    }
-}
-
-export default withRouter(connect(mapStateToProps)(Menu));
+export default withRouter(connect()(Menu));

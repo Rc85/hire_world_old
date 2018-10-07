@@ -114,11 +114,15 @@ class OfferSender extends Component {
         let tooltip; 
 
         if (val === 'Contract Term') {
-            tooltip = `A contract term specifies that you are hiring for a set period of time or until given notice.`;
+            tooltip = `A contract term specifies that a job is for a duration agreed upon you and the other party.`;
         } else if (val === 'Iteration') {
             tooltip = `Iteration is for jobs that have a number of payments throughout the job term.`;
+            
+            this.setState({paymentType: 'Fixed'});
         } else if (val === 'Per Delivery') {
-            tooltip = `Per Delivery is usually for jobs that are carried out in-person, like changing a car's engine oil or selling a product.`;
+            tooltip = `Per delivery is for jobs that have a one-time payment per service or product.`;
+
+            this.setState({paymentType: 'Fixed'});
         } else if (!val) {
             tooltip = null;
         }
@@ -302,7 +306,18 @@ class OfferSender extends Component {
     
     render() {
         console.log(this.state)
-        let fixedSettings, offerTypeSetting, hourlySettings, status, paymentSettings, deleteButton;
+        let fixedSettings, offerTypeSetting, hourlySettings, status, paymentSettings, deleteButton, paymentType;
+
+        if (this.state.offerType === 'Contract Term') {
+            paymentType = <React.Fragment>
+                <span>Payment Type:</span>
+                <select name='payment_type' id='payment-type' className='form-control' onChange={(e) => this.setPaymentType(e.target.value)} disabled={this.state.confidential} value={this.state.paymentType} >
+                    <option value=''>-</option>
+                    <option value='Hourly'>Hourly</option>
+                    <option value='Fixed'>Fixed</option>
+                </select>
+            </React.Fragment>
+        }
 
         if (this.state.status) {
             status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />
@@ -378,12 +393,7 @@ class OfferSender extends Component {
                     </div>
 
                     <div className='w-25'>
-                        <span>Payment Type:</span>
-                        <select name='payment_type' id='payment-type' className='form-control' onChange={(e) => this.setPaymentType(e.target.value)} disabled={this.state.confidential} value={this.state.paymentType} >
-                            <option value=''>-</option>
-                            <option value='Hourly'>Hourly</option>
-                            <option value='Fixed'>Fixed</option>
-                        </select>
+                        {paymentType}
                     </div>
 
                     <div className='w-25'>
@@ -408,7 +418,7 @@ class OfferSender extends Component {
                         } else {
                             this.setState({confidential: false});
                         }
-                    }}> I want the offer detail to remain confidential between me and my service provider.</label>
+                    }}> I want the offer detail to remain confidential between me and the other party.</label>
                 </div>
 
                 <div className='text-right'>

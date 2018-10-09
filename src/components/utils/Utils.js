@@ -1,18 +1,16 @@
 
 import fetch from 'axios';
 
-export const GetMessage = (id, stage, offset, callback) => {
-    fetch.post('/api/get/message', {id: id, offset: offset, stage: stage})
+export const unsaveListing = (id, callback) => {
+    fetch.post('/api/saved_listings/unsave', {listings: [id]})
     .then(resp => {
-        callback(resp.data);
-    })
-    .catch(err => console.log(err));
-}
-
-export const SendMessage = (data, callback) => {
-    fetch.post('/api/message/reply', data)
-    .then(resp => {
-        callback(resp.data);
+        if (resp.data.status === 'success') {
+            fetch.post('/api/get/saved_listings')
+            .then(resp => {
+                callback(resp);
+            })
+            .catch(err => console.log(err));
+        }
     })
     .catch(err => console.log(err));
 }

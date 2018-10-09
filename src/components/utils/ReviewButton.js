@@ -24,7 +24,7 @@ class ReviewButton extends Component {
             return (
                 <div className='review-button-container'>
                     {tooltip}
-                    <button title='Reviewed' id='reviewed-button' className='btn btn-success btn-sm mr-1 disabled' onMouseOver={() => this.setState({showTooltip: true})} onMouseOut={() => this.setState({showTooltip: false})}><FontAwesomeIcon icon={faCheck} /></button>
+                    <button id='reviewed-button' className='btn btn-success btn-sm mr-1 disabled' onMouseOver={() => this.setState({showTooltip: true})} onMouseOut={() => this.setState({showTooltip: false})}><FontAwesomeIcon icon={faCheck} /></button>
                 </div>
             )
         } else {
@@ -43,7 +43,8 @@ class ReviewButton extends Component {
 }
 
 ReviewButton.propTypes = {
-
+    review: PropTypes.func,
+    reviewed: PropTypes.bool
 };
 
 export default ReviewButton;

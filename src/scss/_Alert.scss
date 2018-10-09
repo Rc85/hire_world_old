@@ -1,9 +1,7 @@
 #alert {
     padding: 20px;
-    position: absolute;
-    opacity: 0;
+    margin-bottom: 5px;
     transition: opacity 0.25s ease-in-out;
-    z-index: 2;
 }
 
 #alert.alert-success {

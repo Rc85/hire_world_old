@@ -6,7 +6,8 @@ import Response from '../pages/Response';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle, faHeart } from '@fortawesome/free-solid-svg-icons';
 import MessageSender from '../includes/page/MessageSender';
-import { timingSafeEqual } from 'crypto';
+import { unsaveListing } from '../utils/Utils';
+import Alert from '../utils/Alert';
 
 class ListingDetails extends Component {
     constructor(props) {
@@ -15,7 +16,8 @@ class ListingDetails extends Component {
         this.state = {
             listing: null,
             status: 'Loading',
-            statusMessage: ''
+            statusMessage: '',
+            listingSaved: false
         }
     }
 
@@ -23,7 +25,13 @@ class ListingDetails extends Component {
         fetch.post('/api/get/listing/detail', {id: this.props.match.params.id})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', listing: resp.data.listing});
+                let saved = false;
+
+                if (resp.data.saved) {
+                    saved = true;
+                }
+
+                this.setState({status: '', listing: resp.data.listing, listingSaved: saved});
             } else {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
@@ -41,9 +49,38 @@ class ListingDetails extends Component {
         .catch(err => console.log(err));
     }
 
+    saveListing() {
+        this.setState({status: 'Sending'});
+
+        fetch.post('/api/listing/save', this.state.listing)
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, listingSaved: true});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            }
+        })
+        .catch(err => console.log(err));
+    }
+
+    unsave(id) {
+        this.setState({status: 'Sending'});
+
+        console.log(id)
+
+        unsaveListing(id, resp => {
+            console.log(resp);
+            if (resp.data.status === 'success') {
+                this.setState({status: '', listingSaved: false});
+            } else {
+                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            }
+        });
+    }
+
     render() {
         console.log(this.state)
-        let inquire;
+        let inquire, status;
 
         if (this.props.user.user && this.state.listing && this.props.user.user.username !== this.state.listing.listing_user && this.state.listing.allow_messaging) {
             inquire = <div>
@@ -51,7 +88,13 @@ class ListingDetails extends Component {
             </div>
         }
 
-        if (this.state.status === 'error') {
+        if (this.state.status === 'success' || this.state.status === 'error') {
+            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />;
+        } else if (this.state.status === 'Sending') {
+            status = <Loading size='5x' />;
+        }
+
+        if (this.state.status === 'access error') {
             return(
                 <Response code={500} header='Internal Server Error' message={this.state.statusMessage} />
             )
@@ -62,6 +105,7 @@ class ListingDetails extends Component {
         } else {
             return(
                 <section id='service-details' className='main-panel w-100'>
+                    {status}
                     <div className='blue-panel shallow rounded w-100 position-relative'>
                         <div className='service-details-header'>
                             <div>
@@ -88,7 +132,7 @@ class ListingDetails extends Component {
 
                         <div className='service-footer'>
                             <hr/>
-                            <FontAwesomeIcon icon={faHeart} size='sm' /> <FontAwesomeIcon icon={faExclamationTriangle} size='sm' />
+                            {this.state.listingSaved ? <FontAwesomeIcon icon={faHeart} size='sm' style={{cursor: 'pointer'}} color='#ffc107' onClick={() => this.unsave(this.state.listing.saved_id)} /> : <FontAwesomeIcon icon={faHeart} size='sm' style={{cursor: 'pointer'}} onClick={() => this.saveListing()} />} <FontAwesomeIcon icon={faExclamationTriangle} size='sm' style={{cursor: 'pointer'}} />
                         </div>
                     </div>
                 </section>

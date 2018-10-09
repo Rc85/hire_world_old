@@ -132,3 +132,10 @@
     padding: 20px;
     border: 1px solid $theme-darkgrey;
 }
+
+.alert-container {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 2;
+}

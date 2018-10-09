@@ -17,6 +17,7 @@ const Dashboard = props => {
                 <TabBar items={[
                     {name: 'Edit', active: props.location.pathname === '/dashboard/edit', link: '/dashboard/edit'},
                     {name: 'List', active: props.location.pathname === '/dashboard/list', link: '/dashboard/list'},
+                    {name: 'Saved Listings', active: props.location.pathname === '/dashboard/saved_listings', link: '/dashboard/saved_listings'},
                     {name: 'Inquiries', active: /^\/dashboard\/message(s)?\/Inquire.*/.test(props.location.pathname), link: '/dashboard/messages/Inquire'},
                     {name: 'Active Jobs', active: /^\/dashboard\/message(s)?\/Active.*/.test(props.location.pathname), link: '/dashboard/messages/Active'},
                     {name: 'Completed', active: /^\/dashboard\/message(s)?\/Complete.*/.test(props.location.pathname), link: '/dashboard/messages/Complete'},

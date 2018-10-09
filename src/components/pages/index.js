@@ -9,9 +9,10 @@ import MessageDetails from './MessageDetails';
 import Messages from './Messages';
 import Register from './Register';
 import Response from './Response';
+import SavedListings from './SavedListings';
 import Sectors from './Sectors';
 import UserServices from './UserServices';
 import UserSettings from './UserSettings';
 import ViewUser from './ViewUser';
 
-export { Browse, Dashboard, EditUser, ListingDetails, ListSettings, Login, Main, MessageDetails, Messages, Register, Response, Sectors, UserServices, UserSettings, ViewUser }
+export { Browse, Dashboard, EditUser, ListingDetails, ListSettings, Login, Main, MessageDetails, Messages, Register, Response, SavedListings, Sectors, UserServices, UserSettings, ViewUser }

@@ -2,19 +2,16 @@ import React, { Component } from 'react';
 import ViewUserSocialMedia from '../includes/page/ViewUserSocialMedia';
 import ViewUserContacts from '../includes/page/ViewUserContacts';
 import ViewUserProfile from '../includes/page/ViewUserProfile';
-import ViewUserServices from '../includes/page/ViewUserServices';
 import { withRouter } from 'react-router-dom';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
 import Response from './Response';
 import ViewUserStats from '../includes/page/ViewUserStats';
 import ViewUserReview from '../includes/page/ViewUserReview';
-import { NavLink } from 'react-router-dom';
-import { connect } from 'react-redux';
 import SubmitReview from '../includes/page/SubmitReview';
 import Alert from '../utils/Alert';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 class ViewUser extends Component {
     constructor(props) {
@@ -33,7 +30,7 @@ class ViewUser extends Component {
         console.log(nextProps);
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps) {
         console.log(prevProps)
         if (prevProps.location.key !== this.props.location.key) {
             this.setState({status: 'Loading'});
@@ -99,7 +96,7 @@ class ViewUser extends Component {
     }
 
     render() {
-        console.log(this.state)
+        console.log(this.props)
         let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, name;
 
         if (this.state.status === 'Loading') {
@@ -160,6 +157,8 @@ class ViewUser extends Component {
                             {profile}
                         </div>
                     </div>
+
+                    <div className='text-right'><FontAwesomeIcon icon={faExclamationTriangle} size='xs' /></div>
                 </div>
 
                 <div className='text-right mt-3'>

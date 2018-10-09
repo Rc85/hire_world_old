@@ -4,8 +4,7 @@ import moment from 'moment';
 import ReviewButton from '../../utils/ReviewButton';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faStar } from '@fortawesome/free-solid-svg-icons';
-import TextArea from '../../utils/TextArea';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import Alert from '../../utils/Alert';
 import Loading from '../../utils/Loading';
 import fetch from 'axios';
@@ -95,7 +94,11 @@ class MessageRow extends Component {
 }
 
 MessageRow.propTypes = {
-
+    user: PropTypes.object,
+    stage: PropTypes.string,
+    message: PropTypes.object,
+    select: PropTypes.func,
+    delete: PropTypes.func
 }
 
 export default MessageRow;

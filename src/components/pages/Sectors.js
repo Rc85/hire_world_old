@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { withRouter, NavLink } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
 import Alert from '../utils/Alert';
-import UserRating from '../includes/page/UserRating';
+import ListingRow from '../includes/page/ListingRow';
 import SearchListing from '../includes/page/SearchListing';
 
 class Sectors extends Component {
@@ -64,14 +64,8 @@ class Sectors extends Component {
         }
 
         let listings = this.state.listings.map((listing, i) => {
-            return <div key={i} className='listing-row mb-2'>
-                <div className='w-40 text-truncate'><NavLink to={`/listing/${listing.listing_id}`}>{listing.listing_title}</NavLink></div>
-                <div className='w-15'><NavLink to={`/user/${listing.listing_user}`}>{listing.listing_user}</NavLink></div>
-                <div className='w-20'>{listing.user_title}</div>
-                <div className='w-15'>{listing.listing_created_date}</div>
-                <div className='w-10 text-right'><UserRating rating={listing.rating} /></div>
-            </div>
-        })
+            return <ListingRow key={i} listing={listing} />
+        });
 
         return(
             <section id='listings' className='main-panel w-100'>

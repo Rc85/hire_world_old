@@ -3,7 +3,6 @@ import { NavLink, withRouter } from 'react-router-dom';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import Alert from '../utils/Alert';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faRedoAlt } from '@fortawesome/free-solid-svg-icons';

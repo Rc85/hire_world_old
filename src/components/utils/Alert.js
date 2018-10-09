@@ -7,28 +7,10 @@ export default class Alert extends Component {
     }
 
     componentDidMount() {
-        let alert = document.getElementById('alert');
-
         if (this.props.status !== null) {
-            alert.style.display = 'block';
-            alert.style.opacity = 1;
-
-            if (this.props.left) {
-                alert.style.left = this.props.left;
-            }
-
-            if (this.props.top) {
-                alert.style.top = this.props.top;
-            }
-
             setTimeout(() => {
-                alert.style.opacity = 0;
-            }, 2000);
-
-            setTimeout(() => {
-                alert.style.display = 'none';
                 this.props.unmount();
-            }, 2250);
+            }, 2500);
         }
     }
 

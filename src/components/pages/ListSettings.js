@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { UncontrolledTooltip } from 'reactstrap';
 import ListInfo from '../includes/page/ListInfo';
+import { ShowConfirmation } from '../../actions/ConfirmationActions';
 
 class ListSettings extends Component {
     constructor(props) {
@@ -22,24 +23,42 @@ class ListSettings extends Component {
             title: '',
             id: null,
             date: null,
+            renewedDate: null,
             sector: 'Artists',
             price: '',
             currency: '',
             detail: '',
             listingStatus: '',
             listing: {
-                negotiable: false,
-                priceType: 'Hour',
-                title: '',
-                id: null,
-                date: null,
-                sector: 'Artists',
-                price: '',
-                currency: '',
-                detail: '',
+                listing_negotiable: false,
+                listing_price_type: 'Hour',
+                listing_title: '',
+                listing_id: null,
+                listing_renewed_date: null,
+                listing_created_date: null,
+                listing_sector: 'Artists',
+                listing_price: '',
+                listing_price_currency: '',
+                listing_detail: '',
             }
         }
     }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.confirm.data && nextProps.confirm.option) {
+            if (nextProps.confirm.data.action === 'renew listing') {
+                fetch.post('/api/listing/renew', nextProps.confirm.data)
+                .then(resp => {
+                    if (resp.data.status === 'success') {
+                        this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, listing: resp.data.listing});
+                    } else {
+                        this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                    }
+                });
+            }
+        }
+    }
+    
     
     componentDidMount() {
         this.setState({status: 'Loading'});
@@ -52,6 +71,7 @@ class ListSettings extends Component {
                     title: resp.data.listing.listing_title,
                     id: resp.data.listing.listing_id,
                     date: resp.data.listing.listing_created_date,
+                    renewedDate: resp.data.listing.listing_renewed_date,
                     sector: resp.data.listing.listing_sector,
                     price: resp.data.listing.listing_price,
                     priceType: resp.data.listing.listing_price_type,
@@ -59,15 +79,16 @@ class ListSettings extends Component {
                     negotiable: resp.data.listing.listing_negotiable,
                     detail: resp.data.listing.listing_detail,
                     listing: {
-                        title: resp.data.listing.listing_title,
-                        id: resp.data.listing.listing_id,
-                        date: resp.data.listing.listing_created_date,
-                        sector: resp.data.listing.listing_sector,
-                        price: resp.data.listing.listing_price,
-                        priceType: resp.data.listing.listing_price_type,
-                        currency: resp.data.listing.listing_price_currency,
-                        negotiable: resp.data.listing.listing_negotiable,
-                        detail: resp.data.listing.listing_detail
+                        listing_title: resp.data.listing.listing_title,
+                        listing_id: resp.data.listing.listing_id,
+                        listing_renewed_date: resp.data.listing.listing_renewed_date,
+                        listing_created_date: resp.data.listing.listing_created_date,
+                        listing_sector: resp.data.listing.listing_sector,
+                        listing_price: resp.data.listing.listing_price,
+                        listing_price_type: resp.data.listing.listing_price_type,
+                        listing_price_currency: resp.data.listing.listing_price_currency,
+                        listing_negotiable: resp.data.listing.listing_negotiable,
+                        listing_detail: resp.data.listing.listing_detail
                     },
                     listingStatus: resp.data.listing.listing_status
                 });
@@ -102,6 +123,7 @@ class ListSettings extends Component {
                         title: resp.data.listing.listing_title,
                         id: resp.data.listing.listing_id,
                         date: resp.data.listing.listing_created_date,
+                        renewedDate: resp.data.listing.listing_renewed_date,
                         sector: resp.data.listing.listing_sector,
                         price: resp.data.listing.listing_price,
                         priceType: resp.data.listing.listing_price_type,
@@ -109,15 +131,16 @@ class ListSettings extends Component {
                         negotiable: resp.data.listing.listing_negotiable,
                         detail: resp.data.listing.listing_detail,
                         listing: {
-                            title: resp.data.listing.listing_title,
-                            id: resp.data.listing.listing_id,
-                            date: resp.data.listing.listing_created_date,
-                            sector: resp.data.listing.listing_sector,
-                            price: resp.data.listing.listing_price,
-                            priceType: resp.data.listing.listing_price_type,
-                            currency: resp.data.listing.listing_price_currency,
-                            negotiable: resp.data.listing.listing_negotiable,
-                            detail: resp.data.listing.listing_detail
+                            listing_title: resp.data.listing.listing_title,
+                            listing_id: resp.data.listing.listing_id,
+                            listing_renewed_date: resp.data.listing.listing_renewed_date,
+                            listing_created_date: resp.data.listing.listing_created_date,
+                            listing_sector: resp.data.listing.listing_sector,
+                            listing_price: resp.data.listing.listing_price,
+                            listing_price_type: resp.data.listing.listing_price_type,
+                            listing_price_currency: resp.data.listing.listing_price_currency,
+                            listing_negotiable: resp.data.listing.listing_negotiable,
+                            listing_detail: resp.data.listing.listing_detail
                         },
                         listingStatus: resp.data.listing.listing_status
                     });
@@ -160,13 +183,14 @@ class ListSettings extends Component {
                     negotiable: resp.data.listing.listing_negotiable,
                     detail: resp.data.listing.listing_detail,
                     listing: {
-                        title: resp.data.listing.listing_title,
-                        sector: resp.data.listing.listing_sector,
-                        price: resp.data.listing.listing_price,
-                        priceType: resp.data.listing.listing_price_type,
-                        currency: resp.data.listing.listing_price_currency,
-                        negotiable: resp.data.listing.listing_negotiable,
-                        detail: resp.data.listing.listing_detail
+                        listing_id: resp.data.listing.listing_id,
+                        listing_title: resp.data.listing.listing_title,
+                        listing_sector: resp.data.listing.listing_sector,
+                        listing_price: resp.data.listing.listing_price,
+                        listing_price_type: resp.data.listing.listing_price_type,
+                        listing_price_currency: resp.data.listing.listing_price_currency,
+                        listing_negotiable: resp.data.listing.listing_negotiable,
+                        listing_detail: resp.data.listing.listing_detail
                     }
                 });
             } else {
@@ -178,7 +202,7 @@ class ListSettings extends Component {
     
     render() {
         console.log(this.state)
-        let status, sectors, toggleButton, listInfo;
+        let status, sectors, buttons, listInfo;
 
         if (this.state.status === 'Loading') {
             status = <Loading size='7x' />;
@@ -193,7 +217,19 @@ class ListSettings extends Component {
         }
 
         if (this.state.date) {
-            toggleButton = <div className='d-flex-end-center mb-3'><SlideToggle status={this.state.listingStatus === 'Active'} onClick={() => this.toggleListing()} /></div>;
+            let now = new Date();
+            let lastRenew = new Date(this.state.renewedDate);
+
+            console.log(now - lastRenew)
+
+            buttons = <div className='d-flex-between-center mb-3'>
+                <div>{this.state.date !== this.state.renewedDate ? <span>Renewed on {this.state.renewedDate}</span> : ''}</div>
+                <div className='d-flex-between-center'>
+                    <SlideToggle status={this.state.listingStatus === 'Active'} onClick={() => this.toggleListing()} />
+                    <button id='renew-button' className='btn btn-primary ml-1' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to spend 50 credits to renew your listing?', false, {id: this.state.id, action: 'renew listing'}))} disabled={now - lastRenew < 8.64e+7}>Renew</button>
+                    <UncontrolledTooltip placement='top' target='renew-button'>{now - lastRenew < 8.64e+7 ? <span>You must wait 24 hours from your last renew before you can renew again</span> : <span>Renewing your listing will bring it to the top of the list</span>}</UncontrolledTooltip>
+                </div>
+            </div>;
             listInfo = <ListInfo listing={this.state.listing} />;
         }
         
@@ -201,7 +237,7 @@ class ListSettings extends Component {
             <section id='list-settings' className='blue-panel shallow three-rounded'>
                 {this.props.user.user.account_type === 'User' ? <div className='alert alert-danger'>You need to be on a subscription plan to create a listing</div> : ''}
                 {status}
-                {toggleButton}
+                {buttons}
 
                 {listInfo}
 
@@ -282,12 +318,13 @@ class ListSettings extends Component {
 }
 
 ListSettings.propTypes = {
-
+    user: PropTypes.object.isRequired
 };
 
 const mapStateToProps = state => {
     return {
-        sectors: state.Sectors.sectors
+        sectors: state.Sectors.sectors,
+        confirm: state.Confirmation
     }
 }
 

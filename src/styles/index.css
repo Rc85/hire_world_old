@@ -475,10 +475,8 @@
 
 #alert {
   padding: 20px;
-  position: absolute;
-  opacity: 0;
+  margin-bottom: 5px;
   transition: opacity 0.25s ease-in-out;
-  z-index: 2;
 }
 
 #alert.alert-success {
@@ -620,6 +618,13 @@
 .dark-bordered-container {
   padding: 20px;
   border: 1px solid #6F6F6F;
+}
+
+.alert-container {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  z-index: 2;
 }
 
 #browse {

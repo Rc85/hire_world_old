@@ -119,4 +119,90 @@ app.post('/api/listing/edit', (req, resp) => {
     }
 });
 
+app.post('/api/listing/renew', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let authorized = await client.query(`SELECT listing_user, listing_renewed_date FROM user_listings WHERE listing_id = $1`, [req.body.id]);
+
+                    let now = new Date();
+                    let lastRenew = new Date(authorized.rows[0].listing_renewed_date);
+
+                    if (now - lastRenew >= 8.64e+7) {
+                        if (authorized.rows[0].listing_user === req.session.user.username) {
+                            let listing = await client.query(`UPDATE user_listings SET listing_renewed_date = current_timestamp WHERE listing_id = $1 RETURNING *`, [req.body.id]);
+
+                            await client.query('COMMIT')
+                            .then(() => resp.send({status: 'success', statusMessage: 'Listing renewed', listing: listing.rows[0]}));
+                        } else {
+                            await client.query('END');
+                            resp.send({status: 'error', statusMessage: `You're not authorized`});
+                        }
+                    } else {
+                        resp.send({status: 'error', statusMessage: `You already renewed within the last 24 hours`});
+                        await client.query('END');
+                    }
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                console.log(err);
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
+        });
+    }
+});
+
+app.post('/api/listing/save', (req, resp) => {
+    if (req.session.user) {
+        db.query(`INSERT INTO saved_listings (saved_listing_id, saved_listing_title, saved_by) VALUES ($1, $2, $3)`, [req.body.listing_id, req.body.listing_title, req.session.user.username])
+        .then(result => {
+            if (result && result.rowCount === 1) {
+                resp.send({status: 'success', statusMessage: 'Listing saved'});
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
+        });
+    }
+});
+
+app.post('/api/saved_listings/unsave', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    await client.query(`DELETE FROM saved_listings WHERE saved_id = ANY($1) AND saved_by = $2`, [req.body.listings, req.session.user.username]);
+
+                    await client.query('COMMIT')
+                    .then(() => resp.send({status: 'success', statusMessage: 'Saved listing(s) deleted'}));
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                console.log(err);
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
+        });
+    }
+});
+
 module.exports = app;

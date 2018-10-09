@@ -5,26 +5,12 @@ import { GetSession, GetSectors } from './actions/FetchActions';
 import AdminOverview from './components/admin/AdminOverview';
 import AdminSectors from './components/admin/AdminSectors';
 import Admin from './components/admin/Admin';
-
-/* import Browse from './components/pages/Browse';
-import Dashboard from './components/pages/Dashboard';
-import EditUser from './components/pages/EditUser';
-import Login from './components/pages/Login';
-import Main from './components/pages/Main';
-import MessageDetails from './components/pages/MessageDetails';
-import Messages from './components/pages/Messages';
-import Register from './components/pages/Register';
-import Response from './components/pages/Response';
-import Sectors from './components/pages/Sectors';
-import ServiceDetails from './components/pages/ServiceDetails';
-import UserSettings from './components/pages/UserSettings';
-import ViewUser from './components/pages/ViewUser'; */
-
+import { RemoveAlert } from './actions/Alert';
 import * as Pages from './components/pages';
-
 import TopBar from './components/includes/site/TopBar';
 import BrowseMenu from './components/includes/site/BrowseMenu';
 import Confirmation from './components/utils/Confirmation';
+import Alert from './components/utils/Alert';
 
 class App extends Component {
 	constructor(props) {
@@ -51,7 +37,8 @@ class App extends Component {
     }
 
 	render() {
-		let confirmation, sectors;
+		console.log(this.props.alerts);
+		let confirmation, sectors, alerts;
 
 		if (this.props.confirmation.status === true) {
 			confirmation = <Confirmation message={this.props.confirmation.message} note={this.props.confirmation.note} />
@@ -69,6 +56,17 @@ class App extends Component {
 			this.menu = <BrowseMenu unmount={true} />
 		}
 
+		if (this.props.alerts.length > 0) {
+			alerts = this.props.alerts.map((alert, i) => {
+				return <Alert key={i} status={alert.status} message={alert.message} unmount={() => {
+					this.props.alerts.splice(0, 1);
+					this.props.dispatch(RemoveAlert(this.props.alerts))
+				}} />
+			});
+		} else if (this.props.alerts.length === 0) {
+			alerts = [];
+		}
+
 		return (
 			<div className='col-container'>
 				{confirmation}
@@ -81,6 +79,7 @@ class App extends Component {
 						<Route exact path='/' component={Pages.Main} />
 						<Route exact path='/view' component={Pages.ViewUser} />
 						<Route exact path='/dashboard/list' render={() => <Pages.Dashboard user={this.props.user}><Pages.ListSettings user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/saved_listings' render={() => <Pages.Dashboard user={this.props.user}><Pages.SavedListings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/settings' render={() => <Pages.Dashboard user={this.props.user}><Pages.UserSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/messages/:stage' render={() => <Pages.Dashboard user={this.props.user}><Pages.Messages user={this.props.user} /></Pages.Dashboard>} />} />
@@ -96,6 +95,8 @@ class App extends Component {
 						<Route render={() => <Pages.Response code={404} header={'Not Found'} message={`This page you're trying to access does not exist.`} />} />
 					</Switch>
 				</section>
+
+				<div className='alert-container'>{alerts}</div>
 			</div>
 		);
 	}
@@ -106,6 +107,7 @@ const mapStateToProps = (state) => {
 		user: state.Login,
 		confirmation: state.Confirmation,
 		sectors: state.Sectors.sectors,
+		alerts: state.Alert.alerts
 	}
 }
 

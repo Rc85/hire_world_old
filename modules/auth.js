@@ -96,7 +96,7 @@ app.post('/api/auth/login', async(req, resp) => {
                     await db.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
                     .catch(err => console.log(err));
 
-                    let user = await db.query(`SELECT * FROM users
+                    let user = await db.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, users.account_type, users.user_level, user_profiles.*, user_settings.* FROM users
                     LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
                     LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
                     WHERE users.user_id = $1`, [auth.rows[0].user_id]);
@@ -109,6 +109,10 @@ app.post('/api/auth/login', async(req, resp) => {
                     }
 
                     req.session.user = session;
+
+                    delete user.rows[0].user_id;
+                    delete user.rows[0].user_level;
+                    delete user.rows[0].account_type;
 
                     resp.send({status: 'success', user: user.rows[0]});
                 } else {
@@ -123,7 +127,7 @@ app.post('/api/auth/login', async(req, resp) => {
 
 app.post('/api/auth/get-session', (req, resp) => {
     if (req.session.user) {
-        db.query(`SELECT * FROM users
+        db.query(`SELECT users.username, users.user_email, users.user_last_login, user_profiles.*, user_settings.* FROM users
         LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
         LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
         WHERE user_id = $1`, [req.session.user.user_id])

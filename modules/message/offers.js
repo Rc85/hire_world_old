@@ -5,42 +5,72 @@ app.post('/api/offer/submit', (req, resp) => {
     if (req.session.user) {
         db.connect(async(err, client, done) => {
             if (err) { console.log(err); }
-            
-            let authorized = await client.query(`SELECT job_client FROM jobs WHERE job_id = $1`, [req.body.job_id])
+
+            let authorized = await client.query(`SELECT job_client, job_listing_id FROM jobs WHERE job_id = $1`, [req.body.job_id])
             .catch(err => {
                 console.log(err);
             });
 
+            let negotiable = await client.query(`SELECT * FROM user_listings WHERE listing_id = $1`, [authorized.rows[0].job_listing_id]);
+
+            let offerType, term, date, price, currency, paymentType, paymentPeriod, numberOfPayments, amountType, payments, confidential;
+
             if (authorized.rows[0].job_client === req.session.user.username) {
-                (async() => {
-                    try {
-                        await client.query('BEGIN');
-
-                        let offer = await client.query(`INSERT INTO offers (offer_type, offer_term, completed_by, offer_price, offer_currency, offer_payment_type, offer_payment_period, offer_number_of_payments, offer_amount_type, offer_payment_1, offer_payment_2, offer_payment_3, offer_payment_4, offer_payment_5, offer_payment_6, offer_for_job, offer_confidentiality) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING *`,
-                        [req.body.offerType, req.body.term, req.body.date, req.body.price, req.body.currency, req.body.paymentType, req.body.paymentPeriod, req.body.numberOfPayments, req.body.amountType, req.body.payments[0], req.body.payments[1], req.body.payments[2], req.body.payments[3], req.body.payments[4], req.body.payments[5], req.body.job_id, req.body.confidential])
-
-                        let messageBody = `An offer has been created and is awaiting response.`
-
-                        let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, is_reply, message_recipient) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [req.body.job_id, messageBody, 'Update', true, req.body.recipient])
-
-                        await client.query('COMMIT')
-                        .then(() => {
-                            resp.send({status: 'success', statusMessage: 'Offer sent', offer: offer.rows[0], message: message.rows[0]});
-                        });
-                    } catch (e) {
-                        await client.query('ROLLBACK');
-                        throw e;
-                    } finally {
-                        done();
+                if (!negotiable.rows[0].listing_negotiable && req.body.type === 'offer') {
+                    resp.send({status: 'error', statusMessage: `Offers not accepted, refresh and try again`});
+                } else if (negotiable.rows[0].listing_negotiable && req.body.type === 'hire') {
+                    resp.send({status: 'error', statusMessage: 'Offers are accepted, refresh and try again'});
+                } else if ((negotiable.rows[0].listing_negotiable && req.body.type === 'offer') || !negotiable.rows[0].listing_negotiable && req.body.type === 'hire') {
+                    if (negotiable.rows[0].listing_negotiable) {
+                        offerType = req.body.offerType;
+                        term = req.body.term;
+                        date = req.body.date;
+                        price = req.body.price;
+                        currency = req.body.currency;
+                        paymentType = req.body.paymentType;
+                        paymentPeriod = req.body.paymentPeriod;
+                        numberOfPayments = req.body.numberOfPayments;
+                        amountType = req.body.amountType;
+                        payments = req.body.payments;
+                        confidential = req.body.confidential;
+                    } else if (!negotiable.rows[0].listing_negotiable) {
+                        offerType = 'User Determined';
+                        price = negotiable.rows[0].listing_price;
+                        currency = negotiable.rows[0].listing_price_currency;
+                        paymentType = negotiable.rows[0].listing_price_type;
+                        payments = [null, null, null, null, null, null];
                     }
-                })()
-                .catch(err => {
-                    console.log(err);
-                    resp.send({status: 'error', statusMessage: 'Fail to send offer'});
-                });
+
+                    (async() => {
+                        try {
+                            await client.query('BEGIN');
+        
+                            let offer = await client.query(`INSERT INTO offers (offer_type, offer_term, completed_by, offer_price, offer_currency, offer_payment_type, offer_payment_period, offer_number_of_payments, offer_amount_type, offer_payment_1, offer_payment_2, offer_payment_3, offer_payment_4, offer_payment_5, offer_payment_6, offer_for_job, offer_confidentiality) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING *`,
+                            [offerType, term, date, price, currency, paymentType, paymentPeriod, numberOfPayments, amountType, payments[0], payments[1], payments[2], payments[3], payments[4], payments[5], req.body.job_id, confidential])
+        
+                            let messageBody = `An offer has been created and is awaiting response.`;
+        
+                            let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, is_reply, message_recipient) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [req.body.job_id, messageBody, 'Update', true, req.body.recipient])
+        
+                            await client.query('COMMIT')
+                            .then(() => {
+                                resp.send({status: 'success', statusMessage: 'Offer sent', offer: offer.rows[0], message: message.rows[0]});
+                            });
+                        } catch (e) {
+                            await client.query('ROLLBACK');
+                            throw e;
+                        } finally {
+                            done();
+                        }
+                    })()
+                    .catch(err => {
+                        console.log(err);
+                        resp.send({status: 'error', statusMessage: 'Fail to send offer'});
+                    });
+                }
             } else {
                 done();
-                resp.send({status: 'error', statusMessage: `You're not authorized`})
+                resp.send({status: 'error', statusMessage: `You're not authorized`});
             }
         });
     }

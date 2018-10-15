@@ -6,17 +6,12 @@ import UserProfilePic from '../includes/page/UserProfilePic';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import UserTitle from '../includes/page/UserTitle';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBuilding } from '@fortawesome/free-regular-svg-icons';
 
 class EditUser extends Component {
     render() {
-        let userTitleStatus, userEducationStatus, userGithubStatus, userTwitterStatus, userFacebookStatus, userLinkedInStatus, userWebsiteStatus, userInstagramStatus, fullName, businessName, email, phone, address;
+        let userEducationStatus, userGithubStatus, userTwitterStatus, userFacebookStatus, userLinkedInStatus, userWebsiteStatus, userInstagramStatus, fullName, businessName, email, phone, address;
 
         switch(this.props.user.status) {
-            case 'edit user_title loading': userTitleStatus = 'loading'; break;
-            case 'edit user_title success': userTitleStatus = 'success'; break;
-            case 'edit user_title error': userTitleStatus = 'error'; break;
             case 'edit user_education loading': userEducationStatus = 'loading'; break;
             case 'edit user_education success': userEducationStatus = 'success'; break;
             case 'edit user_education error': userEducationStatus = 'error'; break;
@@ -55,7 +50,7 @@ class EditUser extends Component {
         }
 
         if (this.props.user.user.user_business_name) {
-            businessName = <h3><FontAwesomeIcon icon={faBuilding} className='view-user-icon' /> {this.props.user.user.user_business_name}</h3>;
+            businessName = <h3>{this.props.user.user.user_business_name}</h3>;
         }
 
         if (!this.props.user.user.hide_email) {
@@ -138,10 +133,6 @@ class EditUser extends Component {
                         <hr/>
 
                         <UserDetails user={this.props.user} />
-
-                        {/* <hr/>
-
-                        <UserServices user={this.props.user} /> */}
                     </div>
                 </div>
             </section>

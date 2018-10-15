@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { LoginUser, ResetLogin } from '../../actions/LoginActions';
+import { LoginUser } from '../../actions/LoginActions';
 import { connect } from 'react-redux';
 import SubmitButton from '../utils/SubmitButton';
 import { withRouter, Redirect } from 'react-router-dom';
-import Alert from '../utils/Alert';
 
 class Login extends Component {
     constructor() {
@@ -11,9 +10,7 @@ class Login extends Component {
 
         this.state  = {
             username: null,
-            password: null,
-            status: '',
-            statusMessage: ''
+            password: null
         }
     }
 
@@ -22,12 +19,6 @@ class Login extends Component {
     }
 
     render() {
-        let status;
-
-        if (this.props.user.status === 'error') {
-            status = <Alert status={this.props.user.status} message={this.props.user.statusMessage} unmount={() => this.props.dispatch(ResetLogin(this.props.user))} />
-        }
-
         if (this.props.user.user) {
             return(
                 <Redirect to='/dashboard/edit' />
@@ -35,7 +26,6 @@ class Login extends Component {
         } else {
             return(
                 <section id='login' className='main-panel'>
-                    {status}
                     <div className='blue-panel shallow rounded'>
                         <h2>Login</h2>
 

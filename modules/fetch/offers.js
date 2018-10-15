@@ -15,7 +15,7 @@ app.post('/api/get/offer', (req, resp) => {
 
                     if (authorized !== undefined && authorized.rows.length === 1) {
                         let job = await client.query(`SELECT * FROM jobs
-                        LEFT JOIN user_listings ON listing_id = job_service_id
+                        LEFT JOIN user_listings ON listing_id = job_listing_id
                         WHERE job_id = $1 ${req.body.stage === 'Abandoned' ? `AND job_stage IN ($2, 'Incomplete')` : 'AND job_stage = $2'}`, [req.body.job_id, req.body.stage]);
 
                         let offer = await client.query(`SELECT * FROM offers WHERE offer_for_job = $1 AND offer_status != 'Deleted'`, [req.body.job_id])

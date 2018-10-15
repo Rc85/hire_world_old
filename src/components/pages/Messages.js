@@ -3,7 +3,7 @@ import { NavLink, withRouter } from 'react-router-dom';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
 import PropTypes from 'prop-types';
-import Alert from '../utils/Alert';
+import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faRedoAlt } from '@fortawesome/free-solid-svg-icons';
 import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
@@ -40,10 +40,10 @@ class Messages extends Component {
         if (prevProps.location.key !== this.props.location.key) {
             fetch.post('/api/get/messages', {stage: this.props.match.params.stage, user: this.props.user.user.user_type})
             .then(resp => {
-                if (resp.data.status === 'success') {
-                    this.setState({messages: resp.data.messages, status: ''});
-                } else {
-                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                this.setState({messages: resp.data.messages, status: ''});
+                
+                if (resp.data.status === 'error') {
+                    this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                 }
             })
             .catch(err => console.log(err));
@@ -53,10 +53,10 @@ class Messages extends Component {
     componentDidMount() {
         fetch.post('/api/get/messages', {stage: this.props.match.params.stage, user: this.props.user.user.user_type})
         .then(resp => {
-            if (resp.data.status === 'success') {
-                this.setState({messages: resp.data.messages, status: ''});
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            this.setState({messages: resp.data.messages, status: ''});
+ 
+            if (resp.data.status === 'error') {
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
         .catch(err => console.log(err));
@@ -108,21 +108,19 @@ class Messages extends Component {
 
             fetch.post('/api/jobs/delete', {ids: this.state.selected, stage: this.props.match.params.stage})
             .then(resp => {
-                if (resp.data.status === 'success') {
-                    let checkboxes = document.getElementsByClassName('select-message-checkbox');
+                let checkboxes = document.getElementsByClassName('select-message-checkbox');
 
-                    for (let checkbox of checkboxes) {
-                        checkbox.checked = false;
-                    }
-
-                    this.setState({status: '', messages: resp.data.jobs, selected: []});
-                } else {
-                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                for (let checkbox of checkboxes) {
+                    checkbox.checked = false;
                 }
+
+                this.setState({status: '', messages: resp.data.jobs, selected: []});
+
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));           
             })
             .catch(err => console.log(err));
         } else {
-            this.setState({status: 'error', statusMessage: 'Nothing to delete'});
+            this.props.dispatch(Alert('error', 'Nothing to delete'));
         }
     }
 
@@ -131,26 +129,24 @@ class Messages extends Component {
 
         fetch.post('/api/jobs/delete', {ids: [id]})
         .then(resp => {
-            if (resp.data.status === 'success') {
-                let messages = this.state.messages;
-                messages.splice(index, 1);
+            let messages = this.state.messages;
+            messages.splice(index, 1);
 
-                this.setState({status: '', messages: messages});
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
-            }
+            this.setState({status: '', messages: messages});
+            
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
+        .catch(err => console.log(err));
     }
 
     render() {
-        console.log(this.state)
         let status, messages;
 
         if (this.state.status === 'Loading') {
             status = <Loading size='7x' />;
-        } else if (this.state.status && this.state.status !== 'Loading') {
-            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />;
         }
+
+        console.log(status)
         
         if (this.state.messages) {
             messages = this.state.messages.map((message, i) => {

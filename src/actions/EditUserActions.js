@@ -1,4 +1,5 @@
 import fetch from 'axios';
+import { Alert } from './AlertActions';
 
 export const EditUser = (type, value, user) => {
     return dispatch => {
@@ -12,6 +13,7 @@ export const EditUser = (type, value, user) => {
                 dispatch(EditUserSuccess(resp.data.status, resp.data.user));
             } else {
                 dispatch(EditUserError(resp.data.status, user));
+                dispatch(Alert('error', 'An error occurred'));
             }
         })
         .catch(err =>  console.log(err));

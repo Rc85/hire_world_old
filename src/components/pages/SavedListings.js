@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
 import { connect } from 'react-redux';
-import { Alert } from '../../actions/Alert';
+import { Alert } from '../../actions/AlertActions';
 import { unsaveListing } from '../utils/Utils';
 
 class SavedListings extends Component {
@@ -30,7 +30,7 @@ class SavedListings extends Component {
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({status: '', listings: resp.data.listings});
-            } else if (resp.data.status === 'error') {
+            } else if (resp.data.status === 'access error') {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
         })
@@ -95,20 +95,20 @@ class SavedListings extends Component {
 
                     fetch.post('/api/get/saved_listings')
                     .then(resp => {
-                        if (resp.data.status === 'success') {
-                            let checkboxes = document.getElementsByClassName('listing-row-checkbox');
+                        let checkboxes = document.getElementsByClassName('listing-row-checkbox');
 
-                            for (let checkbox of checkboxes) {
-                                checkbox.checked = false;
-                            }
-
-                            this.setState({status: status, statusMessage: message, listings: resp.data.listings});
-                        } else if (resp.data.status === 'error') {
-                            this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                        for (let checkbox of checkboxes) {
+                            checkbox.checked = false;
                         }
+
+                        this.setState({status: '', listings: resp.data.listings});
+
+                        this.props.dispatch(Alert(status, message));
                     });
                 } else if (resp.data.status === 'error') {
-                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                    this.setState({status: ''});
+
+                    this.props.dispatch(Alert(status, message));
                 }
             })
             .catch(err => console.log(err));
@@ -119,13 +119,9 @@ class SavedListings extends Component {
         this.setState({status: 'Loading'});
 
         unsaveListing(id, resp => {
-            if (resp.data.status === 'success') {
-                this.props.dispatch(Alert(resp.data.status, 'Listing deleted'));
+            this.setState({status: '', listings: resp.data.listings});
 
-                this.setState({status: resp.data.status, statusMessage: 'Listing deleted', listings: resp.data.listings});
-            } else if (resp.data.status === 'error') {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
-            }
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         });
     }
     

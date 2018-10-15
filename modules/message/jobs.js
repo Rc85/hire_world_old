@@ -201,7 +201,7 @@ app.post('/api/job/close', (req, resp) => {
                         await client.query(`UPDATE messages SET message_status = '' WHERE belongs_to_job = $1`, [req.body.job_id]);
 
                         let job = await client.query(`SELECT * FROM jobs
-                        LEFT JOIN user_services ON service_id = job_service_id
+                        LEFT JOIN user_services ON service_id = job_listing_id
                         WHERE job_id = $1`, [req.body.job_id]);
 
                         await client.query(`COMMIT`)
@@ -229,6 +229,7 @@ app.post('/api/job/close', (req, resp) => {
 app.post('/api/job/abandon', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
+            console.log(req.body);
             if (err) console.log(err);
 
             (async() => {
@@ -238,15 +239,15 @@ app.post('/api/job/abandon', (req, resp) => {
                     let authorized = await client.query(`SELECT job_user FROM jobs WHERE job_id = $1`, [req.body.job_id]);
 
                     if (req.session.user.username === authorized.rows[0].job_user) {
-                        let job = await client.query(`UPDATE jobs SET job_status = $1, job_abandoned_date = current_timestamp WHERE job_id = $2 RETURNING *`, ['Abandoning', req.body.job_id]);
+                        let job = await client.query(`UPDATE jobs SET job_status = $1, job_abandoned_date = current_timestamp, abandon_reason = $3 WHERE job_id = $2 RETURNING *`, ['Abandoning', req.body.job_id, req.body.reason]);
 
                         let messageBody = `The other party has decided to abandon this job.
                         
                         REASON: ${req.body.reason}
                         
-                        Should you agree to abandon this job, it will not negatively impact the other party's reputation. If you do not decide within 3 weeks, the job will automatically be deemed as abandoned and will negatively impact the other party's reputation.`;
+                        <small>Should you agree to abandon this job, it will not negatively impact the other party's reputation. If you do not decide within 3 weeks, the job will automatically be deemed as abandoned and will negatively impact the other party's reputation.</small>`;
 
-                        let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [req.body.job_id, messageBody, req.body.recipient, 'Abandonment', true])
+                        let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (belongs_to_job, message_type) WHERE message_type = $4 DO NOTHING RETURNING *`, [req.body.job_id, messageBody, req.body.recipient, 'Abandonment', true])
 
                         await client.query(`COMMIT`)
                         .then(() => {

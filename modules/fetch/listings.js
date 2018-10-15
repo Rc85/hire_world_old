@@ -5,11 +5,13 @@ app.post('/api/get/listing', async(req, resp) => {
     if (req.session.user) {
         await db.query(`SELECT * FROM user_listings WHERE listing_user = $1`, [req.session.user.username])
         .then(result => {
+            let listing;
+
             if (result && result.rows.length > 0) {
-                resp.send({status: 'success', listing: result.rows[0]});
-            } else {
-                resp.send({status: 'none'});
+                listing = result.rows[0];
             }
+
+            resp.send({status: 'success', listing: listing});
         })
         .catch(err => {
             console.log(err);
@@ -35,7 +37,7 @@ app.post('/api/get/listings', async(req, resp) => {
     })
     .catch(err => {
         console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
+        resp.send({status: 'access error', statusMessage: 'An error occurred'});
     });
 });
 

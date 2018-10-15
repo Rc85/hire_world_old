@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle, faEdit } from '@fortawesome/free-solid-svg-icons';
 import UserRating from './UserRating';
 import SubmitReview from './SubmitReview';
-import Alert from '../../utils/Alert';
+import { Alert } from '../../../actions/AlertActions';
 import Loading from '../../utils/Loading';
 import fetch from 'axios';
 
@@ -22,17 +22,19 @@ class ViewUserReview extends Component {
     editReview(message, review_id, star) {
         let blankCheck = /^\s*$/;
 
+        this.setState({status: 'Sending'});
+
         if (blankCheck.test(message)) {
-            this.setState({status: 'error', statusMessage: 'Review cannot be blank'});
+            this.props.dispatch(Alert('error', 'Review cannot be blank'));
         } else {
             fetch.post('/api/review/edit', {message: message, star: star, review_id: review_id})
             .then(resp => {
                 if (resp.data.status === 'success') {
-                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, editing: false});
+                    this.setState({status: '', editing: false});
                     this.props.edit(resp.data.review);
-                } else if (resp.data.status === 'error') {
-                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
                 }
+                
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             })
             .catch(err => console.log(err));
         }
@@ -40,18 +42,19 @@ class ViewUserReview extends Component {
     
     render() {
         console.log(this.props)
-        let buttons, badge, review, status;
+        let buttons, badge, review, status, reviewer;
 
-        if (this.state.status === 'success' || this.state.status === 'error') {
-            status = <Alert status={this.state.status} message={this.state.message} unmount={() => this.setState({status: '', statusMessage: ''})} />;
-        } else if (this.state.status === 'Sending') {
+        if (this.state.status === 'Sending') {
             status = <Loading size='3x' />;
         }
 
         if (this.props.user && this.props.user.username === this.props.review.reviewer) {
             buttons = <div>
                 <FontAwesomeIcon icon={faEdit} onClick={() => this.setState({editing: true})} className='review-buttons' />
-            </div>
+            </div>;
+            reviewer = true;
+        } else {
+            reviewer = false;
         }
 
         if (this.props.review.review_token) {
@@ -86,7 +89,7 @@ class ViewUserReview extends Component {
 
         return(
             <React.Fragment>
-                <div className='d-flex-between-start mx-auto w-75'>
+                <div className={reviewer ? 'd-flex-between-start mx-auto w-75 p-2 mb-5 review-owner' : 'd-flex-between-start mx-auto w-75 p-2'}>
                     {status}
                     <div className='text-center w-10'>
                         <div className='profile-pic' style={{background: `url(${this.props.review.avatar_url}) center top / cover`}}></div>
@@ -96,7 +99,7 @@ class ViewUserReview extends Component {
                     {review}
                 </div>
 
-                <hr className='w-75 mx-auto mb-5' />
+                {reviewer ? '' : <hr className='w-75 mx-auto mb-5' />}
             </React.Fragment>
         )
     }

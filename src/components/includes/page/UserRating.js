@@ -5,7 +5,7 @@ import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarInactive } from '@fortawesome/free-regular-svg-icons';
 
 const UserRating = props => {
-    if (props.rating) {
+    if (props.rating >= 0) {
         return( 
             <React.Fragment>
                 <FontAwesomeIcon icon={faStar} className={props.rating >= 1 ? 'user-review-star active' : 'user-review-star'} />

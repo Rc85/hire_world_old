@@ -5,12 +5,14 @@ import { GetSession, GetSectors } from './actions/FetchActions';
 import AdminOverview from './components/admin/AdminOverview';
 import AdminSectors from './components/admin/AdminSectors';
 import Admin from './components/admin/Admin';
-import { RemoveAlert } from './actions/Alert';
+import { RemoveAlert } from './actions/AlertActions';
 import * as Pages from './components/pages';
 import TopBar from './components/includes/site/TopBar';
 import BrowseMenu from './components/includes/site/BrowseMenu';
 import Confirmation from './components/utils/Confirmation';
 import Alert from './components/utils/Alert';
+import Prompt from './components/utils/Prompt';
+import Warning from './components/utils/Warning';
 
 class App extends Component {
 	constructor(props) {
@@ -18,6 +20,13 @@ class App extends Component {
 
 		this.state = {
 			mainMenu: false
+		}
+	}
+
+	componentDidUpdate(prevProps, prevState) {
+		if (prevProps.location.key !== this.props.location.key) {
+			this.props.dispatch(GetSession());
+			this.props.dispatch(GetSectors());
 		}
 	}
 
@@ -38,7 +47,7 @@ class App extends Component {
 
 	render() {
 		console.log(this.props.alerts);
-		let confirmation, sectors, alerts;
+		let confirmation, sectors, alerts, prompt, warning;
 
 		if (this.props.confirmation.status === true) {
 			confirmation = <Confirmation message={this.props.confirmation.message} note={this.props.confirmation.note} />
@@ -67,8 +76,18 @@ class App extends Component {
 			alerts = [];
 		}
 
+		if (this.props.prompt.text) {
+			prompt = <Prompt text={this.props.prompt.text} data={this.props.prompt.data} />;
+		}
+
+		if (this.props.warning.message) {
+			warning = <Warning message={this.props.warning.message} />;
+		}
+
 		return (
 			<div className='col-container'>
+				{warning}
+				{prompt}
 				{confirmation}
 				<TopBar toggleMenu={() => this.setState({mainMenu: !this.state.mainMenu})} menuOpen={this.state.mainMenu} />
 
@@ -107,7 +126,9 @@ const mapStateToProps = (state) => {
 		user: state.Login,
 		confirmation: state.Confirmation,
 		sectors: state.Sectors.sectors,
-		alerts: state.Alert.alerts
+		alerts: state.Alert.alerts,
+		prompt: state.Prompt,
+		warning: state.Warning
 	}
 }
 

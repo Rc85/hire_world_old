@@ -5,10 +5,16 @@
     a:hover { text-decoration: underline }
 }
 
-.user-review-star { color: $theme_darkgrey }
+.user-review-star { color: $theme-darkgrey }
 .user-review-star.active { color: #ffc107 }
 
 .review-buttons {
     color: $theme-highlight;
     cursor: pointer;
+}
+
+.review-owner {
+    border: 1px solid $theme-highlight;
+    background: $theme-lightblue-faded;
+    border-radius: 0.25rem;
 }

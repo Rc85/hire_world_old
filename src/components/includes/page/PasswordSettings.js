@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import fetch from 'axios';
-import Alert from '../../utils/Alert';
+import { Alert } from '../../../actions/AlertActions';
 import SubmitButton from '../../utils/SubmitButton';
 import Loading from '../../utils/Loading';
 
@@ -20,37 +20,22 @@ class PasswordSettings extends Component {
     }
 
     save() {
-        let blankCheck = /^\s*$/;
-        let charCheck = /.{6,15}/;
+        this.setState({status: 'Loading'});
 
-        if (blankCheck.test(this.state.currentPassword) || blankCheck.test(this.state.newPassword)) {
-            this.setState({
-                status: 'error',
-                statusMessage: 'Passwords cannot be blank'
-            });
-        } else if (!charCheck.test(this.state.newPassword) || !charCheck.test(this.state.confirmPassword)) {
-            this.setState({status: 'error', statusMessage: 'Password too short'});
-        } else {
-            if (this.state.newPassword === this.state.confirmPassword) {
-                this.setState({status: 'Loading'});
+        fetch.post('/api/user/settings/password/change', this.state)
+        .then(resp => {
+            this.setState({status: '', currentPassword: '', newPassword: '', confirmPassword: ''});
 
-                fetch.post('/api/user/settings/password/change', this.state)
-                .then(resp => {
-                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
-                });
-            } else {
-                this.setState({status: 'error', statusMessage: 'Passwords do not match'});
-            }
-        }
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        });
     }
 
     render() {
+        console.log(this.props);
         let status, showHide;
 
         if (this.state.status === 'Loading') {
             status = <Loading size='3x' />;
-        } else if (this.state.status === 'success' || this.state.status === 'error') {
-            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />;
         }
 
         if (this.state.showPassword) {
@@ -72,23 +57,23 @@ class PasswordSettings extends Component {
                     <div className='bordered-container rounded mb-3'>
                         <div className='mb-3'>
                             <label htmlFor='current-password'>Current Password:</label>
-                            <input type={this.state.showPassword ? 'text' : 'password'} name='current_password' id='current-password' className='form-control' onChange={(e) => this.setState({currentPassword: e.target.value})} maxLength='15' />
+                            <input type={this.state.showPassword ? 'text' : 'password'} name='current_password' id='current-password' className='form-control' onChange={(e) => this.setState({currentPassword: e.target.value})} maxLength='15' value={this.state.currentPassword} />
                         </div>
 
                         <div className='mb-3'>
                             <label htmlFor='new-password'>New Password:</label>
-                            <input type={this.state.showPassword ? 'text' : 'password'} name='new_password' id='new-password' className='form-control' onChange={(e) => this.setState({newPassword: e.target.value})} maxLength='15' />
+                            <input type={this.state.showPassword ? 'text' : 'password'} name='new_password' id='new-password' className='form-control' onChange={(e) => this.setState({newPassword: e.target.value})} maxLength='15' value={this.state.newPassword} />
                         </div>
 
                         <div className='mb-3'>
                             <label htmlFor='confirm-password'>Confirm Password:</label>
-                            <input type={this.state.showPassword ? 'text' : 'password'} name='confirm_password' id='confirm-password' className='form-control' onChange={(e) => this.setState({confirmPassword: e.target.value})} maxLength='15' />
+                            <input type={this.state.showPassword ? 'text' : 'password'} name='confirm_password' id='confirm-password' className='form-control' onChange={(e) => this.setState({confirmPassword: e.target.value})} maxLength='15' value={this.state.confirmPassword} />
                         </div>
                     </div>
                 </div>
 
                 <div className='text-right'>
-                    <SubmitButton type='button' value='Save' onClick={() => this.save()} loading={this.state.status === 'Loading'} />
+                    <SubmitButton type='button' value='Save' onClick={() => this.save()} loading={this.state.status === 'Loading'} disabled={this.state.currentPassword.length < 6 || this.state.newPassword.length < 6 || this.state.confirmPassword.length < 6}/>
                 </div>
             </div>
         )

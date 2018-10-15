@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Loading from '../utils/Loading';
 import UserMessage from '../includes/page/UserMessage';
 import MessageSender from '../includes/page/MessageSender';
-import Alert from '../utils/Alert';
+import { Alert } from '../../actions/AlertActions';
 import OfferSender from '../includes/page/OfferSender';
 import Response from '../pages/Response';
 import OfferDetails from '../includes/page/OfferDetails';
@@ -16,6 +16,7 @@ import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationA
 import { UncontrolledTooltip } from 'reactstrap';
 import fetch from 'axios';
 import moment from 'moment';
+import { PromptOpen, PromptReset } from '../../actions/PromptActions';
 
 class MessageDetails extends Component {
     constructor(props) {
@@ -33,7 +34,6 @@ class MessageDetails extends Component {
             fetchStatus: '',
             offer: null,
             confirmAccept: false,
-            reasonInput: false,
             reason: '',
             showOfferDetail: this.props.match.params.stage === 'Inquire' ? true : false
         }
@@ -82,24 +82,15 @@ class MessageDetails extends Component {
             }
 
             if (nextProps.confirm.data.action === 'hire') {
-                this.submitOffer({
-                    price: this.state.job.listing_price,
-                    currency: this.state.job.listing_price_currency,
-                    numberOfPayments: 0,
-                    date: '',
-                    term: '',
-                    offerType: 'User Determined',
-                    paymentType: this.state.job.listing_price_type,
-                    amountType: '',
-                    paymentPeriod: '',
-                    payments: [],
-                    status: '',
-                    statusMessage: '',
-                    offerTypeTooltip: null,
-                    confidential: false,
-                    confirmConfidentiality: false
-                });
+                this.submitOffer({type: 'hire'});
                 this.props.dispatch(ResetConfirmation());
+            }
+        }
+
+        if (nextProps.prompt.text === '' && nextProps.prompt.data && nextProps.prompt.input) {
+            if (nextProps.prompt.data.action === 'abandon job') {
+                this.abandonJob(nextProps.prompt.input)
+                this.props.dispatch(PromptReset());
             }
         }
     }
@@ -209,15 +200,15 @@ class MessageDetails extends Component {
             job_id: this.state.job.job_id
         })
         .then(resp => {
-            if (resp.data.status === 'send success') {
-                let messages = this.state.messages;
-                
+            let messages = this.state.messages;
+            
+            if (resp.data.reply) {
                 messages.unshift(resp.data.reply);
-
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, messages: messages, send: false});
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
+
+            this.setState({status: '', messages: messages, send: false});
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => console.log(err));
     }
@@ -232,21 +223,25 @@ class MessageDetails extends Component {
             url = '/api/offer/submit';
         }
 
+        if (!data.type) {
+            data['type'] = 'offer';
+        }
+
         this.setState({status: 'Sending'});
         data['job_id'] = this.state.job.job_id;
         data['recipient'] = this.state.job.job_client;
 
         fetch.post(url, data)
         .then(resp => {
-            if (resp.data.status === 'success') {
-                let messages = this.state.messages;
+            let messages = this.state.messages;
 
+            if (resp.data.message) {
                 messages.unshift(resp.data.message);
-
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, makeOffer: false, messages: messages, offer: resp.data.offer});
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
+
+            this.setState({status: '', makeOffer: false, messages: messages, offer: resp.data.offer});
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => console.log(err));
     }
@@ -256,14 +251,15 @@ class MessageDetails extends Component {
 
         fetch.post('/api/offer/delete', {job_id: this.state.job.job_id, offer_id: this.state.offer.offer_id})
         .then(resp => {
-            if (resp.data.status === 'success') {
-                let messages = this.state.messages;
+            let messages = this.state.messages;
+            
+            if (resp.data.message) {
                 messages.unshift(resp.data.message);
+            }    
 
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, messages: messages, makeOffer: false, offer: null});
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
-            }
+            this.setState({status: '', messages: messages, makeOffer: false, offer: null});
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => console.log(err));
     }
@@ -276,7 +272,9 @@ class MessageDetails extends Component {
             if (resp.data.status === 'offer accepted') {
                 this.setState({status: resp.data.status});
             } else {
-                resp.send({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                this.setState({status: ''})
+
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
         .catch(err => console.log(err));
@@ -287,12 +285,9 @@ class MessageDetails extends Component {
 
         fetch.post('/api/job/close', {job_id: this.state.job.job_id})
         .then(resp => {
-            console.log(resp.data)
-            if (resp.data.status === 'success') {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, job: resp.data.job});
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
-            }
+            this.setState({status: '', job: resp.data.job});
+            
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => console.log(err));
     }
@@ -302,14 +297,15 @@ class MessageDetails extends Component {
 
         fetch.post('/api/message/delete', {message_id: id})
         .then(resp => {
-            if (resp.data.status === 'success') {
-                let messages = this.state.messages;
-                messages.splice(index, 1);
+            let messages = this.state.messages;
 
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, messages: messages});
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            if (messages.length > 0) {
+                messages.splice(index, 1);
             }
+
+            this.setState({status: '', messages: messages});
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => console.log(err));
     }
@@ -319,14 +315,15 @@ class MessageDetails extends Component {
 
         fetch.post('/api/message/edit', {message_id: id, message: message})
         .then(resp => {
-            if (resp.data.status === 'success') {
-                let messages = this.state.messages;
-                messages[index] = resp.data.message;
+            let messages = this.state.messages;
 
-                this.setState({status: '', messages: messages});
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            if (resp.data.message) {
+                messages[index] = resp.data.message;
             }
+
+            this.setState({status: '', messages: messages});
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         });
     }
 
@@ -335,17 +332,15 @@ class MessageDetails extends Component {
 
         fetch.post('/api/job/complete', {job_id: this.state.job.job_id, recipient: this.state.job.job_client})
         .then(resp => {
-            if (resp.data.status === 'success') {
-                let messages = this.state.messages;
+            let messages = this.state.messages;
 
-                if (resp.data.message) {
-                    messages.unshift(resp.data.message);
-                }
-
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, messages: messages, job: resp.data.job});
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            if (resp.data.message) {
+                messages.unshift(resp.data.message);
             }
+
+            this.setState({status: '', messages: messages, job: resp.data.job});
+            
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => console.log(err));
     }
@@ -359,7 +354,9 @@ class MessageDetails extends Component {
             if (resp.data.status === 'job complete') {
                 this.setState({status: resp.data.status});
             } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                this.setState({status: ''});
+
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
         .catch(err => console.log(err));
@@ -370,14 +367,15 @@ class MessageDetails extends Component {
 
         fetch.post('/api/job/complete/decline', {job_id: this.state.job.job_id, message: message, recipient: this.state.job.job_user})
         .then(resp => {
-            if (resp.data.status === 'success') {
-                let messages = this.state.messages;
-                messages.unshift(resp.data.message);
+            let messages = this.state.messages;
 
-                this.setState({status: '', messages: messages, job: resp.data.job});
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            if (resp.data.message) {
+                messages.unshift(resp.data.message);
             }
+
+            this.setState({status: '', messages: messages, job: resp.data.job});
+            
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => console.log(err));
     }
@@ -387,14 +385,15 @@ class MessageDetails extends Component {
 
         fetch.post('/api/job/abandon', {job_id: this.state.job.job_id, recipient: this.state.job.job_client, reason: reason})
         .then(resp => {
-            if (resp.data.status === 'success') {
-                let messages = this.state.messages;
-                messages.unshift(resp.data.message);
+            let messages = this.state.messages;
 
-                this.setState({status: 'send success', messages: messages, job: resp.data.job, reasonInput: false});
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            if (resp.data.message) {
+                messages.unshift(resp.data.message);
             }
+
+            this.setState({status: '', messages: messages, job: resp.data.job});
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         });
     }
 
@@ -403,18 +402,15 @@ class MessageDetails extends Component {
 
         fetch.post(`/api/job/abandon/${decision}`, {job_id: this.state.job.job_id})
         .then(resp => {
-            if (resp.data.status === 'success') {
-                this.setState({status: '', job: resp.data.job});
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
-            }
-        })
+            this.setState({status: '', job: resp.data.job});
+            
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));        })
         .catch(err => console.log(err));
     }
 
     render() {
         console.log(this.state)
-        let status, serviceDetails, sendButton, sendMessage, sendStatus, messages, offerConfirmation, fetchStatus, offerButton, confirmation, closeButton, completeButton, incompleteButton, reasonInput, incompleteStatus, abandonedDate;
+        let serviceDetails, sendButton, sendMessage, sendStatus, messages, offerConfirmation, fetchStatus, offerButton, confirmation, closeButton, completeButton, incompleteButton, reasonInput, incompleteStatus, abandonedDate, refreshButton;
         let now = moment();
 
         if (this.state.job) {
@@ -461,15 +457,13 @@ class MessageDetails extends Component {
             if (this.state.job.job_status !== 'Abandoning') {
                 completeButton = <button id='complete-job-button' className={`btn btn-success mr-1`} disabled={this.state.job.job_user_complete} onClick={() => this.props.dispatch(ShowConfirmation('Send request to complete this job?', false, {action: 'user complete job'}))}>{this.state.job.job_user_complete ? <span>Sent</span> : <span>Complete</span>}</button>;
 
-                if (!this.state.reasonInput) {
-                    incompleteButton = <button id='abandon-job-button' className='btn btn-danger mr-1' onClick={() => this.setState({reasonInput: true})}>Abandon</button>;
-                }
+                incompleteButton = <button id='abandon-job-button' className='btn btn-danger mr-1' onClick={() => this.props.dispatch(PromptOpen('Specify a reason to abandon this job', {id: this.props.match.params.id, action: 'abandon job'}))}>Abandon</button>;
             } else {
-                incompleteButton = <button id='abandon-job-button' className='btn btn-danger mr-1' disabled={true}>Abandoning</button>
+                incompleteButton = <button id='abandon-job-button' className='btn btn-warning mr-1' disabled={true}>Abandoning</button>
             }
         }
 
-        if (this.state.reasonInput) {
+        /* if (this.state.reasonInput) {
             reasonInput = <React.Fragment>
                 <textarea name='reason' id='reason' rows='6' className='form-control w-100 mb-3' placeholder={`Please provide a reason as to why you are abandoning this job.`} onChange={(e) => this.setState({reason: e.target.value})}></textarea>
 
@@ -478,22 +472,24 @@ class MessageDetails extends Component {
                     <button className='btn btn-secondary' onClick={() => this.setState({reasonInput: false})}>Cancel</button>
                 </div>
             </React.Fragment>
-        }
+        } */
         
         if (this.state.fetchStatus === 'Fetching') {
             fetchStatus = <div className='position-relative'><Loading size='5x' /></div>;
         }
 
-        if (this.state.job && this.state.job.job_status !== 'Closed' && this.state.job.job_stage !== 'Complete') {
+        if (this.state.job && this.state.job.job_status === 'Active') {
             if (!this.state.send) {
                 sendButton = <button className='btn btn-primary mr-1' onClick={() => this.setState({send: true, makeOffer: false})}>Message</button>;
             } else {
                 sendMessage = <MessageSender send={(message) => this.send(message)} cancel={() => this.setState({send: !this.state.send})} status={this.state.status} statusMessage={this.state.statusMessage} subject={this.state.job.job_subject} />;
             }
+
+            refreshButton = <NavLink to={`/dashboard/message/${this.props.match.params.stage}/${this.props.match.params.id}/details`}><button className='btn btn-info'>Refresh</button></NavLink>;
         }
 
-        if (this.state.status === 'error' || this.state.status === 'success' || this.state.status === 'send success') {
-            sendStatus = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />;
+        if (this.state.status === 'Sending') {
+            sendStatus = <Loading size='5x' />;
         }
 
         if (this.state.job && this.props.user.user.username !== this.state.job.job_user && this.props.match.params.stage === 'Inquire') {
@@ -562,7 +558,7 @@ class MessageDetails extends Component {
             });
         }
 
-        if ((this.state.offer && this.state.job.job_user === this.props.user.user.username) || this.props.match.params.stage !== 'Inquire') {
+        if ((this.state.offer && this.state.job && this.state.job.job_user === this.props.user.user.username) || this.props.match.params.stage !== 'Inquire') {
             offerConfirmation = <OfferDetails offer={this.state.offer} accept={() => this.props.dispatch(ShowConfirmation('Are you sure you want to accept this offer?', false, {action: 'accept offer'}))} stage={this.props.match.params.stage} show={this.state.showOfferDetail} toggleOfferDetail={() => this.setState({showOfferDetail: !this.state.showOfferDetail})} />;
         }
 
@@ -594,7 +590,6 @@ class MessageDetails extends Component {
             return(
                 <div className='blue-panel shallow three-rounded w-100'>
                     {confirmation}
-                    {status}
                     <div className='d-flex-between-start mb-3'>
                         <small className='text-white-50'>Job ID: {this.state.job ? this.state.job.job_id : ''}</small>
                         <div className='d-flex'>
@@ -616,7 +611,7 @@ class MessageDetails extends Component {
                         </div>
 
                         {serviceDetails}
-                        <div className='text-right'><small className='text-muted'>Listing ID: {this.state.messages ? this.state.job.job_service_id : ''}</small></div>
+                        <div className='text-right'><small className='text-muted'>Listing ID: {this.state.messages ? this.state.job.job_listing_id : ''}</small></div>
                     </div>
 
                     <div className='messages-container'>
@@ -629,7 +624,7 @@ class MessageDetails extends Component {
                         <div className='d-flex justify-content-end mb-3'>
                             {offerButton}
                             {sendButton}
-                            <NavLink to={`/dashboard/message/${this.props.match.params.stage}/${this.props.match.params.id}/details`}><button className='btn btn-info'>Refresh</button></NavLink>
+                            {refreshButton}
                         </div>
 
                         <div className='mb-3'>
@@ -653,7 +648,8 @@ class MessageDetails extends Component {
 
 const mapStateToProps = state => {
     return {
-        confirm: state.Confirmation
+        confirm: state.Confirmation,
+        prompt: state.Prompt
     }
 }
 

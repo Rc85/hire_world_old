@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
-import Alert from '../utils/Alert';
+import { Alert } from '../../actions/AlertActions';
 import ListingRow from '../includes/page/ListingRow';
 import SearchListing from '../includes/page/SearchListing';
 
@@ -24,37 +24,29 @@ class Sectors extends Component {
         .then(resp => {
             console.log(resp);
             if (resp.data.status === 'success') {
-                this.setState({
-                    status: 'success',
-                    listings: resp.data.listings
-                });
-            } else if (resp.data.status === 'error') {
-                this.setState({
-                    status: resp.data.status,
-                    statusMessage: resp.data.statusMessage
-                });
+                this.setState({status: '', listings: resp.data.listings});
+            } else if (resp.data.status === 'access error') {
+                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
         })
         .catch(err => console.log(err));
     }
 
     filterListings(data) {
-        console.log(data)
         this.setState({status: 'Loading'});
 
         data['sector'] = this.props.name;
 
         fetch.post('/api/filter/listings', data)
         .then(resp => {
-            if (resp.data.status === 'success') {
-                this.setState({status: '', listings: resp.data.listings});
-            } else if (resp.data.status === 'error') {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
-            }
+            this.setState({status: '', listings: resp.data.listings});
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         });
     }
 
     render() {
+        console.log(this.state)
         let loading, button, error;
 
         if (this.state.status === 'loading') {
@@ -66,6 +58,10 @@ class Sectors extends Component {
         let listings = this.state.listings.map((listing, i) => {
             return <ListingRow key={i} listing={listing} />
         });
+
+        if (this.state.status === 'access error') {
+            return(<Response code={500} header='Internal Server Error' message={this.state.statusMessage} />)
+        }
 
         return(
             <section id='listings' className='main-panel w-100'>

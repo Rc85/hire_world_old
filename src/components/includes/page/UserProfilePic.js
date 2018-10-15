@@ -5,7 +5,7 @@ import Dropzone from 'react-dropzone';
 import { GetSession } from '../../../actions/FetchActions';
 import { connect } from 'react-redux';
 import Loading from '../../utils/Loading';
-import Alert from '../../utils/Alert';
+import { Alert } from '../../../actions/AlertActions';
 import { ShowConfirmation } from '../../../actions/ConfirmationActions';
 import fetch from 'axios';
 import PropTypes from 'prop-types';
@@ -32,12 +32,16 @@ class UserProfilePic extends Component {
         let data = new FormData();
         data.set('profile_pic', accepted[0]);
 
-        this.setState({status: 'Uploading'});
+        this.setState({status: 'Loading'});
 
         fetch.post('/api/user/profile-pic/upload', data)
         .then(resp => {
-            this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            this.setState({status: ''});
 
+            if (resp.data.status === 'error') {
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+            
             this.props.dispatch(GetSession());
         })
         .catch(err => console.log(err));
@@ -49,11 +53,15 @@ class UserProfilePic extends Component {
     }
 
     deleteProfilePic() {
-        this.setState({status: 'Deleting'});
+        this.setState({status: 'Loading'});
 
         fetch.post('/api/user/profile-pic/delete')
         .then(resp => {
-            this.setState({status: resp.data.status});
+            this.setState({status: ''});
+
+            if (resp.data.status === 'error') {
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
 
             this.props.dispatch(GetSession());
         })
@@ -61,7 +69,7 @@ class UserProfilePic extends Component {
     }
 
     render() {
-        let dropzoneRef, loading, dropzone, button, deleteButton;
+        let dropzoneRef, status, dropzone, button, deleteButton;
 
         if (this.props.editable) {
             dropzone = <div className='dropzone'><Dropzone ref={(node) => { dropzoneRef = node; }} onDrop={this.onDrop.bind(this)} style={{height: '100%', width: '100%'}} name='profile_pic' /></div>;
@@ -69,19 +77,13 @@ class UserProfilePic extends Component {
             deleteButton = <button className='btn btn-info' id='delete-profile-pic-button' onClick={this.confirmDelete.bind(this)}><FontAwesomeIcon icon={faTimes} /></button>;
         }
 
-        switch(this.state.status) {
-            case 'Uploading':
-            case 'Deleting':
-                loading = <Loading size='3x' />; break;
-            case 'An error occurred':
-            case 'Delete failed':
-            case 'Upload failed':
-                loading = <Alert error='error' message={this.state.status} />; break;
+        if (this.state.status === 'Loading') {
+            status = <Loading size='3x' />;
         }
 
         return(
             <div className='profile-pic' style={{background: `url(${this.props.url}) center top / cover`}}>
-                {loading}
+                {status}
                 {dropzone}
 
                 <div className='profile-pic-buttons'>

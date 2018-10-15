@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import { EditUser } from '../../../actions/EditUserActions';
 import Loading from '../../utils/Loading';
 import PropTypes from 'prop-types';
-import Alert from '../../utils/Alert';
 
 class UserInfo extends Component {
     constructor(props) {
@@ -24,18 +23,13 @@ class UserInfo extends Component {
     }
 
     render() {
-        let button, status;
+        let status, button;
         let value = this.props.value;
         let success = /success$/;
         let loading = /loading$/;
-        let error = /(error|fail)$/;
 
         if (this.state.editing) {
-            button = <button className='btn btn-info btn-sm ml-auto' onClick={() => {
-                this.setState({
-                    editing: false
-                });
-            }}><FontAwesomeIcon icon={faTimes}  /></button>;
+            button = <button className='btn btn-info btn-sm ml-auto' onClick={() => this.setState({editing: false})}><FontAwesomeIcon icon={faTimes}  /></button>;
             value = <input className='form-control' type='text' name={this.props.type}
             onKeyDown={(e) => {
                 if (e.keyCode === 13) {
@@ -45,16 +39,10 @@ class UserInfo extends Component {
             }}
             onChange={(e) => this.setState({input: e.target.value})} />;
         } else {
-            button = <button className='btn btn-info btn-sm ml-auto' onClick={() => {
-                this.setState({
-                    editing: true
-                });
-            }}><FontAwesomeIcon icon={faEdit} /></button>;
+            button = <button className='btn btn-info btn-sm ml-auto' onClick={() => this.setState({editing: true})}><FontAwesomeIcon icon={faEdit} /></button>;
 
             if (loading.test(this.props.status)) {
                 status = <Loading size='1x' />;
-            } else if (error.test(this.props.status)) {
-                status = <Alert status='error' message='An error occurred' />;
             } else if (success.test(this.props.status)) {
                 value = this.props.value;
             }
@@ -66,7 +54,7 @@ class UserInfo extends Component {
                 <div className='d-flex'>
                     <h5>{this.props.label}</h5>
 
-                    <button className='btn btn-info btn-sm ml-auto' onClick={() => this.setState({editing: !this.state.editing})}><FontAwesomeIcon icon={faEdit} /></button>
+                    {button}
                 </div>
 
                 <div className='ml-3 mt-3 text-truncate'>

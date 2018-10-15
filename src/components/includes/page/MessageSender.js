@@ -1,46 +1,36 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Alert from '../../utils/Alert';
+import { Alert } from '../../../actions/AlertActions';
 import SubmitButton from '../../utils/SubmitButton';
+import { connect } from 'react-redux';
 
-export default class MessageSender extends Component {
+class MessageSender extends Component {
     constructor(props) {
         super(props);
         
         this.state = {
             subject: this.props.subject ? `RE: ${this.props.subject}` : '',
             message: '',
-            status: this.props.status,
-            statusMessage: this.props.statusMessage
+            status: this.props.status
         }
     }
 
     componentWillReceiveProps(nextProps) {
         console.log(nextProps)
         if (nextProps.status === 'send success') {
-            this.setState({status: nextProps.status, statusMessage: nextProps.statusMessage, message: '', subject: this.props.subject || ''});
-        } else {
-            this.setState({status: nextProps.status, statusMessage: nextProps.statusMessage});
+            this.setState({message: '', subject: this.props.subject || ''});
         }
     }
     
     render() {
-        console.log(this.state)
-        let status;
-
-        if (this.state.status === 'send success' || this.state.status === 'send error') {
-            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />;
-        }
-
         return (
             <div className='mb-3'>
-                {status}
                 <div className='mb-3'>
                     <div><label>Subject:</label></div>
                     <input type='text' name='subject' className='form-control' onChange={(e) => this.setState({subject: e.target.value})} value={this.state.subject} disabled={this.props.subject ? true : false} />
                 </div>
 
-                <div className='mb-3'><textarea name='message' rows='10' className='form-control w-100 mb-1' value={this.state.message} onChange={(e) => this.setState({message: e.target.value})}></textarea></div>
+                <div className='mb-3'><textarea name='message' rows='10' className='form-control w-100 mb-1' value={this.state.message} onChange={(e) => this.setState({message: e.target.value})} autoFocus={true}></textarea></div>
 
                 <div className='text-right'>
                     <SubmitButton type='button' value='Send' loading={this.state.status === 'Sending' ? true : false} onClick={() => this.props.send(this.state.message, this.state.subject)} />
@@ -61,3 +51,5 @@ MessageSender.propTypes = {
         PropTypes.bool
     ])
 }
+
+export default connect()(MessageSender);

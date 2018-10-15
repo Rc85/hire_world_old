@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 export default class SubmitButton extends Component {
     render() {
         return(
-            <button type={this.props.type} className='btn btn-primary mr-1' disabled={this.props.loading} onClick={() => this.props.onClick()}>
+            <button type={this.props.type} className='btn btn-primary mr-1' disabled={this.props.loading || this.props.disabled} onClick={() => this.props.onClick()}>
                 {this.props.loading ? <FontAwesomeIcon icon={faCircleNotch} spin /> : this.props.value }
             </button>
         )

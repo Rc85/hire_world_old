@@ -45,11 +45,11 @@ app.post('/api/get/user', async(req, resp) => {
             LEFT JOIN users ON users.username = user_reviews.reviewer
             LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
             WHERE user_reviews.reviewing = $1 AND user_reviews.review IS NOT NULL
-            ORDER BY user_reviews.review_date DESC`, [req.body.username]);
+            ORDER BY user_reviews.reviewer = $2 DESC, user_reviews.review_date DESC`, [req.body.username, req.session.user.username]);
 
             let stats = await db.query(`SELECT
                 (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_stage = 'Complete'),
-                (SELECT COUNT(job_id) AS job_abandon FROM jobs WHERE job_stage = 'Abandon'),
+                (SELECT COUNT(job_id) AS job_abandon FROM jobs WHERE job_stage = 'Abandoned'),
                 (SELECT (SUM(review_rating) / COUNT(review_id)) AS rating FROM user_reviews WHERE reviewing = $1),
                 (SELECT COUNT(review_id) AS job_count FROM user_reviews WHERE review IS NOT NULL AND reviewing = $1),
                 user_view_count.view_count,
@@ -66,29 +66,6 @@ app.post('/api/get/user', async(req, resp) => {
         } else {
             resp.send({status: 'error page', statusMessage: `The requested user's profile does not exist`});
         }
-    }
-});
-
-app.post('/api/get/titles', (req, resp) => {
-    if (req.session.user) {
-        db.query(`SELECT user_title FROM user_profiles`)
-        .then(result => {
-            let titles = [];
-
-            for (let title of result.rows) {
-                if (title.user_title) {
-                    titles.push(title.user_title);
-                }
-            }
-
-            console.log(titles);
-
-            resp.send({status: 'success', titles: titles})
-        })
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error'});
-        });
     }
 });
 

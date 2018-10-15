@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import Alert from '../../utils/Alert';
+import { Alert } from '../../../actions/AlertActions';
 import SubmitButton from '../../utils/SubmitButton';
 import { UncontrolledTooltip } from 'reactstrap';
-import Confirmation from '../../utils/Confirmation';
 import moment from 'moment';
 import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 import { connect } from 'react-redux';
@@ -141,7 +140,8 @@ class OfferSender extends Component {
                 arr = this.calculatePayments(6, this.state.price);
             }
 
-            this.setState({numberOfPayments: 6, payments: arr, status: 'error', statusMessage: 'Maximum 6 payments allowed'});
+            this.setState({numberOfPayments: 6, payments: arr});
+            this.props.dispatch('error', 'Maximum 6 payments allowed');
         } else if (num >= 0 && num <= 6) {
             arr = new Array(num).fill('0')
 
@@ -161,7 +161,8 @@ class OfferSender extends Component {
 
             this.setState({numberOfPayments: num, payments: arr});
         } else {
-            this.setState({numberOfPayments: 0, status: 'error', statusMessage: 'Cannot go below zero'});
+            this.setState({numberOfPayments: 0});
+            this.props.dispatch('error', 'Cannot go below zero');
         }
     }
 
@@ -231,7 +232,8 @@ class OfferSender extends Component {
 
             return priceArray;
         } else {
-            this.setState({status: 'error', statusMessage: 'Price or number of payments not set', payments: priceArray})
+            this.setState({payments: priceArray});
+            this.props.dispatch(Alert('error', 'Price or number of payments not set'));
         }
     }
 
@@ -257,28 +259,28 @@ class OfferSender extends Component {
 
                 if (total !== this.state.price) {
                     error = true;
-                    this.setState({status: 'error', statusMessage: 'Total payments must equal to offer price'});
+                    this.props.dispatch(Alert('error', 'Total payments must equal to offer price'));
                 }
             }
             
             if (this.state.offerType !== 'Contract Term' && this.state.offerType !== 'Iteration' && this.state.offerType !== 'Per Delivery') {
                 error = true;
-                this.setState({status: 'error', statusMessage: 'Offer type cannot be blank'});
+                this.props.dispatch(Alert('error', 'Offer type cannot be blank'));
             }
 
             if (/^\s*$/.test(this.state.price)) {
                 error = true;
-                this.setState({status: 'error', statusMessage: 'Please set an offer price'});
+                this.props.dispatch(Alert('error', 'Please set an offer price'));
             }
             
             if (this.state.price && !this.state.currency) {
                 error = true;
-                this.setState({status: 'error', statusMessage: 'Please enter a currency'});
+                this.props.dispatch(Alert('error', 'Please enter a currency'));
             }
             
             if (this.state.price && !this.state.paymentType) {
                 error = true;
-                this.setState({status: 'error', statusMessage: 'Please select a payment type'});
+                this.props.dispatch(Alert('error', 'Please select a payment type'));
             }
 
             if (!error) {
@@ -305,8 +307,7 @@ class OfferSender extends Component {
     }
     
     render() {
-        console.log(this.state)
-        let fixedSettings, offerTypeSetting, hourlySettings, status, paymentSettings, deleteButton, paymentType;
+        let fixedSettings, offerTypeSetting, hourlySettings, paymentSettings, deleteButton, paymentType;
 
         if (this.state.offerType === 'Contract Term') {
             paymentType = <React.Fragment>
@@ -317,10 +318,6 @@ class OfferSender extends Component {
                     <option value='Fixed'>Fixed</option>
                 </select>
             </React.Fragment>
-        }
-
-        if (this.state.status) {
-            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />
         }
 
         if (this.state.paymentType === 'Fixed') {
@@ -353,7 +350,6 @@ class OfferSender extends Component {
 
         return (
             <div className='grey-panel rounded'>
-                {status}
                 <div className='d-flex-between-start mb-3'>
                     <div className='w-45'>
                         <span>Offer Type:</span>
@@ -401,7 +397,7 @@ class OfferSender extends Component {
                     </div>
                 </div>
 
-                <div className='d-flex-between-start'>
+                <div className='d-flex-between-start mb-3'>
                     {fixedSettings}
 
                     <div id='payment-input-container' className='w-60'>

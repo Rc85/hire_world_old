@@ -33,6 +33,7 @@ app.post('/api/get/messages', async(req, resp) => {
 
 app.post('/api/get/message', async(req, resp) => {
     if (req.session.user) {
+        console.log(req.body.stage)
         let authorized = await db.query(`SELECT job_client, job_user FROM jobs WHERE (job_client = $1 OR job_user = $1) AND job_id = $2`, [req.session.user.username, req.body.job_id]);
 
         if (authorized !== undefined && authorized.rows.length === 1) {
@@ -43,7 +44,7 @@ app.post('/api/get/message', async(req, resp) => {
             LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
             LEFT JOIN jobs ON job_id = belongs_to_job
             WHERE belongs_to_job = $1
-            ${req.body.stage === 'Abandoned' ? `AND job_stage IN ('Abandoned', 'Incomplete')` : `AND job_stage = $2`}
+            ${req.body.stage === 'Abandoned' ? `AND job_stage IN ($2, 'Incomplete')` : `AND job_stage = $2`}
             AND message_status != 'Deleted'
             ORDER BY message_date DESC
             LIMIT 10 OFFSET $3`, [req.body.job_id, req.body.stage, req.body.offset])

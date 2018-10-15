@@ -14,6 +14,14 @@ class SubmitReview extends Component {
             star: this.props.stars || 0
         }
     }
+
+    setRating(num) {
+        if (this.state.star === num) {
+            this.setState({star: 0});
+        } else {
+            this.setState({star: num});
+        }
+    }
     
     render() {
         let authMessage;
@@ -27,41 +35,41 @@ class SubmitReview extends Component {
         }
 
         return (
-            <div className='grey-panel rounded'>
+            <div className='grey-panel rounded mb-3'>
                 <div className='d-flex-between-center'>
                     {authMessage}
 
                     <div className='d-flex mb-3'>
                         <div className={`${this.state.starActive >= 1 ? 'review-star active' : 'review-star'} mr-1`}
-                        onClick={() => this.setState({star: 1})}
+                        onClick={() => this.setRating(1)}
                         onMouseOver={() => this.setState({starActive: 1})}
                         onMouseOut={() => this.setState({starActive: this.state.star})}>
                             <FontAwesomeIcon icon={faStar} />
                         </div>
 
                         <div className={`${this.state.starActive >= 2 ? 'review-star active' : 'review-star'} mr-1`}
-                        onClick={() => this.setState({star: 2})}
+                        onClick={() => this.setRating(2)}
                         onMouseOver={() => this.setState({starActive: 2})}
                         onMouseOut={() => this.setState({starActive: this.state.star})}>
                             <FontAwesomeIcon icon={faStar} />
                         </div>
 
                         <div className={`${this.state.starActive >= 3 ? 'review-star active' : 'review-star'} mr-1`}
-                        onClick={() => this.setState({star: 3})}
+                        onClick={() => this.setRating(3)}
                         onMouseOver={() => this.setState({starActive: 3})}
                         onMouseOut={() => this.setState({starActive: this.state.star})}>
                             <FontAwesomeIcon icon={faStar} />
                         </div>
 
                         <div className={`${this.state.starActive >= 4 ? 'review-star active' : 'review-star'} mr-1`}
-                        onClick={() => this.setState({star: 4})}
+                        onClick={() => this.setRating(4)}
                         onMouseOver={() => this.setState({starActive: 4})}
                         onMouseOut={() => this.setState({starActive: this.state.star})}>
                             <FontAwesomeIcon icon={faStar} />
                         </div>
 
                         <div className={`${this.state.starActive >= 5 ? 'review-star active' : 'review-star'} mr-1`}
-                        onClick={() => this.setState({star: 5})}
+                        onClick={() => this.setRating(5)}
                         onMouseOver={() => this.setState({starActive: 5})}
                         onMouseOut={() => this.setState({starActive: this.state.star})}>
                             <FontAwesomeIcon icon={faStar} />

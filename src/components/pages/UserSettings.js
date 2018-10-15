@@ -8,7 +8,8 @@ import { UpdateUser } from '../../actions/LoginActions';
 import PropTypes from 'prop-types';
 import SlideToggle from '../utils/SlideToggle';
 import fetch from 'axios';
-import Alert from '../utils/Alert';
+import { Alert } from '../../actions/AlertActions';
+import { ShowWarning } from '../../actions/WarningActions';
 
 class UserSettings extends Component {
     constructor(props) {
@@ -29,28 +30,24 @@ class UserSettings extends Component {
     saveSetting(name) {
         let state = this.state;
         state[name] = !this.state[name];
-        console.log(state);
 
-       fetch.post(`/api/user/settings/change`, {user_id: this.props.user.user.user_id, state})
+       fetch.post(`/api/user/settings/change`, state)
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState(state);
 
                 this.props.dispatch(UpdateUser(resp.data.user));
+
+                if (resp.data.user.hide_email && !resp.data.user.allow_messaging && !resp.data.user.user_phone) {
+                    this.props.dispatch(ShowWarning(`You've hidden and disabled all forms of contact`));
+                }
             } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         });
     }
 
     render() {
-        console.log(this.state)
-        let status;
-
-        if (this.state.status === 'error') {
-            status = <Alert status='error' message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />;
-        }
-
         return(
             <section id='user-settings' className='blue-panel shallow three-rounded'>
                 <ProfileSettings user={this.props.user} />
@@ -65,7 +62,6 @@ class UserSettings extends Component {
                     </div>
 
                     <div className='settings-col'>
-                        {status}
                         <div className='d-flex-between-center mb-3'>
                             <label htmlFor='hideEmail'>Hide Email:</label>
 

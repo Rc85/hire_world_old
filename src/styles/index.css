@@ -621,7 +621,7 @@
 }
 
 .alert-container {
-  position: absolute;
+  position: fixed;
   bottom: 10px;
   left: 10px;
   z-index: 2;
@@ -654,7 +654,7 @@
   border-bottom: 0;
 }
 
-#confirmation-modal {
+.full-black-overlay {
   width: 100%;
   height: 100vh;
   overflow: hidden;
@@ -667,12 +667,12 @@
   z-index: 3;
 }
 
-.confirmation-dialog {
+.modal-container {
   background: #C4C4C4;
   padding: 20px;
 }
 
-.confirmation-message {
+.modal-text {
   color: #000;
 }
 
@@ -1087,6 +1087,12 @@
 .review-buttons {
   color: #2988BC;
   cursor: pointer;
+}
+
+.review-owner {
+  border: 1px solid #2988BC;
+  background: rgba(121, 154, 199, 0.25);
+  border-radius: 0.25rem;
 }
 
 @font-face {

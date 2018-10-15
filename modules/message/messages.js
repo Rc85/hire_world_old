@@ -15,13 +15,21 @@ app.post('/api/message/submit', (req, resp) => {
                     try {
                         await client.query('BEGIN');
 
-                        let job = await client.query(`INSERT INTO jobs (job_client, job_service_id, job_user, job_subject) VALUES ($1, $2, $3, $4) RETURNING job_id`, [req.session.user.username, req.body.listing.listing_id, req.body.listing.listing_user, req.body.subject]);
-                        await client.query(`INSERT INTO messages (belongs_to_job, message_sender, message_recipient, message_body) VALUES ($1, $2, $3, $4)`,
-                        [job.rows[0].job_id, req.session.user.username, req.body.listing.listing_user, req.body.message]);
-                        await client.query('COMMIT')
-                        .then(() => {
-                            resp.send({status: 'send success', statusMessage: 'Message sent'});
-                        })
+                        let allowMessage = await client.query(`SELECT allow_messaging FROM user_settings LEFT JOIN users ON users.user_id = user_settings.user_setting_id WHERE users.username = $1`, [req.body.listing.listing_user]);
+
+                        if (allowMessage.rows[0].allow_messaging) {
+                            let job = await client.query(`INSERT INTO jobs (job_client, job_listing_id, job_user, job_subject) VALUES ($1, $2, $3, $4) RETURNING job_id`, [req.session.user.username, req.body.listing.listing_id, req.body.listing.listing_user, req.body.subject]);
+                            await client.query(`INSERT INTO messages (belongs_to_job, message_sender, message_recipient, message_body) VALUES ($1, $2, $3, $4)`,
+                            [job.rows[0].job_id, req.session.user.username, req.body.listing.listing_user, req.body.message]);
+                            await client.query('COMMIT')
+                            .then(() => {
+                                resp.send({status: 'send success', statusMessage: 'Message sent'});
+                            })
+                        } else {
+                            let error = new Error(`The user is not accepting messages`);
+                            error.type = 'user_defined';
+                            throw error;
+                        }
                     } catch (e) {
                         await client.query('ROLLBACK');
                         throw e;
@@ -31,10 +39,16 @@ app.post('/api/message/submit', (req, resp) => {
                 })()
                 .catch(err => {
                     console.log(err);
+                    let message = 'Fail to send message';
+
+                    if (err.type === 'user_defined') {
+                        message = err.message;
+                    }
+
                     if (err.code === '23505') {
-                        resp.send({status: 'send error', statusMessage: 'You already have an active inquiry'});
+                        resp.send({status: 'send error', statusMessage: 'You already sent an inquiry'});
                     } else {
-                        resp.send({status: 'send error', statusMessage: 'Fail to send message'});
+                        resp.send({status: 'send error', statusMessage: message});
                     }
                 })
             }
@@ -57,20 +71,28 @@ app.post('/api/message/reply', async(req, resp) => {
                         await client.query('BEGIN');
                         let stage = await client.query(`SELECT job_status FROM jobs WHERE job_id = $1`, [req.body.job_id]);
 
-                        console.log(stage);
+                        let allowMessaging = await client.query(`SELECT allow_messaging FROM user_settings LEFT JOIN users ON users.user_id = user_settings.user_setting_id WHERE users.username = $1`, [req.body.recipient]);
 
-                        if (stage && (stage.rows[0].job_status !== 'Close' && stage.rows[0].job_status !== 'Decline')) {
-                            let newMessage = await client.query(`INSERT INTO messages (belongs_to_job, message_sender, message_recipient, message_body, is_reply) VALUES ($1, $2, $3, $4, $5) RETURNING message_id`,
-                            [req.body.job_id, req.session.user.username, req.body.recipient, req.body.message, true])
-                            
-                            let reply = await client.query(`SELECT messages.*, user_profiles.avatar_url FROM messages LEFT JOIN users ON username = message_sender LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id WHERE message_id = $1`, [newMessage.rows[0].message_id]);
+                        if (allowMessaging.rows[0].allow_messaging) {
+                            if (stage && stage.rows[0].job_status === 'Active') {
+                                let newMessage = await client.query(`INSERT INTO messages (belongs_to_job, message_sender, message_recipient, message_body, is_reply) VALUES ($1, $2, $3, $4, $5) RETURNING message_id`,
+                                [req.body.job_id, req.session.user.username, req.body.recipient, req.body.message, true])
+                                
+                                let reply = await client.query(`SELECT messages.*, user_profiles.avatar_url FROM messages LEFT JOIN users ON username = message_sender LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id WHERE message_id = $1`, [newMessage.rows[0].message_id]);
 
-                            await client.query('COMMIT')
-                            .then(() => {
-                                resp.send({status: 'send success', statusMessage: 'Message sent', reply: reply.rows[0]});
-                            })
+                                await client.query('COMMIT')
+                                .then(() => {
+                                    resp.send({status: 'send success', statusMessage: 'Message sent', reply: reply.rows[0]});
+                                })
+                            } else {
+                                let error = new Error('Job is closed');
+                                error.type = 'user_defined';
+                                throw error;
+                            }
                         } else {
-                            resp.send({status: 'error', statusMessage: 'Job is closed'});
+                            let error = new Error(`The other party has turned off messaging`);
+                            error.type = 'user_defined';
+                            throw error;
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
@@ -81,7 +103,13 @@ app.post('/api/message/reply', async(req, resp) => {
                 })()
                 .catch(err => {
                     console.log(err);
-                    resp.send({status: 'send error', statusMessage: 'Fail to send reply'});
+                    let message = 'Fail to send reply';
+
+                    if (err.type === 'user_defined') {
+                        message = err.message;
+                    }
+
+                    resp.send({status: 'send error', statusMessage: message});
                 });
             }
         });
@@ -131,7 +159,9 @@ app.post('/api/message/edit', (req, resp) => {
                             resp.send({status: 'success', message: message.rows[0]});
                         })
                     } else {
-                        resp.send({status: 'error', statusMessage: `You're not authorized`});
+                        let error = new Error(`You're not authorized`);
+                        error.type = 'user_defined';
+                        throw error;
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
@@ -142,7 +172,14 @@ app.post('/api/message/edit', (req, resp) => {
             })()
             .catch(err => {
                 console.log(err);
-                resp.send({status: 'error', statusMessage: `An error occurred`});
+
+                let message = 'An error occurred';
+
+                if (err.type === 'user_defined') {
+                    message = err.message;
+                }
+
+                resp.send({status: 'error', statusMessage: message});
             });
         });
     }   

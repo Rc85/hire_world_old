@@ -9,9 +9,10 @@ import Response from './Response';
 import ViewUserStats from '../includes/page/ViewUserStats';
 import ViewUserReview from '../includes/page/ViewUserReview';
 import SubmitReview from '../includes/page/SubmitReview';
-import Alert from '../utils/Alert';
+import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { connect } from 'react-redux';
 
 class ViewUser extends Component {
     constructor(props) {
@@ -26,10 +27,6 @@ class ViewUser extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        console.log(nextProps);
-    }
-
     componentDidUpdate(prevProps) {
         console.log(prevProps)
         if (prevProps.location.key !== this.props.location.key) {
@@ -37,13 +34,9 @@ class ViewUser extends Component {
 
             fetch.post('/api/get/user', {username: this.props.match.params.username})
             .then(resp => {
-                if (resp.data.status === 'success') {
-                    this.setState({
-                        user: resp.data.user, services: resp.data.services, reviews: resp.data.reviews, stats: resp.data.stats, status: ''
-                    });
-                } else {
-                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
-                }
+                this.setState({user: resp.data.user, services: resp.data.services, reviews: resp.data.reviews, stats: resp.data.stats, status: ''});
+
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             })
             .catch(err => console.log(err));
         }
@@ -54,13 +47,10 @@ class ViewUser extends Component {
 
         fetch.post('/api/get/user', {username: this.props.match.params.username})
         .then(resp => {
-            console.log(resp)
-            if (resp.data.status === 'success') {
-                this.setState({
-                    user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, status: ''
-                });
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, status: ''});
+            
+            if (resp.data.status === 'error') {
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
         .catch(err => console.log(err));
@@ -69,21 +59,22 @@ class ViewUser extends Component {
     submitReview(review, star) {
         let blankCheck = /^\s*$/;
 
-        if (blankCheck(review)) {
-            this.setState({status: 'error', statusMessage: 'Review cannot be blank'});
+        if (blankCheck.test(review)) {
+            this.props.dispatch(Alert('error', 'Review cannot be blank'));
         } else {
             this.setState({status: 'Loading'});
 
             fetch.post('/api/review/submit', {review: review, star: star, reviewing: this.state.user.username})
             .then(resp => {
-                if (resp.data.status === 'success') {
-                    let reviews = this.state.reviews;
-                    reviews.unshift(resp.data.review);
+                let reviews = this.state.reviews;
 
-                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, reviews: reviews, submitReview: false});
-                } else if (resp.data.status === 'error') {
-                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                if (resp.data.review) {
+                    reviews.unshift(resp.data.review);
                 }
+
+                this.setState({status: '', reviews: reviews, submitReview: false});
+            
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             });
         }
     }
@@ -96,14 +87,19 @@ class ViewUser extends Component {
     }
 
     render() {
-        console.log(this.props)
-        let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, name;
+        console.log(this.state)
+        console.log(this.props.user)
+        let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, name, reviewed;
 
         if (this.state.status === 'Loading') {
             status = <Loading size='5x' />;
-        } else if (this.state.status === 'success' || this.state.status === 'error') {
-            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />;
         }
+
+        if (this.state.reviews && this.props.user.user) {
+            reviewed = this.state.reviews.findIndex(review => review.reviewer === this.props.user.user.username)
+        }
+
+        console.log(reviewed)
 
         if (this.state.user) {
             contacts = <ViewUserContacts user={this.state.user} />;
@@ -130,7 +126,7 @@ class ViewUser extends Component {
         if (this.state.submitReview) {
             submitReview = <SubmitReview submit={(review, star) => this.submitReview(review, star)} cancel={() => this.setState({submitReview: false })} />;
         } else if (!this.state.submitReview && this.props.user.user && this.state.user) {
-            if (this.props.user.user.username !== this.state.user.username) {
+            if (this.props.user.user.username !== this.state.user.username && reviewed < 0) {
                 submitReviewButton = <button className='btn btn-primary' onClick={() => this.setState({submitReview: true})}>Submit Review</button>;
             }
         }
@@ -177,4 +173,4 @@ class ViewUser extends Component {
     }
 }
 
-export default withRouter(ViewUser);
+export default withRouter(connect()(ViewUser));

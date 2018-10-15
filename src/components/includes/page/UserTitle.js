@@ -5,7 +5,7 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import PropTypes from 'prop-types';
 import { UpdateUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
-import Alert from '../../utils/Alert';
+import { Alert } from '../../../actions/AlertActions';
 
 class UserTitle extends Component {
     constructor(props) {
@@ -16,34 +16,26 @@ class UserTitle extends Component {
             statusMessage: '',
             title: this.props.user.user_title,
             titles: [],
-            searchedTitles: []
+            searchedTitles: [],
+            timeout: 0
         }
-    }
-
-    componentDidMount() {
-        fetch.post('/api/get/titles')
-        .then(resp => {
-            if (resp.data.status === 'success') {
-                this.setState({titles: resp.data.titles});
-            }
-        })
-        .catch(err => console.log(err));
     }
     
     searchTitle(value) {
-        let result = [];
-    
-        if (value) {
-            let searchValue = new RegExp('\\b' + value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi');
+        if (this.state.timeout) clearTimeout(this.state.timeout);
 
-            for (let title of this.state.titles) {
-                if (title.match(searchValue)) {
-                    result.push(title);
-                }
-            }
-        }
-
-        this.setState({searchedTitles: result});
+        this.setState({
+            timeout: setTimeout(() => {
+                fetch.post('/api/user/search/titles', {value: value})
+                .then(resp => {
+                    if (resp.data.status === 'success') {
+                        this.setState({searchedTitles: resp.data.titles});
+                    } else {
+                        this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+                    }
+                })
+            }, 1000)
+        });
     }
 
     setTitle(e) {
@@ -55,7 +47,7 @@ class UserTitle extends Component {
 
                     this.setState({editing: false, title: resp.data.user.user_title, titles: resp.data.titles});
                 } else {
-                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                    this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                 }
             })
             .catch(err => console.log(err));
@@ -64,7 +56,7 @@ class UserTitle extends Component {
     
     render() {
         //console.log(this.state.titles);
-        let status, value;
+        let value;
 
         if (!this.state.editing) {
             value = this.state.title;
@@ -79,13 +71,8 @@ class UserTitle extends Component {
             </React.Fragment>
         }
 
-        if (this.state.status === 'error') {
-            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />;
-        }
-
         return (
             <div className='user-info mb-2'>
-                {status}
                 <div className='d-flex'>
                     <h5>Title</h5>
 

@@ -7,6 +7,7 @@ class Confirmation extends Component {
     componentDidMount() {
         let modal = document.getElementById('confirmation-modal');
         modal.style.top = `${window.pageYOffset}px`;
+        document.body.style.overflowY = 'hidden';
     }
 
     confirmation(bool) {
@@ -17,9 +18,9 @@ class Confirmation extends Component {
 
     render() {
         return(
-            <div id='confirmation-modal'>
-                <div className='confirmation-dialog rounded'>
-                    <div className='confirmation-message mb-3'>
+            <div id='confirmation-modal' className='full-black-overlay'>
+                <div className='modal-container rounded'>
+                    <div className='modal-text mb-3'>
                         {this.props.message}
                         {this.props.note ? <div><small>{this.props.note}</small></div> : ''}
                     </div>

@@ -2,26 +2,29 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 
+const initialState = {
+    title: '',
+    rating: 'Any',
+    priceOperator: '=',
+    price: '',
+    priceType: '',
+    completedJobsOp: '=',
+    completedJobs: '',
+    noAbandonedJobs: false,
+    country: '',
+    region: '',
+    city: ''
+}
+
 class SearchListing extends Component {
     constructor(props) {
         super(props);
         
-        this.state = {
-            title: '',
-            rating: 'Any',
-            priceOperator: '=',
-            price: '',
-            priceType: '',
-            completedJobsOp: '=',
-            completedJobs: '',
-            noAbandonedJobs: false,
-            country: '',
-            region: '',
-            city: ''
-        }
+        this.state = initialState;
     }
     
     render() {
+        console.log(this.state)
         return (
             <div className='blue-panel shallow rounded mb-5'>
                 <div className='d-flex-between-start mb-3'>
@@ -116,18 +119,7 @@ class SearchListing extends Component {
 
                 <div className='text-right'>
                     <button className='btn btn-primary mr-1' onClick={() => this.props.filter(this.state)}>Filter</button>
-                    <button className='btn btn-secondary' onClick={() => this.setState({
-                        country: '',
-                        region: '',
-                        city: '',
-                        title: '',
-                        rating: '',
-                        price: '',
-                        priceType: '',
-                        priceOperator: '=',
-                        completedJobs: '',
-                        noAbandonedJobs: false
-                    })}>Clear</button>
+                    <button className='btn btn-secondary' onClick={() => this.setState(initialState)}>Clear</button>
                 </div>
             </div>
         );

@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import SubmitButton from '../../utils/SubmitButton';
-import Alert from '../../utils/Alert';
+import { Alert } from '../../../actions/AlertActions';
 import fetch from 'axios';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
+import { connect } from 'react-redux';
 
-export default class RegisterForm extends Component {
+class RegisterForm extends Component {
     constructor() {
         super();
 
@@ -34,11 +35,10 @@ export default class RegisterForm extends Component {
 
         fetch.post('/api/auth/register', this.state)
         .then(resp => {
-            console.log(resp)
             if (resp.data.status === 'success') {
                 this.props.callback(resp.data.status, resp.data.statusMessage);
             } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
         .catch(err => console.log(err));
@@ -59,7 +59,6 @@ export default class RegisterForm extends Component {
     }
 
     render() {
-        console.log(this.state)
         let status, payment;
 
         if (this.state.status && this.state.status !== 'Registering' && this.state.status !== 'success') {
@@ -236,3 +235,5 @@ export default class RegisterForm extends Component {
         )
     }
 }
+
+export default connect()(RegisterForm);

@@ -5,10 +5,11 @@ import ReviewButton from '../../utils/ReviewButton';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import Alert from '../../utils/Alert';
+import { Alert } from '../../../actions/AlertActions';
 import Loading from '../../utils/Loading';
 import fetch from 'axios';
 import SubmitReview from './SubmitReview';
+import { connect } from 'react-redux';
 
 class MessageRow extends Component {
     constructor(props) {
@@ -17,7 +18,6 @@ class MessageRow extends Component {
         this.state = {
             review: false,
             status: '',
-            statusMessage: '',
             star: 0,
             starActive: 0,
             notReviewed: this.props.message.token_status && this.props.message.token_status === 'Valid'
@@ -29,41 +29,46 @@ class MessageRow extends Component {
 
         fetch.post('/api/user/review/submit', {review: review, message, star: star})
         .then(resp => {
+            console.log(resp.data.status);
+            let notReviewed = true;
+            
             if (resp.data.status === 'success') {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, review: false, notReviewed: false});
-            } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                notReviewed = false;
             }
+
+            this.setState({status: '', review: false, notReviewed: notReviewed});
+            
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => console.log(err));
     }
     
     render() {
-        console.log(this.state)
-        let statusButton, statusButtonClass, reviewButton, review, badge, status;
+        console.log(this.props.message)
+        let statusButton, statusButtonClass, reviewButton, review, status;
 
-        if (this.state.status && this.state.status !== 'Sending') {
-            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />;
-        } else if (this.state.status === 'Sending') {
-            status = <Loading size='3x' />;
+        if (this.state.status === 'Sending') {
+            status = <Loading size='5x' />;
         }
 
         if (this.props.message.job_status) {
             if (this.props.message.job_status === 'Closed' || this.props.message.job_status === 'Abandoned') {
                 statusButtonClass = 'danger';
-            } else if (this.props.message.job_status === 'Incomplete') {
+            } else if (this.props.message.job_status === 'Incomplete' || this.props.message.job_status === 'Abandoning') {
                 statusButtonClass = 'warning';
             } else if (this.props.message.job_status === 'Complete') {
-                if (this.props.message.token_status && this.props.message.token_status === 'Valid' && !this.state.review) {
+                statusButtonClass = 'success';
+
+                if (this.state.notReviewed) {
                     reviewButton = <ReviewButton review={() => this.setState({review: true})}/>;
-                } else if (this.props.message.token_status && this.props.message.token_status === 'Invalid') {
+                } else {
                     reviewButton = <ReviewButton reviewed />;
                 }
-
-                statusButtonClass = 'success';
             }
 
-            statusButton = <span className={`badge badge-${statusButtonClass}`}>{this.props.message.job_status}</span>;
+            if (this.props.message.job_status !== 'Active') {
+                statusButton = <span className={`badge badge-${statusButtonClass}`}>{this.props.message.job_status}</span>;
+            }
         }
 
         if (this.state.review) {
@@ -77,7 +82,7 @@ class MessageRow extends Component {
                     <div className='w-5'><input type='checkbox' name='select-message' id={this.props.message.job_id} className='select-message-checkbox' onChange={(e) => this.props.select(e.target.value)}/></div>
                     <div className='w-5'>{this.props.message.job_id}</div>
                     <div className='w-70'>
-                        <div className='user-message-subject'><NavLink to={`/dashboard/message/${this.props.stage}/${this.props.message.job_id}/details`}>{this.props.message.job_subject}</NavLink> {this.props.message.job_user === this.props.user.username && this.props.message.job_is_new ? <span className='badge badge-success'>{this.props.message.job_status}</span> : ''}</div>
+                        <div className='user-message-subject'><NavLink to={`/dashboard/message/${this.props.stage}/${this.props.message.job_id}/details`}>{this.props.message.job_subject}</NavLink> {this.props.message.job_user === this.props.user.username && this.props.message.job_is_new ? <span className='badge badge-success'>New</span> : ''}</div>
     
                         <div><small>{this.props.message.message_sender === this.props.user.username ? <span>Sent {moment(this.props.message.message_date).fromNow()} to <NavLink to={`/user/${this.props.message.message_recipient}`}>{this.props.message.message_recipient}</NavLink></span> : <span>Received {moment(this.props.message.message_date).fromNow()} from <NavLink to={`/user/${this.props.message.message_sender}`}>{this.props.message.message_sender}</NavLink></span>}</small></div>
                     </div>
@@ -101,4 +106,4 @@ MessageRow.propTypes = {
     delete: PropTypes.func
 }
 
-export default MessageRow;
+export default connect()(MessageRow);

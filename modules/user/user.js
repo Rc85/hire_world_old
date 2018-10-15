@@ -78,14 +78,14 @@ app.post('/api/user/profile-pic/delete', (req, resp) => {
             if (result !== undefined && result.rowCount === 1) {
                 req.session.user.avatar_url = result.rows[0].avatar_url;
 
-                resp.send({status: 'Delete successful'});
+                resp.send({status: 'success'});
             } else if (result.rowCount === 0) {
-                resp.send({status: 'Delete failed'});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
             }
         })
         .catch(err => {
             console.log(err);
-            resp.send({status: 'An error occurred'});
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     }
 });
@@ -94,37 +94,65 @@ app.post('/api/user/edit', (req, resp) => {
     if (req.session.user) {
         let type = req.body.type;
         let value = req.body.value;
+        let valueCheck = /[a-zA-Z0-9/'".:]*/;
 
-        db.connect((err, client, done) => {
-            if (err) console.log(err);
+        if (valueCheck.test(value)) {
+            db.connect((err, client, done) => {
+                if (err) console.log(err);
 
-            (async() => {
-                try {
-                    await client.query(`BEGIN`);
-                    await client.query(`UPDATE user_profiles SET ${type} = $1 WHERE user_profile_id = $2`, [value, req.session.user.user_id]);
+                (async() => {
+                    try {
+                        await client.query(`BEGIN`);
+                        await client.query(`UPDATE user_profiles SET ${type} = $1 WHERE user_profile_id = $2`, [value, req.session.user.user_id]);
 
-                    let user = await client.query(`SELECT * FROM users
-                    LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
-                    LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
-                    WHERE users.user_id = $1`, [req.session.user.user_id]);
+                        let user = await client.query(`SELECT * FROM users
+                        LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+                        LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
+                        WHERE users.user_id = $1`, [req.session.user.user_id]);
 
-                    await client.query(`COMMIT`)
-                    .then(() => resp.send({status: `edit ${type} success`, user: user.rows[0]}));
-                } catch (e) {
-                    await client.query(`ROLLBACK`);
-                    throw e;
-                } finally {
-                    done();
-                }
-            })()
-            .catch(err => {
-                console.log(err);
-                resp.send({status: `edit ${type} fail`});
+                        await client.query(`COMMIT`)
+                        .then(() => resp.send({status: `edit ${type} success`, user: user.rows[0]}));
+                    } catch (e) {
+                        await client.query(`ROLLBACK`);
+                        throw e;
+                    } finally {
+                        done();
+                    }
+                })()
+                .catch(err => {
+                    console.log(err);
+                    resp.send({status: `edit ${type} fail`});
+                });
             });
-        });
+        } else {
+            resp.send({status: 'error', statusMessage: 'Invalid characters'});
+        }
     } else {
         resp.send({status: 'error', statusMessage: `You're not logged in`});
     }
+});
+
+app.post('/api/user/search/titles', async(req, resp) => {
+    //let searchValue = new RegExp('\\b' + req.body.value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi');
+
+    await db.query(`SELECT user_title FROM user_profiles WHERE user_title ILIKE $1`, [`%${req.body.value}%`])
+    .then(result => {
+        if (result) {
+            let titles = [];
+
+            if (result.rows.length > 0) {
+                for (let title of result.rows) {
+                    titles.push(title.user_title);
+                }
+            }
+
+            resp.send({status: 'success', titles: titles});
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        resp.send({status: 'error', statusMessage: 'An error occurred'});
+    });
 });
 
 module.exports = app;

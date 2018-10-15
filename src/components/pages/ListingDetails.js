@@ -7,7 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle, faHeart } from '@fortawesome/free-solid-svg-icons';
 import MessageSender from '../includes/page/MessageSender';
 import { unsaveListing } from '../utils/Utils';
-import Alert from '../utils/Alert';
+import { Alert } from '../../actions/AlertActions';
+import { connect } from 'react-redux';
 
 class ListingDetails extends Component {
     constructor(props) {
@@ -32,7 +33,7 @@ class ListingDetails extends Component {
                 }
 
                 this.setState({status: '', listing: resp.data.listing, listingSaved: saved});
-            } else {
+            } else if (resp.data.status === 'access error') {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
         })
@@ -44,7 +45,9 @@ class ListingDetails extends Component {
 
         fetch.post('/api/message/submit', {subject: subject, message: message, listing: this.state.listing})
         .then(resp => {
-            this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+            this.setState({status: resp.data.status});
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => console.log(err));
     }
@@ -55,10 +58,10 @@ class ListingDetails extends Component {
         fetch.post('/api/listing/save', this.state.listing)
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, listingSaved: true});
-            } else if (resp.data.status === 'error') {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                this.setState({status: '', listingSaved: true});
             }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => console.log(err));
     }
@@ -66,31 +69,25 @@ class ListingDetails extends Component {
     unsave(id) {
         this.setState({status: 'Sending'});
 
-        console.log(id)
-
         unsaveListing(id, resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', listingSaved: false});
             } else {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         });
     }
 
     render() {
-        console.log(this.state)
         let inquire, status;
 
         if (this.props.user.user && this.state.listing && this.props.user.user.username !== this.state.listing.listing_user && this.state.listing.allow_messaging) {
             inquire = <div>
-                <MessageSender send={(message, subject) => this.send(message, subject)} status={this.state.status} statusMessage={this.state.statusMessage} />
+                <MessageSender send={(message, subject) => this.send(message, subject)} status={this.state.status} />
             </div>
         }
 
-        if (this.state.status === 'success' || this.state.status === 'error') {
-            status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />;
-        } else if (this.state.status === 'Sending') {
+        if (this.state.status === 'Sending') {
             status = <Loading size='5x' />;
         }
 
@@ -141,4 +138,4 @@ class ListingDetails extends Component {
     }
 }
 
-export default withRouter(ListingDetails);
+export default withRouter(connect()(ListingDetails));

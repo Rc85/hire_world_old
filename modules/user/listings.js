@@ -135,17 +135,19 @@ app.post('/api/listing/renew', (req, resp) => {
 
                     if (now - lastRenew >= 8.64e+7) {
                         if (authorized.rows[0].listing_user === req.session.user.username) {
-                            let listing = await client.query(`UPDATE user_listings SET listing_renewed_date = current_timestamp WHERE listing_id = $1 RETURNING *`, [req.body.id]);
+                            let listing = await client.query(`UPDATE user_listings SET listing_renewed_date = current_timestamp WHERE listing_id = $1 RETURNING listing_renewed_date`, [req.body.id]);
 
                             await client.query('COMMIT')
-                            .then(() => resp.send({status: 'success', statusMessage: 'Listing renewed', listing: listing.rows[0]}));
+                            .then(() => resp.send({status: 'success', statusMessage: 'Listing renewed', renewedDate: listing.rows[0].listing_renewed_date}));
                         } else {
-                            await client.query('END');
-                            resp.send({status: 'error', statusMessage: `You're not authorized`});
+                            let error = new Error(`You're not authorized`);
+                            error.type = 'user_defined';
+                            throw error;
                         }
                     } else {
-                        resp.send({status: 'error', statusMessage: `You already renewed within the last 24 hours`});
-                        await client.query('END');
+                        let error = new Error(`You can only renew once every 24 hours`);
+                        error.type = 'user_defined';
+                        throw error;
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
@@ -156,7 +158,13 @@ app.post('/api/listing/renew', (req, resp) => {
             })()
             .catch(err => {
                 console.log(err);
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
+                let message = 'An error occurred';
+
+                if (err.type === 'user_defined') {
+                    message = err.message;
+                }
+
+                resp.send({status: 'error', statusMessage: message});
             });
         });
     }

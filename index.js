@@ -1,11 +1,17 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const http = require('http');
 const session = require('cookie-session');
+const pug = require('pug');
+const path = require('path');
 const server = http.createServer(app);
 const port = 9999;
-require('dotenv').config();
+const db = require('./modules/db');
+
+app.set('view engine', 'pug');
+app.set('views', ['dist', 'dist/inc']);
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
@@ -21,7 +27,11 @@ app.use(function (req, res, next) {
 });
 
 app.use(express.static('dist'));
+app.use('/fonts', express.static('src/fonts'));
+app.use('/styles', express.static('src/styles'));
 app.use('/user_files', express.static('user_files'));
+app.use('/images', express.static('images'));
+app.use('/webfonts', express.static('webfonts'));
 
 app.use(require('./modules/auth'));
 app.use(require('./modules/listings'));
@@ -44,6 +54,34 @@ app.use(require('./modules/fetch/listings'));
 app.use(require('./modules/message/messages'));
 app.use(require('./modules/message/offers'));
 app.use(require('./modules/message/jobs'));
+
+app.get('/', (req, resp) => {
+    resp.render('index');
+});
+
+app.get('/pricing', async(req, resp) => {
+    let promo = await db.query(`SELECT * FROM promotions WHERE promo_name = '30 Days Free'`)
+    .then(result => {
+        if (result) {
+            return result.rows[0];
+        }
+    })
+    .catch(err => console.log(err));
+
+    resp.render('pricing', {promo: promo});
+});
+
+app.get('/how-it-works', (req, resp) => {
+    resp.render('how');
+});
+
+app.get('/faq', (req, resp) => {
+    resp.render('faq');
+});
+
+app.get('/mploy*', (req, resp) => {
+    resp.sendFile(__dirname + '/dist/app.html');
+});
 
 /* app.get('*', (req, resp) => {
     console.log('here');

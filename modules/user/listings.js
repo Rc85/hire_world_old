@@ -124,18 +124,20 @@ app.post('/api/listing/renew', (req, resp) => {
         db.connect((err, client, done) => {
             if (err) console.log(err);
 
+            console.log(req.body);
+
             (async() => {
                 try {
                     await client.query('BEGIN');
 
-                    let authorized = await client.query(`SELECT listing_user, listing_renewed_date FROM user_listings WHERE listing_id = $1`, [req.body.id]);
+                    let authorized = await client.query(`SELECT listing_user, listing_renewed_date FROM user_listings WHERE listing_id = $1`, [req.body.listing_id]);
 
                     let now = new Date();
                     let lastRenew = new Date(authorized.rows[0].listing_renewed_date);
 
                     if (now - lastRenew >= 8.64e+7) {
                         if (authorized.rows[0].listing_user === req.session.user.username) {
-                            let listing = await client.query(`UPDATE user_listings SET listing_renewed_date = current_timestamp WHERE listing_id = $1 RETURNING listing_renewed_date`, [req.body.id]);
+                            let listing = await client.query(`UPDATE user_listings SET listing_renewed_date = current_timestamp WHERE listing_id = $1 RETURNING listing_renewed_date`, [req.body.listing_id]);
 
                             await client.query('COMMIT')
                             .then(() => resp.send({status: 'success', statusMessage: 'Listing renewed', renewedDate: listing.rows[0].listing_renewed_date}));

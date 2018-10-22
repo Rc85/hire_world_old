@@ -60,9 +60,9 @@ class App extends Component {
 		}
 
 		if (this.state.mainMenu) {
-			this.menu = <BrowseMenu unmount={false} />
+			this.menu = <BrowseMenu hide={false} />
 		} else {
-			this.menu = <BrowseMenu unmount={true} />
+			this.menu = <BrowseMenu hide={true} />
 		}
 
 		if (this.props.alerts.length > 0) {

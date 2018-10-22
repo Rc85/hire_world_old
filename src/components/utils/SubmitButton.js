@@ -17,5 +17,6 @@ SubmitButton.propTypes = {
     type: PropTypes.oneOf(['submit', 'button']).isRequired,
     value: PropTypes.string.isRequired,
     loading: PropTypes.bool,
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
+    disabled: PropTypes.bool
 }

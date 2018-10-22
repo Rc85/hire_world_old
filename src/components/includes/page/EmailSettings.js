@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { Alert } from '../../../actions/AlertActions';
 import SubmitButton from '../../utils/SubmitButton';
 import { UpdateUser } from '../../../actions/LoginActions';
-import PropTypes from 'prop-types';
 import fetch from 'axios';
 
 class EmailSettings extends Component {
@@ -15,15 +14,6 @@ class EmailSettings extends Component {
             confirmEmail: '',
             status: '',
             statusMessage: ''
-        }
-    }
-
-    componentDidMount() {
-        if (this.props.user) {
-            this.setState({
-                hideEmail: this.props.user.user.hide_email,
-                emailNotifications: this.props.user.user.email_notifications
-            });
         }
     }
 
@@ -47,7 +37,7 @@ class EmailSettings extends Component {
 
     render() {
         return(
-            <div id='email-settings'>
+            <div id='email-settings' className='mb-3'>
                 <div>
                     <label>Change Email:</label>
 
@@ -70,10 +60,6 @@ class EmailSettings extends Component {
             </div>
         )
     }
-}
-
-EmailSettings.propTypes = {
-    user: PropTypes.object.isRequired
 }
 
 export default connect()(EmailSettings);

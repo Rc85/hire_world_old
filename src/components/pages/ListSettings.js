@@ -46,21 +46,6 @@ class ListSettings extends Component {
             }
         }
     }
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.confirm.data && nextProps.confirm.option) {
-            if (nextProps.confirm.data.action === 'renew listing') {
-                this.setState({status: 'Loading'});
-
-                fetch.post('/api/listing/renew', nextProps.confirm.data)
-                .then(resp => {
-                    this.setState({status: '', listing: resp.data.listing});
-
-                    this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-                });
-            }
-        }
-    }
     
     componentDidMount() {
         this.setState({status: 'Loading'});
@@ -175,7 +160,7 @@ class ListSettings extends Component {
     renewListing() {
         this.setState({status: 'Loading'});
 
-        fetch.post('/api/listing/renew', {id: this.state.listing_id})
+        fetch.post('/api/listing/renew', {listing_id: this.state.initialSettings.listing_id})
         .then(resp => {
             this.initialSettings.listing_renewed_date = resp.data.renewedDate;
 

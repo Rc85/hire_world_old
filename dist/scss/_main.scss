@@ -1,0 +1,58 @@
+#main-section {
+    background: url('/images/globe.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    padding: 30px;
+    min-height: 50vh;
+}
+
+.sub-section {
+    padding: 30px;
+    color: black;
+    background: $theme-bg;
+    min-height: 50vh;
+    font-size: 1.2rem;
+}
+
+.sub-section:nth-child(2n+1) { background: $theme-lightgrey }
+
+i { color: $theme-highlight; }
+
+.process {
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0.25rem;
+
+    > i { color: black }
+
+    .fa-arrow-right {
+        opacity: 0;
+        transition: opacity 0.25s ease-in-out;
+    }
+}
+
+#get-hired, #hire {
+    display: none;
+
+    i.text {
+        color: black;
+        font-size: 0.75rem;
+    }
+}
+
+.process-div {
+    width: 15%;
+    text-align: center;
+}
+
+#awaiting-approval .fa-circle, .process-div {
+    opacity: 0;
+    transition: opacity 0.25s ease-in-out;
+}
+
+#approved-text, #reset-button, #user-review, #accepted-text { display: none }

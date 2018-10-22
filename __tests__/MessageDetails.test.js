@@ -1,5 +1,5 @@
 import React from 'react';
-import Enzyme, { mount } from 'enzyme';
+import Enzyme, { mount, shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import { MemoryRouter } from 'react-router';
 import { reducers } from '../src/reducers';
@@ -18,7 +18,7 @@ Enzyme.configure({adapter: new Adapter()});
 
 describe('Message details page', () => {
     test('snapshot', async() => {
-        const wrapper = mount(
+        const wrapper = shallow(
             <Provider store={store}>
                 <MemoryRouter initialEntries={[{pathname: '/dashboard/message/1/details', key: 'message-details'}]}>
                     <Dashboard user={user}><MessageDetails user={user} /></Dashboard>

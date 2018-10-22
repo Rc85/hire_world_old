@@ -10,6 +10,7 @@ import SlideToggle from '../utils/SlideToggle';
 import fetch from 'axios';
 import { Alert } from '../../actions/AlertActions';
 import { ShowWarning } from '../../actions/WarningActions';
+import BusinessHoursSettings from '../includes/page/BusinessHoursSettings';
 
 class UserSettings extends Component {
     constructor(props) {
@@ -19,7 +20,8 @@ class UserSettings extends Component {
             hide_email: this.props.user.user.hide_email,
             display_fullname: this.props.user.user.display_fullname,
             email_notifications: this.props.user.user.email_notifications,
-            allow_messaging: this.props.user.user.allow_messaging
+            allow_messaging: this.props.user.user.allow_messaging,
+            hide_business_hours: this.props.user.user.hide_business_hours
         }
     }
     
@@ -28,11 +30,12 @@ class UserSettings extends Component {
     }
 
     saveSetting(name) {
-        let state = this.state;
+        let state = Object.assign({}, this.state);
         state[name] = !this.state[name];
 
        fetch.post(`/api/user/settings/change`, state)
         .then(resp => {
+            console.log(resp.data);
             if (resp.data.status === 'success') {
                 this.setState(state);
 
@@ -48,6 +51,8 @@ class UserSettings extends Component {
     }
 
     render() {
+        console.log(this.state);
+
         return(
             <section id='user-settings' className='blue-panel shallow three-rounded'>
                 <ProfileSettings user={this.props.user} />
@@ -57,11 +62,7 @@ class UserSettings extends Component {
                 <div className='d-flex-between-start mb-3'>
                     <div className='settings-col'>
                         <PasswordSettings />
-    
-                        <EmailSettings user={this.props.user} />
-                    </div>
 
-                    <div className='settings-col'>
                         <div className='d-flex-between-center mb-3'>
                             <label htmlFor='hideEmail'>Hide Email:</label>
 
@@ -85,6 +86,18 @@ class UserSettings extends Component {
 
                             <SlideToggle status={this.props.user.user.allow_messaging} id='allowMessaging' onClick={() => this.saveSetting('allow_messaging')} />
                         </div>
+
+                        <div className='d-flex-between-center mb-3'>
+                            <label htmlFor='hideBusinessHours'>Hide Business Hours:</label>
+
+                            <SlideToggle status={this.props.user.user.hide_business_hours} id='hideBusinessHours' onClick={() => this.saveSetting('hide_business_hours')} />
+                        </div>
+                    </div>
+
+                    <div className='settings-col'>
+                        <EmailSettings />
+
+                        <BusinessHoursSettings />
                     </div>
                 </div>
             </section>

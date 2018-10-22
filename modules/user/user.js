@@ -155,4 +155,65 @@ app.post('/api/user/search/titles', async(req, resp) => {
     });
 });
 
+app.post('/api/user/business_hours/save', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
+
+            delete req.body.status;
+            delete req.body.showSettings;
+
+            console.log(req.body);
+
+            let timeCheck = /^([0-9]|[1-2][0-4]):[0-5][0-9](\s?(AM|am|PM|pm))?(\s[A-Za-z]{3,5})?$/;
+            let invalidFormat = false;
+
+            for (let key in req.body) {
+                if (req.body[key] !== 'Closed') {
+                    let times = req.body[key].split(' - ');
+                    console.log(times);
+
+                    if (times.length !== 2) {
+                        invalidFormat = true;
+                        break;
+                    } else {
+                        for (let time of times) {
+                            if (!timeCheck.test(time)) {
+                                invalidFormat = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (invalidFormat) {
+                resp.send({status: 'error', statusMessage: 'Invalid time format'});
+            } else {
+                (async() => {
+                    try {
+                        await client.query('BEGIN');
+
+                        await client.query(`INSERT INTO business_hours (monday, tuesday, wednesday, thursday, friday, saturday, sunday, business_owner) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (business_owner) DO UPDATE SET monday = $1, tuesday = $2, wednesday = $3, thursday = $4, friday = $5, saturday = $6, sunday = $7`, [req.body.mon, req.body.tue, req.body.wed, req.body.thu, req.body.fri, req.body.sat, req.body.sun, req.session.user.username]);
+
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success', statusMessage: 'Business hours saved'}));
+                    } catch (e) {
+                        await client.query('ROLLBACK');
+                        throw e;
+                    } finally {
+                        done();
+                    }
+                })()
+                .catch(err => {
+                    console.log(err);
+                    resp.send({status: 'error', statusMessage: 'An error occurred'});
+                });
+            }
+        });
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
+    }
+});
+
 module.exports = app;

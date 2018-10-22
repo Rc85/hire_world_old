@@ -1,0 +1,148 @@
+extends layout
+
+block content
+    section#main-section
+        h1 Find any service, anywhere
+        h1.d-flex-end-center Gain exposure for your business
+    section.sub-section
+        .text-center.mb-5
+            h1 A community to help provide trusted services
+        .d-flex-around-start
+            .w-20.text-center
+                h3 User Reviews
+                i.far.fa-comments.fa-10x
+                .w-50.mx-auto.mt-3 Five-star rating system and user feedback to help build your business
+            .w-20.text-center
+                h3 Report System
+                i.fa.fa-exclamation-triangle.fa-10x
+                .w-50.mx-auto.mt-3 One-click user report to flag listings, reviews, and messages
+            .w-20.text-center
+                h3 Moderated
+                i.fa.fa-user-shield.fa-10x
+                .w-50.mx-auto.mt-3 Heavily moderated to provide a safer community for every user
+            .w-20.text-center
+                h3 Tracked Jobs
+                i.fa.fa-chart-area.fa-10x
+                .w-50.mx-auto.mt-3 Track jobs to completion stage to gain stats and 
+                    span.badge.badge-success verified
+                    |  reviews
+    section.sub-section.position-relative
+        .text-center.mb-5
+            h1 User friendly. Easy to use.
+            span An optional feature to help users communicate, establish an agreement, and track jobs
+        .text-center
+            button.btn.btn-info.mr-1#get-hired-button I want to get hired
+            button.btn.btn-info.ml-1#hire-button I want to hire
+            button.btn.btn-info#reset-button Reset
+        #get-hired.process
+            #list-profile.process-div List your profile
+                input#list-title.form-control.mb-1(type='text', name='list-title', placeholder='Enter a title')
+                button.btn.btn-primary.btn-sm#list-button List
+            i.fas.fa-arrow-right.arrow1
+            #accept-offer.process-div
+                div A user makes an offer
+                button.btn.btn-success.btn-sm#accept-offer-button Accept Offer
+            i.fas.fa-arrow-right.arrow2
+            #user-job-complete.process-div
+                div Request is required from client to complete job
+                button.btn.btn-success.btn-sm#user-job-complete-button Complete
+            i.fas.fa-arrow-right.arrow3
+            #awaiting-approval.process-div
+                .mb-3.text-center.dots
+                    i.fas.fa-circle.fa-xs.text.mr-3.dot1
+                    i.fas.fa-circle.fa-xs.text.mr-3.dot2
+                    i.fas.fa-circle.fa-xs.text.dot3
+                #approved-text.d-flex-center-center
+                    i.far.fa-check-circle.fa-2x.text-success
+                    span Approved
+            i.fas.fa-arrow-right.arrow4
+            #user-submit-review.process-div You can now submit a 
+                span.badge.badge-success verified 
+                |  review
+                input#user-verified-review.form-control.mb-1(type='text', name='verified-review', placeholder='Enter your feedback')
+                button.btn.btn-primary.btn-sm#user-submit-review Submit
+        #user-review.text-center.mt-5
+            i.far.fa-check-circle.fa-4x
+            #submitted-text Review submitted
+        #hire.process
+            #search-profile.process-div Search for service
+                input#search-listing.form-control.mb-1(type='text', name='search-listing', placeholder='Enter a keyword')
+                button.btn.btn-primary.btn-sm#search-button Search
+            i.fas.fa-arrow-right.arrow1
+            #make-offer.process-div
+                .d-flex-between-center.mb-1
+                    span $
+                    input#offer-input.form-control.w-45(type='number', name='offer')
+                    span /
+                    select.form-control.w-40(name='per')
+                        option(value='hour') Hour
+                        option(value='delivery') Delivery
+                        option(value='onetime') One Time Payment
+                button.btn.btn-success.btn-sm#make-offer-button Make Offer
+            i.fas.fa-arrow-right.arrow2
+            #awaiting-acceptance.process-div
+                .mb-3.text-center.dots
+                    i.fas.fa-circle.fa-xs.text.mr-3.dot1
+                    i.fas.fa-circle.fa-xs.text.mr-3.dot2
+                    i.fas.fa-circle.fa-xs.text.dot3
+                #accepted-text.d-flex-center-center
+                    i.far.fa-check-circle.fa-2x.text-success
+                    span Accepted
+            i.fas.fa-arrow-right.arrow3
+            #client-job-complete.process-div
+                div Other party completed the job and requests for approval
+                button.btn.btn-success.btn-sm#client-job-complete-button Complete
+            i.fas.fa-arrow-right.arrow4
+            #client-submit-review.process-div You can now submit a 
+                span.badge.badge-success verified 
+                |  review
+                input#client-verified-review.form-control.mb-1(type='text', name='verified-review', placeholder='Enter your feedback')
+                button.btn.btn-primary.btn-sm#client-submit-review Submit
+    //-section.sub-section
+        .text-center.mb-5
+            h1 User friendly. Easy to use
+        .mb-3
+            h2 I want to get hired...
+            .process
+                .text-center
+                    h3 List
+                    i.far.fa-list-alt.fa-6x
+                i.fa.fa-arrow-right.fa-4x
+                .text-center
+                    h3 Communicate
+                    i.far.fa-comment-alt.fa-6x
+                i.fa.fa-arrow-right.fa-4x
+                .text-center
+                    h3 Accept Offer
+                    i.far.fa-handshake.fa-6x
+                i.fa.fa-arrow-right.fa-4x
+                .text-center
+                    h3 Deliver
+                    i.far.fa-check-circle.fa-6x
+                i.fa.fa-arrow-right.fa-4x
+                .text-center
+                    h3 Get Reviewed
+                    i.far.fa-comment-dots.fa-6x
+        hr
+        div
+            h2 I want to hire...
+            .process
+                .text-center
+                    h3 Search
+                    i.fa.fa-search.fa-6x
+                i.fa.fa-arrow-right.fa-4x
+                .text-center
+                    h3 Inquire
+                    i.far.fa-comment-alt.fa-6x
+                i.fa.fa-arrow-right.fa-4x
+                .text-center
+                    h3 Make Offer
+                    i.fa.fa-hand-holding-usd.fa-6x
+                i.fa.fa-arrow-right.fa-4x
+                .text-center
+                    h3 Complete
+                    i.far.fa-check-circle.fa-6x
+                i.fa.fa-arrow-right.fa-4x
+                .text-center
+                    h3 Submit Review
+                    i.far.fa-comment.fa-6x

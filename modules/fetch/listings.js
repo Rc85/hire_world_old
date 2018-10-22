@@ -51,9 +51,13 @@ app.post('/api/get/listing/detail', async(req, resp) => {
         if (result !== undefined && result.rows.length === 1) {
             let saved = false;
 
-            let savedListing = await db.query(`SELECT saved_listing_id FROM saved_listings WHERE saved_listing_id = $1 AND saved_by = $2`, [req.body.id, req.session.user.username]);
+            let savedListing;
+            
+            if (req.session.user) {
+                savedListing = await db.query(`SELECT saved_listing_id FROM saved_listings WHERE saved_listing_id = $1 AND saved_by = $2`, [req.body.id, req.session.user.username]);
+            }
 
-            if (savedListing.rows.length === 1 && savedListing.rows[0].saved_listing_id === parseInt(req.body.id)) {
+            if (savedListing && savedListing.rows.length === 1 && savedListing.rows[0].saved_listing_id === parseInt(req.body.id)) {
                 saved = true;
             }
 

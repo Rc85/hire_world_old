@@ -23,7 +23,8 @@ class ViewUser extends Component {
             reviews: [],
             status: '',
             submitReview: false,
-            review: ''
+            review: '',
+            hours: {}
         }
     }
 
@@ -34,7 +35,11 @@ class ViewUser extends Component {
 
             fetch.post('/api/get/user', {username: this.props.match.params.username})
             .then(resp => {
-                this.setState({user: resp.data.user, services: resp.data.services, reviews: resp.data.reviews, stats: resp.data.stats, status: ''});
+                if (resp.data.status === 'success') {
+                    this.setState({user: resp.data.user, services: resp.data.services, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: ''});
+                } else if (resp.data.status === 'error') {
+                    this.setState({status: ''});
+                }
 
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             })
@@ -47,9 +52,9 @@ class ViewUser extends Component {
 
         fetch.post('/api/get/user', {username: this.props.match.params.username})
         .then(resp => {
-            this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, status: ''});
-            
-            if (resp.data.status === 'error') {
+            if (resp.data.status === 'success') {
+                this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: ''});
+            } else if (resp.data.status === 'error') {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
@@ -66,13 +71,17 @@ class ViewUser extends Component {
 
             fetch.post('/api/review/submit', {review: review, star: star, reviewing: this.state.user.username})
             .then(resp => {
-                let reviews = this.state.reviews;
+                if (resp.data.status === 'success') {
+                    let reviews = this.state.reviews;
 
-                if (resp.data.review) {
-                    reviews.unshift(resp.data.review);
+                    if (resp.data.review) {
+                        reviews.unshift(resp.data.review);
+                    }
+
+                    this.setState({status: '', reviews: reviews, submitReview: false});
+                } else if (resp.data.status === 'error') {
+                    this.setState({status: ''});
                 }
-
-                this.setState({status: '', reviews: reviews, submitReview: false});
             
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             });
@@ -146,7 +155,7 @@ class ViewUser extends Component {
                             {name}
                             {contacts}
                             {socialMedia}
-                            <ViewUserStats stats={this.state.stats || {}} />
+                            <ViewUserStats stats={this.state.stats || {}} hours={this.state.hours} />
                         </div>
 
                         <div className='col-9'>

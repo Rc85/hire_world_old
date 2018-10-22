@@ -45,7 +45,7 @@ class PasswordSettings extends Component {
         }
 
         return(
-            <div id='password-settings' className='position-relative'>
+            <div id='password-settings' className='position-relative mb-3'>
                 {status}
                 <div>
                     <div className='d-flex justify-content-between'>

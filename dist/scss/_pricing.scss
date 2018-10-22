@@ -1,0 +1,22 @@
+#pricing-table {
+    width: 50%;
+    margin: 0 auto 30px auto;
+
+    thead th { border-bottom-width: 1px }
+
+    thead th, tbody td { border-color: #000 }
+
+    tbody td { color: #000 }
+
+    tbody td:not(:first-child) { text-align: center }
+
+    tbody td:first-child {
+        vertical-align: middle;
+        padding-left: 100px;
+    }
+
+    thead tr {
+        background: $theme-blue;
+        color: white;
+    }
+}

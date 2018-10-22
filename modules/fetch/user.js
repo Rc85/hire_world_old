@@ -41,11 +41,32 @@ app.post('/api/get/user', async(req, resp) => {
             delete user.rows[0].display_fullname;
             delete user.rows[0].display_contacts;
 
+            let orderby = '';
+            let reviewsParam;
+
+            if (req.session.user) {
+                orderby = 'ORDER BY user_reviews.reviewer = $2 DESC, ';
+                reviewsParam = [req.body.username, req.session.user.username];
+            } else {
+                reviewsParam = [req.body.username];
+            }
+
             let reviews = await db.query(`SELECT user_reviews.*, user_profiles.avatar_url FROM user_reviews
             LEFT JOIN users ON users.username = user_reviews.reviewer
             LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
             WHERE user_reviews.reviewing = $1 AND user_reviews.review IS NOT NULL
-            ORDER BY user_reviews.reviewer = $2 DESC, user_reviews.review_date DESC`, [req.body.username, req.session.user.username]);
+            ORDER BY ${orderby}user_reviews.review_date DESC`, reviewsParam);
+
+            let businessHours = {};
+            
+            if (!user.rows[0].hide_business_hours) {
+                businessHoursQuery = await db.query(`SELECT * FROM business_hours WHERE business_owner = $1`, [req.body.username]);
+
+                delete businessHoursQuery.rows[0].business_hour_id;
+                delete businessHoursQuery.rows[0].business_owner;
+
+                businessHours = businessHoursQuery.rows[0];
+            }
 
             let stats = await db.query(`SELECT
                 (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_stage = 'Complete'),
@@ -62,10 +83,23 @@ app.post('/api/get/user', async(req, resp) => {
 
             await db.query(`INSERT INTO user_view_count (viewing_user, view_count) VALUES ($1, $2) ON CONFLICT (viewing_user) DO UPDATE SET view_count = user_view_count.view_count + 1`, [req.body.username, 1]);
 
-            resp.send({status: 'success', user: user.rows[0], reviews: reviews.rows, stats: stats.rows[0]});
+            resp.send({status: 'success', user: user.rows[0], reviews: reviews.rows, stats: stats.rows[0], hours: businessHours});
         } else {
             resp.send({status: 'error page', statusMessage: `The requested user's profile does not exist`});
         }
+    }
+});
+
+app.get('/api/get/business_hours', async(req, resp) => {
+    if (req.session.user) {
+        await db.query(`SELECT monday, tuesday, wednesday, thursday, friday, saturday, sunday FROM business_hours WHERE business_owner = $1`, [req.session.user.username])
+        .then(result => {
+            if (result) resp.send({status: 'success', hours: result.rows[0]});
+        })
+        .catch(err => {
+            console.log(err);
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
+        });
     }
 });
 

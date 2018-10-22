@@ -10,7 +10,7 @@ export default class Alert extends Component {
         if (this.props.status !== null) {
             setTimeout(() => {
                 this.props.unmount();
-            }, 2500);
+            }, 4000);
         }
     }
 

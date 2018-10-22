@@ -8,13 +8,13 @@ class BrowseMenu extends Component {
         
         this.state = {
             right: '-15%',
-            unmount: true
+            hide: true
         }
     }
 
     componentWillReceiveProps(nextProps) {
-        if (!nextProps.unmount) {
-            this.setState({unmount: nextProps.unmount});
+        if (!nextProps.hide) {
+            this.setState({hide: nextProps.hide});
 
             setTimeout(() => {
                 this.setState({right: '0'});
@@ -23,7 +23,7 @@ class BrowseMenu extends Component {
             this.setState({right: '-15%'});
 
             setTimeout(() => {
-                this.setState({unmount: nextProps.unmount});
+                this.setState({hide: nextProps.hide});
             }, 300);
         }
     }
@@ -37,7 +37,7 @@ class BrowseMenu extends Component {
             });
         }
 
-        if (this.state.unmount) {
+        if (this.state.hide) {
             return null
         } else {
             return(

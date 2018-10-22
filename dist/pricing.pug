@@ -1,0 +1,79 @@
+extends layout
+
+block content
+    section.p-5
+        if promo
+            div.alert.alert-info.text-center
+                h4 #{promo.promo_name}
+                .mt-3 #{promo.promo_description}
+        table#pricing-table.table.table-bordered
+            thead
+                tr
+                    th(colspan='4') Plans
+            tbody
+                tr
+                    td
+                    td.w-20 User
+                    td.w-20 Listing
+                    td.w-20 Business
+                tr
+                    td
+                    td Free
+                    td $7/month
+                    td $15/month
+            thead
+                tr
+                    th(colspan='4') Features
+            tbody
+                tr
+                    td User Profile
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                tr
+                    td Reviews
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                tr
+                    td Messaging
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                tr
+                    td Track Jobs
+                    td
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                tr
+                    td List Service
+                    td
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                tr
+                    td Product Page
+                    td
+                    td
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                tr
+                    td Product Reviews
+                    td
+                    td
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+        .text-center
+            button.btn.btn-primary Register Now

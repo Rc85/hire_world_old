@@ -9,8 +9,32 @@ import UserRating from './UserRating';
 
 const ViewUserStats = props => {
     console.log(props);
+    let businessHours;
+    let time = [];
+
+    for (let day in props.hours) {
+        time.push(
+            <div className='d-flex'>
+                <div className='w-25'>{day.charAt(0).toUpperCase() + day.substring(1,3)}</div>
+                <div>{props.hours[day]}</div>
+            </div>
+        )
+    }
+
+    if (time.length > 0) {
+        businessHours = <React.Fragment>
+            <h5>Business Hours</h5>
+
+            <div className='mb-1'>{time}</div>
+
+            <hr/>
+        </React.Fragment>
+    }
+
     return(
         <div id='view-user-stats'>
+            {businessHours}
+
             <h5>Stats</h5>
 
             <div className='d-flex mb-2'>

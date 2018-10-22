@@ -194,24 +194,38 @@ app.post('/api/user/settings/change', (req, resp) => {
             (async() => {
                 try {
                     await client.query('BEGIN');
-                    await client.query(`UPDATE user_settings SET hide_email = $1, display_fullname = $2, email_notifications = $3, allow_messaging = $4 WHERE user_setting_id = $5`, [req.body.hide_email, req.body.display_fullname, req.body.email_notifications, req.body.allow_messaging, req.session.user.user_id]);
 
-                    let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
+                    let allowMessaging = await client.query(`SELECT allow_messaging FROM user_settings WHERE user_setting_id = $1`, [req.session.user.user_id]);
+                    let hasInquiries;
 
-                    delete user.rows[0].user_password;
-                    delete user.rows[0].user_level;
-
-                    if (user.rows[0].hide_email) {
-                        delete user.rows[0].user_email;
+                    if (req.body.allow_messaging !== allowMessaging.rows[0].allow_messaging && !req.body.allow_messaging) {
+                        hasInquiries = await client.query(`SELECT job_id FROM jobs WHERE job_status = 'Active' AND (job_client = $1 OR job_user = $1)`, [req.session.user.username]);
                     }
 
-                    if (!user.rows[0].display_fullname) {
-                        delete user.rows[0].user_firstname;
-                        delete user.rows[0].user_lastname;
-                    }
+                    if (hasInquiries && hasInquiries.rows.length > 0) {
+                        let error = new Error(`You have active messages or jobs`);
+                        error.type = 'user_defined';
+                        throw error;
+                    } else {
+                        await client.query(`UPDATE user_settings SET hide_email = $1, display_fullname = $2, email_notifications = $3, allow_messaging = $4, hide_business_hours = $6 WHERE user_setting_id = $5`, [req.body.hide_email, req.body.display_fullname, req.body.email_notifications, req.body.allow_messaging, req.session.user.user_id, req.body.hide_business_hours]);
 
-                    await client.query('COMMIT')
-                    .then(() => resp.send({status: 'success', user: user.rows[0]}));
+                        let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
+
+                        delete user.rows[0].user_password;
+                        delete user.rows[0].user_level;
+
+                        if (user.rows[0].hide_email) {
+                            delete user.rows[0].user_email;
+                        }
+
+                        if (!user.rows[0].display_fullname) {
+                            delete user.rows[0].user_firstname;
+                            delete user.rows[0].user_lastname;
+                        }
+
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success', user: user.rows[0]}));
+                    }
                 } catch (e) {
                     await client.query('ROLLBACK');
                     throw e;
@@ -221,7 +235,13 @@ app.post('/api/user/settings/change', (req, resp) => {
             })()
             .catch(err => {
                 console.log(err);
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
+                let message = 'An error occurred';
+
+                if (err.type === 'user_defined') {
+                    message = err.message;
+                }
+                
+                resp.send({status: 'error', statusMessage: message});
             });
         });
     } else {

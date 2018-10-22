@@ -432,6 +432,12 @@
   align-items: flex-start;
 }
 
+.d-flex-around-center {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
 .d-flex-between-end {
   display: flex;
   justify-content: space-between;
@@ -458,6 +464,11 @@
 .d-flex-end {
   display: flex;
   align-items: flex-end;
+}
+
+.d-flex-center-stretch {
+  display: flex;
+  justify-content: center;
 }
 
 #sector-name {
@@ -670,6 +681,7 @@
 .modal-container {
   background: #C4C4C4;
   padding: 20px;
+  max-width: 50%;
 }
 
 .modal-text {

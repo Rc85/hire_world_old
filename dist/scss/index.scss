@@ -1,0 +1,45 @@
+@import '../../src/scss/variables';
+@import '../../src/scss/utils/flex';
+@import '../../src/scss/utils/widths';
+@import '../../src/scss/mixins';
+@import '../../src/scss/TopBar';
+@import './vendor/font-awesome/fontawesome';
+@import './vendor/font-awesome/solid';
+@import './vendor/font-awesome/regular';
+@import './navbar';
+@import './main';
+@import './pricing';
+@import './how';
+@import './faq';
+@import './footer';
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/Montserrat-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'Montserrat Bold';
+    src: url('/fonts/Montserrat-Bold.ttf');
+}
+
+body {
+    background: $theme-bg;
+    overflow-x: hidden;
+    margin: 0;
+    font-family: 'Montserrat';
+    color: $theme-fg;
+    min-height: 100vh;
+}
+
+a {
+    color: $theme-fg;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: $theme-fg;
+}
+
+h1, h2, h3, h4, h5, h6 { font-family: 'Montserrat Bold' }

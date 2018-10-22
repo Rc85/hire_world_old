@@ -194,9 +194,9 @@ app.post('/api/job/close', (req, resp) => {
                 try {
                     await client.query(`BEGIN`);
 
-                    let authorized = await client.query(`SELECT job_user FROM jobs WHERE job_id = $1`, [req.body.job_id]);
+                    let authorized = await client.query(`SELECT job_id FROM jobs WHERE job_id = $1 AND (job_user = $2 OR job_client = $2)`, [req.body.job_id, req.session.user.username]);
 
-                    if (req.session.user.username === authorized.rows[0].job_user) {
+                    if (authorized && authorized.rows.length === 1) {
                         await client.query(`UPDATE jobs SET job_status = 'Closed' WHERE job_id = $1`, [req.body.job_id])
                         await client.query(`UPDATE messages SET message_status = '' WHERE belongs_to_job = $1`, [req.body.job_id]);
 

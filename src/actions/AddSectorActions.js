@@ -4,7 +4,7 @@ export const AddSector = (value) => {
     return dispatch => {
         dispatch(AddSectorBegin('add sector loading'));
 
-        fetch.post('/api/admin/add-sector', {sector: value})
+        fetch.post('/api/admin/sector/add', {sector: value})
         .then(resp => {
             if (resp.data.status === 'add sector success') {
                 dispatch(AddSectorSuccess(resp.data.status, resp.data.sectors));

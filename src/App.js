@@ -2,17 +2,16 @@ import React, { Component } from 'react';
 import { Route, withRouter, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { GetSession, GetSectors } from './actions/FetchActions';
-import AdminOverview from './components/admin/AdminOverview';
-import AdminSectors from './components/admin/AdminSectors';
-import Admin from './components/admin/Admin';
 import { RemoveAlert } from './actions/AlertActions';
 import * as Pages from './components/pages';
+import * as Admin from './components/admin';
 import TopBar from './components/includes/site/TopBar';
 import BrowseMenu from './components/includes/site/BrowseMenu';
 import Confirmation from './components/utils/Confirmation';
 import Alert from './components/utils/Alert';
 import Prompt from './components/utils/Prompt';
 import Warning from './components/utils/Warning';
+import { ToggleMenu } from './actions/MenuActions';
 
 class App extends Component {
 	constructor(props) {
@@ -35,18 +34,15 @@ class App extends Component {
 		this.props.dispatch(GetSectors());
 
 		document.body.addEventListener('click', (e) => {
-			if (typeof e.target.className === 'object' || e.target.className === 'main-menu-item' || e.target.className === 'menu-item' || e.target.id === 'browse-menu-button') {
+			if (typeof e.target.className === 'object' || e.target.classList.contains('admin-menu-button') || e.target.classList.contains('menu-item') || e.target.classList.contains('menu') || e.target.id === 'browse-menu-button') {
 				return;
-			} else {
-				if (this.state.mainMenu) {
-					this.setState({mainMenu: false});
-				}
+			} else if (this.props.menu.open) {
+				this.props.dispatch(ToggleMenu('', ''));
 			}
 		});
     }
 
 	render() {
-		console.log(this.props.alerts);
 		let confirmation, sectors, alerts, prompt, warning;
 
 		if (this.props.confirmation.status === true) {
@@ -59,10 +55,10 @@ class App extends Component {
 			});
 		}
 
-		if (this.state.mainMenu) {
-			this.menu = <BrowseMenu hide={false} />
+		if (this.props.menu.open === 'main') {
+			this.menu = <BrowseMenu sectors={this.props.sectors} hide={false} />
 		} else {
-			this.menu = <BrowseMenu hide={true} />
+			this.menu = <BrowseMenu sectors={this.props.sectors} hide={true} />
 		}
 
 		if (this.props.alerts.length > 0) {
@@ -89,7 +85,7 @@ class App extends Component {
 				{warning}
 				{prompt}
 				{confirmation}
-				<TopBar toggleMenu={() => this.setState({mainMenu: !this.state.mainMenu})} menuOpen={this.state.mainMenu} />
+				<TopBar />
 
 				<div className='position-relative'>{this.menu}</div>
 
@@ -103,14 +99,17 @@ class App extends Component {
 						<Route exact path='/dashboard/settings' render={() => <Pages.Dashboard user={this.props.user}><Pages.UserSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/messages/:stage' render={() => <Pages.Dashboard user={this.props.user}><Pages.Messages user={this.props.user} /></Pages.Dashboard>} />} />
 						<Route exact path='/dashboard/message/:stage/:id/details' render={() => <Pages.Dashboard user={this.props.user}><Pages.MessageDetails user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/admin/overview' render={() => <Admin child={<AdminOverview />} />} />
-						<Route exact path='/admin/sectors' render={() => <Admin child={<AdminSectors />} />} />
 						<Route exact path='/listing/:id' render={() => <Pages.ListingDetails user={this.props.user} />} />
 						<Route exact path='/user/:username' render={() => <Pages.ViewUser user={this.props.user} />} />
 						<Route exact path='/account/login' render={() => <Pages.Login user={this.props.user} />} />
 						<Route exact path='/account/register' render={() => <Pages.Register user={this.props.user} />} />
 						{sectors}
 						<Route exact path='/sectors/:sector' component={Pages.Sectors} />
+
+						<Route exact path='/admin-panel' render={() => <Admin.Admin><Admin.AdminOverview user={this.props.user} /></Admin.Admin>} />
+						<Route exact path='/admin-panel/sectors' render={() => <Admin.Admin><Admin.AdminSectors user={this.props.user} /></Admin.Admin>} />
+						<Route exact path='/admin-panel/users' render={() => <Admin.Admin><Admin.AdminUsers user={this.props.user} /></Admin.Admin>} />
+
 						<Route render={() => <Pages.Response code={404} header={'Not Found'} message={`This page you're trying to access does not exist.`} />} />
 					</Switch>
 				</section>
@@ -128,7 +127,8 @@ const mapStateToProps = (state) => {
 		sectors: state.Sectors.sectors,
 		alerts: state.Alert.alerts,
 		prompt: state.Prompt,
-		warning: state.Warning
+		warning: state.Warning,
+		menu: state.Menu
 	}
 }
 

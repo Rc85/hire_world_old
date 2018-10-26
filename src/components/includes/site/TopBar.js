@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { NavLink } from 'react-router-dom';
 import NavBar from './NavBar';
 import { connect } from 'react-redux';
 
@@ -8,10 +7,10 @@ class TopBar extends Component {
         return(
             <section id='topbar'>
                 <div id='logo'>
-                    <NavLink to='/'><h1>M-ploy</h1></NavLink>
+                    <a href='/'><h1>M-ploy</h1></a>
                 </div>
 
-                <NavBar user={this.props.user} toggleMenu={() => this.props.toggleMenu()} menuOpen={this.props.menuOpen} />
+                <NavBar user={this.props.user} />
             </section>
         )
     }

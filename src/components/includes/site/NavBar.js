@@ -4,8 +4,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes, faUserCog, faSignOutAlt, faUsersCog, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 import { LogoutUser } from '../../../actions/LoginActions';
+import PropTypes from 'prop-types';
+import { ToggleMenu } from '../../../actions/MenuActions';
 
 class NavBar extends Component {
+    toggleMenu() {
+        if (this.props.menu.open !== 'main') {
+            this.props.dispatch(ToggleMenu('main', ''));
+        } else if (this.props.menu.open === 'main') {
+            this.props.dispatch(ToggleMenu('', 'main'));
+        }
+    }
+
     render() {
         let menuIcon = <FontAwesomeIcon icon={faBars} size='2x' />;
         let closeIcon = <FontAwesomeIcon icon={faTimes} size='2x' />;
@@ -34,8 +44,8 @@ class NavBar extends Component {
                     {admin}
                     {logout}
 
-                    <div id='browse-menu-button' className='nav-item' onClick={() => this.props.toggleMenu()}>
-                        <span>{this.props.menuOpen ? closeIcon : menuIcon}</span>
+                    <div id='browse-menu-button' className='nav-item' onClick={() => this.toggleMenu()}>
+                        {this.props.menu.open === 'main' ? closeIcon : menuIcon}
                     </div>
                 </div>
             </nav>
@@ -43,4 +53,14 @@ class NavBar extends Component {
     }
 }
 
-export default connect()(NavBar);
+NavBar.propTypes = {
+    user: PropTypes.object
+}
+
+const mapStateToProps = state => {
+    return {
+        menu: state.Menu
+    }
+}
+
+export default connect(mapStateToProps)(NavBar);

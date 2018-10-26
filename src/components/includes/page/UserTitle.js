@@ -22,20 +22,22 @@ class UserTitle extends Component {
     }
     
     searchTitle(value) {
-        if (this.state.timeout) clearTimeout(this.state.timeout);
+        if (value) {
+            if (this.state.timeout) clearTimeout(this.state.timeout);
 
-        this.setState({
-            timeout: setTimeout(() => {
-                fetch.post('/api/user/search/titles', {value: value})
-                .then(resp => {
-                    if (resp.data.status === 'success') {
-                        this.setState({searchedTitles: resp.data.titles});
-                    } else {
-                        this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-                    }
-                })
-            }, 1000)
-        });
+            this.setState({
+                timeout: setTimeout(() => {
+                    fetch.post('/api/user/search/titles', {value: value})
+                    .then(resp => {
+                        if (resp.data.status === 'success') {
+                            this.setState({searchedTitles: resp.data.titles});
+                        } else {
+                            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+                        }
+                    })
+                }, 250)
+            });
+        }
     }
 
     setTitle(e) {
@@ -55,7 +57,7 @@ class UserTitle extends Component {
     }
     
     render() {
-        //console.log(this.state.titles);
+        console.log(this.state.titles);
         let value;
 
         if (!this.state.editing) {

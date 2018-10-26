@@ -4,17 +4,31 @@ import { withRouter } from 'react-router-dom';
 import { AddSector } from '../../actions/AddSectorActions';
 import { FontAwesomeIcon } from '../../../node_modules/@fortawesome/react-fontawesome';
 import { faCircleNotch } from '../../../node_modules/@fortawesome/free-solid-svg-icons';
-import AdminSectorsList from './AdminSectorsList';
+import AdminSectorsList from './includes/AdminSectorsList';
+import { Alert } from '../../actions/AlertActions';
+import fetch from 'axios';
 
 class AdminSectors extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            sector: null
+            sector: null,
+            sectors: []
         }
 
         this.addSector = this.addSector.bind(this);
+    }
+
+    componentDidMount() {
+        fetch.get('/api/admin/sectors/fetch')
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({sectors: resp.data.sectors});
+            } else if (resp.data.status === 'error') {
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+        })
     }
 
     addSector() {
@@ -47,16 +61,10 @@ class AdminSectors extends Component {
                     </div>
                 </div>
 
-                <AdminSectorsList />
+                <AdminSectorsList sectors={this.state.sectors} />
             </div>
         )
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        status: state.Sectors.status
-    }
-}
-
-export default withRouter(connect(mapStateToProps)(AdminSectors));
+export default withRouter(connect()(AdminSectors));

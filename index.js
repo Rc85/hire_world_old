@@ -42,8 +42,6 @@ app.use(require('./modules/user/settings'));
 app.use(require('./modules/user/review'));
 app.use(require('./modules/user/listings'));
 
-app.use(require('./modules/admin/sector'));
-
 app.use(require('./modules/fetch/sectors'));
 app.use(require('./modules/fetch/services'));
 app.use(require('./modules/fetch/user'));
@@ -56,7 +54,8 @@ app.use(require('./modules/message/offers'));
 app.use(require('./modules/message/jobs'));
 
 app.get('/', (req, resp) => {
-    resp.render('index');
+    console.log(req.session.user);
+    resp.render('index', {user: req.session.user});
 });
 
 app.get('/pricing', async(req, resp) => {
@@ -68,20 +67,47 @@ app.get('/pricing', async(req, resp) => {
     })
     .catch(err => console.log(err));
 
-    resp.render('pricing', {promo: promo});
+    resp.render('pricing', {promo: promo, user: req.session.user});
 });
 
 app.get('/how-it-works', (req, resp) => {
-    resp.render('how');
+    resp.render('how', {user: req.session.user});
 });
 
 app.get('/faq', (req, resp) => {
-    resp.render('faq');
+    resp.render('faq', {user: req.session.user});
 });
 
 app.get('/mploy*', (req, resp) => {
     resp.sendFile(__dirname + '/dist/app.html');
 });
+
+/* app.use('/mploy/admin-panel', (req, resp, next) => {
+    if (req.session.user && req.session.user.userLevel > 90) {
+        next();
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not authorized`});
+    }
+}); */
+
+app.use('/api/admin', (req, resp, next) => {
+    if (req.session.user && req.session.user.userLevel > 80) {
+        next();
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not authorized`});
+    }
+});
+
+app.get('/api/admin/privilege', (req, resp) => {
+    if (req.session.user && req.session.user.userLevel > 80) {
+        resp.send({status: 'success'});
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not authorized`});
+    }
+});
+
+app.use(require('./modules/admin/sector'));
+app.use(require('./modules/admin/users'));
 
 /* app.get('*', (req, resp) => {
     console.log('here');

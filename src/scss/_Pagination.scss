@@ -1,0 +1,27 @@
+.pagination-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.page-number {
+    padding: 5px;
+    background: $theme-bg;
+    border: 1px solid $theme-highlight;
+    width: 30px;
+    text-align: center;
+    color: black;
+
+    &:not(.active):hover, &.active {
+        background: $theme-highlight;
+        color: white;
+    }
+
+    &:not(.active):hover {
+        cursor: pointer;
+    }
+
+    &:not(:last-child) {
+        margin-right: 5px;
+    }
+}

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
+import fetch from 'axios';
 
 const initialState = {
     title: '',
@@ -13,7 +14,8 @@ const initialState = {
     noAbandonedJobs: false,
     country: '',
     region: '',
-    city: ''
+    city: '',
+    searchedTitles: []
 }
 
 class SearchListing extends Component {
@@ -22,15 +24,32 @@ class SearchListing extends Component {
         
         this.state = initialState;
     }
+
+    getTitles(val) {
+        if (val) {
+            fetch.post('/api/user/search/titles', {value: val})
+            .then(resp => {
+                if (resp.data.status === 'success') {
+                    this.setState({searchedTitles: resp.data.titles});
+                } else {
+                    this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+                }
+            })
+        }
+    }
     
     render() {
-        console.log(this.state)
         return (
             <div className='blue-panel shallow rounded mb-5'>
                 <div className='d-flex-between-start mb-3'>
                     <div className=' w-25'>
                         <label htmlFor='title-list'>Profession Title:</label>
-                        <input type='text' name='titles' id='title-list' className='form-control' onChange={(e) => this.setState({title: e.target.value})} value={this.state.title} />
+                        <input type='text' name='titles' id='title-list' list='list-of-titles' className='form-control' onChange={(e) => this.setState({title: e.target.value})} value={this.state.title} onKeyUp={(e) => this.getTitles(e.target.value)} />
+                        <datalist id='list-of-titles'>
+                            {this.state.searchedTitles.map((title, i) => {
+                                return <option key={i} value={title}>{title}</option>
+                            })}
+                        </datalist>
                     </div>
 
                     <div className='w-10'>

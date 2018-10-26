@@ -4,10 +4,13 @@
             a(href='/') M-ploy
     
     #navbar
-        a(href='/') Home
-        a(href='/pricing') Pricing
-        a(href='/how-it-works') How It Works
-        a(href='/about') About
-        a(href='/faq') FAQ
+        a.mr-2(href='/') Home
+        a.mr-2(href='/pricing') Pricing
+        a.mr-2(href='/how-it-works') How It Works
+        a.mr-2(href='/about') About
+        a.mr-2(href='/faq') FAQ
         a(href='/mploy/browse')
             button.btn.btn-primary Browse
+        if user && user.userLevel > 90 && user.userLevel < 100
+            a(href='/mploy/admin-panel')
+                button.btn.btn-info.ml-2 Admin

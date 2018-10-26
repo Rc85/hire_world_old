@@ -29,7 +29,6 @@ class ViewUser extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        console.log(prevProps)
         if (prevProps.location.key !== this.props.location.key) {
             this.setState({status: 'Loading'});
 
@@ -56,6 +55,8 @@ class ViewUser extends Component {
                 this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: ''});
             } else if (resp.data.status === 'error') {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            } else if (resp.data.status === 'error page') {
+                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
         })
         .catch(err => console.log(err));
@@ -96,8 +97,6 @@ class ViewUser extends Component {
     }
 
     render() {
-        console.log(this.state)
-        console.log(this.props.user)
         let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, name, reviewed;
 
         if (this.state.status === 'Loading') {

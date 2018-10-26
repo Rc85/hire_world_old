@@ -1,7 +1,14 @@
-.menu {
+.menu, .submenu{
     position: absolute;
     background: $theme-bg;
     z-index: 1;
+}
+
+.menu { right: 0 }
+
+.submenu {
+    top: -1px;
+    left: 100%;
 }
 
 .menu-button, .delete-button {
@@ -9,15 +16,13 @@
 }
 
 .menu-item {
-    padding: 10px;
     min-width: 75px;
+    padding: 10px;
     text-align: center;
     color: #000;
 }
 
-.menu-item:last-child {
-    border: 1px solid $theme-highlight;
-}
+.menu-item:last-child { border: 1px solid $theme-highlight }
 
 .menu-item:not(:last-child) {
     border-width: 1px 1px 0 1px;

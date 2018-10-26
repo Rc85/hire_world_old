@@ -1,6 +1,6 @@
 const sectorsInitialState = {
-    status: null,
-    sectors: null
+    status: '',
+    sectors: []
 }
 
 export const Sectors = (state = sectorsInitialState, action) => {

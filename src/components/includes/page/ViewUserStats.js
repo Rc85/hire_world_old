@@ -14,7 +14,7 @@ const ViewUserStats = props => {
 
     for (let day in props.hours) {
         time.push(
-            <div className='d-flex'>
+            <div key={day} className='d-flex'>
                 <div className='w-25'>{day.charAt(0).toUpperCase() + day.substring(1,3)}</div>
                 <div>{props.hours[day]}</div>
             </div>

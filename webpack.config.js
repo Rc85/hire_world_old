@@ -39,7 +39,7 @@ module.exports = {
         },
         historyApiFallback: {
             rewrites: [
-                {from: /./, to: '/'}
+                {from: /\/mploy\/*/, to: '/app.html'}
             ]
         }
     },

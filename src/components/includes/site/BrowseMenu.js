@@ -49,10 +49,4 @@ class BrowseMenu extends Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        sectors: state.Sectors.sectors
-    }
-}
-
-export default connect(mapStateToProps)(BrowseMenu);
+export default connect()(BrowseMenu);

@@ -1,50 +1,76 @@
 import React, { Component } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretSquareDown, faMinusSquare } from '@fortawesome/free-regular-svg-icons';
-import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCaretRight } from '@fortawesome/free-solid-svg-icons';
 
 class Menu extends Component {
-    toggleMenu() {
-        let status;
+    constructor(props) {
+        super(props);
         
-        if (this.props.menu !== this.props.name || !this.props.status) {
-            status = true;
-        } else {
-            status = false;
+        this.state = {
+            submenu: null
         }
     }
-
+    
     render() {
-        let icon;
-        let show;
+        let menu;
 
-        if (this.props.menu === this.props.name && this.props.status) {
-            icon = <FontAwesomeIcon icon={faMinusSquare} size='lg' className='menu-button' />;
-            show = {display: 'block'}
+        if (this.props.items instanceof Array) {
+            let items = this.props.items.map((item, i) => {
+                return <div key={i} className='menu-item' onClick={() => this.props.onClick(item)}>{item}</div>
+            });
+            menu = <div className='menu mt-1'>{items}</div>;
         } else {
-            icon = <FontAwesomeIcon icon={faCaretSquareDown} size='lg' className='menu-button' />;
-            show = {display: 'none'}
+            let headers = [];
+            let subMenuItems = [];
+            let subMenus = [];
+
+            for (let header in this.props.items) {
+                headers.push(header);
+                subMenuItems.push(this.props.items[header]);
+            }
+
+            for (let items of subMenuItems) {
+                let menu = items.map((item, i) => {
+                    return <div key={i} className='menu-item' onClick={() => this.props.onClick(item)}>{item}</div>
+                });
+
+                subMenus.push(menu);
+            }
+
+            let mainMenu = headers.map((header, i) => {
+                return <div key={i} className='menu-item d-flex-between-center position-relative' onMouseEnter={() => this.setState({submenu: i})}>
+                    <div key={i} className='w-100 d-flex-between-center'>
+                        <div className='mr-5'>{header}</div>
+                        <FontAwesomeIcon icon={faCaretRight} />
+                    </div>
+
+                    <div className='submenu'>{this.state.submenu === i ? subMenus[i] : ''}</div>
+                </div>
+            });
+
+            menu = <div className='menu mt-1 d-flex'>
+                <div>{mainMenu}</div>
+            </div>
         }
 
-        return(
-            <div className='w-5 menu-container'>
-                <div onClick={this.toggleMenu.bind(this)}>{icon}</div>
+        if (this.props.open) {
+            return(
+                <React.Fragment>{menu}</React.Fragment>
+            );
+        }
 
-                <div className='menu' style={show}>
-                    <div className='menu-item'>Open</div>
-                    <div className='menu-item'>Close</div>
-                    <div className='menu-item'>Delete</div>
-                </div>
-            </div>
-        )
+        return null;
     }
 }
 
 Menu.propTypes = {
-    name: PropTypes.string.isRequired,
-    id: PropTypes.number.isRequired
+    open: PropTypes.bool.isRequired,
+    items: PropTypes.oneOfType([
+        PropTypes.object,
+        PropTypes.array
+    ]).isRequired
 }
 
-export default withRouter(connect()(Menu));
+export default connect()(Menu);

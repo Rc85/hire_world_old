@@ -116,10 +116,11 @@ class ListSettings extends Component {
     toggleListing() {
         this.setState({status: 'Loading'});
 
-        fetch.post('/api/listing/toggle', {listing_id: this.state.listing_id})
+        fetch.post('/api/listing/toggle', {listing_id: this.state.initialSettings.listing_id})
         .then(resp => {
+            console.log(resp.data);
             if (resp.data.status === 'success') {
-                this.initialSettings.listing_status = resp.data.listing.listing_status;
+                this.initialSettings.listing_status = resp.data.listing_status;
 
                 this.setState({status: '', initialSettings: this.initialSettings, newSettings: this.initialSettings});
             } else {

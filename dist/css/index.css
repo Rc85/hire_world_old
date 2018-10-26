@@ -5698,7 +5698,6 @@ readers do not read off random characters that represent icons */
 }
 
 #navbar {
-  width: 25%;
   display: flex;
   justify-content: space-between;
   align-items: center;

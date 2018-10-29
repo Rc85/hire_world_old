@@ -20,8 +20,12 @@ class AdminSectors extends Component {
         this.addSector = this.addSector.bind(this);
     }
 
+    componentWillReceiveProps(nextProps) {
+        console.log(nextProps);
+    }
+    
     componentDidMount() {
-        fetch.get('/api/admin/sectors/fetch')
+        fetch.get('/api/admin/sectors/get')
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({sectors: resp.data.sectors});

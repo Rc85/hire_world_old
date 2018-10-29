@@ -7,6 +7,7 @@ import SubmitReview from './SubmitReview';
 import { Alert } from '../../../actions/AlertActions';
 import Loading from '../../utils/Loading';
 import fetch from 'axios';
+import moment from 'moment';
 
 class ViewUserReview extends Component {
     constructor(props) {
@@ -73,7 +74,7 @@ class ViewUserReview extends Component {
                             <UserRating rating={this.props.review.review_rating} />
                         </div>
                         
-                        <span className='review-date-time'>{badge} Submitted on {this.props.review.review_date} {this.props.review.review_modified_date ? <span>(Edited)</span> : '' }</span>
+                        <span className='review-date-time'>{badge} Submitted on {moment(this.props.review.review_date).format('MMM DD YYYY')} {this.props.review.review_modified_date ? <span>(Edited)</span> : '' }</span>
                     </div>
 
                     {buttons}

@@ -3,7 +3,7 @@ const db = require('../db');
 
 app.post('/api/get/listing', async(req, resp) => {
     if (req.session.user) {
-        await db.query(`SELECT * FROM user_listings WHERE listing_user = $1`, [req.session.user.username])
+        await db.query(`SELECT * FROM user_listings WHERE listing_user = $1 AND listing_status != 'Delete'`, [req.session.user.username])
         .then(result => {
             let listing;
 

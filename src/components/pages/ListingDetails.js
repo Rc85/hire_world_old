@@ -9,6 +9,7 @@ import MessageSender from '../includes/page/MessageSender';
 import { unsaveListing } from '../utils/Utils';
 import { Alert } from '../../actions/AlertActions';
 import { connect } from 'react-redux';
+import moment from 'moment';
 
 class ListingDetails extends Component {
     constructor(props) {
@@ -59,9 +60,10 @@ class ListingDetails extends Component {
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({status: '', listingSaved: true});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
-
-            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => console.log(err));
     }
@@ -79,7 +81,8 @@ class ListingDetails extends Component {
     }
 
     render() {
-        let inquire, status;
+        console.log(this.state.listing);
+        let inquire, status, footer, savedIcon;
 
         if (this.props.user.user && this.state.listing && this.props.user.user.username !== this.state.listing.listing_user && this.state.listing.allow_messaging) {
             inquire = <div>
@@ -89,6 +92,16 @@ class ListingDetails extends Component {
 
         if (this.state.status === 'Sending') {
             status = <Loading size='5x' />;
+        }
+        
+        if (this.props.user.user && this.state.listing && this.state.listing.listing_user !== this.props.user.user.username) {
+            if (this.state.listingSaved) {
+                savedIcon = <FontAwesomeIcon icon={faHeart} size='sm' style={{cursor: 'pointer'}} color='#ffc107' onClick={() => this.unsave(this.state.listing.saved_id)} />;
+            } else {
+                savedIcon = <FontAwesomeIcon icon={faHeart} size='sm' style={{cursor: 'pointer'}} onClick={() => this.saveListing()} />;
+            }
+
+            footer = <React.Fragment>{savedIcon} <FontAwesomeIcon icon={faExclamationTriangle} size='sm' style={{cursor: 'pointer'}} /></React.Fragment>
         }
 
         if (this.state.status === 'access error') {
@@ -110,7 +123,7 @@ class ListingDetails extends Component {
                                 <NavLink to={`/user/${this.state.listing.listing_user}`}>{this.state.listing.listing_user}</NavLink> | <NavLink to='/sectors/Artists'>{this.state.listing.listing_sector}</NavLink> | ${this.state.listing.listing_price} per {this.state.listing.listing_price_type} {this.state.listing.listing_price_currency}
                             </div>
                             
-                            <span>{this.state.listing.listing_created_date} {this.state.listing.listing_renewed_date ? <span>(Renewed on {this.state.listing.listing_renewed_date})</span> : ''}</span>
+                            <span>Listed on {moment(this.state.listing.listing_created_date).format('MMM DD YYYY')} {this.state.listing.listing_renewed_date ? <span>(Renewed on {moment(this.state.listing.listing_renewed_date).format('MMM DD YYYY')})</span> : ''}</span>
                         </div>
 
                         <hr/>
@@ -129,7 +142,7 @@ class ListingDetails extends Component {
 
                         <div className='service-footer'>
                             <hr/>
-                            {this.state.listingSaved ? <FontAwesomeIcon icon={faHeart} size='sm' style={{cursor: 'pointer'}} color='#ffc107' onClick={() => this.unsave(this.state.listing.saved_id)} /> : <FontAwesomeIcon icon={faHeart} size='sm' style={{cursor: 'pointer'}} onClick={() => this.saveListing()} />} <FontAwesomeIcon icon={faExclamationTriangle} size='sm' style={{cursor: 'pointer'}} />
+                            {footer}
                         </div>
                     </div>
                 </section>

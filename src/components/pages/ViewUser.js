@@ -68,7 +68,7 @@ class ViewUser extends Component {
         if (blankCheck.test(review)) {
             this.props.dispatch(Alert('error', 'Review cannot be blank'));
         } else {
-            this.setState({status: 'Loading'});
+            this.setState({status: 'Sending'});
 
             fetch.post('/api/review/submit', {review: review, star: star, reviewing: this.state.user.username})
             .then(resp => {
@@ -99,12 +99,12 @@ class ViewUser extends Component {
     render() {
         let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, name, reviewed;
 
-        if (this.state.status === 'Loading') {
-            status = <Loading size='5x' />;
-        }
-
         if (this.state.reviews && this.props.user.user) {
             reviewed = this.state.reviews.findIndex(review => review.reviewer === this.props.user.user.username)
+        }
+
+        if (this.state.status === 'Sending') {
+            status = <Loading size='5x' />;
         }
 
         console.log(reviewed)
@@ -143,6 +143,10 @@ class ViewUser extends Component {
             return(
                 <Response header={'Error'} message={this.state.statusMessage} /> 
             )
+        }
+        
+        if (this.state.status === 'Loading') {
+            return <Loading size='7x' />;
         }
         
         return(

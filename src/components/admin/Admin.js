@@ -4,12 +4,14 @@ import Response from '../pages/Response';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import fetch from 'axios';
+import Loading from '../utils/Loading';
 
 class Admin extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            status: 'Loading',
             statusMessage: ''
         }
     }
@@ -18,16 +20,24 @@ class Admin extends Component {
         fetch.get('/api/admin/privilege')
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({authorized: true});
-            } else {
-                this.setState({statusMessage: resp.data.statusMessage});
+                this.setState({status: '', authorized: true});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: '', statusMessage: resp.data.statusMessage});
             }
         })
         .catch(err => console.log(err));
     }
     
     render() {
-        if (this.state.authorized) {
+        if (this.state.status === 'Loading') {
+            return <Loading size='7x' />;
+        } else if (this.state.status === 'error') {
+            return <Reponse code={500} header={'Internal Server Error'} message={this.state.statusMessage} />;
+        } else {
+            if (!this.state.authorized) {
+                return <Response code={403} header={'Unauthorized Access'} message={this.state.statusMessage} />;
+            }
+
             return(
                 <section id='admin' className='main-panel w-100'>
                     <TabBar items={[
@@ -45,10 +55,6 @@ class Admin extends Component {
                 </section>
             )
         }
-
-        return(
-            <Response code={403} header={'Unauthorized Access'} message={this.state.statusMessage} />
-        )
     }
 }
 

@@ -131,7 +131,6 @@ class MessageDetails extends Component {
     componentDidMount() {
         setTimeout(() => {
             window.addEventListener('scroll', this.scrollFetch = () => {
-                console.log('scroll')
                 if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
                     if (this.state.fetchStatus !== 'Complete' && this.state.messages.length % 10 === 0) {
                         this.setState({fetchStatus: 'Fetching'});
@@ -516,7 +515,7 @@ class MessageDetails extends Component {
             if (!this.state.send) {
                 sendButton = <button className='btn btn-primary mr-1' onClick={() => this.setState({send: true, makeOffer: false})}>Message</button>;
             } else {
-                sendMessage = <MessageSender send={(message) => this.send(message)} cancel={() => this.setState({send: !this.state.send})} status={this.state.status} statusMessage={this.state.statusMessage} subject={this.state.job.job_subject} />;
+                sendMessage = <MessageSender send={(message) => this.send(message)} cancel={() => this.setState({send: !this.state.send})} status={this.state.status} statusMessage={this.state.statusMessage} subject={this.state.job.job_subject} autoFocus={true} />;
             }
 
             refreshButton = <NavLink to={`/dashboard/message/${this.props.match.params.stage}/${this.props.match.params.id}/details`}><button className='btn btn-info'>Refresh</button></NavLink>;

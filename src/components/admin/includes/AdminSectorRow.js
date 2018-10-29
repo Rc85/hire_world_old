@@ -7,12 +7,15 @@ import { ToggleMenu } from '../../../actions/MenuActions';
 import Menu from '../../utils/Menu';
 import fetch from 'axios';
 import { Alert } from '../../../actions/AlertActions';
+import moment from 'moment';
 
 class AdminSectorRow extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            sectorName: '',
+            rename: '',
             sector: this.props.sector || {
                 sector_id: '',
                 sector: '',
@@ -21,6 +24,18 @@ class AdminSectorRow extends Component {
                 sector_status: ''
             }
         }
+    }
+
+    componentDidMount() {
+        document.body.addEventListener('click', this.hideSectorNameInput = (e) => {
+            if (!e.target.classList.contains('sector-name-input')) {
+                this.setState({rename: false});
+            }
+        });
+    }
+
+    componentWillUnmount() {
+        document.body.removeEventListener('click', this.hideSectorNameInput);
     }
 
     toggleMenu() {
@@ -45,20 +60,50 @@ class AdminSectorRow extends Component {
         .catch(err => console.log(err));
     }
 
+    renameSector(e) {
+        if (e.keyCode === 13) {
+            this.setState({status: 'Sending'});
+
+            fetch.post('/api/admin/sector/rename', {id: this.state.sector.sector_id, name: this.state.sectorName})
+            .then(resp => {
+                if (resp.data.status === 'success') {
+                    this.setState({status: '', sector: resp.data.sector, rename: false});
+                } else if (resp.data.status === 'error') {
+                    this.setState({status: ''});
+
+                    this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+                }
+            })
+            .catch(err => console.log(err));
+        }
+    }
+
     render() {
+        let sectorName, menu;
+
+        if (this.state.rename) {
+            sectorName = <input type='text' name='sector' className='form-control sector-name-input w-95' defaultValue={this.state.sector.sector} onChange={(e) => this.setState({sectorName: e.target.value})} onKeyDown={(e) => this.renameSector(e)} disabled={this.state.status === 'Sending'} />;
+        } else {
+            sectorName = this.state.sector.sector;
+        }
+
+        if (this.props.menu.open === 'admin' && this.props.menu.id === this.state.sector.sector_id) {
+            menu = <Menu items={['Open', 'Close', 'Delete']} onClick={(val) => this.handleMenuClick(val)} />;
+        }
+
         if (this.state.sector) {  
             return (
                 <div className='d-flex-center mb-3'>
                     <div className='w-5'>{this.state.sector.sector_id}</div>
-                    <div className='w-35'>{this.state.sector.sector}</div>
-                    <div className='w-25'>{this.state.sector.sector_created_on}</div>
+                    <div className='w-35' onClick={() => this.setState({rename: true})}>{sectorName}</div>
+                    <div className='w-25'>{moment(this.state.sector.sector_created_on).format('MMM DD YYYY')}</div>
                     <div className='w-20'>{this.state.sector.sector_created_by}</div>
                     <div className='w-10'>
                         <span className={this.state.sector.sector_status === 'Open' ? 'badge badge-success' : 'badge badge-danger'}>{this.state.sector.sector_status}</span>
                     </div>
                     <div className='w-5 position-relative text-right'>
                         <button className='btn btn-info btn-sm admin-menu-button' onClick={() => this.toggleMenu()}><FontAwesomeIcon icon={faCaretDown} /></button>
-                        <Menu open={this.props.menu.open === 'admin' && this.props.menu.id === this.state.sector.sector_id} items={['Open', 'Close', 'Delete']} onClick={(val) => this.handleMenuClick(val)} />
+                        {menu}
                     </div>
                 </div>
             )

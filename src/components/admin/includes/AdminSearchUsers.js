@@ -13,6 +13,7 @@ class AdminSearchUsers extends Component {
         }
     }
     
+    
     render() {
         return (
             <div className='mb-5'>
@@ -27,9 +28,9 @@ class AdminSearchUsers extends Component {
                         <select name='status' id='search-status' className='form-control' onChange={(e) => this.setState({status: e.target.value})}>
                             <option value=''></option>
                             <option value='Active'>Active</option>
-                            <option value='Banned'>Banned</option>
+                            <option value='Ban'>Ban</option>
                             <option value='Pending'>Pending</option>
-                            <option value='Suspended'>Suspended</option>
+                            <option value='Suspend'>Suspend</option>
                         </select>
                     </div>
 
@@ -61,7 +62,8 @@ class AdminSearchUsers extends Component {
 }
 
 AdminSearchUsers.propTypes = {
-
+    filter: PropTypes.func.isRequired,
+    currentState: PropTypes.object
 };
 
 export default AdminSearchUsers;

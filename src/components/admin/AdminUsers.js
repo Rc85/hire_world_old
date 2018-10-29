@@ -6,6 +6,8 @@ import fetch from 'axios';
 import { connect } from 'react-redux';
 import Pagination from '../utils/Pagination';
 import AdminUserRow from './includes/AdminUserRow';
+import { Alert } from '../../actions/AlertActions';
+import { withRouter } from 'react-router-dom';
 
 class AdminUsers extends Component {
     constructor(props) {
@@ -33,7 +35,7 @@ class AdminUsers extends Component {
             offset: prevState.offset
         }
 
-        this.thisStateObject = {
+        this.stateObject = {
             username: this.state.username,
             userStatus: this.state.userStatus,
             level: this.state.level,
@@ -41,7 +43,7 @@ class AdminUsers extends Component {
             offset: this.state.offset
         }
 
-        if (JSON.stringify(this.prevStateObj) !== JSON.stringify(this.thisStateObject)) {
+        if (JSON.stringify(this.prevStateObj) !== JSON.stringify(this.stateObject)) {
             this.setState({status: 'Loading'});
 
             fetch.post('/api/admin/get/users', {username: this.state.username, status: this.state.userStatus, level: this.state.level, type: this.state.type, offset: this.state.offset})
@@ -75,7 +77,7 @@ class AdminUsers extends Component {
     }
 
     filterUsers(data) {
-        this.setState({username: data.username, status: data.status, level: data.level, type: data.type});
+        this.setState({username: data.username, userStatus: data.status, level: data.level, type: data.type});
     }
     
     render() {
@@ -98,16 +100,16 @@ class AdminUsers extends Component {
         return (
             <div className='blue-panel shallow three-rounded'>
                 {status}
-                <AdminSearchUsers filter={(data) => this.filterUsers(data)} currentState={{username: this.state.username, status: this.state.status, level: this.state.level, type: this.state.type}} />
+                <AdminSearchUsers filter={(data) => this.filterUsers(data)} currentState={{username: this.state.username, status: this.state.userStatus, level: this.state.level, type: this.state.type}} />
 
                 <div className='mb-3'><Pagination totalItems={this.state.totalUsers} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} /></div>
 
                 <div className='d-flex-between-center'>
-                    <div className='w-5'><strong>ID</strong></div>
-                    <div className='w-45'><strong>Username</strong></div>
+                    <div className='w-30'><strong>Username</strong></div>
                     <div className='w-15'><strong>Status</strong></div>
                     <div className='w-15'><strong>Level</strong></div>
                     <div className='w-15'><strong>Account Type</strong></div>
+                    <div className='w-20'><strong>Last Login</strong></div>
                     <div className='w-5'></div>
                 </div>
 
@@ -127,4 +129,4 @@ AdminUsers.propTypes = {
     user: PropTypes.object
 };
 
-export default connect()(AdminUsers);
+export default withRouter(connect()(AdminUsers));

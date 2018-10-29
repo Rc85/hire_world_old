@@ -1,4 +1,5 @@
 import fetch from 'axios';
+import { Alert } from './AlertActions';
 
 export const AddSector = (value) => {
     return dispatch => {
@@ -9,7 +10,7 @@ export const AddSector = (value) => {
             if (resp.data.status === 'add sector success') {
                 dispatch(AddSectorSuccess(resp.data.status, resp.data.sectors));
             } else {
-                dispatch(AddSectorError(resp.data.status));
+                dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
         .catch(err => console.log(err));

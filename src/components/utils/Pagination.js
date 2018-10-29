@@ -1,6 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+/**
+ * 
+ * @param {Number} totalItems The total number of items
+ * @param {Number} itemsPerPage Items per page
+ * @param {Number} currentPage The current page to disable clicking
+ * @param {Function} onClick The click event for each page 
+ */
 const Pagination = props => {
     let pages = [];
     let currentPage = props.currentPage + 1;
@@ -27,7 +34,9 @@ const Pagination = props => {
 
 Pagination.propTypes = {
     totalItems: PropTypes.number,
-    itemsPerPage: PropTypes.number
+    itemsPerPage: PropTypes.number,
+    currentPage: PropTypes.number,
+    onClick: PropTypes.func
 };
 
 export default Pagination;

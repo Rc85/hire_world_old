@@ -9,6 +9,7 @@ class Menu extends Component {
         super(props);
         
         this.state = {
+            index: null,
             submenu: null
         }
     }
@@ -33,20 +34,20 @@ class Menu extends Component {
 
             for (let items of subMenuItems) {
                 let menu = items.map((item, i) => {
-                    return <div key={i} className='menu-item' onClick={() => this.props.onClick(item)}>{item}</div>
+                    return <div key={i} className='menu-item' onClick={() => this.props.onClick(this.state.submenu, item)}>{item}</div>
                 });
 
                 subMenus.push(menu);
             }
 
             let mainMenu = headers.map((header, i) => {
-                return <div key={i} className='menu-item d-flex-between-center position-relative' onMouseEnter={() => this.setState({submenu: i})}>
+                return <div key={i} className='menu-item d-flex-between-center position-relative' onMouseEnter={() => this.setState({index: i, submenu: header})}>
                     <div key={i} className='w-100 d-flex-between-center'>
                         <div className='mr-5'>{header}</div>
                         <FontAwesomeIcon icon={faCaretRight} />
                     </div>
 
-                    <div className='submenu'>{this.state.submenu === i ? subMenus[i] : ''}</div>
+                    <div className='submenu'>{this.state.index === i ? subMenus[i] : ''}</div>
                 </div>
             });
 
@@ -55,22 +56,18 @@ class Menu extends Component {
             </div>
         }
 
-        if (this.props.open) {
-            return(
-                <React.Fragment>{menu}</React.Fragment>
-            );
-        }
-
-        return null;
+        return(
+            <React.Fragment>{menu}</React.Fragment>
+        )
     }
 }
 
 Menu.propTypes = {
-    open: PropTypes.bool.isRequired,
     items: PropTypes.oneOfType([
         PropTypes.object,
         PropTypes.array
-    ]).isRequired
+    ]).isRequired,
+    onClick: PropTypes.func
 }
 
 export default connect()(Menu);

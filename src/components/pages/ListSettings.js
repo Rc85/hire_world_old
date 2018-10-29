@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { UncontrolledTooltip } from 'reactstrap';
 import ListInfo from '../includes/page/ListInfo';
-import { ShowConfirmation } from '../../actions/ConfirmationActions';
+import moment from 'moment';
 
 class ListSettings extends Component {
     constructor(props) {
@@ -52,23 +52,29 @@ class ListSettings extends Component {
 
         fetch.post('/api/get/listing')
         .then(resp => {
-            this.initialSettings = {
-                listing_title: resp.data.listing.listing_title,
-                listing_id: resp.data.listing.listing_id,
-                listing_renewed_date: resp.data.listing.listing_renewed_date,
-                listing_created_date: resp.data.listing.listing_created_date,
-                listing_sector: resp.data.listing.listing_sector,
-                listing_price: resp.data.listing.listing_price,
-                listing_price_type: resp.data.listing.listing_price_type,
-                listing_price_currency: resp.data.listing.listing_price_currency,
-                listing_negotiable: resp.data.listing.listing_negotiable,
-                listing_detail: resp.data.listing.listing_detail,
-                listing_status: resp.data.listing.listing_status
-            }
+            console.log(resp);
+            if (resp.data.status === 'success') {
+                if (resp.data.listing) {
+                    this.initialSettings = {
+                        listing_title: resp.data.listing.listing_title,
+                        listing_id: resp.data.listing.listing_id,
+                        listing_renewed_date: resp.data.listing.listing_renewed_date,
+                        listing_created_date: resp.data.listing.listing_created_date,
+                        listing_sector: resp.data.listing.listing_sector,
+                        listing_price: resp.data.listing.listing_price,
+                        listing_price_type: resp.data.listing.listing_price_type,
+                        listing_price_currency: resp.data.listing.listing_price_currency,
+                        listing_negotiable: resp.data.listing.listing_negotiable,
+                        listing_detail: resp.data.listing.listing_detail,
+                        listing_status: resp.data.listing.listing_status
+                    }
+                } else {
+                    this.initialSettings = this.state.initialSettings;
+                }
 
-            this.setState({status: '', initialSettings: this.initialSettings, newSettings: this.initialSettings});
-            
-            if (resp.data.status === 'error') {
+                this.setState({status: '', initialSettings: this.initialSettings, newSettings: this.initialSettings});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
@@ -78,34 +84,38 @@ class ListSettings extends Component {
     createListing() {
         let blankCheck = /^\s*$/;
 
-        if (blankCheck.test(this.state.listing_sector)) {
-            this.setState({status: 'error', statusMessage: 'Sector required'});
-        } else if (blankCheck.test(this.state.listing_price)) {
-            this.setState({status: 'error', statusMessage: 'Asking price required'});
-        } else if (blankCheck.test(this.state.listing_price_currency)) {
-            this.setState({status: 'error', statusMessage: 'Preferred currency required'});
-        } else if (blankCheck.test(this.state.listing_title)) {
-            this.setState({status: 'error', statusMessage: 'Title required'});
+        if (blankCheck.test(this.state.newSettings.listing_sector)) {
+            this.props.dispatch(Alert('error', 'Sector required'));
+        } else if (blankCheck.test(this.state.newSettings.listing_price)) {
+            this.props.dispatch(Alert('error', 'Asking price required'));
+        } else if (blankCheck.test(this.state.newSettings.listing_price_currency)) {
+            this.props.dispatch(Alert('error', 'Preferred currency required'));
+        } else if (blankCheck.test(this.state.newSettings.listing_title)) {
+            this.props.dispatch(Alert('error', 'Title required'));
         } else {
             this.setState({status: 'Loading'});
 
             fetch.post('/api/listing/create', this.state.newSettings)
             .then(resp => {
-                this.initialSettings = {
-                    listing_title: resp.data.listing.listing_title,
-                    listing_id: resp.data.listing.listing_id,
-                    listing_renewed_date: resp.data.listing.listing_renewed_date,
-                    listing_created_date: resp.data.listing.listing_created_date,
-                    listing_sector: resp.data.listing.listing_sector,
-                    listing_price: resp.data.listing.listing_price,
-                    listing_price_type: resp.data.listing.listing_price_type,
-                    listing_price_currency: resp.data.listing.listing_price_currency,
-                    listing_negotiable: resp.data.listing.listing_negotiable,
-                    listing_detail: resp.data.listing.listing_detail,
-                    listing_status: resp.data.listing.listing_status
-                }
+                if (resp.data.status === 'success') {
+                    this.initialSettings = {
+                        listing_title: resp.data.listing.listing_title,
+                        listing_id: resp.data.listing.listing_id,
+                        listing_renewed_date: resp.data.listing.listing_renewed_date,
+                        listing_created_date: resp.data.listing.listing_created_date,
+                        listing_sector: resp.data.listing.listing_sector,
+                        listing_price: resp.data.listing.listing_price,
+                        listing_price_type: resp.data.listing.listing_price_type,
+                        listing_price_currency: resp.data.listing.listing_price_currency,
+                        listing_negotiable: resp.data.listing.listing_negotiable,
+                        listing_detail: resp.data.listing.listing_detail,
+                        listing_status: resp.data.listing.listing_status
+                    }
 
-                this.setState({status: '', initialSettings: this.initialSettings, newSettings: this.initialSettings});
+                    this.setState({status: '', initialSettings: this.initialSettings, newSettings: this.initialSettings});
+                } else if (resp.data.status === 'error') {
+                    this.setState({status: ''});
+                }
 
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             })
@@ -123,7 +133,7 @@ class ListSettings extends Component {
                 this.initialSettings.listing_status = resp.data.listing_status;
 
                 this.setState({status: '', initialSettings: this.initialSettings, newSettings: this.initialSettings});
-            } else {
+            } else  if (resp.data.status === 'error') {
                 this.setState({status: ''});
 
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -137,21 +147,25 @@ class ListSettings extends Component {
 
         fetch.post('/api/listing/edit', this.state.newSettings)
         .then(resp => {
-            this.initialSettings = {
-                listing_title: resp.data.listing.listing_title,
-                listing_id: resp.data.listing.listing_id,
-                listing_renewed_date: resp.data.listing.listing_renewed_date,
-                listing_created_date: resp.data.listing.listing_created_date,
-                listing_sector: resp.data.listing.listing_sector,
-                listing_price: resp.data.listing.listing_price,
-                listing_price_type: resp.data.listing.listing_price_type,
-                listing_price_currency: resp.data.listing.listing_price_currency,
-                listing_negotiable: resp.data.listing.listing_negotiable,
-                listing_detail: resp.data.listing.listing_detail,
-                listing_status: resp.data.listing.listing_status
-            }
+            if (resp.data.status === 'success') {
+                this.initialSettings = {
+                    listing_title: resp.data.listing.listing_title,
+                    listing_id: resp.data.listing.listing_id,
+                    listing_renewed_date: resp.data.listing.listing_renewed_date,
+                    listing_created_date: resp.data.listing.listing_created_date,
+                    listing_sector: resp.data.listing.listing_sector,
+                    listing_price: resp.data.listing.listing_price,
+                    listing_price_type: resp.data.listing.listing_price_type,
+                    listing_price_currency: resp.data.listing.listing_price_currency,
+                    listing_negotiable: resp.data.listing.listing_negotiable,
+                    listing_detail: resp.data.listing.listing_detail,
+                    listing_status: resp.data.listing.listing_status
+                }
 
-            this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, initialSettings: this.initialSettings, newSettings: this.initialSettings});
+                this.setState({status: '', initialSettings: this.initialSettings, newSettings: this.initialSettings});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
             
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
@@ -174,12 +188,13 @@ class ListSettings extends Component {
     setSettings(k, v) {
         let obj = {};
         obj[k] = v;
-        let state = Object.assign({}, this.initialSettings, obj);
+        let state = Object.assign({}, this.state.newSettings, obj);
 
         this.setState({newSettings: state});
     }
     
     render() {
+        console.log(this.state.newSettings);
         let status, sectors, buttons, listInfo;
 
         if (this.state.status === 'Loading') {
@@ -197,7 +212,7 @@ class ListSettings extends Component {
             let lastRenew = new Date(this.state.initialSettings.listing_renewed_date);
 
             buttons = <div className='d-flex-between-center mb-3'>
-                <div>{this.state.initialSettings.listing_created_date !== this.state.initialSettings.listing_renewed_date ? <span>Renewed on {this.state.initialSettings.listing_renewed_date}</span> : ''}</div>
+                <div>{this.state.initialSettings.listing_created_date !== this.state.initialSettings.listing_renewed_date ? <span>Renewed on {moment(this.state.initialSettings.listing_renewed_date).format('MMM DD YYYY hh:mm:ss')}</span> : ''}</div>
                 <div className='d-flex-between-center'>
                     <SlideToggle status={this.state.initialSettings.listing_status === 'Active'} onClick={() => this.toggleListing()} />
                     <button id='renew-button' className='btn btn-primary ml-1' onClick={() => this.renewListing()} disabled={now - lastRenew < 8.64e+7}>Renew</button>
@@ -271,7 +286,7 @@ class ListSettings extends Component {
 
                     Details:
 
-                    <textarea name='listing-detail' id='listing-detail' rows='10' className='form-control w-100 mb-3' placeholder='Describe the type of products or service you offer' onChange={(e) => this.setSettings('listing_detail', e.target.value)} value={this.state.initialSettings.listing_detail} disabled={this.props.user.user.account_type === 'User'}></textarea>
+                    <textarea name='listing-detail' id='listing-detail' rows='10' className='form-control w-100 mb-3' placeholder='Describe the type of products or service you offer' onChange={(e) => this.setSettings('listing_detail', e.target.value)} defaultValue={this.state.initialSettings.listing_detail} disabled={this.props.user.user.account_type === 'User'}></textarea>
 
                     <div className='text-right'>
                         {this.state.initialSettings.listing_created_date ? <button type='button' className='btn btn-primary mr-1' onClick={() => this.updateListing()} disabled={JSON.stringify(this.initialSettings) === JSON.stringify(this.state.newSettings)}>Update</button> : <button type='button' className='btn btn-primary mr-1' onClick={() => this.createListing()} disabled={this.props.user.user.account_type === 'User'}>Create</button>}

@@ -108,6 +108,7 @@ app.get('/api/admin/privilege', (req, resp) => {
 
 app.use(require('./modules/admin/sector'));
 app.use(require('./modules/admin/users'));
+app.use(require('./modules/admin/listings'));
 
 /* app.get('*', (req, resp) => {
     console.log('here');

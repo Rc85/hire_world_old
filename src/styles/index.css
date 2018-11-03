@@ -475,6 +475,20 @@
   width: 75px;
 }
 
+.admin-scroller-header {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  width: 100%;
+  padding: 0 37px 0 20px;
+}
+
+.admin-scroller-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 #alert {
   padding: 20px;
   margin-bottom: 5px;
@@ -627,6 +641,15 @@
   bottom: 10px;
   left: 10px;
   z-index: 2;
+}
+
+.scroller-div {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow-y: scroll;
+  border: 1px solid #C4C4C4;
+  padding: 20px;
 }
 
 #browse {

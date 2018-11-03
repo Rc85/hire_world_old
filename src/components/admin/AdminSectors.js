@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { AddSector } from '../../actions/AddSectorActions';
@@ -69,6 +70,10 @@ class AdminSectors extends Component {
             </div>
         )
     }
+}
+
+AdminSectors.propTypes = {
+    user: PropTypes.object
 }
 
 export default withRouter(connect()(AdminSectors));

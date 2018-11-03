@@ -139,3 +139,12 @@
     left: 10px;
     z-index: 2;
 }
+
+.scroller-div {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow-y: scroll;
+    border: 1px solid $theme-bg;
+    padding: 20px;
+}

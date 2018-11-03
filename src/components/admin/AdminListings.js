@@ -85,7 +85,7 @@ class AdminListings extends Component {
         });
 
         return (
-            <div className='blue-panel shallow three-corner'>
+            <div className='blue-panel shallow three-rounded'>
                 {status}
                 <AdminSearchListings sectors={this.props.sectors} filter={(data) => this.filter(data)} />
 
@@ -111,6 +111,7 @@ class AdminListings extends Component {
 }
 
 AdminListings.propTypes = {
+    user: PropTypes.object,
     sectors: PropTypes.array.isRequired
 };
 

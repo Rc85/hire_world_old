@@ -82,9 +82,8 @@ app.post('/api/admin/get/users', async(req, resp) => {
     });
 });
 
-app.post('/api/admin/user/change-status', async(req, resp) => {
+app.post('/api/admin/user/change-status', (req, resp) => {
     let col, val;
-    console.log(req.body);
 
     if (req.body.column === 'Status') {
         col = 'user_status';
@@ -104,13 +103,60 @@ app.post('/api/admin/user/change-status', async(req, resp) => {
         val = req.body.val;
     }
 
-    await db.query(`UPDATE users SET ${col} = $1 WHERE username = $2 RETURNING username, user_level, user_status, account_type, user_last_login`, [val, req.body.username])
-    .then(result => {
-        if (result) resp.send({status: 'success', user: result.rows[0]});
-    })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
+    db.connect((err, client, done) => {
+        if (err) console.log(err);
+
+        (async() => {
+            try {
+                await client.query('BEGIN');
+
+                let reason;
+
+                if (req.body.reason) { reason = req.body.reason; }
+
+                let permBanDate = new Date('9999-01-01T00:00:00');
+
+                if (val === 'Ban') {
+                    await client.query(`INSERT INTO user_bans (banned_user, banned_by, ban_reason, ban_type, ban_end_date) VALUES ($1, $2, $3, $4, $5)`, [req.body.username, req.session.user.username, reason, 'Permanent', permBanDate]);
+                } else if (val === 'Suspend') {
+                    let userBanCount = await client.query(`SELECT COUNT(ban_id) AS ban_count FROM user_bans WHERE banned_user = $1`, [req.body.username]);
+
+                    let today = new Date();
+                    let endDate = new Date();
+                    endDate.setDate(today.getDate() + 7);
+                    let banType = 'Temporary';
+
+                    if (userBanCount.rows[0].ban_count === 1) {
+                        endDate.setDate(today.getDate() + 30);
+                    } else if (userBanCount.rows[0].ban_count === 2) {
+                        endDate.setDate(today.getDate() + 90);
+                    } else if (userBanCount.rows[0].ban_count >= 3) {
+                        endDate = permBanDate;
+                        banType = 'Permanent';
+                    }
+
+                    await client.query(`INSERT INTO user_bans (banned_user, banned_by, ban_reason, ban_type, ban_end_date) VALUES ($1, $2, $3, $4, $5)`, [req.body.username, req.session.user.username, reason, banType, endDate]);
+                } else if (val === 'User' || val === 'Moderator' || val === 'Admin') {
+                    let message = `Role changed to ${val}`;
+
+                    await client.query(`INSERT INTO notifications (notification_recipient, notification_message) VALUES ($1, $2)`, [req.body.username, message]);
+                }
+
+                let user = await client.query(`UPDATE users SET ${col} = $1 WHERE username = $2 RETURNING username, user_level, user_status, account_type, user_last_login`, [val, req.body.username]);
+
+                await client.query('COMMIT')
+                .then(() => resp.send({status: 'success', user: user.rows[0]}));
+            } catch (e) {
+                await client.query('ROLLBACK');
+                throw e;
+            } finally {
+                done();
+            }
+        })()
+        .catch(err => {
+            console.log(err);
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
+        });
     });
 });
 

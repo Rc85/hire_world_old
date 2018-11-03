@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretRight } from '@fortawesome/free-solid-svg-icons';
 
+/**
+ * @param {Array|Object} items The menu items. If an object is provided, the value must be an array of items
+ * @param {Function} onClick The click event for the items
+ */
 class Menu extends Component {
     constructor(props) {
         super(props);
@@ -70,4 +73,4 @@ Menu.propTypes = {
     onClick: PropTypes.func
 }
 
-export default connect()(Menu);
+export default Menu;

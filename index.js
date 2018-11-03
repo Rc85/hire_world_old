@@ -37,13 +37,11 @@ app.use(require('./modules/auth'));
 app.use(require('./modules/listings'));
 
 app.use(require('./modules/user/user'));
-app.use(require('./modules/user/services'));
 app.use(require('./modules/user/settings'));
 app.use(require('./modules/user/review'));
 app.use(require('./modules/user/listings'));
 
 app.use(require('./modules/fetch/sectors'));
-app.use(require('./modules/fetch/services'));
 app.use(require('./modules/fetch/user'));
 app.use(require('./modules/fetch/messages'));
 app.use(require('./modules/fetch/offers'));
@@ -109,6 +107,7 @@ app.get('/api/admin/privilege', (req, resp) => {
 app.use(require('./modules/admin/sector'));
 app.use(require('./modules/admin/users'));
 app.use(require('./modules/admin/listings'));
+app.use(require('./modules/admin/configs'));
 
 /* app.get('*', (req, resp) => {
     console.log('here');

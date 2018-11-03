@@ -3,6 +3,12 @@ import PropTypes from 'prop-types';
 
 let sliderContainer, slider, sliderCheckbox;
 
+/**
+ * @param {String} status The current status of the toggler
+ * @param {String} inactiveColor The background color when the toggler is inactive
+ * @param {Function} onClick The onClick event
+ * @param id A unique identifier for the toggler
+ */
 class SlideToggle extends Component {
     componentDidMount() {
         if (this.props.status) {

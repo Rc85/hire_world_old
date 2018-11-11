@@ -6,6 +6,7 @@ import { UpdateUser } from '../../../actions/LoginActions';
 import PropTypes from 'prop-types';
 import fetch from 'axios';
 import { ShowWarning } from '../../../actions/WarningActions';
+import { RegionDropdown, CountryDropdown } from 'react-country-region-selector';
 
 class ProfileSettings extends Component {
     constructor(props) {
@@ -16,6 +17,9 @@ class ProfileSettings extends Component {
             phone: this.props.user.user.user_phone || '',
             address: this.props.user.user.user_address || '',
             code: this.props.user.user.user_city_code || '',
+            country: this.props.user.user.user_country || '',
+            region: this.props.user.user.user_region || '',
+            city: this.props.user.user.user_city || ''
         }
 
         this.state = {
@@ -38,7 +42,10 @@ class ProfileSettings extends Component {
                     businessName: resp.data.user.user_business_name,
                     phone: resp.data.user.user_phone,
                     address: resp.data.user.user_address,
-                    code: resp.data.user.user_city_code
+                    code: resp.data.user.user_city_code,
+                    country: resp.data.user.user_country,
+                    region: resp.data.user.user_region,
+                    city: resp.data.user.user_city
                 }
 
                 this.setState({settings: this.initialSettings});
@@ -80,9 +87,7 @@ class ProfileSettings extends Component {
 
                 <div className='d-flex-between-start'>
                     <div className='w-45 mb-3'>
-                        <div className='d-flex-between-center'>
-                            <label htmlFor='user-address'>Address:</label>
-                        </div>
+                        <label htmlFor='user-address'>Address:</label>
                         
                         <input type='text' name='address' id='user-address' className='form-control' onChange={(e) => this.setSettings({address: e.target.value})} defaultValue={this.initialSettings.address} />
                     </div>
@@ -90,6 +95,23 @@ class ProfileSettings extends Component {
                     <div className='w-45 mb-3'>
                         <label htmlFor='postalzip'>Postal Code/Zip Code:</label>
                         <input type='text' name='postalzip' id='postalzip' className='form-control' onChange={(e) => this.setSettings({code: e.target.value})} defaultValue={this.initialSettings.code} />
+                    </div>
+                </div>
+
+                <div className='d-flex-between-start'>
+                    <div className='w-30 mb-3'>
+                        <label htmlFor='country'>Country:</label>
+                        <CountryDropdown value={this.state.settings.country} onChange={(val) => this.setSettings({country: val})} classes='form-control' />
+                    </div>
+
+                    <div className='w-30 mb-3'>
+                        <label htmlFor='region'>Region:</label>
+                        <RegionDropdown value={this.state.settings.region} country={this.state.settings.country} onChange={(val) => this.setSettings({region: val})} classes='form-control' />
+                    </div>
+
+                    <div className='w-30 mb-3'>
+                        <label htmlFor='city'>City:</label>
+                        <input type='text' name='city' id='city=input' className='form-control' onChange={(e) => this.setSettings({city: e.target.value})} defaultValue={this.state.settings.city} />
                     </div>
                 </div>
 

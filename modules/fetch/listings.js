@@ -42,10 +42,10 @@ app.post('/api/get/listings', async(req, resp) => {
 });
 
 app.post('/api/get/listing/detail', async(req, resp) => {
-    await db.query(`SELECT user_listings.*, user_settings.allow_messaging, saved_listings.saved_id FROM user_listings
+    await db.query(`SELECT users.user_email, user_listings.*, user_settings.*, user_profiles.* FROM user_listings
     LEFT JOIN users ON users.username = user_listings.listing_user
     LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
-    LEFT JOIN saved_listings ON saved_listings.saved_listing_id = user_listings.listing_id
+    LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
     WHERE listing_id = $1 AND listing_status = 'Active'`, [req.body.id])
     .then(async(result) => {
         if (result !== undefined && result.rows.length === 1) {
@@ -53,17 +53,32 @@ app.post('/api/get/listing/detail', async(req, resp) => {
             let reported = false;
 
             let savedListing, reportedListing;
+
+            if (result.rows[0].hide_email) {
+                delete result.rows[0].user_email;
+            }
+
+            if (result.rows[0].hide_phone) {
+                delete result.rows[0].user_phone;
+            }
             
             if (req.session.user) {
                 savedListing = await db.query(`SELECT saved_listing_id FROM saved_listings WHERE saved_listing_id = $1 AND saved_by = $2`, [req.body.id, req.session.user.username]);
                 reportedListing = await db.query(`SELECT report_id FROM reports WHERE reporter = $1 AND report_type = $2 AND reported_id = $3`, [req.session.user.username, 'Listing', req.body.id]);
             }
 
+            let userRating = await db.query(`SELECT 
+                CASE WHEN
+                    SUM(review_rating) / COUNT(review_id) IS NULL THEN 0 ELSE SUM(review_rating) / COUNT(review_id) END
+                AS rating
+            FROM user_reviews LEFT JOIN user_listings ON user_listings.listing_user = user_reviews.reviewing WHERE user_listings.listing_id = $1`, [req.body.id]);
+            console.log(userRating);
+
             if (savedListing && savedListing.rows.length === 1)  saved = true;
 
             if (reportedListing && reportedListing.rows.length === 1) reported = true;
 
-            resp.send({status: 'success', listing: result.rows[0], saved: saved, reported: reported});
+            resp.send({status: 'success', listing: result.rows[0], saved: saved, reported: reported, rating: userRating.rows[0].rating});
         } else {
             resp.send({status: 'access error', statusMessage: 'That listing does not exist'});
         }

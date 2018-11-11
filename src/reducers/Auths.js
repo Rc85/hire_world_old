@@ -9,7 +9,7 @@ export const Login = (state = loginInitialState, action) => {
         case 'LOGIN_USER':
             return Object.assign({}, state, {status: action.status});
         case 'LOGIN_USER_ERROR':
-            return Object.assign({}, state, {status: action.status, statusMessage: action.statusMessage});
+            return Object.assign({}, state, {status: action.status, statusMessage: action.message});
         case 'LOGIN_USER_UPDATE':
             return Object.assign({}, state, {status: action.status, user: action.user, statusMessage: action.statusMessage});
         case 'USER_UPDATE':

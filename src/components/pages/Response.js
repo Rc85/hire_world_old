@@ -5,6 +5,22 @@ import PropTypes from 'prop-types';
 
 /**
  * @param {Number} code The HTTP response code
+ * 400 Bad Request
+ * 
+ * 401 Unauthorized
+ * 
+ * 402 Payment Required
+ * 
+ * 403 Forbidden
+ * 
+ * 404 Not Found
+ * 
+ * 500 Internal Server Error
+ * 
+ * 502 Bad Gateway
+ * 
+ * 503 Service Unavailable
+ * 
  * @param {String} header A header/title of the response
  * @param {String} message The message regarding the response
  */

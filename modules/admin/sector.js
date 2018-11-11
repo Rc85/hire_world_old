@@ -8,12 +8,10 @@ app.post('/api/admin/sector/add', (req, resp) => {
         (async() => {
             try {
                 await client.query('BEGIN');
-                await client.query(`INSERT INTO sectors (sector, sector_created_by) VALUES ($1, $2) ON CONFLICT (sector) DO UPDATE SET sector_status = 'Open'`, [req.body.sector, req.session.user.username])
-
-                let sectors = await client.query(`SELECT * FROM sectors ORDER BY sector`)
+                let sector = await client.query(`INSERT INTO sectors (sector, sector_created_by) VALUES ($1, $2) ON CONFLICT (sector) DO UPDATE SET sector_status = 'Open' RETURNING *`, [req.body.sector, req.session.user.username])
                 
                 await client.query('COMMIT')
-                .then(() => resp.send({status: 'success', sectors: sectors.rows}));
+                .then(() => resp.send({status: 'success', sectors: sector.rows[0]}));
             } catch (e) {
                 await client.query('ROLLBACK');
                 throw e;

@@ -11,6 +11,7 @@ app.post('/api/user/settings/profile/save', (req, resp) => {
             let addressCheck = /^(\w|\d|\s(?!\s)|,|\.|\/|\?|;|'|\[|\]|!|@|#|\$|%|\^|&|\*|\(|\)|_|\+|-|=|{|}|:|"){1,300}$/;
             let cityCodeCheck = /^([0-9]{1,5}|[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}(\s)?[0-9]{1}[a-zA-Z]{1}[0-9]{1})$/;
             let phoneCheck = /^(\+1)?(\s)?([0-9]{1,15}|(\()?[0-9]{3}(\))?(\s|\-)?([0-9]{7,12}|[0-9]{3}(\s|\-)?[0-9]{4,9}))$/;
+            let locationCheck = /^[a-zA-Z0-9À-ž,'().\-\s]*$/;
 
             if (req.body.businessName && !businessNameCheck.test(req.body.businessName)) {
                 resp.send({status: 'error', statusMessage: 'Business name too long or has invalid characters'});
@@ -20,12 +21,18 @@ app.post('/api/user/settings/profile/save', (req, resp) => {
                 resp.send({status: 'error', statusMessage: 'Phone number too long or invalid format'});
             } else if (req.body.code && !cityCodeCheck.test(req.body.code)) {
                 resp.send({status: 'error', statusMessage: 'Invalid city code format'});
+            } else if (req.body.country && !locationCheck.test(req.body.country)) {
+                resp.send({status: 'error', statusMessage: 'Invalid character(s) in country'});
+            } else if (req.body.region && !locationCheck.test(req.body.region)) {
+                resp.send({status: 'error', statusMessage: 'Invalid character(s) in region'});
+            } else if (req.body.city && !locationCheck.test(req.body.city)) {
+                resp.send({status: 'error', statusMessage: 'Invalid character(s) in city'});
             } else {
                 (async() => {
                     try {
                         await client.query(`BEGIN`);
 
-                        await client.query(`UPDATE user_profiles SET user_business_name = $1, user_address = $2, user_phone = $3, user_city_code = $4 WHERE user_profile_id = $5`, [req.body.businessName, req.body.address, req.body.phone, req.body.code, req.session.user.user_id]);
+                        await client.query(`UPDATE user_profiles SET user_business_name = $1, user_address = $2, user_phone = $3, user_city_code = $4, user_country = $6, user_region = $7, user_city = $8 WHERE user_profile_id = $5`, [req.body.businessName, req.body.address, req.body.phone, req.body.code, req.session.user.user_id, req.body.country, req.body.region, req.body.city]);
 
                         let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
 
@@ -207,7 +214,7 @@ app.post('/api/user/settings/change', (req, resp) => {
                         error.type = 'user_defined';
                         throw error;
                     } else {
-                        await client.query(`UPDATE user_settings SET hide_email = $1, display_fullname = $2, email_notifications = $3, allow_messaging = $4, hide_business_hours = $6 WHERE user_setting_id = $5`, [req.body.hide_email, req.body.display_fullname, req.body.email_notifications, req.body.allow_messaging, req.session.user.user_id, req.body.hide_business_hours]);
+                        await client.query(`UPDATE user_settings SET hide_email = $1, display_fullname = $2, email_notifications = $3, allow_messaging = $4, hide_business_hours = $6, hide_phone = $7 WHERE user_setting_id = $5`, [req.body.hide_email, req.body.display_fullname, req.body.email_notifications, req.body.allow_messaging, req.session.user.user_id, req.body.hide_business_hours, req.body.hide_phone]);
 
                         let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
 
@@ -221,6 +228,10 @@ app.post('/api/user/settings/change', (req, resp) => {
                         if (!user.rows[0].display_fullname) {
                             delete user.rows[0].user_firstname;
                             delete user.rows[0].user_lastname;
+                        }
+
+                        if (user.rows[0].hide_phone) {
+                            delete user.rows[0].user_phone;
                         }
 
                         await client.query('COMMIT')

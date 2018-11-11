@@ -126,13 +126,14 @@ app.post('/api/admin/user/change-status', (req, resp) => {
                     endDate.setDate(today.getDate() + 7);
                     let banType = 'Temporary';
 
-                    if (userBanCount.rows[0].ban_count === 1) {
+                    if (parseInt(userBanCount.rows[0].ban_count) === 1) {
                         endDate.setDate(today.getDate() + 30);
-                    } else if (userBanCount.rows[0].ban_count === 2) {
+                    } else if (parseInt(userBanCount.rows[0].ban_count) === 2) {
                         endDate.setDate(today.getDate() + 90);
-                    } else if (userBanCount.rows[0].ban_count >= 3) {
+                    } else if (parseInt(userBanCount.rows[0].ban_count) >= 3) {
                         endDate = permBanDate;
                         banType = 'Permanent';
+                        val = 'Ban';
                     }
 
                     await client.query(`INSERT INTO user_bans (banned_user, banned_by, ban_reason, ban_type, ban_end_date) VALUES ($1, $2, $3, $4, $5)`, [req.body.username, req.session.user.username, reason, banType, endDate]);

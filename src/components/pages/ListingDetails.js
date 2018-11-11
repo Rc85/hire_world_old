@@ -11,6 +11,7 @@ import { Alert } from '../../actions/AlertActions';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import { UncontrolledTooltip } from 'reactstrap';
+import UserRating from '../includes/page/UserRating';
 
 class ListingDetails extends Component {
     constructor(props) {
@@ -21,7 +22,8 @@ class ListingDetails extends Component {
             status: 'Loading',
             statusMessage: '',
             listingSaved: false,
-            listingReported: false
+            listingReported: false,
+            rating: 0
         }
     }
 
@@ -29,7 +31,7 @@ class ListingDetails extends Component {
         fetch.post('/api/get/listing/detail', {id: this.props.match.params.id})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', listing: resp.data.listing, listingSaved: resp.data.saved, listingReported: resp.data.reported});
+                this.setState({status: '', listing: resp.data.listing, listingSaved: resp.data.saved, listingReported: resp.data.reported, rating: resp.data.rating});
             } else if (resp.data.status === 'access error') {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
@@ -95,12 +97,17 @@ class ListingDetails extends Component {
     }
 
     render() {
+        console.log(this.state)
         let inquire, status, footer, savedIcon, reportIcon;
 
-        if (this.props.user.user && this.state.listing && this.props.user.user.username !== this.state.listing.listing_user && this.state.listing.allow_messaging) {
-            inquire = <div>
-                <MessageSender send={(message, subject) => this.send(message, subject)} status={this.state.status} />
-            </div>;
+        if (this.props.user.user && this.state.listing && this.props.user.user.username !== this.state.listing.listing_user) {
+            if (this.state.listing.allow_messaging) {
+                inquire = <div>
+                    <hr/>
+
+                    <MessageSender send={(message, subject) => this.send(message, subject)} status={this.state.status} />
+                </div>;
+            }
         }
 
         if (this.state.status === 'Sending') {
@@ -125,7 +132,14 @@ class ListingDetails extends Component {
                 savedIcon = <FontAwesomeIcon icon={faHeart} size='sm' className='menu-button' onClick={() => this.saveListing()} />;
             }
 
-            footer = <React.Fragment>{savedIcon} {reportIcon}</React.Fragment>
+            footer = <div className='listing-footer'>
+                <hr/>
+
+                <div className='d-flex-between-center'>
+                    <div>{savedIcon} {reportIcon}</div>
+                    <small className='theme-medgrey'>Listing ID: {this.state.listing.listing_id}</small>
+                </div>
+            </div>;
         }
 
         if (this.state.status === 'access error') {
@@ -142,10 +156,7 @@ class ListingDetails extends Component {
                     {status}
                     <div className='blue-panel shallow rounded w-100 position-relative'>
                         <div className='service-details-header'>
-                            <div>
-                                <h2>{this.state.listing.listing_title}</h2>
-                                <NavLink to={`/user/${this.state.listing.listing_user}`}>{this.state.listing.listing_user}</NavLink> | <NavLink to={`/sectors/${this.state.listing.listing_sector}`}>{this.state.listing.listing_sector}</NavLink> | ${this.state.listing.listing_price} per {this.state.listing.listing_price_type} {this.state.listing.listing_price_currency}
-                            </div>
+                            <h2>{this.state.listing.listing_title}</h2>
                             
                             <span>Listed on {moment(this.state.listing.listing_created_date).format('MMM DD YYYY')} {this.state.listing.listing_renewed_date ? <span>(Renewed on {moment(this.state.listing.listing_renewed_date).format('MMM DD YYYY')})</span> : ''}</span>
                         </div>
@@ -153,21 +164,34 @@ class ListingDetails extends Component {
                         <hr/>
 
                         <div className='row'>
-                            <div className={this.props.user.user && this.state.listing && this.props.user.user.username !== this.state.listing.listing_user ? 'col-8' : 'col-12'}>
+                            <div className='col-8'>
                                 <div className='rounded'>
                                     {this.state.listing.listing_detail}
                                 </div>
                             </div>
 
                             <div className='col-4'>
+                                <div className='d-flex-center'><div className='w-25'><strong>User:</strong></div> <div className='mr-2'><NavLink to={`/user/${this.state.listing.listing_user}`}>{this.state.listing.listing_user}</NavLink></div> <UserRating rating={this.state.rating} /></div>
+                                <div className='d-flex'><div className='w-25'><strong>Listed Under:</strong></div> <NavLink to={`/sectors/${this.state.listing.listing_sector}`}>{this.state.listing.listing_sector}</NavLink></div>
+                                <div className='d-flex'><div className='w-25'><strong>Asking Price:</strong></div> ${this.state.listing.listing_price} per {this.state.listing.listing_price_type} {this.state.listing.listing_price_currency}</div>
+                                <div className='d-flex'><div className='w-25'><strong>Negotiable: </strong></div> {this.state.listing.listing_negotiable ? 'Yes' : 'No'}</div>
+
+                                <hr/>
+
+                                {this.state.listing.user_email ? <div className='d-flex'><div className='w-25'><strong>Email: </strong></div> <a href={`mailto:${this.state.listing.user_email}`}>{this.state.listing.user_email}</a></div> : ''}
+                                {this.state.listing.user_phone ? <div className='d-flex'><div className='w-25'><strong>Phone Number:</strong></div> {this.state.listing.user_phone}</div> : ''}
+
+                                <hr/>
+
+                                {this.state.listing.user_city ? <div className='d-flex'><div className='w-25'><strong>City:</strong></div> {this.state.listing.user_city}</div> : ''}
+                                {this.state.listing.user_region ? <div className='d-flex'><div className='w-25'><strong>Region:</strong></div> {this.state.listing.user_region}</div> : ''}
+                                {this.state.listing.user_country ? <div className='d-flex'><div className='w-25'><strong>Country:</strong></div> {this.state.listing.user_country}</div> : ''}
+
                                 {inquire}
                             </div>
                         </div>
 
-                        <div className='listing-footer'>
-                            <hr/>
-                            {footer}
-                        </div>
+                        {footer}
                     </div>
                 </section>
             )

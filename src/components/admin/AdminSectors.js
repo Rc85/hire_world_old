@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { AddSector } from '../../actions/AddSectorActions';
 import { FontAwesomeIcon } from '../../../node_modules/@fortawesome/react-fontawesome';
 import { faCircleNotch } from '../../../node_modules/@fortawesome/free-solid-svg-icons';
 import AdminSectorsList from './includes/AdminSectorsList';
@@ -14,6 +13,7 @@ class AdminSectors extends Component {
         super(props);
 
         this.state = {
+            status: '',
             sector: null,
             sectors: []
         }
@@ -37,11 +37,22 @@ class AdminSectors extends Component {
     }
 
     addSector() {
-        this.props.dispatch(AddSector(this.state.sector));
-        this.setState({
-            sector: null
+        this.setState({status: 'Loading'});
+
+        fetch.post('/api/admin/sector/add', {sector: this.state.sector})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                let sectors = [...this.state.sectors];
+                sectors.push(resp.data.sector);
+                sectors.sort();
+
+                this.setState({status: '', sectors: sectors, sector: null});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         });
-        document.getElementById('sector-input').value = '';
     }
 
     render() {
@@ -66,7 +77,7 @@ class AdminSectors extends Component {
                     </div>
                 </div>
 
-                <AdminSectorsList sectors={this.state.sectors} />
+                <AdminSectorsList sectors={this.state.sectors} changeStatus={(status, id) => this.changeStatus(status, id)} />
             </div>
         )
     }

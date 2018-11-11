@@ -41,7 +41,7 @@ class UserSettings extends Component {
 
                 this.props.dispatch(UpdateUser(resp.data.user));
 
-                if (resp.data.user.hide_email && !resp.data.user.allow_messaging && !resp.data.user.user_phone) {
+                if (resp.data.user.hide_email && !resp.data.user.allow_messaging && resp.data.user.hide_email) {
                     this.props.dispatch(ShowWarning(`You've hidden and disabled all forms of contact`));
                 }
             } else {
@@ -91,6 +91,12 @@ class UserSettings extends Component {
                             <label htmlFor='hideBusinessHours'>Hide Business Hours:</label>
 
                             <SlideToggle status={this.props.user.user.hide_business_hours} id='hideBusinessHours' onClick={() => this.saveSetting('hide_business_hours')} />
+                        </div>
+
+                        <div className='d-flex-between-center mb-3'>
+                            <label htmlFor='hidePhone'>Hide Phone Number:</label>
+
+                            <SlideToggle status={this.props.user.user.hide_phone} id='hidePhone' onClick={() => this.saveSetting('hide_phone')} />
                         </div>
                     </div>
 

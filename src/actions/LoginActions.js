@@ -12,6 +12,8 @@ export const LoginUser = (data) => {
                 location.herf = '/dashboard';
             } else if (resp.data.status === 'error') {
                 dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            } else if (resp.data.status === 'access error') {
+                dispatch(LoginError(resp.data.status, resp.data.statusMessage));
             }
         })
         .catch(err => console.log(err));
@@ -29,6 +31,14 @@ const LoginSuccess = (user) => {
     return {
         type: 'LOGIN_USER_UPDATE',
         user
+    }
+}
+
+const LoginError = (status, message) => {
+    return {
+        type: 'LOGIN_USER_ERROR',
+        status,
+        message
     }
 }
 

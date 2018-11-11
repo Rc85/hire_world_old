@@ -2,6 +2,7 @@ const db = require('./db');
 const app = require('express').Router();
 const bcrypt = require('bcrypt');
 const validate = require('./utils/validate');
+const moment = require('moment');
 
 app.post('/api/auth/register', (req, resp) => {
     console.log(req.body);
@@ -82,9 +83,31 @@ app.post('/api/auth/login', async(req, resp) => {
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 
-    if (auth !== undefined && auth.rows.length === 1) {
-        if (auth.rows[0].user_status === 'Banned') {
-            resp.send({status: 'error', statusMessage: 'Your account has been banned'})
+    let banEndDate = await db.query(`SELECT ban_end_date FROM user_bans WHERE banned_user = $1 ORDER BY ban_id DESC LIMIT 1`, [req.body.username])
+    .then(result => {
+        if (result && result.rows.length === 1) {
+            return result.rows[0].ban_end_date
+        }
+    })
+    .catch(err => console.log(err));
+
+    let today = new Date();
+
+    if (auth && auth.rows.length === 1) {
+        if (today < banEndDate) {
+            if (auth.rows[0].user_status === 'Ban') {
+                resp.send({status: 'access error', statusMessage: 'Your account has been permanently banned'});
+            } else if (auth.rows[0].user_status === 'Suspend') {
+                let date = moment(banEndDate).format('MMM DD, YYYY');
+
+                resp.send({status: 'access error', statusMessage: `Your account has been temporarily banned. You will have access again after ${date}`});
+            }
+        } else if (today >= banEndDate) {
+            await db.query(`UPDATE users SET user_status = 'Active' WHERE username = $1`, [req.body.username]);
+        }
+        
+        if (auth.rows[0].user_status === 'Pending') {
+            resp.send({status: 'access error', statusMessage: `You need to click on the link in the confirmation email to activate your account.`});
         } else {
             bcrypt.compare(req.body.password, auth.rows[0].user_password, async(err, match) => {
                 if (err) {

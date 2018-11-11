@@ -3,6 +3,7 @@ import { LoginUser } from '../../actions/LoginActions';
 import { connect } from 'react-redux';
 import SubmitButton from '../utils/SubmitButton';
 import { withRouter, Redirect } from 'react-router-dom';
+import Response from './Response';
 
 class Login extends Component {
     constructor() {
@@ -19,10 +20,11 @@ class Login extends Component {
     }
 
     render() {
+        console.log(this.props.user);
         if (this.props.user.user) {
-            return(
-                <Redirect to='/dashboard/edit' />
-            )
+            return <Redirect to='/dashboard/edit' />;
+        } else if (this.props.user.status === 'access error') {
+            return <Response code={403} header={'Forbidden'} message={this.props.user.statusMessage} />;
         } else {
             return(
                 <section id='login' className='main-panel'>

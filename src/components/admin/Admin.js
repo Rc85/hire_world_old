@@ -45,7 +45,6 @@ class Admin extends Component {
                         {name: 'Sectors', active: this.props.location.pathname === '/admin-panel/sectors' ? true : false, link: '/admin-panel/sectors'},
                         {name: 'Users', active: this.props.location.pathname === '/admin-panel/users' ? true : false, link: '/admin-panel/users'},
                         {name: 'Listings', active: this.props.location.pathname === '/admin-panel/listings' ? true : false, link: '/admin-panel/listings'},
-                        {name: 'Messages', active: this.props.location.pathname === '/admin-panel/messages' ? true : false, link: '/admin-panel/messages'},
                         {name: 'Reports', active: this.props.location.pathname === '/admin-panel/reports' ? true : false, link: '/admin-panel/reports'},
                         {name: 'Site Config', active: this.props.location.pathname === '/admin-panel/config' ? true : false, link: '/admin-panel/config'},
                         {name: 'Error Log', active: this.props.location.pathname === '/admin-panel/error' ? true : false, link: '/admin-panel/error'},

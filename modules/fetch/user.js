@@ -43,11 +43,24 @@ app.post('/api/get/user', async(req, resp) => {
             delete user.rows[0].display_contacts;
 
             let orderby = '';
-            let reviewsParam;
+            let reviewsParam, reports, reportedUser;
+            let userIsReported = false;
+            let reportedReviews = [];
 
             if (req.session.user) {
                 orderby = 'user_reviews.reviewer = $2 DESC, ';
                 reviewsParam = [req.body.username, req.session.user.username];
+                reports = await db.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2`, [req.session.user.username, 'Review']);
+                reportedUser = await db.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2 AND reported_user = $3`, [req.session.user.username, 'User', req.body.username]);
+
+
+                for (let report of reports.rows) {
+                    reportedReviews.push(report.reported_id);
+                }
+
+                if (reportedUser && reportedUser.rows.length === 1) {
+                    userIsReported = true;
+                }
             } else {
                 reviewsParam = [req.body.username];
             }
@@ -86,7 +99,7 @@ app.post('/api/get/user', async(req, resp) => {
 
             await db.query(`INSERT INTO user_view_count (viewing_user, view_count) VALUES ($1, $2) ON CONFLICT (viewing_user) DO UPDATE SET view_count = user_view_count.view_count + 1`, [req.body.username, 1]);
 
-            resp.send({status: 'success', user: user.rows[0], reviews: reviews.rows, stats: stats.rows[0], hours: businessHours});
+            resp.send({status: 'success', user: user.rows[0], reviews: reviews.rows, stats: stats.rows[0], hours: businessHours, reports: reportedReviews, userReported: userIsReported});
         } else {
             resp.send({status: 'error page', statusMessage: `The requested user's profile does not exist`});
         }

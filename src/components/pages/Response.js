@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 /* Response component is the component to direct to after a success form submission or going to a link that is not found */
 
 /**
- * @property {Number} code The HTTP response code
- * @property {String} header A header/title of the response
- * @property {String} message The message regarding the response
+ * @param {Number} code The HTTP response code
+ * @param {String} header A header/title of the response
+ * @param {String} message The message regarding the response
  */
 class Response extends Component {
     render() {

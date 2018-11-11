@@ -50,18 +50,20 @@ app.post('/api/get/listing/detail', async(req, resp) => {
     .then(async(result) => {
         if (result !== undefined && result.rows.length === 1) {
             let saved = false;
+            let reported = false;
 
-            let savedListing;
+            let savedListing, reportedListing;
             
             if (req.session.user) {
                 savedListing = await db.query(`SELECT saved_listing_id FROM saved_listings WHERE saved_listing_id = $1 AND saved_by = $2`, [req.body.id, req.session.user.username]);
+                reportedListing = await db.query(`SELECT report_id FROM reports WHERE reporter = $1 AND report_type = $2 AND reported_id = $3`, [req.session.user.username, 'Listing', req.body.id]);
             }
 
-            if (savedListing && savedListing.rows.length === 1 && savedListing.rows[0].saved_listing_id === parseInt(req.body.id)) {
-                saved = true;
-            }
+            if (savedListing && savedListing.rows.length === 1)  saved = true;
 
-            resp.send({status: 'success', listing: result.rows[0], saved: saved});
+            if (reportedListing && reportedListing.rows.length === 1) reported = true;
+
+            resp.send({status: 'success', listing: result.rows[0], saved: saved, reported: reported});
         } else {
             resp.send({status: 'access error', statusMessage: 'That listing does not exist'});
         }

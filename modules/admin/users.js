@@ -160,4 +160,30 @@ app.post('/api/admin/user/change-status', (req, resp) => {
     });
 });
 
+app.post('/api/admin/user/warn', (req, resp) => {
+    db.connect((err, client, done) => {
+        if (err) console.log(err);
+
+        (async() => {
+            try {
+                await client.query('BEGIN');
+                await client.query('INSERT INTO user_warnings (warning, warned_by, warned_user) VALUES ($1, $2, $3)', [req.body.warning, req.session.user.username, req.body.user]);
+                await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [req.body.user, 'You were given a warning', 'Warning']);
+                await client.query(`UPDATE reports SET report_status = $1 WHERE report_id = $2`, ['Warned', req.body.report_id]);
+                await client.query('COMMIT')
+                .then(() => resp.send({status: 'success', statusMessage: 'Warning sent'}));
+            } catch (e) {
+                await client.query('ROLLBACK');
+                throw e;
+            } finally {
+                done();
+            }
+        })()
+        .catch(err => {
+            console.log(err);
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
+        });
+    });
+});
+
 module.exports = app;

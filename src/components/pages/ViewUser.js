@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ViewUserSocialMedia from '../includes/page/ViewUserSocialMedia';
 import ViewUserContacts from '../includes/page/ViewUserContacts';
 import ViewUserProfile from '../includes/page/ViewUserProfile';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Redirect } from 'react-router-dom';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
 import Response from './Response';
@@ -13,6 +13,7 @@ import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
+import { UncontrolledTooltip } from 'reactstrap';
 
 class ViewUser extends Component {
     constructor(props) {
@@ -24,7 +25,9 @@ class ViewUser extends Component {
             status: '',
             submitReview: false,
             review: '',
-            hours: {}
+            hours: {},
+            reportedReviews: [],
+            userReported: false
         }
     }
 
@@ -35,7 +38,7 @@ class ViewUser extends Component {
             fetch.post('/api/get/user', {username: this.props.match.params.username})
             .then(resp => {
                 if (resp.data.status === 'success') {
-                    this.setState({user: resp.data.user, services: resp.data.services, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: ''});
+                    this.setState({user: resp.data.user, services: resp.data.services, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported});
                 } else if (resp.data.status === 'error') {
                     this.setState({status: ''});
                 }
@@ -52,7 +55,7 @@ class ViewUser extends Component {
         fetch.post('/api/get/user', {username: this.props.match.params.username})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: ''});
+                this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported});
             } else if (resp.data.status === 'error') {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             } else if (resp.data.status === 'error page') {
@@ -96,8 +99,27 @@ class ViewUser extends Component {
         this.setState({reviews: reviews});
     }
 
+    submitReport() {
+        this.setState({status: 'Sending'});
+
+        fetch.post('/api/report/submit', {id: this.state.user.user_id, type: 'User', url: this.props.location.pathname, user: this.state.user.username})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({status: '', userReported: true});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            } else if (resp.data.status === 'redirect') {
+                this.setState({status: resp.data.status});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => console.log(err));
+    }
+
     render() {
-        let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, name, reviewed;
+        console.log(this.props)
+        let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, name, reviewed, reportButton;
 
         if (this.state.reviews && this.props.user.user) {
             reviewed = this.state.reviews.findIndex(review => review.reviewer === this.props.user.user.username)
@@ -106,8 +128,6 @@ class ViewUser extends Component {
         if (this.state.status === 'Sending') {
             status = <Loading size='5x' />;
         }
-
-        console.log(reviewed)
 
         if (this.state.user) {
             contacts = <ViewUserContacts user={this.state.user} />;
@@ -123,7 +143,11 @@ class ViewUser extends Component {
 
         if (this.state.reviews.length > 0) {
             reviews = this.state.reviews.map((review, i) => {
-                return <ViewUserReview key={i} review={review} user={this.props.user.user} edit={(review) => this.editReview(review, i)} />
+                let reported = false;
+
+                if (this.state.reportedReviews.indexOf(review.review_id) >= 0) reported = true;
+
+                return <ViewUserReview key={i} review={review} user={this.props.user.user} edit={(review) => this.editReview(review, i)} reported={reported} />
             });
         } else {
             reviews = <div className='text-center mt-5'>
@@ -140,13 +164,22 @@ class ViewUser extends Component {
         }
 
         if (this.state.status === 'error page') {
-            return(
-                <Response header={'Error'} message={this.state.statusMessage} /> 
-            )
-        }
-        
-        if (this.state.status === 'Loading') {
+            return <Response header={'Error'} message={this.state.statusMessage} />;
+        } else if (this.state.status === 'Loading') {
             return <Loading size='7x' />;
+        } else if (this.state.status === 'redirect') {
+            return <Redirect to='/account/login' />;
+        }
+
+        if (this.state.user && this.props.user.user && this.props.user.user.username !== this.state.user.username) {
+            if (!this.state.userReported) {
+                reportButton = <FontAwesomeIcon icon={faExclamationTriangle} size='xs' className='menu-button' onClick={() => this.submitReport()} />;
+            } else {
+                reportButton = <span>
+                    <FontAwesomeIcon icon={faExclamationTriangle} size='xs' className='theme-bg' id='report-user-button' />
+                    <UncontrolledTooltip placement='top' target='report-user-button'>Already reported</UncontrolledTooltip>    
+                </span>;
+            }
         }
         
         return(
@@ -166,7 +199,7 @@ class ViewUser extends Component {
                         </div>
                     </div>
 
-                    <div className='text-right'><FontAwesomeIcon icon={faExclamationTriangle} size='xs' /></div>
+                    <div className='text-right'>{reportButton}</div>
                 </div>
 
                 <div className='text-right mt-3'>

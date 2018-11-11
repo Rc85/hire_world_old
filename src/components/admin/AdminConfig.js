@@ -169,44 +169,44 @@ class AdminConfig extends Component {
                     <div className='w-45'><label htmlFor='registration-config' className='d-flex-between-center'>Registration Status: <SlideToggle status={this.state.registration === 'Active'} onClick={() => this.toggleRegistration()} /></label></div>
                 </div>
 
-                <div className='d-flex-between-center'>
-                    <div className='w-35'><strong>Announcement</strong></div>
-                    <div className='w-15'><strong>Created By</strong></div>
-                    <div className='w-15'><strong>Created Date</strong></div>
-                    <div className='w-15'><strong>Start Date</strong></div>
-                    <div className='w-15'><strong>End Date</strong></div>
-                    <div className='w-5'></div>
-                </div>
-
-                <hr/>
-
-                {announcements}
-
-                <div className='d-flex-between-center mb-1'>
-                    <div className='w-45'>
-                        <label htmlFor='announcement'>Announcement:</label>
-                        <input type='text' name='announcement' id='announcement' className='form-control' onChange={(e) => this.setState({announcement: e.target.value})} value={this.state.announcement} />
+                <div className='bordered-container rounded mb-5'>
+                    <div className='d-flex-between-center'>
+                        <div className='w-35'><strong>Announcement</strong></div>
+                        <div className='w-15'><strong>Created By</strong></div>
+                        <div className='w-15'><strong>Created Date</strong></div>
+                        <div className='w-15'><strong>Start Date</strong></div>
+                        <div className='w-15'><strong>End Date</strong></div>
+                        <div className='w-5'></div>
                     </div>
-
-                    <div className='d-flex-between-center w-45'>
-                        <div className='w-50'>
-                            <label htmlFor='start_date'>Start Date:</label>
-                            <DatePicker className='form-control' onChange={this.setAnnouncementStart.bind(this)} selected={this.state.announcementStart} />
+    
+                    <hr/>
+    
+                    {announcements}
+    
+                    <div className='d-flex-between-center mb-1'>
+                        <div className='w-45'>
+                            <label htmlFor='announcement'>Announcement:</label>
+                            <input type='text' name='announcement' id='announcement' className='form-control' onChange={(e) => this.setState({announcement: e.target.value})} value={this.state.announcement} />
                         </div>
-
-                        <div className='w-50 d-flex-end-center'>
-                            <div>
-                                <label htmlFor='end_date'>End Date:</label>
-                                <DatePicker className='form-control' onChange={this.setAnnouncementEnd.bind(this)} selected={this.state.announcementEnd} />
+    
+                        <div className='d-flex-between-center w-45'>
+                            <div className='w-50'>
+                                <label htmlFor='start_date'>Start Date:</label>
+                                <DatePicker className='form-control' onChange={this.setAnnouncementStart.bind(this)} selected={this.state.announcementStart} />
+                            </div>
+    
+                            <div className='w-50 d-flex-end-center'>
+                                <div>
+                                    <label htmlFor='end_date'>End Date:</label>
+                                    <DatePicker className='form-control' onChange={this.setAnnouncementEnd.bind(this)} selected={this.state.announcementEnd} />
+                                </div>
                             </div>
                         </div>
                     </div>
+    
+                    <div className='text-right'><button className='btn btn-primary' onClick={() => this.createAnnouncement()}>Create</button></div>
+                    <small>Only 3 announcements are allowed</small>
                 </div>
-
-                <div className='text-right'><button className='btn btn-primary' onClick={() => this.createAnnouncement()}>Create</button></div>
-                <small>Only 3 announcements are allowed</small>
-
-                <hr/>
 
                 <div className='admin-scroller-header mb-3'>
                     <div className='w-5'>ID</div>

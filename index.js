@@ -40,6 +40,7 @@ app.use(require('./modules/user/user'));
 app.use(require('./modules/user/settings'));
 app.use(require('./modules/user/review'));
 app.use(require('./modules/user/listings'));
+app.use(require('./modules/user/reports'));
 
 app.use(require('./modules/fetch/sectors'));
 app.use(require('./modules/fetch/user'));
@@ -52,7 +53,6 @@ app.use(require('./modules/message/offers'));
 app.use(require('./modules/message/jobs'));
 
 app.get('/', (req, resp) => {
-    console.log(req.session.user);
     resp.render('index', {user: req.session.user});
 });
 
@@ -107,6 +107,7 @@ app.get('/api/admin/privilege', (req, resp) => {
 app.use(require('./modules/admin/sector'));
 app.use(require('./modules/admin/users'));
 app.use(require('./modules/admin/listings'));
+app.use(require('./modules/admin/reports'));
 app.use(require('./modules/admin/configs'));
 
 /* app.get('*', (req, resp) => {

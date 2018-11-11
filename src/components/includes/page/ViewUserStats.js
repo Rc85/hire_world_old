@@ -8,7 +8,6 @@ import moment from 'moment';
 import UserRating from './UserRating';
 
 const ViewUserStats = props => {
-    console.log(props);
     let businessHours;
     let time = [];
 

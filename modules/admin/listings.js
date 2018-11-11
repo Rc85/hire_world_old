@@ -9,8 +9,6 @@ app.post('/api/admin/listings/get', async(req, resp) => {
     let params = [req.body.offset];
     let totalListingsQueryParams = [];
 
-    console.log(req.body);
-
     if (req.body.title || req.body.sector || req.body.user) {
         let blankCheck = /^\s*$/
 

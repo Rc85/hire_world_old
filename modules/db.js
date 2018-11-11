@@ -8,7 +8,8 @@ if (process.env.NODE_ENV === 'development') {
         port: process.env.PG_PORT,
         user: process.env.PG_USER,
         password: process.env.PG_PASSWORD,
-        max: 20
+        max: 20,
+        idleTimeoutMillis: 5000
     }
 } else if (process.env.NODE_ENV === 'production') {
     config = {

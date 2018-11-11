@@ -466,6 +466,11 @@
   align-items: flex-end;
 }
 
+.d-flex-start {
+  display: flex;
+  align-items: flex-start;
+}
+
 .d-flex-center-stretch {
   display: flex;
   justify-content: center;
@@ -650,6 +655,18 @@
   overflow-y: scroll;
   border: 1px solid #C4C4C4;
   padding: 20px;
+}
+
+.theme-highlight {
+  color: #2988BC;
+}
+
+.theme-bg {
+  color: #C4C4C4;
+}
+
+.theme-darkgrey {
+  color: #6F6F6F;
 }
 
 #browse {

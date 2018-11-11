@@ -6,7 +6,6 @@ app.post('/api/get/offer', (req, resp) => {
         db.connect((err, client, done) => {
             if (err) console.log(err);
 
-            console.log(req.body);
             (async() => {
                 try {
                     await client.query('BEGIN');
@@ -18,13 +17,9 @@ app.post('/api/get/offer', (req, resp) => {
                         LEFT JOIN user_listings ON listing_id = job_listing_id
                         WHERE job_id = $1 ${req.body.stage === 'Abandoned' ? `AND job_stage IN ($2, 'Incomplete')` : 'AND job_stage = $2'}`, [req.body.job_id, req.body.stage]);
 
-                        let offer = await client.query(`SELECT * FROM offers WHERE offer_for_job = $1 AND offer_status != 'Deleted'`, [req.body.job_id])
+                        let offer = await client.query(`SELECT * FROM offers WHERE offer_for_job = $1 AND offer_status NOT IN ('Deleted', 'Declined')`, [req.body.job_id])
 
                         if (job && job.rows.length === 1) {
-                            if (job.rows[0].job_user === req.session.user.username) {
-                                await client.query(`UPDATE jobs SET job_is_new = false WHERE job_id = $1`, [req.body.job_id]);
-                            }
-
                             await client.query(`COMMIT`)
                             .then(() => {
                                 resp.send({status: 'success', job: job.rows[0], offer: offer.rows[0]});

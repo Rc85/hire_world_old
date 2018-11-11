@@ -64,10 +64,16 @@ class MessageRow extends Component {
                 } else {
                     reviewButton = <ReviewButton reviewed />;
                 }
+            } else if (this.props.message.job_status === 'New') {
+                statusButtonClass = 'primary';
             }
 
             if (this.props.message.job_status !== 'Active') {
                 statusButton = <span className={`badge badge-${statusButtonClass}`}>{this.props.message.job_status}</span>;
+
+                if (this.props.message.job_status === 'New' && this.props.message.job_user !== this.props.user.username) {
+                    statusButton = '';
+                }
             }
         }
 
@@ -82,7 +88,7 @@ class MessageRow extends Component {
                     <div className='w-5'><input type='checkbox' name='select-message' id={this.props.message.job_id} className='select-message-checkbox' onChange={(e) => this.props.select(e.target.value)}/></div>
                     <div className='w-5'>{this.props.message.job_id}</div>
                     <div className='w-70'>
-                        <div className='user-message-subject'><NavLink to={`/dashboard/message/${this.props.stage}/${this.props.message.job_id}/details`}>{this.props.message.job_subject}</NavLink> {this.props.message.job_user === this.props.user.username && this.props.message.job_is_new ? <span className='badge badge-success'>New</span> : ''}</div>
+                        <div className='user-message-subject'><NavLink to={`/dashboard/message/${this.props.stage}/${this.props.message.job_id}/details`}>{this.props.message.job_subject}</NavLink>{this.props.message.unread_messages > 0 ? <span className='badge badge-warning ml-2'>{this.props.message.unread_messages}</span> : ''}</div>
     
                         <div><small>{this.props.message.message_sender === this.props.user.username ? <span>Sent {moment(this.props.message.message_date).fromNow()} to <NavLink to={`/user/${this.props.message.message_recipient}`}>{this.props.message.message_recipient}</NavLink></span> : <span>Received {moment(this.props.message.message_date).fromNow()} from <NavLink to={`/user/${this.props.message.message_sender}`}>{this.props.message.message_sender}</NavLink></span>}</small></div>
                     </div>

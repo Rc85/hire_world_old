@@ -41,7 +41,7 @@ class UserMessage extends Component {
     
     render() {
         let messageOptions = <div></div>;
-        let editButton, deleteButton;
+        let editButton, deleteButton, messageStatus;
         let messageBody = this.props.message.message_body;
 
         if (this.props.job.job_stage !== 'Complete') {
@@ -57,6 +57,10 @@ class UserMessage extends Component {
                 {editButton}
                 {deleteButton}
             </div>
+        }
+
+        if (this.props.user.username === this.props.message.message_recipient && this.props.message.message_status === 'New') {
+            messageStatus = <h4><span className='badge badge-success mr-3'>New</span></h4>
         }
 
         if (this.state.editing) {
@@ -81,7 +85,10 @@ class UserMessage extends Component {
                     <div className={this.props.panelClass}>
                         <div className='d-flex-between-start mb-3'>
                             <small>{this.props.text} {moment(this.props.message.message_date).fromNow()} {this.props.message.message_modified_date ? `(Edited ${moment(this.props.message.message_modified_date).fromNow()})` : ''}</small>
-                            {messageOptions}
+                            <div>
+                                {messageOptions}
+                                {messageStatus}
+                            </div>
                         </div>
                         <div className='mb-3'>{messageBody}</div>
                         <div className='text-right'><small className='text-muted'>Message ID: {this.props.message.message_id}</small></div>

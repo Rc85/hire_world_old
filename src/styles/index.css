@@ -669,6 +669,14 @@
   color: #6F6F6F;
 }
 
+.theme-orange {
+  color: #e97100;
+}
+
+.theme-orange-bg {
+  background: #e97100;
+}
+
 #browse {
   margin-top: 50px;
 }

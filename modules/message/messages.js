@@ -74,7 +74,7 @@ app.post('/api/message/reply', async(req, resp) => {
                         let allowMessaging = await client.query(`SELECT allow_messaging FROM user_settings LEFT JOIN users ON users.user_id = user_settings.user_setting_id WHERE users.username = $1`, [req.body.recipient]);
 
                         if (allowMessaging.rows[0].allow_messaging) {
-                            if (stage && stage.rows[0].job_status === 'Active') {
+                            if (stage && (stage.rows[0].job_status !== 'Incomplete' || stage.rows[0].job_status !== 'Complete' || stage.rows[0].job_status !== 'Abandon' || stage.rows[0].job_status !== 'Closed')) {
                                 let newMessage = await client.query(`INSERT INTO messages (belongs_to_job, message_sender, message_recipient, message_body, is_reply) VALUES ($1, $2, $3, $4, $5) RETURNING message_id`,
                                 [req.body.job_id, req.session.user.username, req.body.recipient, req.body.message, true])
                                 

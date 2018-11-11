@@ -96,7 +96,7 @@ const OfferDetails = props => {
 
             <div className='d-flex-between-end'>
                 <div>
-                    {props.stage === 'Inquire' ? <button className='btn btn-success' onClick={() => props.accept()}>Accept</button> : '' }
+                    {props.stage === 'Inquire' ? <React.Fragment><button className='btn btn-success' onClick={() => props.accept()}>Accept</button> <button className='btn btn-danger' onClick={() => props.decline()}>Decline</button></React.Fragment> : '' }
                 </div>
                 <div><small className='text-muted'>Offer ID: {props.offer.offer_id}</small></div>
             </div>

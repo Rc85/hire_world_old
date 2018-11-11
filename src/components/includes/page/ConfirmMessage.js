@@ -22,7 +22,7 @@ class ConfirmMessage extends Component {
                 if (this.props.prompt) {
                     this.setState({decline: true});
                 } else {
-                    this.props.decline();
+                    this.props.decline(this.state.declineMessage);
                 }
             }}>Decline</button>
         </div>;
@@ -39,7 +39,10 @@ class ConfirmMessage extends Component {
             declineMessageInput = <div className='mb-3'>
                 <textarea rows='3' className='form-control w-100 mb-1' onChange={(e) => this.setState({declineMessage: e.target.value})} placeholder={`Briefly describe the reason why you are declining the other party's request.`}></textarea>
                 <div className='text-right'>
-                    <button className='btn btn-primary mr-1' onClick={() => this.props.decline(this.state.declineMessage)}>Submit</button>
+                    <button className='btn btn-primary mr-1' onClick={() => {
+                        this.props.decline(this.state.declineMessage)
+                        this.setState({decline: false});
+                    }}>Submit</button>
                     <button className='btn btn-secondary' onClick={() => this.setState({decline: false})}>Cancel</button>
                 </div>
             </div>

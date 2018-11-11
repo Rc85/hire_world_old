@@ -14,11 +14,10 @@ class MessageSender extends Component {
             status: this.props.status
         }
     }
-
-    componentWillReceiveProps(nextProps) {
-        console.log(nextProps)
-        if (nextProps.status === 'send success') {
-            this.setState({message: '', subject: this.props.subject || ''});
+    
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.status !== prevProps.status) {
+            this.setState({subject: '', message: ''});
         }
     }
     

@@ -42,8 +42,10 @@ class ListingDetails extends Component {
 
         fetch.post('/api/message/submit', {subject: subject, message: message, listing: this.state.listing})
         .then(resp => {
+            console.log('setting listing details state status');
             this.setState({status: resp.data.status});
 
+            console.log('dispatching alert');
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => console.log(err));
@@ -93,7 +95,6 @@ class ListingDetails extends Component {
     }
 
     render() {
-        console.log(this.props);
         let inquire, status, footer, savedIcon, reportIcon;
 
         if (this.props.user.user && this.state.listing && this.props.user.user.username !== this.state.listing.listing_user && this.state.listing.allow_messaging) {

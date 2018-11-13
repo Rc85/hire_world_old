@@ -70,14 +70,20 @@ app.post('/api/admin/announcement/delete', async(req, resp) => {
 });
 
 app.post('/api/admin/promo/change-status', async(req, resp) => {
-    await db.query(`UPDATE promotions SET promo_status = $1 WHERE promo_id = $2 RETURNING *`, [req.body.status, req.body.id])
-    .then(result => {
-        if (result) resp.send({status: 'success', promo: result.rows[0]});
-    })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    let exist = await db.query(`SELECT promo_id FROM promotions WHERE promo_status = 'Active'`);
+
+    if (exist && exist.rows.length === 1) {
+        resp.send({status: 'error', statusMessage: 'Only one active promo is allowed'});
+    } else {
+        await db.query(`UPDATE promotions SET promo_status = $1 WHERE promo_id = $2 RETURNING *`, [req.body.status, req.body.id])
+        .then(result => {
+            if (result) resp.send({status: 'success', promo: result.rows[0]});
+        })
+        .catch(err => {
+            console.log(err);
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
+        });
+    }
 });
 
 app.post('/api/admin/plan/change-status', async(req, resp) => {

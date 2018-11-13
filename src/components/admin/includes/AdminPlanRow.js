@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 import { ToggleMenu } from '../../../actions/MenuActions';
 import fetch from 'axios';
@@ -75,7 +75,7 @@ class AdminPlanRow extends Component {
                 <div className='w-25'>{moment(this.state.plan.plan_created_date).format('MM-DD-YYYY') !== 'Invalid date' ? moment(this.state.plan.plan_created_date).format('MM-DD-YYYY') : ''}</div>
                 <div className='w-5 text-center'>{this.state.plan.plan_status === 'Active' ? <span className='badge badge-success'>{this.state.plan.plan_status}</span> : <span className='badge badge-danger'>{this.state.plan.plan_status}</span>}</div>
                 <div className='w-5 text-right position-relative'>
-                    <button className='btn btn-info btn-sm admin-menu-button' onClick={() => this.toggleMenu()}><FontAwesomeIcon icon={faCaretDown} /></button>
+                    <button className='btn btn-info btn-sm admin-menu-button' onClick={() => this.toggleMenu()}>{this.props.menu.open === 'admin plan' ? <FontAwesomeIcon icon={faCaretUp} /> : <FontAwesomeIcon icon={faCaretDown} />}</button>
                     {menu}
                 </div>
             </div>

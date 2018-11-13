@@ -5,6 +5,7 @@ import ListingDetails from './ListingDetails';
 import ListSettings from './ListSettings';
 import Login from './Login';
 import Main from './Main';
+import MessageDashboard from './MessageDashboard';
 import MessageDetails from './MessageDetails';
 import Messages from './Messages';
 import Register from './Register';
@@ -14,4 +15,4 @@ import Sectors from './Sectors';
 import UserSettings from './UserSettings';
 import ViewUser from './ViewUser';
 
-export { Browse, Dashboard, EditUser, ListingDetails, ListSettings, Login, Main, MessageDetails, Messages, Register, Response, SavedListings, Sectors, UserSettings, ViewUser }
+export { Browse, Dashboard, EditUser, ListingDetails, ListSettings, Login, Main, MessageDashboard, MessageDetails, Messages, Register, Response, SavedListings, Sectors, UserSettings, ViewUser }

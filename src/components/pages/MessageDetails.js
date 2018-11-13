@@ -106,7 +106,7 @@ class MessageDetails extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.location.key !== this.props.location.key) {
+        if (prevProps.user.user !== this.props.user.user || prevProps.location.key !== this.props.location.key) {
             fetch.post('/api/get/offer', {job_id: this.props.match.params.id, stage: this.props.match.params.stage})
             .then(resp => {
                 if (resp.data.status === 'success') {
@@ -162,7 +162,7 @@ class MessageDetails extends Component {
             });
         }, 250);
 
-        fetch.post('/api/get/offer', {job_id: this.props.match.params.id, stage: this.props.match.params.stage})
+        /* fetch.post('/api/get/offer', {job_id: this.props.match.params.id, stage: this.props.match.params.stage})
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({
@@ -185,7 +185,7 @@ class MessageDetails extends Component {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage})
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => console.log(err)); */
     }
 
     componentWillUnmount() {
@@ -462,13 +462,13 @@ class MessageDetails extends Component {
 
     goBack() {
         let pathChunks = this.props.location.pathname.split('/');
-        let path = `/${pathChunks[1]}/${pathChunks[2]}s/${pathChunks[3]}`;
+        let path = `/${pathChunks[1]}s/${pathChunks[2]}`;
 
         return path;
     }
 
     render() {
-        console.log(this.props)
+        console.log(this.state)
         let listingDetails, sendButton, sendMessage, sendStatus, messages, offerConfirmation, fetchStatus, offerButton, confirmation, closeButton, completeButton, incompleteButton, reasonInput, jobStatus, abandonedDate, refreshButton;
         let now = moment();
 
@@ -477,15 +477,15 @@ class MessageDetails extends Component {
         }
 
         if (abandonedDate) {
-            if (abandonedDate.diff(now, 'weeks') >= 3 || this.state.job.job_stage === 'Abandon') {
+            if (abandonedDate.diff(now, 'weeks') >= 3 || this.state.job.job_status === 'Abandon') {
                 jobStatus = <span className='badge badge-danger'>Abandoned</span>;
-            } else if (this.state.job.job_stage === 'Incomplete') {
+            } else if (this.state.job.job_status === 'Incomplete') {
                 jobStatus = <span className='badge badge-warning'>Incomplete</span>;
-            } else if (this.state.job.job_stage === 'Abandoning') {
+            } else if (this.state.job.job_status === 'Abandoning') {
                 jobStatus = <span className='badge badge-warning'>Pending</span>;
-            } else if (this.state.job.job_stage === 'Complete') {
+            } else if (this.state.job.job_status === 'Complete') {
                 jobStatus = <span className='badge badge-success'>Complete</span>;
-            } else if (this.state.job.job_stage === 'Closed') {
+            } else if (this.state.job.job_status === 'Closed') {
                 jobStatus = <span className='badge badge-danger'>Closed</span>;
             }
         }
@@ -548,7 +548,7 @@ class MessageDetails extends Component {
                 sendMessage = <MessageSender send={(message) => this.send(message)} cancel={() => this.setState({send: !this.state.send})} status={this.state.status} statusMessage={this.state.statusMessage} subject={this.state.job.job_subject} autoFocus={true} />;
             }
 
-            refreshButton = <NavLink to={`/dashboard/message/${this.props.match.params.stage}/${this.props.match.params.id}/details`}><button className='btn btn-info'>Refresh</button></NavLink>;
+            refreshButton = <NavLink to={`/message/${this.props.match.params.stage}/${this.props.match.params.id}/details`}><button className='btn btn-info'>Refresh</button></NavLink>;
         }
 
         if (this.state.status === 'Sending') {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
 import Menu from '../../utils/Menu';
 import { connect } from 'react-redux';
 import { ToggleMenu } from '../../../actions/MenuActions';
@@ -49,6 +49,8 @@ class AdminUserRow extends Component {
     }
 
     menuClick(menu, selection) {
+        this.props.dispatch(ToggleMenu('', 'admin', this.state.user.username));
+
         if (menu === 'Status' && selection === 'Ban') {
             this.props.dispatch(PromptOpen(`Specify a reason for banning this user`, {user: this.state.user.username, col: menu, val: selection, action: 'ban user'}));
         } else if (menu === 'Status' && selection === 'Suspend') {
@@ -79,9 +81,9 @@ class AdminUserRow extends Component {
 
         if (this.props.menu.open === 'admin' && this.state.user.username === this.props.menu.id) {
             let items = {
-                'Status': ['Active', 'Ban', 'Suspend'],
+                'Status': ['Active', 'Suspend', 'Ban'],
                 'Level': ['User', 'Moderator', 'Admin'],
-                'Account': ['User', 'Listing', 'Business']
+                'Account': ['User', 'Listing', 'Listing+', 'Business']
             }
 
             menu = <Menu items={items} onClick={(menu, selection) => this.menuClick(menu, selection)} />;
@@ -109,9 +111,9 @@ class AdminUserRow extends Component {
                 <div className='w-15'>{userStatus}</div>
                 <div className='w-15'>{userLevel}</div>
                 <div className='w-15'>{this.state.user.account_type}</div>
-                <div className='w-20'>{moment(this.state.user.user_last_login).format('MM-DD-YYYY hh:mm:ss') !== 'Invalid date' ? moment(this.state.user.user_last_login).format('MM-DD-YYYY h:mm:ss') : ''}</div>
+                <div className='w-20'>{moment(this.state.user.user_this_login).format('MM-DD-YYYY hh:mm:ss') !== 'Invalid date' ? moment(this.state.user.user_this_login).format('MM-DD-YYYY h:mm:ss') : ''}</div>
                 <div className='w-5 text-right position-relative'>
-                    <button className='btn btn-info btn-sm admin-menu-button' onClick={() => this.toggleMenu()}><FontAwesomeIcon icon={faCaretDown} /></button>
+                    <button className='btn btn-info btn-sm admin-menu-button' onClick={() => this.toggleMenu()}>{this.props.menu.open === 'admin' ? <FontAwesomeIcon icon={faCaretUp} /> : <FontAwesomeIcon icon={faCaretDown} />}</button>
                     {menu}
                 </div>
             </div>

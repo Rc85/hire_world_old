@@ -57,7 +57,7 @@ app.get('/', (req, resp) => {
 });
 
 app.get('/pricing', async(req, resp) => {
-    let promo = await db.query(`SELECT * FROM promotions WHERE promo_name = '30 Days Free'`)
+    let promo = await db.query(`SELECT * FROM promotions WHERE promo_status = 'Active'`)
     .then(result => {
         if (result) {
             return result.rows[0];

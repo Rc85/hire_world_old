@@ -145,7 +145,7 @@ class AdminReports extends Component {
 
                 <div className='d-flex-between-center'>
                     <div className='w-5'><strong>ID</strong></div>
-                    <div className='w-15'><strong>URL</strong></div>
+                    <div className='w-15'><strong>Source</strong></div>
                     <div className='w-15'><strong>Reported ID</strong></div>
                     <div className='w-15'><strong>Reported User</strong></div>
                     <div className='w-15'><strong>Reported By</strong></div>

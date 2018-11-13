@@ -73,99 +73,90 @@ app.post('/api/auth/register', (req, resp) => {
     }
 });
 
-app.post('/api/auth/login', async(req, resp) => {
-    let auth = await db.query(`SELECT * FROM users WHERE username = $1`, [req.body.username])
-    .then(result => {
-        return result;
-    })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+app.post('/api/auth/login', async(req, resp, next) => {
+    if (req.session.user) {
+        next();
+    } else {
+        let auth = await db.query(`SELECT * FROM users WHERE username = $1`, [req.body.username])
+        .then(result => {
+            return result;
+        })
+        .catch(err => {
+            console.log(err);
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
+        });
 
-    let banEndDate = await db.query(`SELECT ban_end_date FROM user_bans WHERE banned_user = $1 ORDER BY ban_id DESC LIMIT 1`, [req.body.username])
-    .then(result => {
-        if (result && result.rows.length === 1) {
-            return result.rows[0].ban_end_date
-        }
-    })
-    .catch(err => console.log(err));
-
-    let today = new Date();
-
-    if (auth && auth.rows.length === 1) {
-        if (today < banEndDate) {
-            if (auth.rows[0].user_status === 'Ban') {
-                resp.send({status: 'access error', statusMessage: 'Your account has been permanently banned'});
-            } else if (auth.rows[0].user_status === 'Suspend') {
-                let date = moment(banEndDate).format('MMM DD, YYYY');
-
-                resp.send({status: 'access error', statusMessage: `Your account has been temporarily banned. You will have access again after ${date}`});
+        let banEndDate = await db.query(`SELECT ban_end_date FROM user_bans WHERE banned_user = $1 ORDER BY ban_id DESC LIMIT 1`, [req.body.username])
+        .then(result => {
+            if (result && result.rows.length === 1) {
+                return result.rows[0].ban_end_date
             }
-        } else if (today >= banEndDate) {
-            await db.query(`UPDATE users SET user_status = 'Active' WHERE username = $1`, [req.body.username]);
-        }
-        
-        if (auth.rows[0].user_status === 'Pending') {
-            resp.send({status: 'access error', statusMessage: `You need to click on the link in the confirmation email to activate your account.`});
-        } else {
-            bcrypt.compare(req.body.password, auth.rows[0].user_password, async(err, match) => {
-                if (err) {
-                    console.log(err);
-                    resp.send({status: 'error', statusMessage: 'An error occurred'});
+        })
+        .catch(err => console.log(err));
+
+        let today = new Date();
+
+        if (auth && auth.rows.length === 1) {
+            if (today < banEndDate) {
+                if (auth.rows[0].user_status === 'Ban') {
+                    resp.send({status: 'access error', statusMessage: 'Your account has been permanently banned'});
+                } else if (auth.rows[0].user_status === 'Suspend') {
+                    let date = moment(banEndDate).format('MMM DD, YYYY');
+
+                    resp.send({status: 'access error', statusMessage: `Your account has been temporarily banned. You will have access again after ${date}`});
                 }
-
-                if (match) {
-                    await db.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
-                    .catch(err => console.log(err));
-
-                    let user = await db.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, users.account_type, users.user_level, user_profiles.*, user_settings.* FROM users
-                    LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
-                    LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
-                    WHERE users.user_id = $1`, [auth.rows[0].user_id]);
-
-                    let session = {
-                        user_id: user.rows[0].user_id,
-                        username: user.rows[0].username,
-                        accountType: user.rows[0].account_type,
-                        userLevel: user.rows[0].user_level
+            } else if (today >= banEndDate) {
+                await db.query(`UPDATE users SET user_status = 'Active' WHERE username = $1`, [req.body.username]);
+            }
+            
+            if (auth.rows[0].user_status === 'Pending') {
+                resp.send({status: 'access error', statusMessage: `You need to click on the link in the confirmation email to activate your account.`});
+            } else {
+                bcrypt.compare(req.body.password, auth.rows[0].user_password, async(err, match) => {
+                    if (err) {
+                        console.log(err);
+                        resp.send({status: 'error', statusMessage: 'An error occurred'});
                     }
 
-                    req.session.user = session;
+                    if (match) {
+                        await db.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
+                        .catch(err => console.log(err));
 
-                    delete user.rows[0].user_id;
-                    delete user.rows[0].user_level;
-                    delete user.rows[0].account_type;
+                        let session = {
+                            user_id: auth.rows[0].user_id,
+                            username: auth.rows[0].username,
+                            accountType: auth.rows[0].account_type,
+                            userLevel: auth.rows[0].user_level
+                        }
 
-                    resp.send({status: 'success', user: user.rows[0]});
-                } else {
-                    resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
-                }
-            });
+                        req.session.user = session;
+                        resp.send({status: 'success'});
+                    } else {
+                        resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
+                    }
+                });
+            }
+        } else {
+            resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
         }
-    } else {
-        resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
     }
 });
 
-app.post('/api/auth/get-session', (req, resp) => {
-    if (req.session.user) {
-        db.query(`SELECT users.username, users.user_email, users.user_last_login, user_profiles.*, user_settings.* FROM users
-        LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
-        LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
-        WHERE user_id = $1`, [req.session.user.user_id])
-        .then(result => {
-            if (result && result.rows.length === 1) {
-                delete result.rows[0].user_password;
+app.post('/api/auth/login', async(req, resp) => {
+    let user = await db.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, users.account_type, users.user_level, user_profiles.*, user_settings.* FROM users
+    LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+    LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
+    WHERE users.user_id = $1`, [req.session.user.user_id]);
 
-                resp.send({status: 'get session success', user: result.rows[0]});
-            } else {
-                resp.send({status: 'get session fail'});
-            }
-        })
-    } else {
-        resp.send({status: 'get session fail'});
-    }
+    let newMessageCount = await db.query(`SELECT COUNT(job_id) AS message_count FROM jobs WHERE job_status = 'New' AND job_user = $1`, [req.session.user.username]);
+
+    let notifications = await db.query(`SELECT * FROM notifications WHERE notification_recipient = $1 AND notification_status = 'New'`, [req.session.user.username]);
+
+    delete user.rows[0].user_id;
+    delete user.rows[0].user_level;
+    delete user.rows[0].account_type;
+
+    resp.send({status: 'get session success', user: user.rows[0], messageCount: newMessageCount.rows[0].message_count, notifications: notifications.rows});
 });
 
 app.post('/api/auth/logout', (req, resp) => {

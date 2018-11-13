@@ -12,6 +12,7 @@ const Pagination = props => {
     let pages = [];
     let currentPage = props.currentPage + 1;
 
+
     for (let i = 0; i < props.totalItems / props.itemsPerPage; i++) {
         let page;
 

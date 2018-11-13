@@ -68,7 +68,7 @@ app.post('/api/get/user', async(req, resp) => {
             let reviews = await db.query(`SELECT user_reviews.*, user_profiles.avatar_url FROM user_reviews
             LEFT JOIN users ON users.username = user_reviews.reviewer
             LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
-            WHERE user_reviews.reviewing = $1 AND user_reviews.review IS NOT NULL
+            WHERE user_reviews.reviewing = $1 AND user_reviews.review IS NOT NULL AND user_reviews.review_status = 'Active'
             ORDER BY ${orderby}user_reviews.review_date DESC`, reviewsParam);
 
             let businessHours = {};
@@ -88,7 +88,7 @@ app.post('/api/get/user', async(req, resp) => {
                 (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_stage = 'Complete'),
                 (SELECT COUNT(job_id) AS job_abandon FROM jobs WHERE job_stage = 'Abandoned'),
                 (SELECT (SUM(review_rating) / COUNT(review_id)) AS rating FROM user_reviews WHERE reviewing = $1),
-                (SELECT COUNT(review_id) AS job_count FROM user_reviews WHERE review IS NOT NULL AND reviewing = $1),
+                (SELECT COUNT(review_id) AS job_count FROM user_reviews WHERE review IS NOT NULL AND reviewing = $1 AND review_status = 'Active'),
                 user_view_count.view_count,
                 users.user_last_login FROM users
             LEFT JOIN user_reviews ON users.username = user_reviews.reviewing

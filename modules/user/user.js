@@ -216,4 +216,19 @@ app.post('/api/user/business_hours/save', (req, resp) => {
     }
 });
 
+app.post('/api/user/notifications/viewed', async(req, resp) => {
+    if (req.session.user) {
+        await db.query(`UPDATE notifications SET notification_status = 'Viewed' WHERE notification_recipient = $1`, [req.session.user.username])
+        .then(result => {
+            if (result) {
+                resp.send({status: 'success'});
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            resp.send({status: 'error'});
+        });
+    }
+});
+
 module.exports = app;

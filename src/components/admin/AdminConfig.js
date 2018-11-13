@@ -136,7 +136,7 @@ class AdminConfig extends Component {
 
     render() {
         console.log(this.state);
-        let status;
+        let status, announcementsHeader;
 
         if (this.state.status === 'Loading') {
             status = <Loading size='5x' />;
@@ -161,6 +161,21 @@ class AdminConfig extends Component {
             </div>
         });
 
+        if (this.state.announcements.length > 0) {
+            announcementsHeader = <React.Fragment>
+                <div className='d-flex-between-center'>
+                    <div className='w-35'><strong>Announcement</strong></div>
+                    <div className='w-15'><strong>Created By</strong></div>
+                    <div className='w-15'><strong>Created Date</strong></div>
+                    <div className='w-15'><strong>Start Date</strong></div>
+                    <div className='w-15'><strong>End Date</strong></div>
+                    <div className='w-5'></div>
+                </div>
+
+                <hr/>
+            </React.Fragment>
+        }
+
         return (
             <div className='blue-panel shallow three-rounded'>
                 {status}
@@ -170,17 +185,8 @@ class AdminConfig extends Component {
                 </div>
 
                 <div className='bordered-container rounded mb-5'>
-                    <div className='d-flex-between-center'>
-                        <div className='w-35'><strong>Announcement</strong></div>
-                        <div className='w-15'><strong>Created By</strong></div>
-                        <div className='w-15'><strong>Created Date</strong></div>
-                        <div className='w-15'><strong>Start Date</strong></div>
-                        <div className='w-15'><strong>End Date</strong></div>
-                        <div className='w-5'></div>
-                    </div>
-    
-                    <hr/>
-    
+                    {announcementsHeader}
+
                     {announcements}
     
                     <div className='d-flex-between-center mb-1'>

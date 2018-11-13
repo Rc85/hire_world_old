@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 import { ToggleMenu } from '../../../actions/MenuActions';
 import Menu from '../../utils/Menu';
@@ -102,7 +102,7 @@ class AdminSectorRow extends Component {
                         <span className={this.state.sector.sector_status === 'Open' ? 'badge badge-success' : 'badge badge-danger'}>{this.state.sector.sector_status}</span>
                     </div>
                     <div className='w-5 position-relative text-right'>
-                        <button className='btn btn-info btn-sm admin-menu-button' onClick={() => this.toggleMenu()}><FontAwesomeIcon icon={faCaretDown} /></button>
+                        <button className='btn btn-info btn-sm admin-menu-button' onClick={() => this.toggleMenu()}>{this.props.menu.open === 'admin' ? <FontAwesomeIcon icon={faCaretUp} /> : <FontAwesomeIcon icon={faCaretDown} />}</button>
                         {menu}
                     </div>
                 </div>

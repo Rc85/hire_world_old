@@ -2,10 +2,12 @@ import fetch from 'axios';
 
 export const GetSession = () => {
     return dispatch => {
-        fetch.post('/api/auth/get-session')
+        dispatch(GetSessionBegin('getting session'));
+
+        fetch.post('/api/auth/login')
         .then(resp => {
             if (resp.data.status === 'get session success') {
-                dispatch(GetSessionSuccess(resp.data.status, resp.data.user));
+                dispatch(GetSessionSuccess(resp.data.status, resp.data.user, resp.data.messageCount, resp.data.notifications));
             } else {
                 dispatch(GetSessionFail(resp.data.status, null));
             }
@@ -14,17 +16,26 @@ export const GetSession = () => {
     }
 }
 
-const GetSessionSuccess = (status, user) => {
+const GetSessionBegin = status => {
+    return {
+        type: 'LOGIN_USER',
+        status
+    }
+}
+
+const GetSessionSuccess = (status, user, messageCount, notifications) => {
     return {
         type: 'LOGIN_USER_UPDATE',
         user,
-        status
+        status,
+        messageCount,
+        notifications
     }
 }
 
 const GetSessionFail = (status, user) => {
     return {
-        type: 'LOGIN_USER_UPDATE',
+        type: 'LOGIN_USER_ERROR',
         user,
         status
     }
@@ -56,5 +67,12 @@ const UpdateSectorsError = (status) => {
     return {
         type: 'UPDATE_SECTORS_ERROR',
         status
+    }
+}
+
+export const UpdateUserNotifications = notifications => {
+    return {
+        type: 'UPDATE_NOTIFICATIONS',
+        notifications
     }
 }

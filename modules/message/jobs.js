@@ -25,14 +25,44 @@ app.post('/api/jobs/delete', (req, resp) => {
                             await client.query(`INSERT INTO deleted_jobs (deleted_by, deleted_job) VALUES ($1, $2)`, [req.session.user.username, id]);
                         }
 
+                        await client.query(`DELETE FROM pinned_jobs WHERE pinned_job = ANY($1) AND pinned_by = $2`, [req.body.ids, req.session.user.username]);
+
+                        let messageQueryType = `(job_client = $3 OR job_user = $3)`;
+                        let pinnedMessageQuery;
+
                         let deleted =  await client.query(`SELECT deleted_job FROM deleted_jobs WHERE deleted_by = $1`, [req.session.user.username])
                         let deletedArray = [];
+
+                        let params = [req.body.stage, deletedArray, req.session.user.username];
+
+                        let pinned = await client.query(`SELECT pinned_job FROM pinned_jobs WHERE pinned_by = $1`, [req.session.user.username]);
+                        let pinnedArray = [];
 
                         for (let row of deleted.rows) {
                             deletedArray.push(row.deleted_job);
                         }
 
-                        let jobs = await client.query(`SELECT * FROM jobs WHERE job_stage = $1 AND NOT (job_id = ANY($2)) ORDER BY job_created_date DESC`, [req.body.stage, deletedArray]);
+                        for (let row of pinned.rows) {
+                            pinnedArray.push(row.pinned_job);
+                        }
+
+                        if (req.body.type === 'received') {
+                            messageQueryType = `job_user = $3`;
+                        } else if (req.body.type === 'sent') {
+                            messageQueryType = `job_client = $3`;
+                        } else if (req.body.type === 'pinned') {
+                            params.push(pinnedArray);
+                            pinnedMessageQuery = `AND jobs.job_id = ANY($4)`
+                        }
+
+                        let jobs = await client.query(`SELECT * FROM jobs
+                        WHERE job_stage = $1
+                        AND NOT job_id = ANY($2)
+                        AND ${messageQueryType}
+                        ${pinnedMessageQuery ? pinnedMessageQuery : ''}
+                        ORDER BY job_created_date DESC`, params);
+
+                        console.log(jobs.rows);
 
                         await client.query('COMMIT')
                         .then(() => {
@@ -199,7 +229,7 @@ app.post('/api/job/close', (req, resp) => {
                         await client.query(`UPDATE messages SET message_status = '' WHERE belongs_to_job = $1`, [req.body.job_id]);
 
                         let job = await client.query(`SELECT * FROM jobs
-                        LEFT JOIN user_services ON service_id = job_listing_id
+                        LEFT JOIN user_listings ON listing_id = job_listing_id
                         WHERE job_id = $1`, [req.body.job_id]);
 
                         await client.query(`COMMIT`)
@@ -329,6 +359,32 @@ app.post('/api/job/abandon/:decision', (req, resp) => {
         });
     } else {
         resp.send({status: 'error', statusMessage: `You're not logged in`});
+    }
+});
+
+app.post('/api/job/pin', async(req, resp) => {
+    if (req.session.user) {
+        let exist = await db.query(`SELECT * FROM pinned_jobs WHERE pinned_job = $1 AND pinned_by = $2`, [req.body.id, req.session.user.username]);
+        let queryString, action;
+
+        if (exist && exist.rows.length === 1) {
+            queryString = `DELETE FROM pinned_jobs WHERE pinned_job = $1 AND pinned_by = $2`;
+            action = 'delete';
+        } else if (exist && exist.rows.length === 0) {
+            queryString = `INSERT INTO pinned_jobs (pinned_job, pinned_by) VALUES ($1, $2)`;
+            action = 'pin';
+        }
+
+        await db.query(queryString, [req.body.id, req.session.user.username])
+        .then(result => {
+            if (result && result.rowCount === 1) {
+                resp.send({status: 'success', action: action});
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
+        });
     }
 });
 

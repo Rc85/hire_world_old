@@ -4,7 +4,7 @@ import moment from 'moment';
 import ReviewButton from '../../utils/ReviewButton';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faThumbtack } from '@fortawesome/free-solid-svg-icons';
 import { Alert } from '../../../actions/AlertActions';
 import Loading from '../../utils/Loading';
 import fetch from 'axios';
@@ -44,14 +44,13 @@ class MessageRow extends Component {
     }
     
     render() {
-        console.log(this.props.message)
-        let statusButton, statusButtonClass, reviewButton, review, status;
+        let statusButton, statusButtonClass, reviewButton, review, status, pinnedButton;
 
         if (this.state.status === 'Sending') {
             status = <Loading size='5x' />;
         }
 
-        if (this.props.message.job_status) {
+        if (this.props.message.job_status !== 'Viewed') {
             if (this.props.message.job_status === 'Closed' || this.props.message.job_status === 'Abandoned') {
                 statusButtonClass = 'danger';
             } else if (this.props.message.job_status === 'Incomplete' || this.props.message.job_status === 'Abandoning') {
@@ -81,6 +80,16 @@ class MessageRow extends Component {
             review = <SubmitReview submit={(review, star) => this.submit(review, this.props.message, star)} cancel={() => this.setState({review: false})} user={this.props.user} message={this.props.message} />;
         }
 
+        if (this.props.type !== 'deleted') {
+            if (!this.props.pinned) {
+                pinnedButton = <button className='btn btn-link btn-sm mr-1' onClick={() => this.props.pin()}><FontAwesomeIcon icon={faThumbtack} color='white' /></button>;
+            } else {
+                pinnedButton = <button className='btn btn-link btn-sm mr-1' onClick={() => this.props.pin()}><FontAwesomeIcon icon={faThumbtack} color='#ffc107' /></button>;
+            }
+        }
+
+        console.log(this.props.message);
+
         return(
             <React.Fragment>
                 <div className='d-flex-between-start mb-3'>
@@ -88,14 +97,15 @@ class MessageRow extends Component {
                     <div className='w-5'><input type='checkbox' name='select-message' id={this.props.message.job_id} className='select-message-checkbox' onChange={(e) => this.props.select(e.target.value)}/></div>
                     <div className='w-5'>{this.props.message.job_id}</div>
                     <div className='w-70'>
-                        <div className='user-message-subject'><NavLink to={`/dashboard/message/${this.props.stage}/${this.props.message.job_id}/details`}>{this.props.message.job_subject}</NavLink>{this.props.message.unread_messages > 0 ? <span className='badge badge-warning ml-2'>{this.props.message.unread_messages}</span> : ''}</div>
+                        <div className='user-message-subject'><NavLink to={`/message/${this.props.stage}/${this.props.message.job_id}/details`}>{this.props.message.job_subject}</NavLink>{this.props.message.unread_messages > 0 ? <span className='badge badge-danger ml-2'>{this.props.message.unread_messages}</span> : ''}</div>
     
                         <div><small>{this.props.message.message_sender === this.props.user.username ? <span>Sent {moment(this.props.message.message_date).fromNow()} to <NavLink to={`/user/${this.props.message.message_recipient}`}>{this.props.message.message_recipient}</NavLink></span> : <span>Received {moment(this.props.message.message_date).fromNow()} from <NavLink to={`/user/${this.props.message.message_sender}`}>{this.props.message.message_sender}</NavLink></span>}</small></div>
                     </div>
                     <div className='w-10'>{statusButton}</div>
                     <div className='w-10 d-flex-end-center'>
                         {reviewButton}
-                        <button className='btn btn-secondary btn-sm' onClick={() => this.props.delete()}><FontAwesomeIcon icon={faTrash} /></button>
+                        {pinnedButton}
+                        {this.props.type !== 'deleted' ? <button className='btn btn-secondary btn-sm' onClick={() => this.props.delete()}><FontAwesomeIcon icon={faTrash} /></button> : ''}
                     </div>
                 </div>
                 {review}
@@ -109,7 +119,9 @@ MessageRow.propTypes = {
     stage: PropTypes.string,
     message: PropTypes.object,
     select: PropTypes.func,
-    delete: PropTypes.func
+    delete: PropTypes.func,
+    type: PropTypes.string,
+    pin: PropTypes.func
 }
 
 export default connect()(MessageRow);

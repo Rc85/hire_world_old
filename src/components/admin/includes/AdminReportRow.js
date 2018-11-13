@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 import { ToggleMenu } from '../../../actions/MenuActions';
 import Menu from '../../utils/Menu';
@@ -28,7 +28,9 @@ class AdminReportRow extends Component {
                 report_type: '',
                 reported_user: '',
                 reported_id: ''
-            }
+            },
+            showDetails: false,
+            review: null
         }
     }
     
@@ -59,6 +61,11 @@ class AdminReportRow extends Component {
                 this.changeReportStatus('Dismissed');
                 this.props.dispatch(ResetConfirmation());
             }
+
+            if (nextProps.confirm.data.action === 'delete review' && nextProps.confirm.data.id === this.props.report.report_id) {
+                this.deleteReview();
+                this.props.dispatch(ResetConfirmation());
+            }
         }
     }
     
@@ -76,19 +83,6 @@ class AdminReportRow extends Component {
 
     issueWarning(warning) {
         this.props.menuSelect({action: 'warning', warning: warning, user: this.state.report.reported_user, report_id: this.state.report.report_id});
-        /* this.setState({status: 'Sending'});
-
-        fetch.post('/api/admin/user/warn', {user: this.state.report.reported_user, warning: warning, report_id: this.state.report.report_id})
-        .then(resp => {
-            if (resp.data.status === 'success') {
-                this.setState({status: ''});
-            } else if (resp.data.status === 'error') {
-                this.setState({status: ''});
-            }
-
-            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-        })
-        .catch(err => console.log(err)); */
     }
 
     changeUserStatus(status, reason) {
@@ -98,63 +92,48 @@ class AdminReportRow extends Component {
             status: status,
             reason: reason,
             id: this.state.report.report_id,
-        })
-        /* this.setState({status: 'Sending'});
-
-        (async() => {
-            let user, report, successMessage;
-
-            if (status === 'Suspend') {
-                successMessage = 'User suspended';
-            } else if (status === 'Ban') {
-                successMessage = 'User banned';
-            }
-
-            try {
-                user = await fetch.post('/api/admin/user/change-status', {username: this.state.report.reported_user, column: 'Status', val: status, reason: reason})
-                .then(resp => {
-                    if (resp.data.status === 'success') {
-                        return 'success';
-                    } else if (resp.data.status === 'error') {
-                        throw new Error('error');
-                    }
-                })
-                .catch(err => {
-                    throw new Error(err);
-                });
-
-                report = await fetch.post('/api/admin/report/change-status', {id: this.state.report.report_id, status: status, user: this.state.report.reported_user})
-                .then(resp => {
-                    if (resp.data.status === 'success') {
-                        return 'success';
-                    } else if (resp.data.status === 'error') {
-                        throw new Error('error');
-                    }
-                })
-                .catch(err => {
-                    throw new Error(err);
-                });
-            } catch (e) {
-                throw e;
-            }
-
-            if (user === 'success' && report === 'success') {
-                this.setState({status: ''});
-                this.props.dispatch(Alert('success', successMessage));
-            } else {
-                this.setState({status: ''});
-                this.props.dispatch(Alert('error', 'An error occurred'));
-            }
-        })()
-        .catch(err => console.log(err)); */
+        });
     }
 
     changeReportStatus(status) {
         this.props.menuSelect({action: 'report status', status: status, id: this.state.report.report_id});
     }
 
+    fetchReview() {
+        this.setState({showDetails: true, status: 'Sending'});
+
+        fetch.post('/api/admin/report/get-review', {id: this.state.report.reported_id})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({status: '', review: resp.data.review});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+        })
+        .catch(err => console.log(err));
+    }
+
+    deleteReview() {
+        this.setState({status: 'Sending'});
+
+        fetch.post('/api/admin-panel/report/delete-review', {id: this.state.report.reported_id})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({status: '', review: resp.data.review});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => console.log(err));
+    }
+
     render() {
-        let menu, status, reportStatusClass;
+        console.log(this.state.review);
+        let menu, status, reportStatusClass, sourceText, details;
 
         if (this.state.status === 'Sending') {
             status = <Loading size='5x' />;
@@ -180,27 +159,59 @@ class AdminReportRow extends Component {
             reportStatusClass = 'badge-warning';
         }
 
+        if (this.state.report.report_type === 'Review') {
+            if (this.state.showDetails) {
+                sourceText = <button className='btn btn-info btn-sm' onClick={() => this.setState({showDetails: false})}>Collapse</button>;
+
+                if (this.state.review) {
+                    details = <div className='admin-review-detail bordered-container rounded mb-3'>
+                        <div className='d-flex-between-center'>
+                            <div>Review by <NavLink to={`/user/${this.state.review.reviewer}`}>{this.state.review.reviewer}</NavLink> | Submitted on {moment(this.state.review.review_date).format('MMM DD YYYY')} {this.state.review.review_modified_date ? '(Modified)' : ''}{this.state.review.review_status === 'Deleted' ? <React.Fragment> | <span className='badge badge-danger'>{this.state.review.review_status}</span></React.Fragment> : '' }</div>
+
+                            {this.state.review.review_status !== 'Deleted' ? <button className='btn btn-danger btn-sm' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to delete this review?`, `Deleting reviews will not impact the user's rating`, {action: 'delete review', id: this.state.report.report_id}))}>Delete</button> : ''}
+                        </div>
+                        
+                        <hr/>
+
+                        <div className='keep-formatting'>{this.state.review.review}</div>
+                    </div>;
+                } else {
+                    details = <div className='admin-review-detail bordered-container rounded mb-3'></div>;
+                }
+            } else {
+                sourceText = <button className='btn btn-info btn-sm' onClick={() => this.fetchReview()}>Expand</button>;
+            }
+        } else {
+            sourceText = <NavLink to={`${this.state.report.report_from_url}`}>{this.state.report.report_from_url}</NavLink>;
+        }
+
         return (
-            <div className='d-flex-between-center mb-3'>
-                {status}
-                <div className='w-5'>{this.state.report.report_id}</div>
-                <div className='w-15 truncate-text'><NavLink to={`${this.state.report.report_from_url}`}>{this.state.report.report_from_url}</NavLink></div>
-                <div className='w-15'>{this.state.report.reported_id}</div>
-                <div className='w-15'>{this.state.report.reported_user}</div>
-                <div className='w-15'>{this.state.report.reporter}</div>
-                <div className='w-15'>{moment(this.state.report.report_date).format('MM-DD-YYYY')}</div>
-                <div className='w-10'><span className={`badge ${reportStatusClass}`}>{this.state.report.report_status}</span></div>
-                <div className='w-10 text-right position-relative'>
-                    {this.props.type ? <button className='btn btn-info btn-sm admin-menu-button' onClick={() => this.toggleMenu()}><FontAwesomeIcon icon={faCaretDown} /></button> : ''}
-                    {menu}
+            <React.Fragment>
+                <div className='d-flex-between-center mb-3'>
+                    {status}
+                    <div className='w-5'>{this.state.report.report_id}</div>
+                    <div className='w-15 truncate-text'>{sourceText}</div>
+                    <div className='w-15'>{this.state.report.reported_id}</div>
+                    <div className='w-15'>{this.state.report.reported_user}</div>
+                    <div className='w-15'>{this.state.report.reporter}</div>
+                    <div className='w-15'>{moment(this.state.report.report_date).format('MM-DD-YYYY')}</div>
+                    <div className='w-10'><span className={`badge ${reportStatusClass}`}>{this.state.report.report_status}</span></div>
+                    <div className='w-10 text-right position-relative'>
+                        {this.props.type ? <button className='btn btn-info btn-sm admin-menu-button' onClick={() => this.toggleMenu()}>{this.props.menu.open === 'admin' ? <FontAwesomeIcon icon={faCaretUp} /> : <FontAwesomeIcon icon={faCaretDown} />}</button> : ''}
+                        {menu}
+                    </div>
                 </div>
-            </div>
+
+                {details}
+            </React.Fragment>
         )
     }
 }
 
 AdminReportRow.propTypes = {
-
+    report: PropTypes.object.isRequired,
+    menuSelect: PropTypes.func,
+    type: PropTypes.string
 };
 
 const mapStateToProps = state => {

@@ -31,7 +31,7 @@ block content
             h1 User friendly. Easy to use.
             span An optional feature to help users communicate, establish an agreement, and track jobs
         .text-center
-            button.btn.btn-info.mr-1#get-hired-button I want to get hired
+            button.btn.btn-info.mr-1#get-hired-button I want to work
             button.btn.btn-info.ml-1#hire-button I want to hire
             button.btn.btn-info#reset-button Reset
         #get-hired.process
@@ -44,7 +44,7 @@ block content
                 button.btn.btn-success.btn-sm#accept-offer-button Accept Offer
             i.fas.fa-arrow-right.arrow2
             #user-job-complete.process-div
-                div Request is required from client to complete job
+                div Both parties must agree to complete the job
                 button.btn.btn-success.btn-sm#user-job-complete-button Complete
             i.fas.fa-arrow-right.arrow3
             #awaiting-approval.process-div
@@ -53,14 +53,14 @@ block content
                     i.fas.fa-circle.fa-xs.text.mr-3.dot2
                     i.fas.fa-circle.fa-xs.text.dot3
                 #approved-text.d-flex-center-center
-                    i.far.fa-check-circle.fa-2x.text-success
+                    i.far.fa-check-circle.fa-2x.text-success.mr-2
                     span Approved
             i.fas.fa-arrow-right.arrow4
             #user-submit-review.process-div You can now submit a 
                 span.badge.badge-success verified 
                 |  review
                 input#user-verified-review.form-control.mb-1(type='text', name='verified-review', placeholder='Enter your feedback')
-                button.btn.btn-primary.btn-sm#user-submit-review Submit
+                button.btn.btn-primary.btn-sm#user-submit-review-button Submit
         #user-review.text-center.mt-5
             i.far.fa-check-circle.fa-4x
             #submitted-text Review submitted
@@ -90,14 +90,14 @@ block content
                     span Accepted
             i.fas.fa-arrow-right.arrow3
             #client-job-complete.process-div
-                div Other party completed the job and requests for approval
+                div Other party completed the job and requests for agreement
                 button.btn.btn-success.btn-sm#client-job-complete-button Complete
             i.fas.fa-arrow-right.arrow4
             #client-submit-review.process-div You can now submit a 
                 span.badge.badge-success verified 
                 |  review
                 input#client-verified-review.form-control.mb-1(type='text', name='verified-review', placeholder='Enter your feedback')
-                button.btn.btn-primary.btn-sm#client-submit-review Submit
+                button.btn.btn-primary.btn-sm#client-submit-review-button Submit
     //-section.sub-section
         .text-center.mb-5
             h1 User friendly. Easy to use

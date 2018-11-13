@@ -494,6 +494,11 @@
   align-items: center;
 }
 
+.admin-review-detail {
+  overflow-y: scroll;
+  max-height: 250px;
+}
+
 #alert {
   padding: 20px;
   margin-bottom: 5px;
@@ -865,11 +870,29 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
 }
 
 .nav-item {
   width: 15%;
   cursor: pointer;
+}
+
+.icon-counter {
+  top: 100%;
+}
+
+#notification-panel {
+  position: absolute;
+  top: 100%;
+  max-height: 500px;
+  background: #F9F6F4;
+  color: #000;
+  padding: 20px;
+  border: 1px solid #2988BC;
+  width: 100%;
+  z-index: 3;
+  overflow-y: scroll;
 }
 
 .pagination-container {
@@ -1096,31 +1119,6 @@
   height: 100%;
 }
 
-.user-services-details {
-  color: #000;
-}
-
-#add-service-container {
-  position: relative;
-}
-
-.user-services-details {
-  white-space: pre-line;
-}
-
-.service-form {
-  background: #F9F6F4;
-  color: #000;
-  padding: 20px;
-}
-
-#user-services a {
-  color: #000;
-}
-#user-services a:hover {
-  text-decoration: underline;
-}
-
 .settings-row {
   display: flex;
   justify-content: space-between;
@@ -1136,19 +1134,6 @@
 
 #user-address {
   white-space: pre-line;
-}
-
-#view-user-services {
-  color: #000;
-}
-#view-user-services h5 {
-  color: #FFF;
-}
-#view-user-services a {
-  color: #000;
-}
-#view-user-services a:hover {
-  text-decoration: underline;
 }
 
 .view-user-icon {

@@ -99,7 +99,7 @@ $(document).ready(function() {
             }, 3500);
         });
 
-        $('#user-submit-review').on('click', function() {
+        $('#user-submit-review-button').on('click', function() {
             $('.process').hide();
 
             $('#user-review').css({'display': 'block'})
@@ -146,7 +146,7 @@ $(document).ready(function() {
             showProcess('.arrow4', '#client-submit-review');
         });
 
-        $('#client-submit-review').on('click', function() {
+        $('#client-submit-review-button').on('click', function() {
             $('.process').hide();
 
             $('#user-review').css({'display': 'block'})

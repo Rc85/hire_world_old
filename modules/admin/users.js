@@ -70,7 +70,6 @@ app.post('/api/admin/get/users', async(req, resp) => {
             for (let user of result.rows) {
                 delete user.user_id;
                 delete user.user_password;
-                delete user.user_this_login;
             }
 
             resp.send({status: 'success', totalUsers: totalUsers.rows[0].user_count, users: result.rows});
@@ -169,7 +168,7 @@ app.post('/api/admin/user/warn', (req, resp) => {
             try {
                 await client.query('BEGIN');
                 await client.query('INSERT INTO user_warnings (warning, warned_by, warned_user) VALUES ($1, $2, $3)', [req.body.warning, req.session.user.username, req.body.user]);
-                await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [req.body.user, 'You were given a warning', 'Warning']);
+                await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [req.body.user, 'You have been given a warning', 'Warning']);
                 await client.query(`UPDATE reports SET report_status = $1 WHERE report_id = $2`, ['Warned', req.body.report_id]);
                 await client.query('COMMIT')
                 .then(() => resp.send({status: 'success', statusMessage: 'Warning sent'}));

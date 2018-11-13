@@ -1,6 +1,8 @@
 import fetch from 'axios';
 import { Alert } from '../actions/AlertActions';
 
+import { GetSession } from './FetchActions';
+
 export const LoginUser = (data) => {
     return dispatch => {
         dispatch(LoginBegin('Logging in'));
@@ -8,8 +10,7 @@ export const LoginUser = (data) => {
         return fetch.post('/api/auth/login', data)
         .then(resp => {
             if (resp.data.status === 'success') {
-                dispatch(LoginSuccess(resp.data.user));
-                location.herf = '/dashboard';
+                dispatch(GetSession());
             } else if (resp.data.status === 'error') {
                 dispatch(Alert(resp.data.status, resp.data.statusMessage));
             } else if (resp.data.status === 'access error') {
@@ -24,13 +25,6 @@ const LoginBegin = (status) => {
     return {
         type: 'LOGIN_USER',
         status
-    }
-}
-
-const LoginSuccess = (user) => {
-    return {
-        type: 'LOGIN_USER_UPDATE',
-        user
     }
 }
 

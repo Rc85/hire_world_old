@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 import Menu from '../../utils/Menu';
 import { ToggleMenu } from '../../../actions/MenuActions';
@@ -99,7 +99,7 @@ class AdminListingRow extends Component {
                     <div className='w-10'>{this.state.listing.listing_sector}</div>
                     <div className='w-5'>{listingStatus}</div>
                     <div className='w-5 text-right position-relative'>
-                        <button className='btn btn-info btn-sm admin-menu-button' onClick={() => this.toggleMenu()}><FontAwesomeIcon icon={faCaretDown} /></button>
+                        <button className='btn btn-info btn-sm admin-menu-button' onClick={() => this.toggleMenu()}>{this.props.menu.open === 'admin' ? <FontAwesomeIcon icon={faCaretUp} /> : <FontAwesomeIcon icon={faCaretDown} />}</button>
                         {menu}
                     </div>
                 </div>

@@ -58,4 +58,35 @@ app.post('/api/admin/report/change-status', async(req, resp) => {
     }
 });
 
+app.post('/api/admin/report/get-review', async(req, resp) => {
+    await db.query(`SELECT * FROM user_reviews WHERE review_id = $1`, [req.body.id])
+    .then(result => {
+        console.log(result.rows);
+        if (result && result.rows.length === 1) {
+            resp.send({status: 'success', review: result.rows[0]});
+        } else if (result && result.rows.length === 0) {
+            resp.send({status: 'error', statusMessage: 'Review not found'});
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        resp.send({status: 'error', statusMessage: 'An error occurred'});
+    });
+});
+
+app.post('/api/admin-panel/report/delete-review', async(req, resp) => {
+    await db.query(`UPDATE user_reviews SET review_status = 'Deleted' WHERE review_id = $1 RETURNING *`, [req.body.id])
+    .then(result => {
+        if (result && result.rowCount === 1) {
+            resp.send({status: 'success', statusMessage: 'Review deleted', review: result.rows[0]});
+        } else if (result && result.rowCount === 0) {
+            resp.send({status: 'error', statusMessage: 'Nothing to delete'});
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        resp.send({status: 'error', statusMessage: 'An error occurred'});
+    });
+});
+
 module.exports = app;

@@ -6,9 +6,27 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
 }
 
 .nav-item {
     width: 15%;
     cursor: pointer;
+}
+
+.icon-counter {
+    top: 100%;
+}
+
+#notification-panel {
+    position: absolute;
+    top: 100%;
+    max-height: 500px;
+    background: $theme-fg;
+    color: #000;
+    padding: 20px;
+    border: 1px solid $theme-highlight;
+    width: 100%;
+    z-index: 3;
+    overflow-y: scroll;
 }

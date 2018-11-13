@@ -97,8 +97,8 @@ class App extends Component {
 						<Route exact path='/dashboard/saved_listings' render={() => <Pages.Dashboard user={this.props.user}><Pages.SavedListings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/settings' render={() => <Pages.Dashboard user={this.props.user}><Pages.UserSettings user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/dashboard/messages/:stage' render={() => <Pages.Dashboard user={this.props.user}><Pages.Messages user={this.props.user} /></Pages.Dashboard>} />} />
-						<Route exact path='/dashboard/message/:stage/:id/details' render={() => <Pages.Dashboard user={this.props.user}><Pages.MessageDetails user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/messages/:stage' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.Messages user={this.props.user} /></Pages.MessageDashboard>} />} />
+						<Route exact path='/message/:stage/:id/details' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.MessageDetails user={this.props.user} /></Pages.MessageDashboard>} />
 						<Route exact path='/listing/:id' render={() => <Pages.ListingDetails user={this.props.user} />} />
 						<Route exact path='/user/:username' render={() => <Pages.ViewUser user={this.props.user} />} />
 						<Route exact path='/account/login' render={() => <Pages.Login user={this.props.user} />} />

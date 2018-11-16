@@ -52,7 +52,7 @@ app.post('/api/user/settings/profile/save', (req, resp) => {
                         .then(() => resp.send({status: 'success', statusMessage: 'Profile saved', user: user.rows[0]}));
                     } catch (e) {
                         await client.query(`ROLLBACK`);
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }
@@ -125,7 +125,7 @@ app.post('/api/user/settings/password/change', (req, resp) => {
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }
@@ -176,7 +176,7 @@ app.post('/api/user/settings/email/change', (req, resp) => {
                         .then(() => resp.send({status: 'success', statusMessage: 'Email saved', user: user.rows[0]}));
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }
@@ -212,7 +212,7 @@ app.post('/api/user/settings/change', (req, resp) => {
                     if (hasInquiries && hasInquiries.rows.length > 0) {
                         let error = new Error(`You have active messages or jobs`);
                         error.type = 'user_defined';
-                        throw error;
+                        rror;
                     } else {
                         await client.query(`UPDATE user_settings SET hide_email = $1, display_fullname = $2, email_notifications = $3, allow_messaging = $4, hide_business_hours = $6, hide_phone = $7 WHERE user_setting_id = $5`, [req.body.hide_email, req.body.display_fullname, req.body.email_notifications, req.body.allow_messaging, req.session.user.user_id, req.body.hide_business_hours, req.body.hide_phone]);
 
@@ -239,7 +239,7 @@ app.post('/api/user/settings/change', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    throw e;
+                    ;
                 } finally {
                     done();
                 }
@@ -307,7 +307,7 @@ app.post('/api/user/profile/update', (req, resp) => {
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }

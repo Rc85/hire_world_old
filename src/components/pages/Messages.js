@@ -42,7 +42,6 @@ class Messages extends Component {
     }
     
     componentDidUpdate(prevProps, prevState) {
-        console.log('this')
         if (prevProps.user.user !== this.props.user.user || this.state.showing !== prevState.showing) {
             fetch.post(`/api/get/messages/${this.state.showing}`, {stage: this.props.match.params.stage, user: this.props.user.user.user_type, offset: this.state.offset})
             .then(resp => {
@@ -63,28 +62,6 @@ class Messages extends Component {
             .catch(err => console.log(err));
         }
     }
-    
-    /* componentDidMount() {
-        console.log(this.props.user.user);
-        fetch.post(`/api/get/messages/${this.state.showing}`, {stage: this.props.match.params.stage, user: this.props.user.user.user_type, offset: this.state.offset})
-        .then(resp => {
-            if (resp.data.status === 'success') {
-                let messageCount = 0;
-
-                if (resp.data.messages.length > 0) {
-                    messageCount = resp.data.messages[0].message_count;
-                }
-
-                this.setState({messages: resp.data.messages, status: '', messageCount: messageCount, pinnedMessages: resp.data.pinned});
-
-            } else if (resp.data.status === 'error') {
-                this.setState({status: ''});
-                    
-                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-            }
-        })
-        .catch(err => console.log(err));
-    } */
 
     selectAllMessage(checkbox) {
         let checkboxes = document.getElementsByClassName('select-message-checkbox');

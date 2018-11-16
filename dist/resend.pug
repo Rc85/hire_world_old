@@ -1,0 +1,8 @@
+extends layout
+
+block content
+    #resend.text-center
+        .blue-panel.shallow.rounded Please enter your email address
+            form#resend-email(action='/resend', method='POST')
+                input#user-email.form-control.mb-1(type='text', name='email', required)
+                button.btn.btn-primary(type='submit') Submit

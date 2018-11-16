@@ -9,6 +9,10 @@ const path = require('path');
 const server = http.createServer(app);
 const port = 9999;
 const db = require('./modules/db');
+const cryptoJS = require('crypto-js');
+const sgMail = require('@sendgrid/mail');
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.set('view engine', 'pug');
 app.set('views', ['dist', 'dist/inc']);
@@ -74,6 +78,62 @@ app.get('/how-it-works', (req, resp) => {
 
 app.get('/faq', (req, resp) => {
     resp.render('faq', {user: req.session.user});
+});
+
+app.get('/activate-account', async(req, resp) => {
+    let registrationKey = req.query.key;
+
+    let user = await db.query(`SELECT * FROM users WHERE registration_key = $1 AND reg_key_expire_date > current_timestamp`, [registrationKey])
+
+    if (user && user.rows.length === 1) {
+        let decrypted = cryptoJS.AES.decrypt(registrationKey, 'registering for m-ploy');
+
+        if (decrypted.toString(cryptoJS.enc.Utf8) === user.rows[0].user_email) {
+            await db.query(`UPDATE users SET user_status = 'Active' WHERE user_id = $1`, [user.rows[0].user_id]);
+            resp.render('activated', {header: `Account Activated`, message: `You can now <a href='/mploy/account/login'>login</a> to your account`});
+        } else {
+            resp.render('activated', {header: '404 Not Found', message: `The content you're looking for cannot be found.`});
+        }
+    } else {
+        resp.render('activated', {header: 'Expired', message: 'The activation button you clicked on has expired.'});
+    }
+});
+
+app.get('/resend-confirmation', (req, resp) => {
+    resp.render('resend');
+});
+
+app.post('/resend', async(req, resp) => {
+    let user = await db.query(`SELECT * FROM users WHERE user_email = $1`, [req.body.email]);
+
+    if (user && user.rows.length === 1) {
+        let registrationKey = cryptoJS.AES.encrypt(req.body.email, 'registering for m-ploy');
+
+        await db.query(`UPDATE users SET registration_key = $1, reg_key_expire_date = current_timestamp + interval '1' day WHERE user_id = $2`, [registrationKey.toString(), user.rows[0].user_id]);
+
+        let message = {
+            to: req.body.email,
+            from: 'support@m-ploy.org',
+            subject: 'Welcome to M-ploy',
+            html: `<div style="text-align: center;">In order to start using M-ploy, you need to activate your account. Click on the button below to activate your account.
+
+            <p><a href='http://localhost:9999/activate-account?key=${registrationKey.toString()}'>
+                <button type='button' style="background: #007bff; padding: 10px; border-radius: 0.25rem; color: #fff; border: 0px; cursor: pointer;">Activate</button>
+            </a></p>
+            
+            <p><strong>You have 24 hours to activate your account.</strong> You will need to <a href='http://localhost:9999/resend-confirmation'>request a new confirmation email</a> if 24 hours have past.</p>
+            
+            <p><small><strong>Note:</strong> New confirmation emails may end up in your spam folder.</small></p>
+            
+            <p><small><a href='https://www.m-ploy.org'>M-ploy.org</a></div>`
+        }
+
+        sgMail.send(message);
+
+        resp.render('activated', {header: 'Email Sent', message: 'A new confirmation email has been sent. Check your email and activate your account now.'});
+    } else {
+        resp.render('activated', {header: '404 Not Found', message: 'That email does not exist in our system.'});
+    }
 });
 
 app.get('/mploy*', (req, resp) => {

@@ -21,7 +21,14 @@ class AdminSectors extends Component {
         this.addSector = this.addSector.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.sectors !== prevProps.sectors) {
+            console.log('updated');
+            this.setState({sectors: this.props.sectors});
+        }
+    }
+    
+    /* componentWillReceiveProps(nextProps) {
         console.log(nextProps);
     }
     
@@ -34,7 +41,7 @@ class AdminSectors extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-    }
+    } */
 
     addSector() {
         this.setState({status: 'Loading'});
@@ -56,6 +63,7 @@ class AdminSectors extends Component {
     }
 
     render() {
+        console.log(this.props.sectors)
         return(
             <div className='blue-panel shallow three-rounded'>
                 <div className='input-group mb-5'>

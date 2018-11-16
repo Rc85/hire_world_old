@@ -13,7 +13,7 @@ const Dashboard = props => {
         return(
             <section id='dashboard' className='main-panel w-100'>
                 <TabBar items={[
-                    {name: 'Edit', active: props.location.pathname === '/dashboard/edit', link: '/dashboard/edit'},
+                    {name: 'Profile', active: props.location.pathname === '/dashboard/edit', link: '/dashboard/edit'},
                     {name: 'List Settings', active: props.location.pathname === '/dashboard/list', link: '/dashboard/list'},
                     {name: 'Saved Listings', active: props.location.pathname === '/dashboard/saved_listings', link: '/dashboard/saved_listings'},
                     {name: 'Account Settings', active: props.location.pathname === '/dashboard/settings', link: '/dashboard/settings'},

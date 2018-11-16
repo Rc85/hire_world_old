@@ -13,6 +13,12 @@ class Register extends Component {
         }
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.location.key !== this.props.location.key) {
+            this.setState({status: '', statusMessage: ''});
+        }
+    }
+    
     render() {
         let component = <RegisterForm callback={(status, message) => this.setState({status: status, statusMessage: message})}/>;
 

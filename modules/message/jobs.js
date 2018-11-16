@@ -71,7 +71,7 @@ app.post('/api/jobs/delete', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    throw e;
+                    ;
                 } finally {
                     done();
                 }
@@ -113,7 +113,7 @@ app.post('/api/job/complete', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    throw e;
+                    ;
                 } finally {
                     done();
                 }
@@ -163,7 +163,7 @@ app.post('/api/job/complete/:decision', (req, resp) => {
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }
@@ -197,7 +197,7 @@ app.post('/api/job/complete/:decision', (req, resp) => {
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }
@@ -241,7 +241,7 @@ app.post('/api/job/close', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query(`ROLLBACK`);
-                    throw e;
+                    ;
                 } finally {
                     done();
                 }
@@ -288,7 +288,7 @@ app.post('/api/job/abandon', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query(`ROLLBACK`);
-                    throw e;
+                    ;
                 } finally {
                     done();
                 }
@@ -341,7 +341,7 @@ app.post('/api/job/abandon/:decision', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query(`ROLLBACK`);
-                    throw e;
+                    ;
                 } finally {
                     done();
                 }

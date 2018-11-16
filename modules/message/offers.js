@@ -60,7 +60,7 @@ app.post('/api/offer/submit', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    throw e;
+                    ;
                 } finally {
                     done();
                 }
@@ -105,7 +105,7 @@ app.post('/api/offer/edit', (req, resp) => {
                         });
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }
@@ -147,7 +147,7 @@ app.post('/api/offer/delete', (req, resp) => {
                         });
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }
@@ -187,7 +187,7 @@ app.post('/api/offer/accept', (req, resp) => {
                         });
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }
@@ -225,7 +225,7 @@ app.post('/api/offer/decline', (req, resp) => {
                         .then(() => resp.send({status: 'success', message: message.rows[0]}));
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }

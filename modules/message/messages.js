@@ -28,11 +28,11 @@ app.post('/api/message/submit', (req, resp) => {
                         } else {
                             let error = new Error(`The user is not accepting messages`);
                             error.type = 'user_defined';
-                            throw error;
+                            rror;
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }
@@ -87,16 +87,16 @@ app.post('/api/message/reply', async(req, resp) => {
                             } else {
                                 let error = new Error('Job is closed');
                                 error.type = 'user_defined';
-                                throw error;
+                                rror;
                             }
                         } else {
                             let error = new Error(`The other party has turned off messaging`);
                             error.type = 'user_defined';
-                            throw error;
+                            rror;
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }
@@ -161,11 +161,11 @@ app.post('/api/message/edit', (req, resp) => {
                     } else {
                         let error = new Error(`You're not authorized`);
                         error.type = 'user_defined';
-                        throw error;
+                        rror;
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    throw e;
+                    ;
                 } finally {
                     done();
                 }

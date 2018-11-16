@@ -14,7 +14,7 @@ app.post('/api/admin/sector/add', (req, resp) => {
                 .then(() => resp.send({status: 'success', sectors: sector.rows[0]}));
             } catch (e) {
                 await client.query('ROLLBACK');
-                throw e;
+                ;
             } finally {
                 done()
             }

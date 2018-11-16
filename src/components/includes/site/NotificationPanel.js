@@ -30,14 +30,20 @@ class NotificationPanel extends Component {
     }
         
     render() {
-        let notifications = this.props.items.map((n, i) => {
-            return <div key={i} className={i !== this.props.items.length - 1 ? 'mb-3' : ''}>
-                <div>{n.notification_message}</div>
-                <div className='text-right'><small>{moment(n.notification_date).format('MMM DD YYYY - h:mm:ss')}</small></div>
+        let notifications;
+        
+        if (this.props.items.length > 0) {
+            notifications = this.props.items.map((n, i) => {
+                return <div key={i} className={i !== this.props.items.length - 1 ? 'mb-3' : ''}>
+                    <div>{n.notification_message}</div>
+                    <div className='text-right'><small>{moment(n.notification_date).format('MMM DD YYYY - h:mm:ss')}</small></div>
 
-                {i !== this.props.items.length - 1 ? <hr /> : ''}
-            </div>
-        });
+                    {i !== this.props.items.length - 1 ? <hr /> : ''}
+                </div>
+            });
+        } else if (this.props.items.length === 0) {
+            notifications = <div className='text-center'><small><strong>No new notifications</strong></small></div>
+        }
 
         return (
             <div id='notification-panel'>

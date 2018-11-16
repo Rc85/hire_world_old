@@ -30,6 +30,8 @@ body {
     font-family: 'Montserrat';
     color: $theme-fg;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 a {
@@ -43,3 +45,26 @@ a:hover {
 }
 
 h1, h2, h3, h4, h5, h6 { font-family: 'Montserrat Bold' }
+
+.blue-panel {
+    background: #2F496E;
+
+    a {
+        color: $theme-alt-highlight;
+    }
+
+    a:hover {
+        color: $theme-alt-highlight;
+    }
+
+    &.deep { padding: 100px }
+    &.shallow {padding: 25px }
+}
+
+#activated, #resend {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex-grow: 1;
+}

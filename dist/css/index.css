@@ -5708,6 +5708,12 @@ readers do not read off random characters that represent icons */
   align-items: center;
 }
 
+#main {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+}
+
 #main-section {
   background: url("/images/globe.jpg");
   background-repeat: no-repeat;
@@ -5717,6 +5723,7 @@ readers do not read off random characters that represent icons */
   flex-direction: column;
   padding: 30px;
   min-height: 50vh;
+  color: #F9F6F4;
 }
 
 .sub-section {
@@ -5876,6 +5883,8 @@ body {
   font-family: "Montserrat";
   color: #F9F6F4;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 a {
@@ -5890,6 +5899,30 @@ a:hover {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: "Montserrat Bold";
+}
+
+.blue-panel {
+  background: #2F496E;
+}
+.blue-panel a {
+  color: #7dd2ff;
+}
+.blue-panel a:hover {
+  color: #7dd2ff;
+}
+.blue-panel.deep {
+  padding: 100px;
+}
+.blue-panel.shallow {
+  padding: 25px;
+}
+
+#activated, #resend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 /*# sourceMappingURL=index.css.map */

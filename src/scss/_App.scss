@@ -14,14 +14,9 @@
     a:hover {
         color: $theme-alt-highlight;
     }
-}
 
-.blue-panel.deep {
-    padding: 100px;
-}
-
-.blue-panel.shallow {
-    padding: 25px;
+    &.deep { padding: 100px }
+    &.shallow {padding: 25px }
 }
 
 .main-panel {

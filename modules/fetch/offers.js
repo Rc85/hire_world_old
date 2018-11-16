@@ -32,7 +32,7 @@ app.post('/api/get/offer', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query(`ROLLBACK`);
-                    throw e;
+                    ;
                 } finally {
                     done();
                 }

@@ -33,7 +33,6 @@ class ProfileSettings extends Component {
         fetch.post('/api/user/settings/profile/save', this.state.settings)
         .then(resp => {
             if (resp.data.status === 'success') {
-                console.log(resp.data.user)
                 if (resp.data.user.hide_email && !resp.data.user.allow_messaging && !resp.data.user.user_phone) {
                     this.props.dispatch(ShowWarning(`You've hidden and disabled all forms of contact`));
                 }

@@ -13,23 +13,25 @@ class RegisterForm extends Component {
         super();
 
         this.state = {
-            username: '',
-            password: '',
-            confirmPassword: '',
-            email: '',
-            confirmEmail: '',
-            firstName: '',
-            lastName: '',
-            country: '',
-            region: '',
-            city: '',
+            username: null,
+            password: null,
+            confirmPassword: null,
+            email: null,
+            confirmEmail: null,
+            firstName: null,
+            lastName: null,
+            country: undefined,
+            region: undefined,
+            city: null,
             accountType: 'User',
             agreed: false,
             status: '',
-            statusMessage: ''
+            statusMessage: '',
+            title: null,
+            searchedTitles: []
         }
     }
-    
+
     handleRegister() {
         this.setState({status: 'Registering'});
 
@@ -38,6 +40,7 @@ class RegisterForm extends Component {
             if (resp.data.status === 'success') {
                 this.props.callback(resp.data.status, resp.data.statusMessage);
             } else {
+                this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
@@ -58,6 +61,26 @@ class RegisterForm extends Component {
         return years;
     }
 
+    searchTitle(value) {
+        if (value) {
+            if (this.state.timeout) clearTimeout(this.state.timeout);
+
+            this.setState({
+                timeout: setTimeout(() => {
+                    fetch.post('/api/user/search/titles', {value: value})
+                    .then(resp => {
+                        console.log(resp);
+                        if (resp.data.status === 'success') {
+                            this.setState({searchedTitles: resp.data.titles});
+                        } else {
+                            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+                        }
+                    })
+                }, 250)
+            });
+        }
+    }
+
     render() {
         let status, payment;
 
@@ -65,7 +88,7 @@ class RegisterForm extends Component {
             status = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />
         } 
 
-        if (this.state.accountType !== 'User') {
+        /* if (this.state.accountType !== 'User') {
             payment = <div className='bordered-container rounded mb-3'>
                 <div className='d-flex-between-center'>
                     <div><strong>Account Type:</strong> {this.state.accountType}</div>
@@ -117,7 +140,11 @@ class RegisterForm extends Component {
                     </div>
                 </div>
             </div>
-        }
+        } */
+
+        let titles = this.state.searchedTitles.map((title, i) => {
+            return <option key={i} value={title}>{title}</option>
+        });
 
         return(
             <section id='register-form' className='main-panel'>
@@ -128,6 +155,14 @@ class RegisterForm extends Component {
                     <div className='mb-3'>
                         <label htmlFor='reg-username'>Username:</label>
                         <input className='form-control' type='text' name='username' id='reg-username' required onChange={(e) => this.setState({username: e.target.value})} placeholder='5-15 alpha-numeric, dash, and underscore' minLength='3' maxLength='15' />
+                    </div>
+
+                    <div className='mb-3'>
+                        <label htmlFor='reg-title'>Profession Title:</label>
+                        <input type='text' name='title' list='user-titles' id='reg-title' className='form-control' onKeyUp={(e) => this.searchTitle(e.target.value)} onChange={(e) => this.setState({title: e.target.value})} required autoComplete='off' />
+                        <datalist id='user-titles'>
+                            {titles}
+                        </datalist>
                     </div>
 
                     <div className='d-flex-between-start mb-3'>
@@ -181,7 +216,7 @@ class RegisterForm extends Component {
                         <input type='text' name='city' className='form-control' onChange={(e) => this.setState({city: e.target.value})} defaultValue={this.state.city} />
                     </div>
 
-                    <div className='mb-3'>
+                    {/* <div className='mb-3'>
                         <div className='d-flex-between-center'>
                             <label htmlFor='account-type'>Account Type:</label>
                             <NavLink to='/pricing'><small>Learn more</small></NavLink>
@@ -208,7 +243,7 @@ class RegisterForm extends Component {
                         </div>
                     </div>
 
-                    {payment}
+                    {payment} */}
 
                     <div className='mb-3'>
                         <input type='checkbox' name='agree' id='reg-agree' onClick={() => this.setState({agreed: !this.state.agreed})} /> <label className='form-check-label' htmlFor='reg-agree'>I read, understand, and agree with the terms of service.</label>
@@ -216,7 +251,8 @@ class RegisterForm extends Component {
                     
 
                     <div className='text-right'>
-                        <SubmitButton type='submit' loading={this.state.status === 'Registering' ? true : false} value='Submit' onClick={() => this.handleRegister()}/>
+                        <button className='btn btn-primary' onClick={() => this.handleRegister()}>Submit</button>
+                        {/* <SubmitButton type='submit' loading={this.state.status === 'Registering' ? true : false} value='Submit' onClick={() => this.handleRegister()}/> */}
 
                         <button className='btn btn-secondary' disabled={this.props.status === 'loading' ? true : false} onClick={() => {
                             this.setState({

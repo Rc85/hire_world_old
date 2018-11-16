@@ -114,7 +114,7 @@ app.post('/api/user/edit', (req, resp) => {
                         .then(() => resp.send({status: `edit ${type} success`, user: user.rows[0]}));
                     } catch (e) {
                         await client.query(`ROLLBACK`);
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }
@@ -200,7 +200,7 @@ app.post('/api/user/business_hours/save', (req, resp) => {
                         .then(() => resp.send({status: 'success', statusMessage: 'Business hours saved'}));
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }

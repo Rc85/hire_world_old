@@ -16,9 +16,26 @@ class Admin extends Component {
         }
     }
     
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.location.key !== this.props.location.key) {
+            console.log('here');
+            fetch.get('/api/admin/privilege')
+            .then(resp => {
+                console.log(resp);
+                if (resp.data.status === 'success') {
+                    this.setState({status: '', authorized: true});
+                } else if (resp.data.status === 'error') {
+                    this.setState({status: '', statusMessage: resp.data.statusMessage});
+                }
+            })
+            .catch(err => console.log(err));
+        }
+    }
+
     componentDidMount() {
         fetch.get('/api/admin/privilege')
         .then(resp => {
+            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', authorized: true});
             } else if (resp.data.status === 'error') {

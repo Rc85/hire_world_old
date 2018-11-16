@@ -24,7 +24,7 @@ app.post('/api/listing/create', (req, resp) => {
                             .then(() => resp.send({status: 'success', listing: listing.rows[0]}));
                         } catch (e) {
                             await client.query('ROLLBACK');
-                            throw e;
+                            ;
                         } finally {
                             done();
                         }
@@ -68,7 +68,7 @@ app.post('/api/listing/toggle', (req, resp) => {
                     .then(() => resp.send({status: 'success', listing_status: status.rows[0].listing_status}));
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    throw e;
+                    ;
                 } finally {
                     done();
                 }
@@ -110,7 +110,7 @@ app.post('/api/listing/edit', (req, resp) => {
                         }
                     } catch (e) {
                         await client.query(`ROLLBACK`);
-                        throw e;
+                        ;
                     } finally {
                         done();
                     }
@@ -151,16 +151,16 @@ app.post('/api/listing/renew', (req, resp) => {
                         } else {
                             let error = new Error(`You're not authorized`);
                             error.type = 'user_defined';
-                            throw error;
+                            rror;
                         }
                     } else {
                         let error = new Error(`You can only renew once every 24 hours`);
                         error.type = 'user_defined';
-                        throw error;
+                        rror;
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    throw e;
+                    ;
                 } finally {
                     done();
                 }
@@ -209,7 +209,7 @@ app.post('/api/saved_listings/unsave', (req, resp) => {
                     .then(() => resp.send({status: 'success', statusMessage: 'Saved listing(s) deleted'}));
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    throw e;
+                    ;
                 } finally {
                     done();
                 }

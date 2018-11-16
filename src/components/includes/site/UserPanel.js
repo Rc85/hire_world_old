@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { LogoutUser } from '../../../actions/LoginActions';
-import { faUserCog, faSignOutAlt, faSignInAlt, faUserPlus, faEnvelope, faBell } from '@fortawesome/free-solid-svg-icons';
+import { faUserCog, faSignOutAlt, faSignInAlt, faUserPlus, faEnvelope, faBell, faCog, faUser } from '@fortawesome/free-solid-svg-icons';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
@@ -47,7 +47,7 @@ class UserPanel extends Component {
                 <div>
                     <div className='mb-1'><NavLink to={`/user/${this.props.user.user ? this.props.user.user.username : ''}`}>{this.props.user.user ? this.props.user.user.username : ''}</NavLink></div>
                     <div className='d-flex-between-center'>
-                        <div className='nav-item mr-3' title='Dashboard'><NavLink to='/dashboard/edit'><FontAwesomeIcon icon={faUserCog} size='lg' /></NavLink></div>
+                        <div className='nav-item mr-3' title='Dashboard'><NavLink to='/dashboard/edit'><FontAwesomeIcon icon={faCog} size='lg' /></NavLink></div>
                         <div className='nav-item mr-3' title='Messages'>
                             <NavLink to='/messages/Inquire'>
                                 <span className='fa-layers fa-fw'>
@@ -71,8 +71,6 @@ class UserPanel extends Component {
                 <div className='nav-item' title='Login'><NavLink to='/account/login'><FontAwesomeIcon icon={faSignInAlt} size='2x' /></NavLink></div>
                 <div className='nav-item' title='Register'><NavLink to='/account/register'><FontAwesomeIcon icon={faUserPlus} size='2x' /></NavLink></div>
             </div>
-        } else {
-            panel = <Loading size='3x' />;
         }
 
         if (this.state.showNotification) {

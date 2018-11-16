@@ -528,11 +528,9 @@
 .blue-panel a:hover {
   color: #7dd2ff;
 }
-
 .blue-panel.deep {
   padding: 100px;
 }
-
 .blue-panel.shallow {
   padding: 25px;
 }

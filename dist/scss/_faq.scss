@@ -2,5 +2,30 @@
     width: 75%;
     margin: 0 auto 0 auto;
     color: black;
-    text-align: center;
+}
+
+#questions {
+    a { color: $theme-highlight; }
+}
+
+#answers { color: #FFF; }
+
+.answer { margin: 20px 0 0 40px; }
+
+.answer-div {
+    background: #2F496E;
+    padding: 25px;
+    border-radius: 0.25rem;
+    
+    a {
+        color: $theme-alt-highlight;
+    }
+
+    a:hover {
+        color: $theme-alt-highlight;
+    }
+
+    &:not(:last-child) {
+        margin-bottom: 40px;
+    }
 }

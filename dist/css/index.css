@@ -5714,6 +5714,10 @@ readers do not read off random characters that represent icons */
   flex-direction: column;
 }
 
+#main-panel {
+  padding: 100px 200px;
+}
+
 #main-section {
   background: url("/images/globe.jpg");
   background-repeat: no-repeat;
@@ -5797,7 +5801,7 @@ i {
 }
 #pricing-table tbody td:first-child {
   vertical-align: middle;
-  padding-left: 100px;
+  padding-left: 50px;
 }
 #pricing-table thead tr {
   background: #2F496E;
@@ -5854,18 +5858,53 @@ i {
   width: 75%;
   margin: 0 auto 0 auto;
   color: black;
-  text-align: center;
+}
+
+#questions a {
+  color: #2988BC;
+}
+
+#answers {
+  color: #FFF;
+}
+
+.answer {
+  margin: 20px 0 0 40px;
+}
+
+.answer-div {
+  background: #2F496E;
+  padding: 25px;
+  border-radius: 0.25rem;
+}
+.answer-div a {
+  color: #7dd2ff;
+}
+.answer-div a:hover {
+  color: #7dd2ff;
+}
+.answer-div:not(:last-child) {
+  margin-bottom: 40px;
 }
 
 #footer {
   font-size: 0.8rem;
   background: #2F496E;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .footer-links {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+}
+
+.footer-item {
+  margin-right: 20px;
+}
+.footer-item:last-child {
+  margin: 0;
 }
 
 @font-face {
@@ -5923,6 +5962,10 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   flex-direction: column;
   flex-grow: 1;
+}
+
+hr {
+  background: #2988BC;
 }
 
 /*# sourceMappingURL=index.css.map */

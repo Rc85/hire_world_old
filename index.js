@@ -136,7 +136,27 @@ app.post('/resend', async(req, resp) => {
     }
 });
 
-app.get('/mploy*', (req, resp) => {
+app.get('/support', (req, resp) => {
+    resp.render('support');
+});
+
+app.get('/about', (req, resp) => {
+    resp.render('about');
+});
+
+app.get('/tos', (req, resp) => {
+    resp.render('tos');
+});
+
+app.get('/privacy', (req, resp) => {
+    resp.render('privacy');
+});
+
+app.get('/advertise', (req, resp) => {
+    resp.render('advertise');
+});
+
+app.get('/mploy/*', (req, resp) => {
     resp.sendFile(__dirname + '/dist/app.html');
 });
 

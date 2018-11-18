@@ -1,7 +1,7 @@
 extends layout
 
 block content
-    section.p-5
+    section#main-panel
         #how-it-works
             .d-flex
                 #how-get-hired-button.how-tab-button.mr-1.active I want to work
@@ -11,10 +11,8 @@ block content
                     .d-flex
                         i.fa.fa-cog.fa-10x.mr-5
                         div
-                            h1 Configure Settings
-                            p Set a 
-                                strong title
-                                |  for yourself in your profile so users can narrow down their searches.
+                            h1 Configure List Settings
+                            p Fill in the required fields to start listing.
                                 p Set fields such as 
                                     strong list title
                                     | , 
@@ -24,42 +22,44 @@ block content
                                     strong sector to be listed under
                                     |  in 
                                     strong List Settings
-                                    |  to start listing. Turn on 
+                                    |  to start listing. Turning on 
                                     strong negotiable
-                                    |  allows other user to make you an offer. Otherwise, your set price rate will be used.
+                                    |  allow other users to make you an offer. Otherwise, your set price rate will be used.
                     hr
                     .d-flex
                         i.far.fa-list-alt.fa-10x.mr-5
                         div
                             h1 Start Listing
-                            p Activate listing by pressing the toggle in 
-                                strong List Settings
-                                |  so your profile appears in the sector that you chose
+                            p When a listing is created, it's listed automatically.
+                            p You can deactivate your listing any time and you can renew your listing once every 24 hours to bring it to the top.
                     hr
                     div
                         .d-flex
                             i.far.fa-envelope.fa-10x.mr-5
                             div
                                 h1 Messaging
-                                p Discuss about the job with the other party before coming to an agreement. The messaging system is divided into several stages before reaching to the completion stage.
+                                p The messaging system is divided into several stages before reaching to the completion stage.
+                                p The job's progression is mutual, so it is important to come to an agreement with the other party before requesting to progress to the next stage.
                         .how-messaging-stages
                             h2 Inquire
-                            p The first message is considered an inquiry. This should be where terms are agreed upon before the other party sends you a hire request. Should you choose to accept, the message will move to the 
+                            p The first message is considered an inquiry. It is nothing more than discussing with the other party before a hire request is made. Should you choose to accept, the message will move to the 
                                 strong Active Jobs
                                 |  stage. Otherwise, either party can close the inquiry.
                         .how-messaging-stages
                             h2 Active
                             p When a message is in the 
                                 strong Active Jobs
-                                |  stage, updates regarding the job can be discussed. When the job is complete, click the 
+                                |  stage, it means the job is in progress. Updates and additions can be made here. When the job is complete, click the 
                                 strong Complete
                                 |  button to send a request to complete the job.
-                            p At any time during this stage, you can click the 
+                            p At any time during this stage if the job cannot be completed for any reason, you can click the 
                                 strong Abandon
-                                |  button to send an abandon request including a reason to the other party.
+                                |  button to send an abandon request along with a reason to the other party..
                         .how-messaging-stages
                             h2 Complete
-                            p When the other party approves the request, the message will move to the 
+                            p When the other party approves the 
+                                strong Complete
+                                |  request, the message will move to the 
                                 strong Complete
                                 |  stage where both party can rate and give each other a verified review. Verified review holds a 
                                 strong Job Complete Verified
@@ -73,7 +73,7 @@ block content
                             h2 Abandon
                             p If the other party declines your request, your 
                                 strong Abandoned Job
-                                |  counter in your profile will increase. However, if an agreement was made and the request was still declined, you can appeal the decision and our staff will investigate the issue.
+                                |  counter in your profile will increase. However, if an agreement was made and the request was still declined, you can appeal the decision and our support team will investigate the issue.
             #how-hire
                 .how-body
                     .d-flex
@@ -87,23 +87,24 @@ block content
                             i.far.fa-envelope.fa-10x.mr-5
                             div
                                 h1 Messaging
-                                p Discuss about the job with the other party before coming to an agreement. The messaging system is divided into several stages before reaching to the completion stage.
+                                p The messaging system is divided into several stages before reaching to the completion stage.
+                                p The job's progression is mutual, so it is important to come to an agreement with the other party before requesting to progress to the next stage.
                         .how-messaging-stages
                             h2 Inquire
-                            p The first message is considered an inquiry. This should be where terms are agreed upon before making an offer.
+                            p The first message is an inquiry. This should be where terms are agreed upon before making an offer.
                             p If you don't wish to use the offer feature, you can click the 
                                 strong Confidential
                                 |  checkbox to keep the offer confidential between the two of you.
                             p If the other party has negotiable enabled, you can make an offer on your terms. Otherwise, a 
                                 storng Hire
-                                |  request will be sent on the other party's terms. When the other party accepts your offer, the message will move to the 
+                                |  request will be sent on the other party's fixed terms. When the other party accepts your offer, the message will move to the 
                                 strong Active Jobs
                                 |  stage. Otherwise, either party can close the inquiry.
                         .how-messaging-stages
                             h2 Active
                             p When a message is in the 
                                 strong Active Jobs
-                                |  stage, messaging can continue to request for updates or additions. When the job is complete, the other party will send a complete request. Should you choose to approve, the message will move to the 
+                                |  stage, messaging can continue to request for statuses or additions. When the job is complete, the other party will send a complete request. Should you choose to approve, the message will move to the 
                                 strong Complete
                                 |  stage.
                         .how-messaging-stages
@@ -115,14 +116,16 @@ block content
                                 |  badge to prove its legitimacy.
                         .how-messaging-stages
                             h2 Incomplete
-                            p When the other party sends you an abandon request, you have the option to approve or decline. If both of you agree that the job should be abandoned, click approve. Approved abandon request will deem the job as  
+                            p When the other party sends you an abandon request, you have the option to approve or decline. If both of you agree to abandon the job, it will be moved to the 
                                 strong Incomplete
-                                |  . Incomplete jobs will not impact the other party's reputation.
+                                |  stage. 
+                                strong Incomplete
+                                |  jobs will not impact the other party's reputation.
                         .how-messaging-stages
                             h2 Abandon
                             p If an abandon request is sent before an agreement is made, you can decline it. Declined request will deem the job as 
                                 strong Abandoned
-                                |  . Abandoned job will negatively impact the other party's reputation. However, they can appeal the decision if they wish and M-ploy will investigate the issue.
+                                | . Abandoned job will negatively impact the other party's reputation. However, they can appeal the decision if they wish and M-ploy will investigate the issue.
                     hr
                     .d-flex
                         i.fa.fa-medal.fa-10x.mr-5
@@ -130,4 +133,4 @@ block content
                             h1 Exceed Expectations
                             p If you feel the other party delivered above your expectations, you can buy them a medal. Medals tremendously help the other party build their business.
             .text-center
-                small.text-dark The use of M-ploy's messaging and work flow is not mandatory. Users can conduct business outside of M-ploy if they wish.
+                small.text-dark Users are not obligated to use M-ploy's messaging service and can conduct business outside of M-ploy if they wish.

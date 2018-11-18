@@ -1,7 +1,7 @@
 extends layout
 
 block content
-    section.p-5
+    section#main-panel
         if promo
             div.alert.alert-info.text-center
                 h4 #{promo.promo_name}
@@ -9,71 +9,82 @@ block content
         table#pricing-table.table.table-bordered
             thead
                 tr
-                    th(colspan='4') Plans
+                    th(colspan='3') Plans
             tbody
                 tr
                     td
                     td.w-20 User
                     td.w-20 Listing
-                    td.w-20 Business
+                    //-td.w-20 Business
                 tr
                     td
                     td Free
                     td $7/month
-                    td $15/month
+                    //-td $15/month
             thead
                 tr
-                    th(colspan='4') Features
+                    th(colspan='3') Features
             tbody
                 tr
-                    td User Profile
+                    td
+                        i.fas.fa-user-circle.fa-lg.mr-2
+                        span User Profile
                     td
                         i.far.fa-check-circle.fa-2x.text-success
                     td
                         i.far.fa-check-circle.fa-2x.text-success
-                    td
-                        i.far.fa-check-circle.fa-2x.text-success
-                tr
-                    td Reviews
-                    td
-                        i.far.fa-check-circle.fa-2x.text-success
-                    td
-                        i.far.fa-check-circle.fa-2x.text-success
-                    td
+                    //-td
                         i.far.fa-check-circle.fa-2x.text-success
                 tr
-                    td Messaging
+                    td
+                        i.far.fa-comment-dots.fa-lg.mr-2
+                        span Reviews
                     td
                         i.far.fa-check-circle.fa-2x.text-success
                     td
                         i.far.fa-check-circle.fa-2x.text-success
-                    td
-                        i.far.fa-check-circle.fa-2x.text-success
-                tr
-                    td Track Jobs
-                    td
-                    td
-                        i.far.fa-check-circle.fa-2x.text-success
-                    td
+                    //-d
                         i.far.fa-check-circle.fa-2x.text-success
                 tr
-                    td List Service
                     td
+                        i.far.fa-envelope.fa-lg.mr-2
+                        span Messaging
                     td
                         i.far.fa-check-circle.fa-2x.text-success
                     td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    //-td
                         i.far.fa-check-circle.fa-2x.text-success
                 tr
+                    td
+                        i.fa.fa-chart-area.fa-lg.mr-2
+                        span Track Jobs
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    //-td
+                        i.far.fa-check-circle.fa-2x.text-success
+                tr
+                    td
+                        i.far.fa-list-alt.fa-lg.mr-2
+                        span List Service
+                    td
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    //-td
+                        i.far.fa-check-circle.fa-2x.text-success
+                //-tr
                     td Product Page
                     td
                     td
-                    td
+                    //-td
                         i.far.fa-check-circle.fa-2x.text-success
-                tr
+                //-tr
                     td Product Reviews
                     td
                     td
-                    td
+                    //-td
                         i.far.fa-check-circle.fa-2x.text-success
         .text-center
             button.btn.btn-primary Register Now

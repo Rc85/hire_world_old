@@ -9,6 +9,7 @@ import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationA
 import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';
 import { unsaveListing } from '../utils/Utils';
+import { LogError } from '../utils/LogError';
 
 class SavedListings extends Component {
     constructor(props) {
@@ -34,7 +35,7 @@ class SavedListings extends Component {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/get/saved_listings'));
     }
 
     componentWillReceiveProps(nextProps) {
@@ -51,7 +52,6 @@ class SavedListings extends Component {
         }
     }
     
-
     selectRow(id, checked) {
         if (checked) {
             this.selected.push(id);
@@ -104,14 +104,15 @@ class SavedListings extends Component {
                         this.setState({status: '', listings: resp.data.listings});
 
                         this.props.dispatch(Alert(status, message));
-                    });
+                    })
+                    .catch(err => LogError(err, '/api/get/saved_listings'));
                 } else if (resp.data.status === 'error') {
                     this.setState({status: ''});
 
                     this.props.dispatch(Alert(status, message));
                 }
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, '/api/saved_listings/unsave'));
         }
     }
 
@@ -126,6 +127,7 @@ class SavedListings extends Component {
     }
     
     render() {
+        console.log('saved listings rendered')
         let status, listings;
 
         if (this.state.status === 'Loading') {

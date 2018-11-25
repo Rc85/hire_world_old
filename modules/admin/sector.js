@@ -3,7 +3,7 @@ const db = require('../db');
 
 app.post('/api/admin/sector/add', (req, resp) => {
     db.connect(async(err, client, done) => {
-        if (err) console.log(err);
+        if (err) error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
     
         (async() => {
             try {
@@ -20,7 +20,7 @@ app.post('/api/admin/sector/add', (req, resp) => {
             }
         })()
         .catch(err => {
-            console.log(err);
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     });
@@ -42,7 +42,7 @@ app.post('/api/admin/sector/change-status', async(req, resp) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });
@@ -53,7 +53,7 @@ app.get('/api/admin/sectors/get', async(req, resp) => {
         if (result) resp.send({status: 'success', sectors: result.rows});
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });
@@ -64,7 +64,7 @@ app.post('/api/admin/sector/rename', async(req, resp) => {
         if (result) resp.send({status: 'success', sector: result.rows[0]});
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });

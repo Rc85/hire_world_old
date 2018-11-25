@@ -8,6 +8,7 @@ import Menu from '../../utils/Menu';
 import fetch from 'axios';
 import { Alert } from '../../../actions/AlertActions';
 import moment from 'moment';
+import { LogError } from '../../utils/LogError';
 
 class AdminSectorRow extends Component {
     constructor(props) {
@@ -57,7 +58,7 @@ class AdminSectorRow extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/sector/change-status'));
     }
 
     renameSector(e) {
@@ -74,7 +75,7 @@ class AdminSectorRow extends Component {
                     this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                 }
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, '/api/admin/sector/rename'));
         }
     }
 

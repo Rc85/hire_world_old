@@ -11,6 +11,7 @@ import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import Loading from '../utils/Loading';
+import { LogError } from '../utils/LogError';
 
 class AdminConfig extends Component {
     constructor(props) {
@@ -39,7 +40,7 @@ class AdminConfig extends Component {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/config/get'));
     }
 
     toggleSite() {
@@ -62,7 +63,7 @@ class AdminConfig extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/config/set/site'));
     }
 
     toggleRegistration() {
@@ -85,7 +86,7 @@ class AdminConfig extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/config/set/registration'));
     }
 
     setAnnouncementStart(date) {
@@ -111,7 +112,7 @@ class AdminConfig extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/announcement/create'));
     }
 
     deleteAnnouncement(id) {
@@ -131,11 +132,10 @@ class AdminConfig extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/announcement/delete'));
     }
 
     render() {
-        console.log(this.state);
         let status, announcementsHeader;
 
         if (this.state.status === 'Loading') {
@@ -152,7 +152,7 @@ class AdminConfig extends Component {
 
         let announcements = this.state.announcements.map((a, i) => {
             return <div key={i} className='d-flex-between-center mb-3'>
-                <div className='w-35'>{a.announcement}</div>
+                <div className='w-35 keep-formatting'>{a.announcement}</div>
                 <div className='w-15'>{a.announcer}</div>
                 <div className='w-15'>{moment(a.announcement_created_date).format('MM-DD-YYYY')}</div>
                 <div className='w-15'>{moment(a.announcement_start_date).format('MM-DD-YYYY')}</div>

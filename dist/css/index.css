@@ -5783,6 +5783,12 @@ i {
   display: none;
 }
 
+#announcements {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
 #pricing-table {
   width: 50%;
   margin: 0 auto 30px auto;
@@ -5860,7 +5866,7 @@ i {
   color: black;
 }
 
-#questions a {
+#questions a, .announcements a {
   color: #2988BC;
 }
 
@@ -5926,7 +5932,7 @@ body {
   flex-direction: column;
 }
 
-a {
+body a {
   color: #F9F6F4;
   font-weight: bold;
 }

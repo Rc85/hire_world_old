@@ -14,7 +14,7 @@ app.post('/api/get/listing', async(req, resp) => {
             resp.send({status: 'success', listing: listing});
         })
         .catch(err => {
-            console.log(err);
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     }
@@ -36,7 +36,7 @@ app.post('/api/get/listings', async(req, resp) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'access error', statusMessage: 'An error occurred'});
     });
 });
@@ -72,7 +72,6 @@ app.post('/api/get/listing/detail', async(req, resp) => {
                     SUM(review_rating) / COUNT(review_id) IS NULL THEN 0 ELSE SUM(review_rating) / COUNT(review_id) END
                 AS rating
             FROM user_reviews LEFT JOIN user_listings ON user_listings.listing_user = user_reviews.reviewing WHERE user_listings.listing_id = $1`, [req.body.id]);
-            console.log(userRating);
 
             if (savedListing && savedListing.rows.length === 1)  saved = true;
 
@@ -84,7 +83,7 @@ app.post('/api/get/listing/detail', async(req, resp) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'access error', statusMessage: 'An error occurred while trying to find that listing'});
     });
 });
@@ -105,7 +104,7 @@ app.post('/api/get/saved_listings', async(req, resp) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'access error', statusMessage: 'An error occurred while retrieving your saved listings'});
     });
 });

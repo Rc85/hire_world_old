@@ -6,6 +6,7 @@ import Response from '../pages/Response';
 import AdminReportRow from './includes/AdminReportRow';
 import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';
+import { LogError } from '../utils/LogError';
 
 class AdminReports extends Component {
     constructor(props) {
@@ -36,7 +37,7 @@ class AdminReports extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/reports/get'));
     }
 
     handleMenuSelect(data) {
@@ -53,7 +54,7 @@ class AdminReports extends Component {
 
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, '/api/admin/user/warn'));
         } else if (data.action === 'user') {
             (async() => {
                 let user, report, successMessage;
@@ -70,11 +71,13 @@ class AdminReports extends Component {
                         if (resp.data.status === 'success') {
                             return 'success';
                         } else if (resp.data.status === 'error') {
-                            throw new Error('error');
+                            let error = new Error('change user status failed');
+                            error.url = '/api/admin/user/change-status';
+                            throw error;
                         }
                     })
                     .catch(err => {
-                        throw new Error(err);
+                        throw err;
                     });
     
                     report = await fetch.post('/api/admin/report/change-status', {id: data.id, status: data.status, user: data.username})
@@ -82,11 +85,13 @@ class AdminReports extends Component {
                         if (resp.data.status === 'success') {
                             return 'success';
                         } else if (resp.data.status === 'error') {
-                            throw new Error('error');
+                            let error = new Error('change report status failed');
+                            error.url = '/api/admin/report/change-status';
+                            throw error;
                         }
                     })
                     .catch(err => {
-                        throw new Error(err);
+                        throw err;
                     });
                 } catch (e) {
                     throw e;
@@ -100,7 +105,7 @@ class AdminReports extends Component {
                     this.props.dispatch(Alert('error', 'An error occurred'));
                 }
             })()
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, err.url));
         } else if (data.action === 'report status') {
             fetch.post('/api/admin/report/change-status', {id: data.id, status: data.status})
             .then(resp => {
@@ -112,12 +117,11 @@ class AdminReports extends Component {
                 
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, '/api/admin/report/change-status'));
         }
     }
     
     render() {
-        console.log(this.state);
         let status;
 
         if (this.state.status === 'Loading') {

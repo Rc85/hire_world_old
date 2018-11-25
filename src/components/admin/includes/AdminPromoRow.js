@@ -9,6 +9,7 @@ import Menu from '../../utils/Menu';
 import fetch from 'axios';
 import { Alert } from '../../../actions/AlertActions';
 import Loading from '../../utils/Loading';
+import { LogError } from '../../utils/LogError';
 
 class AdminPromoRow extends Component {
     constructor(props) {
@@ -55,11 +56,10 @@ class AdminPromoRow extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/promo/change-status'));
     }
 
     render() {
-        console.log(this.state);
         let menu, status;
 
         if (this.state.status === 'Loading') {

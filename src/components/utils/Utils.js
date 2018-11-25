@@ -1,5 +1,6 @@
 
 import fetch from 'axios';
+import { LogError } from './LogError';
 
 export const unsaveListing = (id, callback) => {
     fetch.post('/api/saved_listings/unsave', {listings: [id]})
@@ -9,8 +10,8 @@ export const unsaveListing = (id, callback) => {
             .then(resp => {
                 callback(resp);
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, '/api/get/saved_listings'));
         }
     })
-    .catch(err => console.log(err));
+    .catch(err => LogError(err, '/api/saved_listings/unsave'));
 }

@@ -4,7 +4,7 @@ import Loading from '../utils/Loading';
 import fetch from 'axios';
 import Response from '../pages/Response';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationTriangle, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle, faHeart, faUserCircle, faDollarSign, faHandHoldingUsd, faAt, faPhone, faMapMarkerAlt, faMapMarkedAlt } from '@fortawesome/free-solid-svg-icons';
 import MessageSender from '../includes/page/MessageSender';
 import { unsaveListing } from '../utils/Utils';
 import { Alert } from '../../actions/AlertActions';
@@ -12,6 +12,8 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 import { UncontrolledTooltip } from 'reactstrap';
 import UserRating from '../includes/page/UserRating';
+import { faListAlt, faBuilding, faIdBadge } from '@fortawesome/free-regular-svg-icons';
+import { LogError } from '../utils/LogError';
 
 class ListingDetails extends Component {
     constructor(props) {
@@ -36,7 +38,7 @@ class ListingDetails extends Component {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/get/listing/detail'));
     }
 
     send(message, subject) {
@@ -44,13 +46,11 @@ class ListingDetails extends Component {
 
         fetch.post('/api/message/submit', {subject: subject, message: message, listing: this.state.listing})
         .then(resp => {
-            console.log('setting listing details state status');
             this.setState({status: resp.data.status});
 
-            console.log('dispatching alert');
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/message/submit'));
     }
 
     saveListing() {
@@ -65,7 +65,7 @@ class ListingDetails extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/listing/save'));
     }
 
     unsave(id) {
@@ -93,11 +93,10 @@ class ListingDetails extends Component {
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/report/submit'));
     }
 
     render() {
-        console.log(this.state)
         let inquire, status, footer, savedIcon, reportIcon;
 
         if (this.props.user.user && this.state.listing && this.props.user.user.username !== this.state.listing.listing_user) {
@@ -171,21 +170,22 @@ class ListingDetails extends Component {
                             </div>
 
                             <div className='col-4'>
-                                <div className='d-flex-center'><div className='w-25'><strong>User:</strong></div> <div className='mr-2'><NavLink to={`/user/${this.state.listing.listing_user}`}>{this.state.listing.listing_user}</NavLink></div> <UserRating rating={this.state.rating} /></div>
-                                <div className='d-flex'><div className='w-25'><strong>Listed Under:</strong></div> <NavLink to={`/sectors/${this.state.listing.listing_sector}`}>{this.state.listing.listing_sector}</NavLink></div>
-                                <div className='d-flex'><div className='w-25'><strong>Asking Price:</strong></div> ${this.state.listing.listing_price} per {this.state.listing.listing_price_type} {this.state.listing.listing_price_currency}</div>
-                                <div className='d-flex'><div className='w-25'><strong>Negotiable: </strong></div> {this.state.listing.listing_negotiable ? 'Yes' : 'No'}</div>
+                                {this.state.listing.user_business_name ? <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faBuilding} className='view-user-icon mr-2' /><strong>Business Name: </strong></div>{this.state.listing.user_business_name}</div> : ''}
+                                <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faUserCircle} className='view-user-icon mr-2' /><strong>User:</strong></div> <div className='mr-2'><NavLink to={`/user/${this.state.listing.listing_user}`}>{this.state.listing.listing_user}</NavLink></div> <UserRating rating={this.state.rating} /></div>
+                                <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faIdBadge} className='view-user-icon mr-2' /><strong>Profession Title:</strong></div>{this.state.listing.user_title}</div>
 
                                 <hr/>
 
-                                {this.state.listing.user_email ? <div className='d-flex'><div className='w-25'><strong>Email: </strong></div> <a href={`mailto:${this.state.listing.user_email}`}>{this.state.listing.user_email}</a></div> : ''}
-                                {this.state.listing.user_phone ? <div className='d-flex'><div className='w-25'><strong>Phone Number:</strong></div> {this.state.listing.user_phone}</div> : ''}
+                                <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faListAlt} className='view-user-icon mr-2' /><strong>Listed Under:</strong></div> <NavLink to={`/sectors/${this.state.listing.listing_sector}`}>{this.state.listing.listing_sector}</NavLink></div>
+                                <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faDollarSign} className='view-user-icon mr-2' /><strong>Asking Price:</strong></div> ${this.state.listing.listing_price} per {this.state.listing.listing_price_type} {this.state.listing.listing_price_currency}</div>
+                                <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faHandHoldingUsd} className='view-user-icon mr-2' /><strong>Negotiable: </strong></div> {this.state.listing.listing_negotiable ? 'Yes' : 'No'}</div>
 
                                 <hr/>
 
-                                {this.state.listing.user_city ? <div className='d-flex'><div className='w-25'><strong>City:</strong></div> {this.state.listing.user_city}</div> : ''}
-                                {this.state.listing.user_region ? <div className='d-flex'><div className='w-25'><strong>Region:</strong></div> {this.state.listing.user_region}</div> : ''}
-                                {this.state.listing.user_country ? <div className='d-flex'><div className='w-25'><strong>Country:</strong></div> {this.state.listing.user_country}</div> : ''}
+                                {this.state.listing.user_email ? <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faAt} className='view-user-icon mr-2' /><strong>Email: </strong></div> <a href={`mailto:${this.state.listing.user_email}`}>{this.state.listing.user_email}</a></div> : ''}
+                                {this.state.listing.user_phone ? <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faPhone} /><strong>Phone Number:</strong></div> {this.state.listing.user_phone}</div> : ''}
+                                {this.state.listing.user_address ? <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faMapMarkedAlt} className='view-user-icon mr-2' /><strong>Address: </strong></div> <div className='keep-formatting'>{this.state.listing.user_address}{this.state.listing.user_city_code ? <span>, {this.state.listing.user_city_code}</span> : ''}</div></div> : ''}
+                                {this.state.listing.user_city && this.state.listing.user_region && this.state.listing.user_country ? <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faMapMarkerAlt} className='view-user-icon mr-2' /><strong>Location:</strong></div> <span>{this.state.listing.user_city}, {this.state.listing.user_region}, {this.state.listing.user_country}</span></div> : ''}
 
                                 {inquire}
                             </div>

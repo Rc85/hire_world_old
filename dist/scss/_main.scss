@@ -67,3 +67,9 @@ i { color: $theme-highlight; }
 }
 
 #approved-text, #reset-button, #user-review, #accepted-text { display: none }
+
+#announcements {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}

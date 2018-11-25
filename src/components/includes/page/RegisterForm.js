@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import { connect } from 'react-redux';
+import { LogError } from '../../utils/LogError';
 
 class RegisterForm extends Component {
     constructor() {
@@ -44,7 +45,7 @@ class RegisterForm extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/auth/register'));
     }
 
     generateExpireYear() {
@@ -69,13 +70,13 @@ class RegisterForm extends Component {
                 timeout: setTimeout(() => {
                     fetch.post('/api/user/search/titles', {value: value})
                     .then(resp => {
-                        console.log(resp);
                         if (resp.data.status === 'success') {
                             this.setState({searchedTitles: resp.data.titles});
                         } else {
                             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                         }
                     })
+                    .catch(err => LogError(err, '/api/user/search/titles'));
                 }, 250)
             });
         }

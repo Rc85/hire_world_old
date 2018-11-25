@@ -6,6 +6,7 @@ import Response from '../pages/Response';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle, faHeart } from '@fortawesome/free-solid-svg-icons';
 import MessageSender from '../includes/page/MessageSender';
+import { LogError } from '../utils/LogError';
 
 class ServiceDetails extends Component {
     constructor(props) {
@@ -27,7 +28,7 @@ class ServiceDetails extends Component {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/get/service/detail'));
     }
 
     send(message, subject) {
@@ -37,7 +38,7 @@ class ServiceDetails extends Component {
         .then(resp => {
             this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/message/submit'));
     }
 
     render() {

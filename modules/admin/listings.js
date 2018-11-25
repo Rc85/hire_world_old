@@ -47,19 +47,14 @@ app.post('/api/admin/listings/get', async(req, resp) => {
 
     let totaListingsQuery = `SELECT COUNT(listing_id) as listing_count FROM user_listings WHERE listing_status != 'Delete'${totalListingWhereConditionString}`;
     let query = `SELECT listing_id, listing_title, listing_created_date, listing_renewed_date, listing_sector, listing_status, listing_user FROM user_listings WHERE listing_status != 'Delete'${whereConditionString} ORDER BY listing_id LIMIT 25 OFFSET $1`;
-
-    console.log(totaListingsQuery);
-    console.log(query);
-
     let totalListings = await db.query(totaListingsQuery, totalListingsQueryParams);
 
     await db.query(query, params)
     .then(result => {
-        console.log(result.rows);
         if (result) resp.send({status: 'success', listings: result.rows, totalListings: totalListings.rows[0].listing_count});
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });
@@ -76,7 +71,7 @@ app.post('/api/admin/listing/change-status', async(req, resp) => {
         if (result) resp.send({status: 'success', listing: listing});
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });

@@ -11,6 +11,7 @@ const port = 9999;
 const db = require('./modules/db');
 const cryptoJS = require('crypto-js');
 const sgMail = require('@sendgrid/mail');
+const error = require('./modules/utils/error-handler');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -33,10 +34,12 @@ app.use(function (req, res, next) {
 app.use(express.static('dist'));
 app.use('/fonts', express.static('src/fonts'));
 app.use('/styles', express.static('src/styles'));
-app.use('/user_files', express.static('user_files'));
+app.use('/user_files', express.static(`user_files`))
+
 app.use('/images', express.static('images'));
 app.use('/webfonts', express.static('webfonts'));
 
+//app.use(require('./modules/utils/error-handler'));
 app.use(require('./modules/auth'));
 app.use(require('./modules/listings'));
 
@@ -56,8 +59,10 @@ app.use(require('./modules/message/messages'));
 app.use(require('./modules/message/offers'));
 app.use(require('./modules/message/jobs'));
 
-app.get('/', (req, resp) => {
-    resp.render('index', {user: req.session.user});
+app.get('/', async(req, resp) => {
+    let announcements = await db.query(`SELECT * FROM announcements`);
+
+    resp.render('index', {user: req.session.user, announcements: announcements.rows});
 });
 
 app.get('/pricing', async(req, resp) => {
@@ -67,7 +72,7 @@ app.get('/pricing', async(req, resp) => {
             return result.rows[0];
         }
     })
-    .catch(err => console.log(err));
+    .catch(err => error.log({name: err.name, message: err.message, origin: 'Database', url: req.url}));
 
     resp.render('pricing', {promo: promo, user: req.session.user});
 });
@@ -156,6 +161,10 @@ app.get('/advertise', (req, resp) => {
     resp.render('advertise');
 });
 
+app.get('/contact', (req, resp) => {
+    resp.render('contact');
+});
+
 app.get('/mploy/*', (req, resp) => {
     resp.sendFile(__dirname + '/dist/app.html');
 });
@@ -167,6 +176,12 @@ app.get('/mploy/*', (req, resp) => {
         resp.send({status: 'error', statusMessage: `You're not authorized`});
     }
 }); */
+
+app.post('/api/log-error', (req, resp) => {
+    error.log(req.body, status => {
+        resp.send({status: status});
+    });
+});
 
 app.use('/api/admin', (req, resp, next) => {
     if (req.session.user && req.session.user.userLevel > 80) {
@@ -190,6 +205,16 @@ app.use(require('./modules/admin/listings'));
 app.use(require('./modules/admin/reports'));
 app.use(require('./modules/admin/configs'));
 
+/* app.use('/api/dev', (req, resp, next) => {
+    if (req.session.user && req.session.user.userLevel > 90) {
+        next();
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not authorized`});
+    }
+});
+
+app.use(require('./modules/admin/errors')); */
+
 /* app.get('*', (req, resp) => {
     console.log('here');
     resp.sendFile(`${__dirname}/dist/index.html`);
@@ -197,6 +222,7 @@ app.use(require('./modules/admin/configs'));
 
 server.listen(port, (err) => {
     if (err) {
+        error.log({name: err.name, message: err.message, origin: 'Server', url: req.url});
         console.log(err);
     } else {
         console.log(process.env.NODE_ENV);

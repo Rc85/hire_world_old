@@ -11,34 +11,17 @@ import fetch from 'axios';
 import { Alert } from '../../actions/AlertActions';
 import { ShowWarning } from '../../actions/WarningActions';
 import BusinessHoursSettings from '../includes/page/BusinessHoursSettings';
+import { LogError } from '../utils/LogError';
 
 class UserSettings extends Component {
-    constructor(props) {
-        super(props);
-        
-        this.state = {
-            hide_email: this.props.user.user.hide_email,
-            display_fullname: this.props.user.user.display_fullname,
-            email_notifications: this.props.user.user.email_notifications,
-            allow_messaging: this.props.user.user.allow_messaging,
-            hide_business_hours: this.props.user.user.hide_business_hours
-        }
-    }
-    
-    componentWillUnmount() {
-        this.props.dispatch(UpdateUser(this.props.user.user));
-    }
-
     saveSetting(name) {
-        let state = Object.assign({}, this.state);
-        state[name] = !this.state[name];
+        let props = Object.assign({}, this.props.user.user);
+        props[name] = !this.props.user.user[name];
 
-       fetch.post(`/api/user/settings/change`, state)
+       fetch.post(`/api/user/settings/change`, props)
         .then(resp => {
-            console.log(resp.data);
+            console.log(resp)
             if (resp.data.status === 'success') {
-                this.setState(state);
-
                 this.props.dispatch(UpdateUser(resp.data.user));
 
                 if (resp.data.user.hide_email && !resp.data.user.allow_messaging && resp.data.user.hide_email) {
@@ -47,12 +30,11 @@ class UserSettings extends Component {
             } else {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
-        });
+        })
+        .catch(err => LogError(err, '/api/user/settings/change'));
     }
 
     render() {
-        console.log(this.state);
-
         return(
             <section id='user-settings' className='blue-panel shallow three-rounded'>
                 <ProfileSettings user={this.props.user} />
@@ -66,37 +48,37 @@ class UserSettings extends Component {
                         <div className='d-flex-between-center mb-3'>
                             <label htmlFor='hideEmail'>Hide Email:</label>
 
-                            <SlideToggle status={this.props.user.user.hide_email} id='hideEmail' onClick={() => this.saveSetting('hide_email')} />
+                            <SlideToggle status={this.props.user.user ? this.props.user.user.hide_email : false} id='hideEmail' onClick={() => this.saveSetting('hide_email')} />
                         </div>
 
                         <div className='d-flex-between-center mb-3'>
                             <label htmlFor='displayFullName'>Display Full Name:</label>
 
-                            <SlideToggle status={this.props.user.user.display_fullname} id='displayFullName' onClick={() => this.saveSetting('display_fullname')} />
+                            <SlideToggle status={this.props.user.user ? this.props.user.user.display_fullname : false} id='displayFullName' onClick={() => this.saveSetting('display_fullname')} />
                         </div>
 
                         <div className='d-flex-between-center mb-3'>
                             <label htmlFor='emailNotifications'>Email Notifications:</label>
 
-                            <SlideToggle status={this.props.user.user.email_notifications} id='emailNotifications' onClick={() => this.saveSetting('email_notifications')} />
+                            <SlideToggle status={this.props.user.user ? this.props.user.user.email_notifications : false} id='emailNotifications' onClick={() => this.saveSetting('email_notifications')} />
                         </div>
 
                         <div className='d-flex-between-center mb-3'>
                             <label htmlFor='allowMessaging'>Allow Messaging:</label>
 
-                            <SlideToggle status={this.props.user.user.allow_messaging} id='allowMessaging' onClick={() => this.saveSetting('allow_messaging')} />
+                            <SlideToggle status={this.props.user.user ? this.props.user.user.allow_messaging : false} id='allowMessaging' onClick={() => this.saveSetting('allow_messaging')} />
                         </div>
 
                         <div className='d-flex-between-center mb-3'>
                             <label htmlFor='hideBusinessHours'>Hide Business Hours:</label>
 
-                            <SlideToggle status={this.props.user.user.hide_business_hours} id='hideBusinessHours' onClick={() => this.saveSetting('hide_business_hours')} />
+                            <SlideToggle status={this.props.user.user ? this.props.user.user.hide_business_hours : false} id='hideBusinessHours' onClick={() => this.saveSetting('hide_business_hours')} />
                         </div>
 
                         <div className='d-flex-between-center mb-3'>
                             <label htmlFor='hidePhone'>Hide Phone Number:</label>
 
-                            <SlideToggle status={this.props.user.user.hide_phone} id='hidePhone' onClick={() => this.saveSetting('hide_phone')} />
+                            <SlideToggle status={this.props.user.user ? this.props.user.user.hide_phone : false} id='hidePhone' onClick={() => this.saveSetting('hide_phone')} />
                         </div>
                     </div>
 

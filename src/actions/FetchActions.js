@@ -1,4 +1,5 @@
 import fetch from 'axios';
+import { LogError } from '../components/utils/LogError';
 
 export const GetSession = () => {
     return dispatch => {
@@ -12,7 +13,7 @@ export const GetSession = () => {
                 dispatch(GetSessionFail(resp.data.status, null));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/auth/login'));
     }
 }
 
@@ -51,7 +52,7 @@ export const GetSectors = () => {
                 dispatch(UpdateSectorsError(resp.data.status));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/get/sectors'));
     }
 }
 

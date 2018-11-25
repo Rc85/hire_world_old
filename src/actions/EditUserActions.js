@@ -1,5 +1,6 @@
 import fetch from 'axios';
 import { Alert } from './AlertActions';
+import { LogError } from '../components/utils/LogError';
 
 export const EditUser = (type, value, user) => {
     return dispatch => {
@@ -16,7 +17,7 @@ export const EditUser = (type, value, user) => {
                 dispatch(Alert('error', 'An error occurred'));
             }
         })
-        .catch(err =>  console.log(err));
+        .catch(err =>  LogError(err, '/api/user/edit'));
     }
 }
 

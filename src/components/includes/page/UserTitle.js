@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { UpdateUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
 import { Alert } from '../../../actions/AlertActions';
+import { LogError } from '../../utils/LogError';
 
 class UserTitle extends Component {
     constructor(props) {
@@ -35,6 +36,7 @@ class UserTitle extends Component {
                             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                         }
                     })
+                    .catch(err => LogError(err, '/api/user/search/titles'));
                 }, 250)
             });
         }
@@ -52,25 +54,26 @@ class UserTitle extends Component {
                     this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                 }
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, '/api/user/profile/update'));
         }
     }
     
     render() {
-        console.log(this.state.titles);
         let value;
 
-        if (!this.state.editing) {
-            value = this.state.title;
-        } else {
-            value = <React.Fragment>
-                <input type='text' name='title' id='user-title' className='form-control' list='title-list' onChange={(e) => this.setState({title: e.target.value})} onKeyUp={(e) => this.searchTitle(e.target.value)} autoComplete='off' onKeyDown={(e) => this.setTitle(e)} />
-                <datalist id='title-list'>
-                    {this.state.searchedTitles.map((title, i) => {
-                        return <option key={i} value={title}>{title}</option>
-                    })}
-                </datalist>
-            </React.Fragment>
+        if (this.props.user.user) {
+            if (!this.state.editing) {
+                value = this.state.title;
+            } else {
+                value = <React.Fragment>
+                    <input type='text' name='title' id='user-title' className='form-control' list='title-list' onChange={(e) => this.setState({title: e.target.value})} onKeyUp={(e) => this.searchTitle(e.target.value)} autoComplete='off' onKeyDown={(e) => this.setTitle(e)} />
+                    <datalist id='title-list'>
+                        {this.state.searchedTitles.map((title, i) => {
+                            return <option key={i} value={title}>{title}</option>
+                        })}
+                    </datalist>
+                </React.Fragment>
+            }
         }
 
         return (

@@ -9,8 +9,6 @@ const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.post('/api/auth/register', (req, resp) => {
-    console.log(req.body);
-
     if (req.body.agreed) {
         if (!validate.usernameCheck.test(req.body.username)) {
             resp.send({status: 'error', statusMessage: 'Invalid username'});
@@ -38,10 +36,10 @@ app.post('/api/auth/register', (req, resp) => {
             resp.send({status: 'error', statusMessage: 'Please enter your city name'});
         } else {
             bcrypt.hash(req.body.password, 10, (err, result) => {
-                if (err) { console.log(err); }
+                if (err) { error.log({name: err.name, message: err.message, origin: 'bcrypt Unhashing', url: req.url}); }
 
                 db.connect((err, client, done) => {
-                    if (err) console.log(err);
+                    if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
                     
                     (async() => {
                         try {
@@ -83,19 +81,21 @@ app.post('/api/auth/register', (req, resp) => {
                         }
                     })()
                     .catch(err => {
-                        console.log(err);
+                        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                        
+                        let message = `An error occurred`;
                         
                         if (err.code === '23505') {
                             if (err.constraint === 'unique_email') {
-                                resp.send({status: 'error', statusMessage: 'Email already taken'});
+                                message = 'Email already taken';
                             } else if (err.constraint === 'unique_username') {
-                                resp.send({status: 'error', statusMessage: 'Username already taken'});
+                                message = 'Username already taken';
                             }
                         } else if (err.code === '23502') {
-                            resp.send({status: 'error', statusMessage: 'All fields are required'});
-                        } else {
-                            resp.send({status: 'error', statusMessage: 'An error occurred'});
+                            message = 'All fields are required';
                         }
+
+                        resp.send({status: 'error', statusMessage: message});
                     });
                 });
             });
@@ -114,7 +114,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
             return result;
         })
         .catch(err => {
-            console.log(err);
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
 
@@ -124,7 +124,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
                 return result.rows[0].ban_end_date
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}));
 
         let today = new Date();
 
@@ -146,13 +146,13 @@ app.post('/api/auth/login', async(req, resp, next) => {
             } else {
                 bcrypt.compare(req.body.password, auth.rows[0].user_password, async(err, match) => {
                     if (err) {
-                        console.log(err);
+                        error.log({name: err.name, message: err.message, origin: 'bcrypt Comparing', url: req.url});
                         resp.send({status: 'error', statusMessage: 'An error occurred'});
                     }
 
                     if (match) {
                         await db.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
-                        .catch(err => console.log(err));
+                        .catch(err => error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}));
 
                         let session = {
                             user_id: auth.rows[0].user_id,

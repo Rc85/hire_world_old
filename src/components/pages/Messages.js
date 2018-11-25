@@ -10,6 +10,7 @@ import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationA
 import { connect } from 'react-redux';
 import MessageRow from '../includes/page/MessageRow';
 import Pagination from '../utils/Pagination';
+import { LogError } from '../utils/LogError';
 
 class Messages extends Component {
     constructor(props) {
@@ -42,8 +43,8 @@ class Messages extends Component {
     }
     
     componentDidUpdate(prevProps, prevState) {
-        if (prevProps.user.user !== this.props.user.user || this.state.showing !== prevState.showing) {
-            fetch.post(`/api/get/messages/${this.state.showing}`, {stage: this.props.match.params.stage, user: this.props.user.user.user_type, offset: this.state.offset})
+        if (this.state.showing !== prevState.showing) {
+            fetch.post(`/api/get/messages/${this.state.showing}`, {stage: this.props.match.params.stage, offset: this.state.offset})
             .then(resp => {
                 if (resp.data.status === 'success') {
                     let messageCount = 0;
@@ -59,10 +60,30 @@ class Messages extends Component {
                     this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                 }
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, `/api/get/messages/${this.state.showing}`));
         }
     }
 
+    componentDidMount() {
+        fetch.post(`/api/get/messages/${this.state.showing}`, {stage: this.props.match.params.stage, offset: this.state.offset})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                let messageCount = 0;
+
+                if (resp.data.messages.length > 0) {
+                    messageCount = resp.data.messages[0].message_count;
+                }
+
+                this.setState({messages: resp.data.messages, status: '', messageCount: messageCount, pinnedMessages: resp.data.pinned});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+        })
+        .catch(err => LogError(err, `/api/get/messages/${this.state.showing}`));
+    }
+    
     selectAllMessage(checkbox) {
         let checkboxes = document.getElementsByClassName('select-message-checkbox');
         let selected = this.state.selected;
@@ -119,7 +140,7 @@ class Messages extends Component {
 
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));           
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, '/api/job/delete'));
         } else {
             this.props.dispatch(Alert('error', 'Nothing to delete'));
         }
@@ -137,7 +158,7 @@ class Messages extends Component {
             
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/jobs/delete'));
     }
 
     pinMessage(id) {
@@ -161,11 +182,10 @@ class Messages extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/job/pin'));
     }
 
     render() {
-        console.log(this.state);
         let status, messages;
 
         if (this.state.status === 'Loading') {

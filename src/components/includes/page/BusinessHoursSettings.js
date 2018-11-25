@@ -7,6 +7,7 @@ import SubmitButton from '../../utils/SubmitButton';
 import { connect } from 'react-redux';
 import { Alert } from '../../../actions/AlertActions';
 import { UncontrolledTooltip } from 'reactstrap';
+import { LogError } from '../../utils/LogError';
 
 class BusinessHoursSettings extends Component {
     constructor(props) {
@@ -35,7 +36,6 @@ class BusinessHoursSettings extends Component {
     componentDidMount() {
         fetch.get('/api/get/business_hours')
         .then(resp => {
-            console.log(resp.data.hours);
             if (resp.data.status === 'success') {
                 let monStart, monEnd, tueStart, tueEnd, wedStart, wedEnd, thuStart, thuEnd, friStart, friEnd, satStart, satEnd, sunStart, sunEnd;
 
@@ -87,9 +87,10 @@ class BusinessHoursSettings extends Component {
 
                 this.setState(this.initialState);
             }
-        });
+        })
+        .catch(err => LogError(err, '/api/get/business_hours'));
     }
-
+    
     save() {
         this.setState({status: 'Loading'});
 
@@ -154,7 +155,7 @@ class BusinessHoursSettings extends Component {
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/user/business_hours/save'));
     }
     
     render() {

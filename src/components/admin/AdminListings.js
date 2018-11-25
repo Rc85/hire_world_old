@@ -8,6 +8,7 @@ import AdminSearchListings from './includes/AdminSearchListings';
 import AdminListingRow from './includes/AdminListingRow';
 import { withRouter } from 'react-router-dom';
 import Pagination from '../utils/Pagination';
+import { LogError } from '../utils/LogError';
 
 class AdminListings extends Component {
     constructor(props) {
@@ -51,7 +52,7 @@ class AdminListings extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                 }
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, '/api/admin/listing/get'));
         }
     }
     
@@ -65,7 +66,7 @@ class AdminListings extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/listing/get'));
     }
 
     filter(data) {

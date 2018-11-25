@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import fetch from 'axios'
 import { UpdateUserNotifications } from '../../../actions/FetchActions';
-import Alert from '../../utils/Alert';
+import { Alert } from '../../../actions/AlertActions';
 import { connect } from 'react-redux';
+import { LogError } from '../../utils/LogError';
 
 class NotificationPanel extends Component {
     componentDidMount() {
@@ -26,7 +27,7 @@ class NotificationPanel extends Component {
                 this.props.dispatch(Alert('error', 'Failed to update notifications'));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/user/notifications/viewed'));
     }
         
     render() {

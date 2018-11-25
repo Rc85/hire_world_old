@@ -5,7 +5,7 @@ const cryptojs = require('crypto-js');
 app.post('/api/jobs/delete', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             (async() => {
                 try {
@@ -62,8 +62,6 @@ app.post('/api/jobs/delete', (req, resp) => {
                         ${pinnedMessageQuery ? pinnedMessageQuery : ''}
                         ORDER BY job_created_date DESC`, params);
 
-                        console.log(jobs.rows);
-
                         await client.query('COMMIT')
                         .then(() => {
                             resp.send({status: 'success', jobs: jobs.rows});
@@ -77,7 +75,7 @@ app.post('/api/jobs/delete', (req, resp) => {
                 }
             })()
             .catch(err => {
-                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -89,7 +87,7 @@ app.post('/api/jobs/delete', (req, resp) => {
 app.post('/api/job/complete', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             (async() => {
                 try {
@@ -119,7 +117,7 @@ app.post('/api/job/complete', (req, resp) => {
                 }
             })()
             .catch(err => {
-                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -131,8 +129,7 @@ app.post('/api/job/complete', (req, resp) => {
 app.post('/api/job/complete/:decision', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
-            console.log(req.body)
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             if (req.params.decision === 'approve') {
                 (async() => {
@@ -169,7 +166,7 @@ app.post('/api/job/complete/:decision', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    console.log(err);
+                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                     resp.send({status: 'error', statusMessage: 'An error occurred'});
                 });
             } else if (req.params.decision === 'decline') {
@@ -203,7 +200,7 @@ app.post('/api/job/complete/:decision', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    console.log(err);
+                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                     resp.send({status: 'error', statusMessage: 'An error occurred'});
                 });
             }
@@ -216,7 +213,7 @@ app.post('/api/job/complete/:decision', (req, resp) => {
 app.post('/api/job/close', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             (async() => {
                 try {
@@ -247,7 +244,7 @@ app.post('/api/job/close', (req, resp) => {
                 }
             })()
             .catch(err => {
-                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -257,8 +254,7 @@ app.post('/api/job/close', (req, resp) => {
 app.post('/api/job/abandon', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            console.log(req.body);
-            if (err) console.log(err);
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             (async() => {
                 try {
@@ -294,7 +290,7 @@ app.post('/api/job/abandon', (req, resp) => {
                 }
             })()
             .catch(err => {
-                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -303,10 +299,56 @@ app.post('/api/job/abandon', (req, resp) => {
     }
 });
 
+app.post('/api/job/cancel-abandon', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let authorized = await client.query(`SELECT job_client, job_user FROM jobs WHERE job_id = $1`, [req.body.job_id]);
+
+                    if (authorized && authorized[0].job_user === req.session.user.username) {
+                        await client.query(`UPDATE messages SET message_body = $1, message_type = $2 WHERE message_type = $3 AND belongs_to_job = $4 AND message_recipient = $5`, [`The other party cancelled the abandon request.`, 'Update', 'Abandonment', req.body.job_id, req.body.recipient]);
+
+                        let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, [req.body.job_id, `Your abandon request has been cancelled.`, req.session.user.username, 'Update', true, 'System']);
+
+                        await client.query(`UPDATE jobs SET job_status = $1, job_abandoned_date = $2, abandon_reason = $3 WHERE job_id = $4`, ['Active', null, null, req.body.job_id]);
+
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success', message: message.rows[0]}));
+                    } else {
+                        let error = new Error(`You're not authorized`);
+                        error.type = 'user_defined';
+                    }
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                
+                let message = 'An error occurred';
+
+                if (err.type === 'user_defined') {
+                    message = err.message;
+                }
+
+                resp.send({status: 'error', statusMessage: message});
+            });
+        });
+    }
+});
+
 app.post('/api/job/abandon/:decision', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             (async() => {
                 try {
@@ -347,7 +389,7 @@ app.post('/api/job/abandon/:decision', (req, resp) => {
                 }
             })()
             .catch(err => {
-                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                 let message = 'An error occurred';
                 
                 if (err.type === 'user_defined') {
@@ -382,7 +424,7 @@ app.post('/api/job/pin', async(req, resp) => {
             }
         })
         .catch(err => {
-            console.log(err);
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     }

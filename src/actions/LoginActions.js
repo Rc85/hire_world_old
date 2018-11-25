@@ -1,6 +1,6 @@
 import fetch from 'axios';
 import { Alert } from '../actions/AlertActions';
-
+import { LogError } from '../components/utils/LogError';
 import { GetSession } from './FetchActions';
 
 export const LoginUser = (data) => {
@@ -12,12 +12,13 @@ export const LoginUser = (data) => {
             if (resp.data.status === 'success') {
                 dispatch(GetSession());
             } else if (resp.data.status === 'error') {
+                dispatch(LoginError(resp.data.status, resp.data.statusMessage));
                 dispatch(Alert(resp.data.status, resp.data.statusMessage));
             } else if (resp.data.status === 'access error') {
                 dispatch(LoginError(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/auth/login'));
     }
 }
 
@@ -45,7 +46,7 @@ export const LogoutUser = () => {
                 location.href = '/';
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/auth/logout'));
     }
 }
 

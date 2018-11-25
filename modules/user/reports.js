@@ -11,7 +11,7 @@ app.post('/api/report/submit', async(req, resp) => {
                 if (result) resp.send({status: 'success', statusMessage: 'Report sent'});
             })
             .catch(err => {
-                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                 if (err.code === '23505') {
                     resp.send({status: 'error', statusMessage: 'You already reported'});
                 } else {

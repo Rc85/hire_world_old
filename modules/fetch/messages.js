@@ -59,16 +59,21 @@ app.post('/api/get/messages/:type', async(req, resp) => {
 
         await db.query(queryString, params)
         .then(result => {
+            let messageCount;
             if (result) {
-                if (req.params.type === 'pinned') {
-                    result.rows[0].message_count = pinnedArray.length;
+                if (result.rows.length > 0) {
+                    if (req.params.type === 'pinned') {
+                        result.rows[0].message_count = pinnedArray.length;
+                    }
+
+                    messageCount = result.rows[0].message_count;
                 }
-                
-                resp.send({status: 'success', messages: result.rows, message_count: result.rows[0].message_count, pinned: pinnedArray});
+                    
+                resp.send({status: 'success', messages: result.rows, message_count: messageCount, pinned: pinnedArray});
             }
         })
         .catch(err => {
-            console.log(err);
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error', statusMessage: 'An error occurred while trying to retrieve messages'});
         });
     }
@@ -102,7 +107,7 @@ app.post('/api/get/message', async(req, resp) => {
                     return false
                 }
             })
-            .catch(err => console.log(err));
+            .catch(err => error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}));
 
             await db.query(`UPDATE messages SET message_status = 'Read' WHERE belongs_to_job = $1 AND message_recipient = $2 AND message_status NOT IN ('Deleted', 'Closed')`, [req.body.job_id, req.session.user.username])
             .then(() => {
@@ -113,7 +118,7 @@ app.post('/api/get/message', async(req, resp) => {
                 }
             })
             .catch(err => {
-                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         } else {

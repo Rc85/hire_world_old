@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Dropzone from 'react-dropzone';
-import { GetSession } from '../../../actions/FetchActions';
 import { connect } from 'react-redux';
 import Loading from '../../utils/Loading';
 import { Alert } from '../../../actions/AlertActions';
 import { ShowConfirmation } from '../../../actions/ConfirmationActions';
 import fetch from 'axios';
 import PropTypes from 'prop-types';
+import { LogError } from '../../utils/LogError';
+import { UpdateUser } from '../../../actions/LoginActions';
 
 class UserProfilePic extends Component {
     constructor(props) {
@@ -36,15 +37,14 @@ class UserProfilePic extends Component {
 
         fetch.post('/api/user/profile-pic/upload', data)
         .then(resp => {
-            this.setState({status: ''});
-
-            if (resp.data.status === 'error') {
+            if (resp.data.status === 'success') {
+                this.setState({status: ''});
+                this.props.dispatch(UpdateUser(resp.data.user));
+            } else if (resp.data.status === 'error') {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
-            
-            this.props.dispatch(GetSession());
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/user/profile-pic/upload'));
     }
 
     confirmDelete() {
@@ -57,15 +57,14 @@ class UserProfilePic extends Component {
 
         fetch.post('/api/user/profile-pic/delete')
         .then(resp => {
-            this.setState({status: ''});
-
-            if (resp.data.status === 'error') {
+            if (resp.data.status === 'success') {
+                this.setState({status: ''});
+                this.props.dispatch(UpdateUser(resp.data.user));
+            } else if (resp.data.status === 'error') {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
-
-            this.props.dispatch(GetSession());
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/user/profile-pic/delete'));
     }
 
     render() {

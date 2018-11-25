@@ -8,6 +8,7 @@ import Pagination from '../utils/Pagination';
 import AdminUserRow from './includes/AdminUserRow';
 import { Alert } from '../../actions/AlertActions';
 import { withRouter } from 'react-router-dom';
+import { LogError } from '../utils/LogError';
 
 class AdminUsers extends Component {
     constructor(props) {
@@ -56,7 +57,7 @@ class AdminUsers extends Component {
                     this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                 }
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, '/api/admin/get/users'));
         }
     }
     
@@ -73,7 +74,7 @@ class AdminUsers extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/get/users'));
     }
 
     filterUsers(data) {

@@ -17,7 +17,7 @@ app.post('/api/admin/reports/get', async(req, resp) => {
         if (result) resp.send({status: 'success', reports: result.rows});
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });
@@ -50,7 +50,7 @@ app.post('/api/admin/report/change-status', async(req, resp) => {
             }
         })
         .catch(err => {
-            console.log(err);
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     } else {
@@ -61,7 +61,6 @@ app.post('/api/admin/report/change-status', async(req, resp) => {
 app.post('/api/admin/report/get-review', async(req, resp) => {
     await db.query(`SELECT * FROM user_reviews WHERE review_id = $1`, [req.body.id])
     .then(result => {
-        console.log(result.rows);
         if (result && result.rows.length === 1) {
             resp.send({status: 'success', review: result.rows[0]});
         } else if (result && result.rows.length === 0) {
@@ -69,12 +68,12 @@ app.post('/api/admin/report/get-review', async(req, resp) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });
 
-app.post('/api/admin-panel/report/delete-review', async(req, resp) => {
+app.post('/api/admin/report/delete-review', async(req, resp) => {
     await db.query(`UPDATE user_reviews SET review_status = 'Deleted' WHERE review_id = $1 RETURNING *`, [req.body.id])
     .then(result => {
         if (result && result.rowCount === 1) {
@@ -84,7 +83,7 @@ app.post('/api/admin-panel/report/delete-review', async(req, resp) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });

@@ -10,6 +10,7 @@ import moment from 'moment';
 import fetch from 'axios';
 import { Alert } from '../../../actions/AlertActions';
 import { PromptOpen, PromptReset } from '../../../actions/PromptActions';
+import { LogError } from '../../utils/LogError';
 
 class AdminUserRow extends Component {
     constructor(props) {
@@ -73,7 +74,7 @@ class AdminUserRow extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/user/change-status'));
     }
 
     render() {

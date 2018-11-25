@@ -20,7 +20,6 @@ class Login extends Component {
     }
 
     render() {
-        console.log(this.props.user);
         if (this.props.user.user) {
             return <Redirect to='/dashboard/edit' />;
         } else if (this.props.user.status === 'access error') {

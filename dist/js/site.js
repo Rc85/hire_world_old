@@ -1,4 +1,6 @@
 $(document).ready(function() {
+    $('.alert').alert();
+
     const showProcess = (arrow, process) => {
         setTimeout(() => {
             $(arrow).css({'opacity': '1'});

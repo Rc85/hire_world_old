@@ -5,7 +5,7 @@ const moment = require('moment');
 app.post('/api/message/submit', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) { console.log(err); }
+            if (err) { error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'}); }
             let blankCheck = /^\s*$/;
 
             if (blankCheck.test(req.body.subject) || blankCheck.test(req.body.message)) {
@@ -38,7 +38,7 @@ app.post('/api/message/submit', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    console.log(err);
+                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                     let message = 'Fail to send message';
 
                     if (err.type === 'user_defined') {
@@ -56,10 +56,10 @@ app.post('/api/message/submit', (req, resp) => {
     }
 });
 
-app.post('/api/message/reply', async(req, resp) => {
+app.post('/api/message/reply', (req, resp) => {
     if (req.session.user) {
-        db.connect(async(err, client, done) => {
-            if (err) console.log(err);
+        db.connect((err, client, done) => {
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             let blankCheck = /^\s*$/;
 
@@ -102,7 +102,7 @@ app.post('/api/message/reply', async(req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    console.log(err);
+                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                     let message = 'Fail to send reply';
 
                     if (err.type === 'user_defined') {
@@ -130,7 +130,7 @@ app.post('/api/message/delete', async(req, resp) => {
                 }
             })
             .catch(err => {
-                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         } else {
@@ -142,7 +142,7 @@ app.post('/api/message/delete', async(req, resp) => {
 app.post('/api/message/edit', (req, resp) => {
     if (req.session.user) {
         db.connect(async(err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             (async() => {
                 try {
@@ -171,7 +171,7 @@ app.post('/api/message/edit', (req, resp) => {
                 }
             })()
             .catch(err => {
-                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
 
                 let message = 'An error occurred';
 

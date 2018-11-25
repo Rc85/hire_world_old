@@ -6,6 +6,7 @@ import Loading from '../utils/Loading';
 import { Alert } from '../../actions/AlertActions';
 import ListingRow from '../includes/page/ListingRow';
 import SearchListing from '../includes/page/SearchListing';
+import { LogError } from '../utils/LogError';
 
 class Sectors extends Component {
     constructor(props) {
@@ -22,14 +23,13 @@ class Sectors extends Component {
     componentDidMount() {
         fetch.post('/api/get/listings', {sector: this.props.name})
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', listings: resp.data.listings});
             } else if (resp.data.status === 'access error') {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/get/listings'));
     }
 
     filterListings(data) {
@@ -42,11 +42,11 @@ class Sectors extends Component {
             this.setState({status: '', listings: resp.data.listings});
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-        });
+        })
+        .catch(err => LogError(err, '/api/filter/listings'));
     }
 
     render() {
-        console.log(this.state)
         let loading, button, error;
 
         if (this.state.status === 'loading') {

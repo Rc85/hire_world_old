@@ -31,34 +31,38 @@ class UserDetails extends Component {
         let icon;
         let bio;
         
-        if (this.state.editor) {
-            editor = <div id='user-bio-editor'>
-                <textarea className='form-control w-100' name='user-bio' rows={'6'}
-                onChange={(e) => {
-                    this.setState({
-                        value: e.target.value
-                    });
-                }}
-                ></textarea>
-                <div className='text-right mt-1'><button className='btn btn-primary' onClick={() => {
-                    this.submitBio();
+        if (this.props.user.user) {
+            if (this.state.editor) {
+                editor = <div id='user-bio-editor'>
+                    <textarea className='form-control w-100' name='user-bio' rows={'6'}
+                    onChange={(e) => {
+                        this.setState({
+                            value: e.target.value
+                        });
+                    }}
+                    ></textarea>
+                    <div className='text-right mt-1'><button className='btn btn-primary' onClick={() => {
+                        this.submitBio();
 
-                    document.getElementById('user-bio-editor').value = '';
+                        document.getElementById('user-bio-editor').value = '';
 
-                    this.setState({
-                        editor: !this.state.editor
-                    });
-                }}>Submit</button></div>
-            </div>;
-            icon = <FontAwesomeIcon icon={faTimes} />;
-        } else {
-            icon = <FontAwesomeIcon icon={faEdit} />
-        }
+                        this.setState({
+                            editor: !this.state.editor
+                        });
+                    }}>Submit</button></div>
+                </div>;
+                icon = <FontAwesomeIcon icon={faTimes} />;
+            } else {
+                icon = <FontAwesomeIcon icon={faEdit} />
+            }
 
-        if (this.props.user.status === 'edit user_bio loading') {
-            bio = <Loading size='3x' />
-        } else {
-            bio = this.props.user.user.user_bio;
+            if (this.props.user.status === 'edit user_bio loading') {
+                bio = <Loading size='3x' />
+            } else {
+                if (this.props.user.user.user_bio) {
+                    bio = <div id='user-bio' className='grey-panel rounded mt-3'>{this.props.user.user.user_bio}</div>;
+                }
+            }
         }
 
         return(
@@ -71,7 +75,7 @@ class UserDetails extends Component {
 
                 {editor}
 
-                {this.props.user.user.user_bio ? <div id='user-bio' className='grey-panel rounded mt-3'>{bio}</div> : ''}
+                {bio}
             </section>
         )
     }

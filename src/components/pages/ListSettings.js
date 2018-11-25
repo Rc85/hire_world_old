@@ -9,6 +9,7 @@ import { withRouter } from 'react-router-dom';
 import { UncontrolledTooltip } from 'reactstrap';
 import ListInfo from '../includes/page/ListInfo';
 import moment from 'moment';
+import { LogError } from '../utils/LogError';
 
 class ListSettings extends Component {
     constructor(props) {
@@ -52,7 +53,6 @@ class ListSettings extends Component {
 
         fetch.post('/api/get/listing')
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 if (resp.data.listing) {
                     this.initialSettings = {
@@ -78,9 +78,9 @@ class ListSettings extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/get/listing'));
     }
-
+    
     createListing() {
         let blankCheck = /^\s*$/;
 
@@ -119,7 +119,7 @@ class ListSettings extends Component {
 
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, '/api/listing/create'));
         }
     }
 
@@ -128,7 +128,6 @@ class ListSettings extends Component {
 
         fetch.post('/api/listing/toggle', {listing_id: this.state.initialSettings.listing_id})
         .then(resp => {
-            console.log(resp.data);
             if (resp.data.status === 'success') {
                 this.initialSettings.listing_status = resp.data.listing_status;
 
@@ -139,7 +138,7 @@ class ListSettings extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/listing/toggle'));
     }
 
     updateListing() {
@@ -169,7 +168,7 @@ class ListSettings extends Component {
             
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/listing/edit'));
     }
 
     renewListing() {
@@ -182,7 +181,8 @@ class ListSettings extends Component {
             this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage, initialSettings: this.initialSettings, newSettings: this.initialSettings});
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-        });
+        })
+        .catch(err => LogError(err, '/api/listing/renew'));
     }
 
     setSettings(k, v) {
@@ -194,7 +194,7 @@ class ListSettings extends Component {
     }
     
     render() {
-        console.log(this.state.newSettings);
+        console.log('list settings rendered')
         let status, sectors, buttons, listInfo;
 
         if (this.state.status === 'Loading') {
@@ -224,7 +224,7 @@ class ListSettings extends Component {
         
         return(
             <section id='list-settings' className='blue-panel shallow three-rounded'>
-                {this.props.user.user.account_type === 'User' ? <div className='alert alert-danger'>You need to be on a subscription plan to create a listing</div> : ''}
+                {this.props.user.user && this.props.user.user.account_type === 'User' ? <div className='alert alert-danger'>You need to be on a subscription plan to create a listing</div> : ''}
                 {status}
                 {buttons}
 
@@ -235,12 +235,12 @@ class ListSettings extends Component {
                         <div className='d-flex-between-start w-45'>
                             <div className='w-70'>
                                 <label htmlFor='listing-title'>Title: <span className='required-asterisk'>*</span></label>
-                                <input type='text' name='listing-title' id='listing-title' className='form-control' onChange={(e) => this.setSettings('listing_title', e.target.value)} defaultValue={this.state.initialSettings.listing_title} disabled={this.props.user.user.account_type === 'User'} />
+                                <input type='text' name='listing-title' id='listing-title' className='form-control' onChange={(e) => this.setSettings('listing_title', e.target.value)} defaultValue={this.state.initialSettings.listing_title} disabled={this.props.user.user && this.props.user.user.account_type === 'User'} />
                             </div>
 
                             <div className='w-25'>
                                 <label htmlFor='listing-sector'>List Under: <span className='required-asterisk'>*</span></label>
-                                <select name='sector' id='listing-sector' className='form-control' onChange={(e) => this.setSettings('listing_sector', e.target.value)} value={this.state.initialSettings.listing_sector} disabled={this.props.user.user.account_type === 'User'}>
+                                <select name='sector' id='listing-sector' className='form-control' onChange={(e) => this.setSettings('listing_sector', e.target.value)} defaultValue={this.state.initialSettings.listing_sector} disabled={this.props.user.user && this.props.user.user.account_type === 'User'}>
                                     {sectors}
                                 </select>
                             </div>
@@ -250,12 +250,12 @@ class ListSettings extends Component {
                             <div className='d-flex-between-start mb-3'>
                                 <div className='w-30'>
                                     <label htmlFor='listing-price'>Price Rate: <span className='required-asterisk'>*</span></label>
-                                    <input type='number' name='price' id='listing-price' className='form-control' onChange={(e) => this.setSettings('listing_price', e.target.value)} defaultValue={this.state.initialSettings.listing_price} disabled={this.props.user.user.account_type === 'User'} />
+                                    <input type='number' name='price' id='listing-price' className='form-control' onChange={(e) => this.setSettings('listing_price', e.target.value)} defaultValue={this.state.initialSettings.listing_price} disabled={this.props.user.user && this.props.user.user.account_type === 'User'} />
                                 </div>
 
                                 <div className='w-30'>
                                     <label htmlFor='listing-price-type'>Per: <span className='required-asterisk'>*</span></label>
-                                    <select name='listing-price-type' id='listing-price-type' className='form-control' onChange={(e) => this.setSettings('listing_price_type', e.target.value)} value={this.state.initialSettings.listing_price_type} disabled={this.props.user.user.account_type === 'User'}>
+                                    <select name='listing-price-type' id='listing-price-type' className='form-control' onChange={(e) => this.setSettings('listing_price_type', e.target.value)} defaultValue={this.state.initialSettings.listing_price_type} disabled={this.props.user.user && this.props.user.user.account_type === 'User'}>
                                         <option value='Hour'>Hour</option>
                                         <option value='Bi-weekly'>Bi-weekly</option>
                                         <option value='Month'>Month</option>
@@ -266,7 +266,7 @@ class ListSettings extends Component {
 
                                 <div className='w-30'>
                                     <label htmlFor='listing-currency'>Currency: <span className='required-asterisk'>*</span></label>
-                                    <input type='text' name='listing-currency' id='listing-currency' className='form-control' list='currency-list' maxLength='5' placeholder='Currency' onChange={(e) => this.setSettings('listing_price_currency', e.target.value)} defaultValue={this.state.initialSettings.listing_price_currency} disabled={this.props.user.user.account_type === 'User'} />
+                                    <input type='text' name='listing-currency' id='listing-currency' className='form-control' list='currency-list' maxLength='5' placeholder='Currency' onChange={(e) => this.setSettings('listing_price_currency', e.target.value)} defaultValue={this.state.initialSettings.listing_price_currency} disabled={this.props.user.user && this.props.user.user.account_type === 'User'} />
                                     <datalist id='currency-list'>
                                         <option value='USD'>USD</option>
                                         <option value='CAD'>CAD</option>
@@ -279,18 +279,18 @@ class ListSettings extends Component {
                                 </div>
                             </div>
 
-                            <label id='listing-negotiable-label' htmlFor='listing-negotiable'><input type='checkbox' name='listing-negotiable' id='listing-negotiable' onClick={() => this.setSettings('listing_negotiable', !this.state.newSettings.negotiable)} checked={this.state.initialSettings.negotiable} disabled={this.props.user.user.account_type === 'User'} /> Negotiable</label>
+                            <label id='listing-negotiable-label' htmlFor='listing-negotiable'><input type='checkbox' name='listing-negotiable' id='listing-negotiable' onClick={() => this.setSettings('listing_negotiable', !this.state.newSettings.listing_negotiable)} checked={this.state.newSettings.listing_negotiable} disabled={this.props.user.user && this.props.user.user.account_type === 'User'} /> Negotiable</label>
                             <UncontrolledTooltip target='listing-negotiable-label' placement='top'>Enabling this will allow your clients to send you offers.</UncontrolledTooltip>
                         </div>
                     </div>
 
                     Details:
 
-                    <textarea name='listing-detail' id='listing-detail' rows='10' className='form-control w-100 mb-3' placeholder='Describe the type of products or service you offer' onChange={(e) => this.setSettings('listing_detail', e.target.value)} defaultValue={this.state.initialSettings.listing_detail} disabled={this.props.user.user.account_type === 'User'}></textarea>
+                    <textarea name='listing-detail' id='listing-detail' rows='10' className='form-control w-100 mb-3' placeholder='Describe the type of products or service you offer' onChange={(e) => this.setSettings('listing_detail', e.target.value)} defaultValue={this.state.initialSettings.listing_detail} disabled={this.props.user.user && this.props.user.user.account_type === 'User'}></textarea>
 
                     <div className='text-right'>
-                        {this.state.initialSettings.listing_created_date ? <button type='button' className='btn btn-primary mr-1' onClick={() => this.updateListing()} disabled={JSON.stringify(this.initialSettings) === JSON.stringify(this.state.newSettings)}>Update</button> : <button type='button' className='btn btn-primary mr-1' onClick={() => this.createListing()} disabled={this.props.user.user.account_type === 'User'}>Create</button>}
-                        <button type='reset' className='btn btn-secondary' onClick={() => this.setState({newSettings: this.initialSettings})} disabled={this.props.user.user.account_type === 'User'}>Clear</button>
+                        {this.state.initialSettings.listing_created_date ? <button type='button' className='btn btn-primary mr-1' onClick={() => this.updateListing()} disabled={JSON.stringify(this.initialSettings) === JSON.stringify(this.state.newSettings)}>Update</button> : <button type='button' className='btn btn-primary mr-1' onClick={() => this.createListing()} disabled={this.props.user.user && this.props.user.user.account_type === 'User'}>Create</button>}
+                        <button type='reset' className='btn btn-secondary' onClick={() => this.setState({newSettings: this.initialSettings})} disabled={this.props.user.user && this.props.user.user.account_type === 'User'}>Clear</button>
                     </div>
                 </form>
             </section>

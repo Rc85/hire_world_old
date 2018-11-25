@@ -21,14 +21,7 @@ class App extends Component {
 			mainMenu: false
 		}
 	}
-
-	componentDidUpdate(prevProps, prevState) {
-		if (prevProps.location.key !== this.props.location.key) {
-			this.props.dispatch(GetSession());
-			this.props.dispatch(GetSectors());
-		}
-	}
-
+		
 	componentDidMount() {
 		this.props.dispatch(GetSession());
 		this.props.dispatch(GetSectors());
@@ -95,8 +88,8 @@ class App extends Component {
 						<Route exact path='/view' component={Pages.ViewUser} />
 						<Route exact path='/dashboard/list' render={() => <Pages.Dashboard user={this.props.user}><Pages.ListSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/saved_listings' render={() => <Pages.Dashboard user={this.props.user}><Pages.SavedListings user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/settings' render={() => <Pages.Dashboard user={this.props.user}><Pages.UserSettings user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/messages/:stage' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.Messages user={this.props.user} /></Pages.MessageDashboard>} />} />
 						<Route exact path='/message/:stage/:id/details' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.MessageDetails user={this.props.user} /></Pages.MessageDashboard>} />
 						<Route exact path='/listing/:id' render={() => <Pages.ListingDetails user={this.props.user} />} />
@@ -112,6 +105,7 @@ class App extends Component {
 						<Route exact path='/admin-panel/listings' render={() => <Admin.Admin><Admin.AdminListings user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />
 						<Route exact path='/admin-panel/reports' render={() => <Admin.Admin><Admin.AdminReports user={this.props.user} /></Admin.Admin>} />
 						<Route exact path='/admin-panel/config' render={() => <Admin.Admin><Admin.AdminConfig user={this.props.user} /></Admin.Admin>} />
+						{/* <Route exact path='/admin-panel/error' render={() => <Admin.Admin><Admin.AdminErrorLog user={this.props.user} /></Admin.Admin>} /> */}
 
 						<Route render={() => <Pages.Response code={404} header={'Not Found'} message={`This page you're trying to access does not exist.`} />} />
 					</Switch>

@@ -14,7 +14,7 @@ app.post('/api/get/user', async(req, resp) => {
             return result;
         })
         .catch(err => {
-            console.log(err);
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
 
@@ -115,7 +115,7 @@ app.get('/api/get/business_hours', async(req, resp) => {
             if (result) resp.send({status: 'success', hours: result.rows[0]});
         })
         .catch(err => {
-            console.log(err);
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     }

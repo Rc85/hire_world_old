@@ -10,6 +10,7 @@ import fetch from 'axios';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
+import { LogError } from '../../utils/LogError';
 
 class ViewUserReview extends Component {
     constructor(props) {
@@ -40,7 +41,7 @@ class ViewUserReview extends Component {
                 
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, '/api/review/edit'));
         }
     }
 
@@ -57,7 +58,7 @@ class ViewUserReview extends Component {
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/report/submit'));
     }
     
     render() {

@@ -4,9 +4,8 @@ const cryptojs = require('crypto-js');
 
 app.post('/api/user/review/submit', (req, resp) => {
     if (req.session.user) {
-        console.log(req.body)
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             (async() => {
                 try {
@@ -61,7 +60,7 @@ app.post('/api/user/review/submit', (req, resp) => {
                 }
             })()
             .catch(err => {
-                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -71,7 +70,7 @@ app.post('/api/user/review/submit', (req, resp) => {
 app.post('/api/review/submit', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             (async() => {
                 try {
@@ -93,7 +92,7 @@ app.post('/api/review/submit', (req, resp) => {
                 }
             })()
             .catch(err => {
-                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
 
                 let message = 'An error occurred';
 
@@ -112,7 +111,7 @@ app.post('/api/review/submit', (req, resp) => {
 app.post('/api/review/edit', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             (async() => {
                 try {
@@ -132,7 +131,7 @@ app.post('/api/review/edit', (req, resp) => {
                 }
             })()
             .catch(err => {
-                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });

@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
+import { LogError } from '../utils/LogError';
 
 class ViewUser extends Component {
     constructor(props) {
@@ -45,7 +46,7 @@ class ViewUser extends Component {
 
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, '/api/get/user'));
         }
     }
     
@@ -62,7 +63,7 @@ class ViewUser extends Component {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/get/user'));
     }
 
     submitReview(review, star) {
@@ -88,7 +89,8 @@ class ViewUser extends Component {
                 }
             
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-            });
+            })
+            .catch(err => LogError(err, '/api/review/submit'));
         }
     }
 
@@ -114,11 +116,10 @@ class ViewUser extends Component {
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/report/submit'));
     }
 
     render() {
-        console.log(this.props)
         let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, name, reviewed, reportButton;
 
         if (this.state.reviews && this.props.user.user) {

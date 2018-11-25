@@ -9,7 +9,7 @@ app.get('/api/get/sectors', async(req, resp) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'get sectors error'});
     });
 });

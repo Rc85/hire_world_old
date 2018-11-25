@@ -2,7 +2,6 @@ const app = require('express').Router();
 const db = require('./db');
 
 app.post('/api/filter/listings', async(req, resp) => {
-    console.log(req.body);
     let whereArray = ['AND listing_sector = $1'];
     let params = [req.body.sector]
 
@@ -80,9 +79,6 @@ app.post('/api/filter/listings', async(req, resp) => {
         whereArray.push(`AND user_city = $${index}`);
     }
 
-    console.log(whereArray);
-    console.log(params);
-
     let queryString = `SELECT user_listings.*, jobs.job_complete, jobs.job_abandoned, user_profiles.user_title, user_reviews.rating FROM user_listings
     LEFT JOIN users ON users.username = user_listings.listing_user
     LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
@@ -96,8 +92,6 @@ app.post('/api/filter/listings', async(req, resp) => {
     ${whereArray.join(' ')}
     ORDER BY listing_renewed_date DESC, listing_id`;
 
-    console.log(queryString)
-
     await db.query(queryString, params)
     .then(result => {
         if (result) {
@@ -105,7 +99,7 @@ app.post('/api/filter/listings', async(req, resp) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });

@@ -10,8 +10,6 @@ app.post('/api/admin/get/users', async(req, resp) => {
     let whereConditionString = '';
     let totalUserWhereConditionString = '';
 
-    console.log(req.body);
-
     if (req.body.username || req.body.status || req.body.level || req.body.type) {
         let blankCheck = /^\s*$/;
 
@@ -76,7 +74,7 @@ app.post('/api/admin/get/users', async(req, resp) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });
@@ -103,7 +101,7 @@ app.post('/api/admin/user/change-status', (req, resp) => {
     }
 
     db.connect((err, client, done) => {
-        if (err) console.log(err);
+        if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
         (async() => {
             try {
@@ -154,7 +152,7 @@ app.post('/api/admin/user/change-status', (req, resp) => {
             }
         })()
         .catch(err => {
-            console.log(err);
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     });
@@ -162,7 +160,7 @@ app.post('/api/admin/user/change-status', (req, resp) => {
 
 app.post('/api/admin/user/warn', (req, resp) => {
     db.connect((err, client, done) => {
-        if (err) console.log(err);
+        if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
         (async() => {
             try {
@@ -180,7 +178,7 @@ app.post('/api/admin/user/warn', (req, resp) => {
             }
         })()
         .catch(err => {
-            console.log(err);
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     });

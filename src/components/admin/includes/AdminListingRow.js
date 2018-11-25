@@ -10,6 +10,7 @@ import fetch from 'axios';
 import { NavLink } from 'react-router-dom';
 import { Alert } from '../../../actions/AlertActions';
 import { PromptOpen } from '../../../actions/PromptActions';
+import { LogError } from '../../utils/LogError';
 
 
 class AdminListingRow extends Component {
@@ -70,7 +71,7 @@ class AdminListingRow extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/listing/change-status'));
     }
 
     render() {

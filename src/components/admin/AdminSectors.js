@@ -7,6 +7,7 @@ import { faCircleNotch } from '../../../node_modules/@fortawesome/free-solid-svg
 import AdminSectorsList from './includes/AdminSectorsList';
 import { Alert } from '../../actions/AlertActions';
 import fetch from 'axios';
+import { LogError } from '../utils/LogError';
 
 class AdminSectors extends Component {
     constructor(props) {
@@ -23,26 +24,10 @@ class AdminSectors extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (this.props.sectors !== prevProps.sectors) {
-            console.log('updated');
             this.setState({sectors: this.props.sectors});
         }
     }
     
-    /* componentWillReceiveProps(nextProps) {
-        console.log(nextProps);
-    }
-    
-    componentDidMount() {
-        fetch.get('/api/admin/sectors/get')
-        .then(resp => {
-            if (resp.data.status === 'success') {
-                this.setState({sectors: resp.data.sectors});
-            } else if (resp.data.status === 'error') {
-                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-            }
-        })
-    } */
-
     addSector() {
         this.setState({status: 'Loading'});
 
@@ -59,11 +44,11 @@ class AdminSectors extends Component {
             }
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-        });
+        })
+        .catch(err => LogError(err, '/api/admin/sector/add'));
     }
 
     render() {
-        console.log(this.props.sectors)
         return(
             <div className='blue-panel shallow three-rounded'>
                 <div className='input-group mb-5'>

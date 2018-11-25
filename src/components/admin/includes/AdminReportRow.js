@@ -12,6 +12,7 @@ import { ShowConfirmation, ResetConfirmation } from '../../../actions/Confirmati
 import Loading from '../../utils/Loading';
 import fetch from 'axios';
 import { Alert } from '../../../actions/AlertActions';
+import { LogError } from '../../utils/LogError';
 
 class AdminReportRow extends Component {
     constructor(props) {
@@ -112,13 +113,13 @@ class AdminReportRow extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/report/get-review'));
     }
 
     deleteReview() {
         this.setState({status: 'Sending'});
 
-        fetch.post('/api/admin-panel/report/delete-review', {id: this.state.report.reported_id})
+        fetch.post('/api/admin/report/delete-review', {id: this.state.report.reported_id})
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({status: '', review: resp.data.review});
@@ -128,11 +129,10 @@ class AdminReportRow extends Component {
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/admin/report/delete-review'));
     }
 
     render() {
-        console.log(this.state.review);
         let menu, status, reportStatusClass, sourceText, details;
 
         if (this.state.status === 'Sending') {

@@ -10,6 +10,7 @@ import Loading from '../../utils/Loading';
 import fetch from 'axios';
 import SubmitReview from './SubmitReview';
 import { connect } from 'react-redux';
+import { LogError } from '../../utils/LogError';
 
 class MessageRow extends Component {
     constructor(props) {
@@ -29,7 +30,6 @@ class MessageRow extends Component {
 
         fetch.post('/api/user/review/submit', {review: review, message, star: star})
         .then(resp => {
-            console.log(resp.data.status);
             let notReviewed = true;
             
             if (resp.data.status === 'success') {
@@ -40,7 +40,7 @@ class MessageRow extends Component {
             
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/user/review/submit'));
     }
     
     render() {
@@ -87,8 +87,6 @@ class MessageRow extends Component {
                 pinnedButton = <button className='btn btn-link btn-sm mr-1' onClick={() => this.props.pin()}><FontAwesomeIcon icon={faThumbtack} color='#ffc107' /></button>;
             }
         }
-
-        console.log(this.props.message);
 
         return(
             <React.Fragment>

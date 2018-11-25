@@ -4,6 +4,7 @@ import { Alert } from '../../../actions/AlertActions';
 import SubmitButton from '../../utils/SubmitButton';
 import { UpdateUser } from '../../../actions/LoginActions';
 import fetch from 'axios';
+import { LogError } from '../../utils/LogError';
 
 class EmailSettings extends Component {
     constructor(props) {
@@ -32,7 +33,7 @@ class EmailSettings extends Component {
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/user/settings/email/change'));
     }
 
     render() {

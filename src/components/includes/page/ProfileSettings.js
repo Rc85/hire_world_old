@@ -13,13 +13,13 @@ class ProfileSettings extends Component {
         super(props);
 
         this.initialSettings = {
-            businessName: this.props.user.user.user_business_name || '',
-            phone: this.props.user.user.user_phone || '',
-            address: this.props.user.user.user_address || '',
-            code: this.props.user.user.user_city_code || '',
-            country: this.props.user.user.user_country || '',
-            region: this.props.user.user.user_region || '',
-            city: this.props.user.user.user_city || ''
+            businessName: this.props.user.user ? this.props.user.user.user_business_name : '',
+            phone: this.props.user.user ? this.props.user.user.user_phone : '',
+            address: this.props.user.user ? this.props.user.user.user_address : '',
+            code: this.props.user.user ? this.props.user.user.user_city_code : '',
+            country: this.props.user.user ? this.props.user.user.user_country : '',
+            region: this.props.user.user ? this.props.user.user.user_region : '',
+            city: this.props.user.user ? this.props.user.user.user_city : ''
         }
 
         this.state = {
@@ -53,7 +53,8 @@ class ProfileSettings extends Component {
             }
             
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-        });
+        })
+        .catch(err => LogError(err, '/api/user/settings/profile/save'));
     }
 
     setSettings(obj) {
@@ -62,7 +63,6 @@ class ProfileSettings extends Component {
     }
 
     render() {
-        console.log(this.state);
         let status;
 
         if (this.state.status === 'Loading') {

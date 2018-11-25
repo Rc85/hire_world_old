@@ -17,6 +17,7 @@ import { UncontrolledTooltip } from 'reactstrap';
 import fetch from 'axios';
 import moment from 'moment';
 import { PromptOpen, PromptReset } from '../../actions/PromptActions';
+import { LogError } from '../utils/LogError';
 
 class MessageDetails extends Component {
     constructor(props) {
@@ -76,6 +77,11 @@ class MessageDetails extends Component {
                 this.props.dispatch(ResetConfirmation());
             }
 
+            if (nextProps.confirm.data.action === 'cancel abandon') {
+                this.cancelAbandon();
+                this.props.dispatch(ResetConfirmation());
+            }
+
             if (nextProps.confirm.data.action === 'client agree abandon') {
                 this.confirmAbandon('approve');
                 this.props.dispatch(ResetConfirmation());
@@ -124,12 +130,12 @@ class MessageDetails extends Component {
                             this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage})
                         }
                     })
-                    .catch(err => console.log(err));
+                    .catch(err => LogError(err, '/api/get/message'));
                 } else if (resp.data.status === 'access error') {
                     this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage})
                 }
             })
-            .catch(err => console.log(err));
+            .catch(err => LogError(err, '/api/get/offer'));
         }
     }
     
@@ -156,36 +162,11 @@ class MessageDetails extends Component {
                                 this.setState({fetchStatus: 'Complete'});
                             }
                         })
-                        .catch(err => console.log(err));
+                        .catch(err => LogError(err, '/api/get/message'));
                     }
                 }
             });
         }, 250);
-
-        /* fetch.post('/api/get/offer', {job_id: this.props.match.params.id, stage: this.props.match.params.stage})
-        .then(resp => {
-            if (resp.data.status === 'success') {
-                this.setState({
-                    status: '',
-                    offer: resp.data.offer,
-                    job: resp.data.job
-                });
-
-                fetch.post('/api/get/message', {job_id: this.props.match.params.id, offset: 0, stage: this.props.match.params.stage})
-                .then(resp => {
-                    console.log(resp);
-                    if (resp.data.status === 'success') {
-                        this.setState({status: '', messages: resp.data.messages});
-                    } else if (resp.data.status === 'access error') {
-                        this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage})
-                    }
-                })
-                .catch(err => console.log(err));
-            } else if (resp.data.status === 'access error') {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage})
-            }
-        })
-        .catch(err => console.log(err)); */
     }
 
     componentWillUnmount() {
@@ -219,7 +200,7 @@ class MessageDetails extends Component {
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/message/reply'));
     }
 
     submitOffer(data) {
@@ -252,7 +233,7 @@ class MessageDetails extends Component {
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, url));
     }
 
     deleteOffer() {
@@ -270,7 +251,7 @@ class MessageDetails extends Component {
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/offer/delete'));
     }
 
     acceptOffer() {
@@ -286,7 +267,7 @@ class MessageDetails extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/offer/accept'));
     }
 
     declineOffer() {
@@ -306,7 +287,7 @@ class MessageDetails extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             } 
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/offer/decline'));
     }
 
     closeInquiry() {
@@ -322,7 +303,7 @@ class MessageDetails extends Component {
             
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/job/close'));
     }
 
     deleteMessage(id, index) {
@@ -344,7 +325,7 @@ class MessageDetails extends Component {
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/message/delete'));
     }
 
     editMessage(id, message, index) {
@@ -365,7 +346,8 @@ class MessageDetails extends Component {
             }  
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-        });
+        })
+        .catch(err => LogError(err, '/api/message/edit'));
     }
 
     completeJob() {
@@ -387,7 +369,7 @@ class MessageDetails extends Component {
             
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/job/complete'));
     }
 
     approveCompleteJob() {
@@ -395,7 +377,6 @@ class MessageDetails extends Component {
 
         fetch.post('/api/job/complete/approve', {job_id: this.state.job.job_id, recipient: this.state.job.job_user})
         .then(resp => {
-            console.log(resp)
             if (resp.data.status === 'job complete') {
                 this.setState({status: resp.data.status});
             } else {
@@ -404,7 +385,7 @@ class MessageDetails extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/job/complete/approve'));
     }
 
     declineCompleteJob(message) {
@@ -420,7 +401,7 @@ class MessageDetails extends Component {
             
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, '/api/job/complete/decline'));
     }
 
     abandonJob(reason) {
@@ -441,7 +422,27 @@ class MessageDetails extends Component {
             }     
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-        });
+        })
+        .catch(err => LogError(err, '/api/job/abandon'));
+    }
+
+    cancelAbandon() {
+        this.setState({status: 'Sending'});
+
+        fetch.post('/api/job/cancel-abandon', {job_id: this.state.job.job_id, recipient: this.state.job.job_client})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                let messages = this.state.messages;
+                messages.unshift(resp.data.message);
+
+                this.setState({status: '', messages: messages});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => LogError(err, '/api/job/cancel-abandon'));
     }
 
     confirmAbandon(decision) {
@@ -457,7 +458,7 @@ class MessageDetails extends Component {
             
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));        
         })
-        .catch(err => console.log(err));
+        .catch(err => LogError(err, `/api/job/abandon/${decision}`));
     }
 
     goBack() {
@@ -468,7 +469,6 @@ class MessageDetails extends Component {
     }
 
     render() {
-        console.log(this.state)
         let listingDetails, sendButton, sendMessage, sendStatus, messages, offerConfirmation, fetchStatus, offerButton, confirmation, closeButton, completeButton, incompleteButton, reasonInput, jobStatus, abandonedDate, refreshButton;
         let now = moment();
 
@@ -522,7 +522,7 @@ class MessageDetails extends Component {
 
                 incompleteButton = <button id='abandon-job-button' className='btn btn-danger mr-1' onClick={() => this.props.dispatch(PromptOpen('Specify a reason to abandon this job', {id: this.props.match.params.id, action: 'abandon job'}))}>Abandon</button>;
             } else {
-                incompleteButton = <button id='abandon-job-button' className='btn btn-warning mr-1' disabled={true}>Abandoning</button>
+                incompleteButton = <button id='abandon-job-button' className='btn btn-warning mr-1' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to cancel the Abandon request?`, false, {action: 'cancel abandon'}))}>Cancel Abandon</button>
             }
         }
 

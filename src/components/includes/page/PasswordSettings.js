@@ -4,6 +4,7 @@ import fetch from 'axios';
 import { Alert } from '../../../actions/AlertActions';
 import SubmitButton from '../../utils/SubmitButton';
 import Loading from '../../utils/Loading';
+import { LogError } from '../../utils/LogError';
 
 class PasswordSettings extends Component {
     constructor(props) {
@@ -27,11 +28,11 @@ class PasswordSettings extends Component {
             this.setState({status: '', currentPassword: '', newPassword: '', confirmPassword: ''});
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-        });
+        })
+        .catch(err => LogError(err, '/api/user/settings/password/change'));
     }
 
     render() {
-        console.log(this.props);
         let status, showHide;
 
         if (this.state.status === 'Loading') {

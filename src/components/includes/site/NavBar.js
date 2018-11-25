@@ -8,9 +8,11 @@ import PropTypes from 'prop-types';
 import { ToggleMenu } from '../../../actions/MenuActions';
 import Loading from '../../utils/Loading';
 import UserPanel from './UserPanel';
+import { GetSectors } from '../../../actions/FetchActions';
 
 class NavBar extends Component {
     toggleMenu() {
+        this.props.dispatch(GetSectors());
         if (this.props.menu.open !== 'main') {
             this.props.dispatch(ToggleMenu('main', ''));
         } else if (this.props.menu.open === 'main') {

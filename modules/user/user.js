@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const app = require('express').Router();
 const db = require('../db');
+const error = require('../utils/error-handler');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -36,7 +37,7 @@ const upload = multer({
                     cb(null, true);
                 } else {
                     fs.mkdir(dir, (err) => {
-                        if (err) console.log(err);
+                        if (err) error.log({name: err.name, message: err.message, origin: 'fs Creating Directory', url: req.url});
 
                         return cb(null, true);
                     })
@@ -65,7 +66,7 @@ app.post('/api/user/profile-pic/upload', upload.single('profile_pic'), (req, res
             }
         })
         .catch(err => {
-            console.log(err);
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     }
@@ -73,18 +74,18 @@ app.post('/api/user/profile-pic/upload', upload.single('profile_pic'), (req, res
 
 app.post('/api/user/profile-pic/delete', (req, resp) => {
     if (req.session.user) {
-        db.query('UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2 RETURNING avatar_url', ['/src/images/profile.png', req.session.user.user_id])
+        db.query('UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2 RETURNING *', ['/src/images/profile.png', req.session.user.user_id])
         .then(result => {
             if (result !== undefined && result.rowCount === 1) {
                 req.session.user.avatar_url = result.rows[0].avatar_url;
 
-                resp.send({status: 'success'});
+                resp.send({status: 'success', user: result.rows[0]});
             } else if (result.rowCount === 0) {
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             }
         })
         .catch(err => {
-            console.log(err);
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     }
@@ -98,7 +99,7 @@ app.post('/api/user/edit', (req, resp) => {
 
         if (valueCheck.test(value)) {
             db.connect((err, client, done) => {
-                if (err) console.log(err);
+                if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
                 (async() => {
                     try {
@@ -120,7 +121,7 @@ app.post('/api/user/edit', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    console.log(err);
+                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                     resp.send({status: `edit ${type} fail`});
                 });
             });
@@ -150,7 +151,7 @@ app.post('/api/user/search/titles', async(req, resp) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });
@@ -158,12 +159,10 @@ app.post('/api/user/search/titles', async(req, resp) => {
 app.post('/api/user/business_hours/save', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             delete req.body.status;
             delete req.body.showSettings;
-
-            console.log(req.body);
 
             let timeCheck = /^([0-9]|[1-2][0-4]):[0-5][0-9](\s?(AM|am|PM|pm))?(\s[A-Za-z]{3,5})?$/;
             let invalidFormat = false;
@@ -171,7 +170,6 @@ app.post('/api/user/business_hours/save', (req, resp) => {
             for (let key in req.body) {
                 if (req.body[key] !== 'Closed') {
                     let times = req.body[key].split(' - ');
-                    console.log(times);
 
                     if (times.length !== 2) {
                         invalidFormat = true;
@@ -206,7 +204,7 @@ app.post('/api/user/business_hours/save', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    console.log(err);
+                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                     resp.send({status: 'error', statusMessage: 'An error occurred'});
                 });
             }
@@ -225,7 +223,7 @@ app.post('/api/user/notifications/viewed', async(req, resp) => {
             }
         })
         .catch(err => {
-            console.log(err);
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error'});
         });
     }

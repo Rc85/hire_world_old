@@ -23,11 +23,12 @@ module.exports = function(grunt) {
         },
         watch: {
             files: ['src/scss/*.scss', 'src/scss/**/*.scss', 'dist/scss/*.scss'],
-            tasks: ['sass'],
+            tasks: ['newer:sass'],
         }
     })
 
     grunt.loadNpmTasks('grunt-contrib-sass');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-newer');
     grunt.registerTask('default', ['watch']);
 }

@@ -4,7 +4,7 @@ const db = require('../db');
 app.post('/api/get/offer', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             (async() => {
                 try {
@@ -38,7 +38,7 @@ app.post('/api/get/offer', (req, resp) => {
                 }
             })()
             .catch(err => {
-                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                 resp.send({status: 'access error', statusMessage: 'An error occurred'});
             });
         });

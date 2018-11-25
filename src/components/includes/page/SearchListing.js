@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import fetch from 'axios';
+import { LogError } from '../../utils/LogError';
 
 const initialState = {
     title: '',
@@ -35,6 +36,7 @@ class SearchListing extends Component {
                     this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                 }
             })
+            .catch(err => LogError(err, '/api/user/search/titles'));
         }
     }
     

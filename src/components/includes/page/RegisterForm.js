@@ -252,8 +252,8 @@ class RegisterForm extends Component {
                     
 
                     <div className='text-right'>
-                        <button className='btn btn-primary' onClick={() => this.handleRegister()}>Submit</button>
-                        {/* <SubmitButton type='submit' loading={this.state.status === 'Registering' ? true : false} value='Submit' onClick={() => this.handleRegister()}/> */}
+                        {/* <button className='btn btn-primary' onClick={() => this.handleRegister()}>Submit</button> */}
+                        <SubmitButton type='submit' loading={this.state.status === 'Registering' ? true : false} value='Submit' onClick={() => this.handleRegister()}/>
 
                         <button className='btn btn-secondary' disabled={this.props.status === 'loading' ? true : false} onClick={() => {
                             this.setState({

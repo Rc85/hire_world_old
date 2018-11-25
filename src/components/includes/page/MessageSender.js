@@ -16,7 +16,7 @@ class MessageSender extends Component {
     }
     
     componentDidUpdate(prevProps, prevState) {
-        if (this.props.status !== prevProps.status) {
+        if (this.props.status !== prevProps.status && this.props.status === 'success') {
             this.setState({subject: '', message: ''});
         }
     }
@@ -33,7 +33,7 @@ class MessageSender extends Component {
 
                 <div className='text-right'>
                     <SubmitButton type='button' value='Send' loading={this.state.status === 'Sending' ? true : false} onClick={() => this.props.send(this.state.message, this.state.subject)} />
-                    {this.props.cancel ? <button className='btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button> : ''}
+                    {this.props.cancel ? <button className='btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button> : <button className='btn btn-secondary' onClick={() => this.setState({subject: '', message: ''})}>Clear</button>}
                 </div>
             </div>
         );
@@ -44,7 +44,6 @@ MessageSender.propTypes = {
     send: PropTypes.func.isRequired,
     cancel: PropTypes.func,
     status: PropTypes.string,
-    statusMessage: PropTypes.string,
     subject: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.bool

@@ -157,16 +157,16 @@ app.post('/api/listing/renew', (req, resp) => {
                         } else {
                             let error = new Error(`You're not authorized`);
                             error.type = 'user_defined';
-                            rror;
+                            throw error;
                         }
                     } else {
                         let error = new Error(`You can only renew once every 24 hours`);
                         error.type = 'user_defined';
-                        rror;
+                        throw error;
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    ;
+                    throw e;
                 } finally {
                     done();
                 }

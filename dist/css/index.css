@@ -5905,11 +5905,10 @@ i {
   display: flex;
   justify-content: space-between;
 }
-
-.footer-item {
+.footer-links div, .footer-links .footer-item {
   margin-right: 20px;
 }
-.footer-item:last-child {
+.footer-links div:last-child, .footer-links .footer-item:last-child {
   margin: 0;
 }
 

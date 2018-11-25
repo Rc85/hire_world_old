@@ -4,21 +4,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding } from '@fortawesome/free-regular-svg-icons';
 import UserProfilePic from '../../includes/page/UserProfilePic';
 
-const ViewUserProfile = user => {
-    let avatar, firstName, lastName, businessName, title, bio;
+const ViewUserProfile = props => {
+    console.log(props.user)
+    let avatar, bio, name;
 
-    if (user.user) {
-        avatar = <UserProfilePic url={user.user.avatar_url} editable={false}/>;
+    if (props.user) {
+        avatar = <UserProfilePic url={props.user.avatar_url} editable={false}/>;
+        name = props.user.username;
 
-        if (user.user.user_title) {
-            title = <div className='badge badge-info ml-1'>{user.user.user_title}</div>;
+        if (props.user.user_firstname && props.user.user_lastname) {
+            name = <span>{props.user.user_firstname} {props.user.user_lastname}</span>
         }
         
-        if (user.user.user_business_name) {
-            businessName = <h4><FontAwesomeIcon icon={faBuilding} className='view-user-icon' /> {user.user.user_business_name}</h4>;
-        }
-        
-        bio = user.user.user_bio;
+        bio = props.user.user_bio;
     }
 
     return(
@@ -31,9 +29,8 @@ const ViewUserProfile = user => {
                 </div>
 
                 <div id='view-user-title'>
-                    <h1 className='d-flex'>{user.user.username}</h1>
-                    <h4>{title}</h4>
-                    {businessName}
+                    <h1 className='d-flex'>{name}</h1>
+                    <h5>{props.user.user_title}</h5>
                 </div>
             </div>
 

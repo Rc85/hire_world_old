@@ -193,6 +193,7 @@ app.post('/api/user/settings/email/change', (req, resp) => {
 });
 
 app.post('/api/user/settings/change', (req, resp) => {
+    console.log(req.body)
     if (req.session.user) {
         db.connect((err, client, done) => {
             if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
@@ -209,11 +210,11 @@ app.post('/api/user/settings/change', (req, resp) => {
                     }
 
                     if (hasInquiries && hasInquiries.rows.length > 0) {
-                        let error = new Error(`You have active messages or jobs`);
+                        let error = new Error(`Cannot change setting due to active jobs`);
                         error.type = 'user_defined';
-                        rror;
+                        throw error;
                     } else {
-                        await client.query(`UPDATE user_settings SET hide_email = $1, display_fullname = $2, email_notifications = $3, allow_messaging = $4, hide_business_hours = $6, hide_phone = $7 WHERE user_setting_id = $5`, [req.body.hide_email, req.body.display_fullname, req.body.email_notifications, req.body.allow_messaging, req.session.user.user_id, req.body.hide_business_hours, req.body.hide_phone]);
+                        await client.query(`UPDATE user_settings SET hide_email = $1, display_fullname = $2, email_notifications = $3, allow_messaging = $4 WHERE user_setting_id = $5`, [req.body.hide_email, req.body.display_fullname, req.body.email_notifications, req.body.allow_messaging, req.session.user.user_id]);
 
                         let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
 
@@ -229,16 +230,12 @@ app.post('/api/user/settings/change', (req, resp) => {
                             delete user.rows[0].user_lastname;
                         }
 
-                        if (user.rows[0].hide_phone) {
-                            delete user.rows[0].user_phone;
-                        }
-
                         await client.query('COMMIT')
                         .then(() => resp.send({status: 'success', user: user.rows[0]}));
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    ;
+                    throw e;
                 } finally {
                     done();
                 }

@@ -684,6 +684,10 @@
   color: #8b8b8b;
 }
 
+.modal-container {
+  max-width: 50%;
+}
+
 #browse {
   margin-top: 50px;
 }
@@ -736,6 +740,25 @@
 
 .user-address {
   white-space: pre-line;
+}
+
+#footer {
+  font-size: 0.8rem;
+  background: #2F496E;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: space-between;
+}
+.footer-links div, .footer-links .footer-item {
+  margin-right: 20px;
+}
+.footer-links div:last-child, .footer-links .footer-item:last-child {
+  margin: 0;
 }
 
 .loading-container {

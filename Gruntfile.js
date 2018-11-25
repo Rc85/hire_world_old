@@ -23,7 +23,7 @@ module.exports = function(grunt) {
         },
         watch: {
             files: ['src/scss/*.scss', 'src/scss/**/*.scss', 'dist/scss/*.scss'],
-            tasks: ['newer:sass'],
+            tasks: ['sass:dist:newer']
         }
     })
 

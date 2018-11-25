@@ -3,11 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub, faFacebook, faTwitter, faInstagram, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import PropTypes from 'prop-types';
 import { faGlobe } from '@fortawesome/free-solid-svg-icons';
-import { NavLink } from 'react-router-dom';
-import { faListAlt } from '@fortawesome/free-regular-svg-icons';
 
 const ViewUserSocialMedia = props => {
-    let github, facebook, twitter, instagram, linkedin, website, listing;
+    let github, facebook, twitter, instagram, linkedin, website;
     
     if (props.user.user_github) {
         github = <div className='d-flex mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faGithub} className='view-user-icon' size='lg' /></div> <a href={props.user.user_github}>Github</a></div>;
@@ -32,29 +30,16 @@ const ViewUserSocialMedia = props => {
     if (props.user.user_website) {
         website = <div className='d-flex mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faGlobe} className='view-user-icon' size='lg' /></div> <a href={props.user.user_website}>Website</a></div>
     }
-
-    if (props.listing.status === 'Active') {
-        listing = <React.Fragment>
-            <div className='d-flex mb-3'>
-                <div className='w-10 mr-1'><FontAwesomeIcon icon={faListAlt} className='view-user-icon' size='lg' /></div> 
-                <NavLink to={`/listing/${props.listing.id}`}>Listed</NavLink>
-            </div>
-            
-            {(github || facebook || twitter || instagram || linkedin || website) ? <hr/> : ''}
-        </React.Fragment>;
-    }
     
-    if (github || facebook || twitter || instagram || linkedin || website || listing) {
+    if (github || facebook || twitter || instagram || linkedin || website) {
         return(
             <div id='view-user-social-media'>
-                {listing}
                 {github}
                 {facebook}
                 {twitter}
                 {instagram}
                 {linkedin}
                 {website}
-                <hr/>
             </div>
         )
     }

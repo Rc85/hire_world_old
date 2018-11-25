@@ -1,8 +1,10 @@
 const app = require('express').Router();
 const db = require('../db');
 const moment = require('moment');
+const error = require('../utils/error-handler');
 
 app.post('/api/message/submit', (req, resp) => {
+    console.log(req.body)
     if (req.session.user) {
         db.connect((err, client, done) => {
             if (err) { error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'}); }
@@ -15,12 +17,12 @@ app.post('/api/message/submit', (req, resp) => {
                     try {
                         await client.query('BEGIN');
 
-                        let allowMessage = await client.query(`SELECT allow_messaging FROM user_settings LEFT JOIN users ON users.user_id = user_settings.user_setting_id WHERE users.username = $1`, [req.body.listing.listing_user]);
+                        let allowMessage = await client.query(`SELECT allow_messaging FROM user_settings LEFT JOIN users ON users.user_id = user_settings.user_setting_id WHERE users.username = $1`, [req.body.user.username]);
 
                         if (allowMessage.rows[0].allow_messaging) {
-                            let job = await client.query(`INSERT INTO jobs (job_client, job_listing_id, job_user, job_subject) VALUES ($1, $2, $3, $4) RETURNING job_id`, [req.session.user.username, req.body.listing.listing_id, req.body.listing.listing_user, req.body.subject]);
+                            let job = await client.query(`INSERT INTO jobs (job_client, job_listing_id, job_user, job_subject) VALUES ($1, $2, $3, $4) RETURNING job_id`, [req.session.user.username, req.body.user.listing_id, req.body.user.username, req.body.subject]);
                             await client.query(`INSERT INTO messages (belongs_to_job, message_sender, message_recipient, message_body) VALUES ($1, $2, $3, $4)`,
-                            [job.rows[0].job_id, req.session.user.username, req.body.listing.listing_user, req.body.message]);
+                            [job.rows[0].job_id, req.session.user.username, req.body.user.username, req.body.message]);
                             await client.query('COMMIT')
                             .then(() => {
                                 resp.send({status: 'send success', statusMessage: 'Message sent'});
@@ -28,11 +30,11 @@ app.post('/api/message/submit', (req, resp) => {
                         } else {
                             let error = new Error(`The user is not accepting messages`);
                             error.type = 'user_defined';
-                            rror;
+                            throw error;
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        ;
+                        throw e;
                     } finally {
                         done();
                     }
@@ -46,11 +48,11 @@ app.post('/api/message/submit', (req, resp) => {
                     }
 
                     if (err.code === '23505') {
-                        resp.send({status: 'send error', statusMessage: 'You already sent an inquiry'});
-                    } else {
-                        resp.send({status: 'send error', statusMessage: message});
+                        message = 'You already sent an inquiry';
                     }
-                })
+
+                    resp.send({status: 'send error', statusMessage: message});
+                });
             }
         });
     }
@@ -83,16 +85,16 @@ app.post('/api/message/reply', (req, resp) => {
                                 await client.query('COMMIT')
                                 .then(() => {
                                     resp.send({status: 'send success', statusMessage: 'Message sent', reply: reply.rows[0]});
-                                })
+                                });
                             } else {
                                 let error = new Error('Job is closed');
                                 error.type = 'user_defined';
-                                rror;
+                                throw error;
                             }
                         } else {
                             let error = new Error(`The other party has turned off messaging`);
                             error.type = 'user_defined';
-                            rror;
+                            throw error;
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
@@ -161,11 +163,11 @@ app.post('/api/message/edit', (req, resp) => {
                     } else {
                         let error = new Error(`You're not authorized`);
                         error.type = 'user_defined';
-                        rror;
+                        throw error;
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    ;
+                    throw e;
                 } finally {
                     done();
                 }

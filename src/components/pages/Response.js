@@ -46,7 +46,10 @@ Response.defaultProps = {
 Response.propTypes = {
     code: PropTypes.number,
     header: PropTypes.string,
-    message: PropTypes.string
+    message: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.object
+    ])
 }
 
 export default Response;

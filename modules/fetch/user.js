@@ -23,29 +23,30 @@ app.post('/api/get/user', async(req, resp) => {
                 delete user.rows[0].user_email;
             }
 
-            if (!user.rows[0].display_business_name) {
-                delete user.rows[0].business_name;
-            }
-
             if (!user.rows[0].display_fullname) {
                 delete user.rows[0].user_firstname;
                 delete user.rows[0].user_lastname;
             }
 
-            if (!user.rows[0].display_contacts) {
-                delete user.rows[0].user_phone;
-                delete user.rows[0].user_address;
-            }
-
             delete user.rows[0].hide_email;
-            delete user.rows[0].display_business_name;
             delete user.rows[0].display_fullname;
-            delete user.rows[0].display_contacts;
 
             let orderby = '';
             let reviewsParam, reports, reportedUser;
             let userIsReported = false;
             let reportedReviews = [];
+            let businessHours = {};
+            
+            if (!user.rows[0].hide_business_hours) {
+                businessHoursQuery = await db.query(`SELECT * FROM business_hours WHERE business_owner = $1`, [req.body.username]);
+
+                if (businessHoursQuery.rows.length === 1) {
+                    delete businessHoursQuery.rows[0].business_hour_id;
+                    delete businessHoursQuery.rows[0].business_owner;
+
+                    businessHours = businessHoursQuery.rows[0];
+                }
+            }
 
             if (req.session.user) {
                 orderby = 'user_reviews.reviewer = $2 DESC, ';
@@ -70,19 +71,6 @@ app.post('/api/get/user', async(req, resp) => {
             LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
             WHERE user_reviews.reviewing = $1 AND user_reviews.review IS NOT NULL AND user_reviews.review_status = 'Active'
             ORDER BY ${orderby}user_reviews.review_date DESC`, reviewsParam);
-
-            let businessHours = {};
-            
-            if (!user.rows[0].hide_business_hours) {
-                businessHoursQuery = await db.query(`SELECT * FROM business_hours WHERE business_owner = $1`, [req.body.username]);
-
-                if (businessHoursQuery.rows.length === 1) {
-                    delete businessHoursQuery.rows[0].business_hour_id;
-                    delete businessHoursQuery.rows[0].business_owner;
-
-                    businessHours = businessHoursQuery.rows[0];
-                }
-            }
 
             let stats = await db.query(`SELECT
                 (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_stage = 'Complete'),

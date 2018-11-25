@@ -15,7 +15,7 @@ class UserTitle extends Component {
         this.state = {
             status: '',
             statusMessage: '',
-            title: this.props.user.user_title,
+            title: '',
             titles: [],
             searchedTitles: [],
             timeout: 0
@@ -63,7 +63,7 @@ class UserTitle extends Component {
 
         if (this.props.user.user) {
             if (!this.state.editing) {
-                value = this.state.title;
+                value = this.props.user.user.user_title;
             } else {
                 value = <React.Fragment>
                     <input type='text' name='title' id='user-title' className='form-control' list='title-list' onChange={(e) => this.setState({title: e.target.value})} onKeyUp={(e) => this.searchTitle(e.target.value)} autoComplete='off' onKeyDown={(e) => this.setTitle(e)} />

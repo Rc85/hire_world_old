@@ -71,8 +71,11 @@ const ViewUserStats = props => {
             {props.stats.user_last_login ? 
             <React.Fragment>
                 <hr/>
-                <h5>Last Login</h5>
-                {moment(props.stats.user_last_login).format('MM-DD-YY @ hh:mm A')}
+                <div className='d-flex-between-start'>
+                    <h5>Last Login</h5>
+                    {moment(props.stats.user_last_login).format('MM-DD-YY @ hh:mm A')}
+                </div>
+                <hr/>
             </React.Fragment> : ''}
         </div>
     )

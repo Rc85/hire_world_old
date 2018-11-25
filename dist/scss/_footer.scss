@@ -9,12 +9,12 @@
 .footer-links {
     display: flex;
     justify-content: space-between;
-}
 
-.footer-item {
-    margin-right: 20px;
-
-    &:last-child {
-        margin: 0;
+    div, .footer-item {
+        margin-right: 20px;
+    
+        &:last-child {
+            margin: 0;
+        }
     }
 }

@@ -11,6 +11,7 @@ import fetch from 'axios';
 import SubmitReview from './SubmitReview';
 import { connect } from 'react-redux';
 import { LogError } from '../../utils/LogError';
+import { PromptOpen, PromptReset } from '../../../actions/PromptActions';
 
 class MessageRow extends Component {
     constructor(props) {
@@ -25,6 +26,13 @@ class MessageRow extends Component {
         }
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.prompt.data.action === 'appeal' && nextProps.prompt.data.id === this.props.message.job_id) {
+            this.appealAbandon(nextProps.prompt.input);
+            this.props.dispatch(PromptReset());
+        }
+    }
+    
     submit(review, message, star) {
         this.setState({status: 'Sending'});
 
@@ -42,9 +50,21 @@ class MessageRow extends Component {
         })
         .catch(err => LogError(err, '/api/user/review/submit'));
     }
+
+    appealAbandon(val) {
+        this.setState({status: 'Sending'});
+
+        fetch.post('/api/jobs/appeal-abandon', {job_id: this.props.message.job_id, additional_info: val})
+        .then(resp => {
+            this.setState({status: ''});
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => LogError(err, '/api/jobs/appeal-abandon'));
+    }
     
     render() {
-        let statusButton, statusButtonClass, reviewButton, review, status, pinnedButton;
+        let statusButton, statusButtonClass, reviewButton, review, status, pinnedButton, appealButton;
 
         if (this.state.status === 'Sending') {
             status = <Loading size='5x' />;
@@ -54,6 +74,7 @@ class MessageRow extends Component {
             if (this.props.message.job_status === 'Closed' || this.props.message.job_status === 'Abandoned') {
                 statusButtonClass = 'danger';
             } else if (this.props.message.job_status === 'Incomplete' || this.props.message.job_status === 'Abandoning') {
+                appealButton = <button className='btn btn-primary btn-sm mr-1' onClick={() => this.props.dispatch(PromptOpen('Are there any additional information you would like to add?', {action: 'appeal', id: this.props.message.job_id}))}>Appeal</button>
                 statusButtonClass = 'warning';
             } else if (this.props.message.job_status === 'Complete') {
                 statusButtonClass = 'success';
@@ -102,6 +123,7 @@ class MessageRow extends Component {
                     <div className='w-10'>{statusButton}</div>
                     <div className='w-10 d-flex-end-center'>
                         {reviewButton}
+                        {appealButton}
                         {pinnedButton}
                         {this.props.type !== 'deleted' ? <button className='btn btn-secondary btn-sm' onClick={() => this.props.delete()}><FontAwesomeIcon icon={faTrash} /></button> : ''}
                     </div>
@@ -122,4 +144,10 @@ MessageRow.propTypes = {
     pin: PropTypes.func
 }
 
-export default connect()(MessageRow);
+const mapStateToProps = state => {
+    return {
+        prompt: state.Prompt
+    }
+}
+
+export default connect(mapStateToProps)(MessageRow);

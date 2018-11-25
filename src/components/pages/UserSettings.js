@@ -12,20 +12,23 @@ import { Alert } from '../../actions/AlertActions';
 import { ShowWarning } from '../../actions/WarningActions';
 import BusinessHoursSettings from '../includes/page/BusinessHoursSettings';
 import { LogError } from '../utils/LogError';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
+import { UncontrolledTooltip } from 'reactstrap';
 
 class UserSettings extends Component {
     saveSetting(name) {
-        let props = Object.assign({}, this.props.user.user);
-        props[name] = !this.props.user.user[name];
+        let setting = Object.assign({}, this.props.user.user);
+        setting[name] = !setting[name];
 
-       fetch.post(`/api/user/settings/change`, props)
+       fetch.post(`/api/user/settings/change`, setting)
         .then(resp => {
             console.log(resp)
             if (resp.data.status === 'success') {
                 this.props.dispatch(UpdateUser(resp.data.user));
 
-                if (resp.data.user.hide_email && !resp.data.user.allow_messaging && resp.data.user.hide_email) {
-                    this.props.dispatch(ShowWarning(`You've hidden and disabled all forms of contact`));
+                if (resp.data.user.hide_email && !resp.data.user.allow_messaging) {
+                    this.props.dispatch(ShowWarning(`Consider having email displayed or allow messaging so users can contact you.`));
                 }
             } else {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -46,39 +49,27 @@ class UserSettings extends Component {
                         <PasswordSettings />
 
                         <div className='d-flex-between-center mb-3'>
-                            <label htmlFor='hideEmail'>Hide Email:</label>
+                            <label htmlFor='hideEmail'>Hide email:</label>
 
                             <SlideToggle status={this.props.user.user ? this.props.user.user.hide_email : false} id='hideEmail' onClick={() => this.saveSetting('hide_email')} />
                         </div>
 
                         <div className='d-flex-between-center mb-3'>
-                            <label htmlFor='displayFullName'>Display Full Name:</label>
+                            <label htmlFor='displayFullName'>Display full name instead of username:</label>
 
                             <SlideToggle status={this.props.user.user ? this.props.user.user.display_fullname : false} id='displayFullName' onClick={() => this.saveSetting('display_fullname')} />
                         </div>
 
                         <div className='d-flex-between-center mb-3'>
-                            <label htmlFor='emailNotifications'>Email Notifications:</label>
+                            <label htmlFor='emailNotifications'>Enable email notifications: <FontAwesomeIcon icon={faQuestionCircle} id='email-notification-tips' /><UncontrolledTooltip placement='top' target='email-notification-tips'>You will receive email when you receive new messages and when your account is banned.</UncontrolledTooltip></label>
 
                             <SlideToggle status={this.props.user.user ? this.props.user.user.email_notifications : false} id='emailNotifications' onClick={() => this.saveSetting('email_notifications')} />
                         </div>
 
                         <div className='d-flex-between-center mb-3'>
-                            <label htmlFor='allowMessaging'>Allow Messaging:</label>
+                            <label htmlFor='allowMessaging'>Allow messaging:</label>
 
                             <SlideToggle status={this.props.user.user ? this.props.user.user.allow_messaging : false} id='allowMessaging' onClick={() => this.saveSetting('allow_messaging')} />
-                        </div>
-
-                        <div className='d-flex-between-center mb-3'>
-                            <label htmlFor='hideBusinessHours'>Hide Business Hours:</label>
-
-                            <SlideToggle status={this.props.user.user ? this.props.user.user.hide_business_hours : false} id='hideBusinessHours' onClick={() => this.saveSetting('hide_business_hours')} />
-                        </div>
-
-                        <div className='d-flex-between-center mb-3'>
-                            <label htmlFor='hidePhone'>Hide Phone Number:</label>
-
-                            <SlideToggle status={this.props.user.user ? this.props.user.user.hide_phone : false} id='hidePhone' onClick={() => this.saveSetting('hide_phone')} />
                         </div>
                     </div>
 

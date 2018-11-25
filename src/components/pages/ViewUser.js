@@ -11,10 +11,12 @@ import ViewUserReview from '../includes/page/ViewUserReview';
 import SubmitReview from '../includes/page/SubmitReview';
 import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBuilding } from '@fortawesome/free-regular-svg-icons';
 import { faUserCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
 import { LogError } from '../utils/LogError';
+import MessageSender from '../includes/page/MessageSender';
 
 class ViewUser extends Component {
     constructor(props) {
@@ -39,12 +41,13 @@ class ViewUser extends Component {
             fetch.post('/api/get/user', {username: this.props.match.params.username})
             .then(resp => {
                 if (resp.data.status === 'success') {
-                    this.setState({user: resp.data.user, services: resp.data.services, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported});
+                    this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported});
                 } else if (resp.data.status === 'error') {
                     this.setState({status: ''});
+                    this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+                } else if (resp.data.status === 'error page') {
+                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
                 }
-
-                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             })
             .catch(err => LogError(err, '/api/get/user'));
         }
@@ -58,6 +61,7 @@ class ViewUser extends Component {
             if (resp.data.status === 'success') {
                 this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported});
             } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             } else if (resp.data.status === 'error page') {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
@@ -119,11 +123,24 @@ class ViewUser extends Component {
         .catch(err => LogError(err, '/api/report/submit'));
     }
 
-    render() {
-        let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, name, reviewed, reportButton;
+    sendMessage(message, subject) {
+        this.setState({status: 'Sending'});
 
-        if (this.state.reviews && this.props.user.user) {
-            reviewed = this.state.reviews.findIndex(review => review.reviewer === this.props.user.user.username)
+        fetch.post('/api/message/submit', {subject: subject, message: message, user: this.state.user})
+        .then(resp => {
+            console.log(resp);
+            this.setState({status: '', sendStatus: resp.data.status});
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => LogError(err, '/api/message/submit'));
+    }
+
+    render() {
+        let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, reviewed, reportButton, businessName, message;
+
+        if (this.state.reviews && this.props.user) {
+            reviewed = this.state.reviews.findIndex(review => review.reviewer === this.props.user.username)
         }
 
         if (this.state.status === 'Sending') {
@@ -135,51 +152,56 @@ class ViewUser extends Component {
             socialMedia = <ViewUserSocialMedia user={this.state.user} listing={this.state.user ? {id: this.state.user.listing_id, status: this.state.user.listing_status} : {}} />;
             profile = <ViewUserProfile user={this.state.user} />;
 
-            if (this.state.user.user_firstname && this.state.user.user_lastname) {
-                name = <div className='d-flex mb-3'>
-                    <div className='w-10 mr-1'><FontAwesomeIcon icon={faUserCircle} size='lg' className='view-user-icon' /></div> {this.state.user.user_firstname} {this.state.user.user_lastname}
-                </div>;
+            if (this.state.user.user_business_name) {
+                businessName = <div className='d-flex-center mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faBuilding} className='view-user-icon mr-1' size='lg' /></div> {this.state.user.user_website ? <a href={this.state.user.user_website}>{this.state.user.user_business_name}</a> : this.state.user.user_business_name}</div>;
             }
-        }
 
-        if (this.state.reviews.length > 0) {
-            reviews = this.state.reviews.map((review, i) => {
-                let reported = false;
+            if (this.state.reviews.length > 0) {
+                reviews = this.state.reviews.map((review, i) => {
+                    let reported = false;
 
-                if (this.state.reportedReviews.indexOf(review.review_id) >= 0) reported = true;
+                    if (this.state.reportedReviews.indexOf(review.review_id) >= 0) reported = true;
 
-                return <ViewUserReview key={i} review={review} user={this.props.user.user} edit={(review) => this.editReview(review, i)} reported={reported} />
-            });
-        } else {
-            reviews = <div className='text-center mt-5'>
-                <h1 className='text-muted'>Not Yet Reviewed</h1>
-            </div>
-        }
-
-        if (this.state.submitReview) {
-            submitReview = <SubmitReview submit={(review, star) => this.submitReview(review, star)} cancel={() => this.setState({submitReview: false })} />;
-        } else if (!this.state.submitReview && this.props.user.user && this.state.user) {
-            if (this.props.user.user.username !== this.state.user.username && reviewed < 0) {
-                submitReviewButton = <button className='btn btn-primary' onClick={() => this.setState({submitReview: true})}>Submit Review</button>;
-            }
-        }
-
-        if (this.state.status === 'error page') {
-            return <Response header={'Error'} message={this.state.statusMessage} />;
-        } else if (this.state.status === 'Loading') {
-            return <Loading size='7x' />;
-        } else if (this.state.status === 'redirect') {
-            return <Redirect to='/account/login' />;
-        }
-
-        if (this.state.user && this.props.user.user && this.props.user.user.username !== this.state.user.username) {
-            if (!this.state.userReported) {
-                reportButton = <FontAwesomeIcon icon={faExclamationTriangle} size='xs' className='menu-button' onClick={() => this.submitReport()} />;
+                    return <ViewUserReview key={i} review={review} user={this.props.user} edit={(review) => this.editReview(review, i)} reported={reported} />
+                });
             } else {
-                reportButton = <span>
-                    <FontAwesomeIcon icon={faExclamationTriangle} size='xs' className='theme-bg' id='report-user-button' />
-                    <UncontrolledTooltip placement='top' target='report-user-button'>Already reported</UncontrolledTooltip>    
-                </span>;
+                reviews = <div className='text-center mt-5'>
+                    <h1 className='text-muted'>Not Yet Reviewed</h1>
+                </div>
+            }
+
+            if (this.state.submitReview) {
+                submitReview = <SubmitReview submit={(review, star) => this.submitReview(review, star)} cancel={() => this.setState({submitReview: false })} />;
+            } else if (!this.state.submitReview && this.props.user && this.state.user) {
+                if (this.props.user.username !== this.state.user.username && reviewed < 0) {
+                    submitReviewButton = <button className='btn btn-primary' onClick={() => this.setState({submitReview: true})}>Submit Review</button>;
+                }
+            }
+
+            if (this.state.status === 'error page') {
+                return <Response header={'Error'} message={this.state.statusMessage} />;
+            } else if (this.state.status === 'Loading') {
+                return <Loading size='7x' />;
+            } else if (this.state.status === 'redirect') {
+                return <Redirect to='/account/login' />;
+            }
+
+            if (this.props.user && this.props.user.username !== this.state.user.username) {
+                if (!this.state.userReported) {
+                    reportButton = <span>
+                        <FontAwesomeIcon icon={faExclamationTriangle} size='xs' className='menu-button' id='report-user-button' onClick={() => this.submitReport()} />
+                        <UncontrolledTooltip placement='top' target='report-user-button'>Report this user</UncontrolledTooltip>
+                    </span>;
+                } else {
+                    reportButton = <span>
+                        <FontAwesomeIcon icon={faExclamationTriangle} size='xs' className='theme-bg' id='report-user-button' />
+                        <UncontrolledTooltip placement='top' target='report-user-button'>Already reported</UncontrolledTooltip>    
+                    </span>;
+                }
+
+                if (this.state.user.username !== this.props.user.username) {
+                    message = <MessageSender send={(message, subject) => this.sendMessage(message, subject)} status={this.state.sendStatus} />;
+                }
             }
         }
         
@@ -189,18 +211,19 @@ class ViewUser extends Component {
                 <div className='blue-panel shallow rounded'>
                     <div className='row'>
                         <div className='col-3'>
-                            {name}
+                            {businessName}
                             {contacts}
-                            {socialMedia}
                             <ViewUserStats stats={this.state.stats || {}} hours={this.state.hours} />
+                            {socialMedia}
+                            <div className='text-right'>{reportButton}</div>
                         </div>
 
                         <div className='col-9'>
                             {profile}
+
+                            {message}
                         </div>
                     </div>
-
-                    <div className='text-right'>{reportButton}</div>
                 </div>
 
                 <div className='text-right mt-3'>
@@ -219,4 +242,10 @@ class ViewUser extends Component {
     }
 }
 
-export default withRouter(connect()(ViewUser));
+const mapStateToProps = state => {
+    return {
+        user: state.Login.user
+    }
+}
+
+export default withRouter(connect(mapStateToProps)(ViewUser));

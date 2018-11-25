@@ -430,4 +430,33 @@ app.post('/api/job/pin', async(req, resp) => {
     }
 });
 
+app.post('/api/jobs/appeal-abandon', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+                    await client.query(`INSERT INTO appeal_abandoned_jobs (appeal_abandoned_job_id, additional_info) VALUES ($1, $2)`, [req.body.job_id, req.body.additional_info]);
+                    await client.query(`UPDATE jobs SET job_status = 'Appealing' WHERE job_id = $1`, [req.body.job_id]);
+                    await client.query('COMMIT')
+                    .then(() => resp.send({status: 'success', statusMessage: 'Appeal sent'}));
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .then(err => {
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
+        });
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
+    }
+});
+
 module.exports = app;

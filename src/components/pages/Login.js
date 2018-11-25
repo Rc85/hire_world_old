@@ -15,6 +15,16 @@ class Login extends Component {
         }
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.user.status !== this.props.user.status) {
+            this.setState({status: this.props.user.status});
+        }
+
+        if (prevProps.location.key !== this.props.location.key) {
+            this.setState({status: ''});
+        }
+    }
+    
     handleLogin() {
         this.props.dispatch(LoginUser(this.state));
     }
@@ -22,8 +32,13 @@ class Login extends Component {
     render() {
         if (this.props.user.user) {
             return <Redirect to='/dashboard/edit' />;
-        } else if (this.props.user.status === 'access error') {
-            return <Response code={403} header={'Forbidden'} message={this.props.user.statusMessage} />;
+        } else if (this.state.status === 'access error') {
+            let message = <span>
+                <p>{this.props.user.statusMessage}</p>
+                <p><a href='/resend-confirmation'>Resend Confirmation Email</a></p>
+            </span>;
+
+            return <Response code={403} header={'Forbidden'} message={message} />;
         } else {
             return(
                 <section id='login' className='main-panel'>

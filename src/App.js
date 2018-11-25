@@ -12,6 +12,7 @@ import Alert from './components/utils/Alert';
 import Prompt from './components/utils/Prompt';
 import Warning from './components/utils/Warning';
 import { ToggleMenu } from './actions/MenuActions';
+import Footer from './components/includes/site/Footer';
 
 class App extends Component {
 	constructor(props) {
@@ -93,7 +94,7 @@ class App extends Component {
 						<Route exact path='/messages/:stage' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.Messages user={this.props.user} /></Pages.MessageDashboard>} />} />
 						<Route exact path='/message/:stage/:id/details' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.MessageDetails user={this.props.user} /></Pages.MessageDashboard>} />
 						<Route exact path='/listing/:id' render={() => <Pages.ListingDetails user={this.props.user} />} />
-						<Route exact path='/user/:username' render={() => <Pages.ViewUser user={this.props.user} />} />
+						<Route exact path='/user/:username' render={() => <Pages.ViewUser />} />
 						<Route exact path='/account/login' render={() => <Pages.Login user={this.props.user} />} />
 						<Route exact path='/account/register' render={() => <Pages.Register user={this.props.user} />} />
 						{sectors}
@@ -112,6 +113,8 @@ class App extends Component {
 				</section>
 
 				<div className='alert-container'>{alerts}</div>
+
+				<Footer />
 			</div>
 		);
 	}

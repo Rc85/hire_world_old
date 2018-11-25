@@ -41,7 +41,8 @@ class Prompt extends Component {
 }
 
 Prompt.propTypes = {
-    text: PropTypes.string.isRequired
+    text: PropTypes.string.isRequired,
+    data: PropTypes.object
 };
 
 export default connect()(Prompt);

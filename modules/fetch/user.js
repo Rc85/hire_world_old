@@ -1,5 +1,6 @@
 const app = require('express').Router();
 const db = require('../db');
+const error = require('../utils/error-handler');
 
 app.post('/api/get/user', async(req, resp) => {
     let listed = await db.query(`SELECT listing_user FROM user_listings WHERE listing_user = $1 AND listing_status = 'Active'`, [req.body.username]);

@@ -42,7 +42,7 @@ class UserPanel extends Component {
                     <div className='d-flex-between-center'>
                         <div className='nav-item mr-3' title='Dashboard'><NavLink to='/dashboard/edit'><FontAwesomeIcon icon={faCog} size='lg' /></NavLink></div>
                         <div className='nav-item mr-3' title='Messages'>
-                            <NavLink to='/messages/Inquire'>
+                            <NavLink to='/messages/Inquiries'>
                                 <span className='fa-layers fa-fw'>
                                     <FontAwesomeIcon icon={faEnvelope} size='lg' />
                                     {parseInt(this.props.user.messageCount) > 0 ? <small className='icon-counter fa-layers-text'><strong className='badge badge-danger'>{this.props.user.messageCount}</strong></small> : ''}

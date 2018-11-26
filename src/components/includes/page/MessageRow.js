@@ -118,14 +118,13 @@ class MessageRow extends Component {
                     <div className='w-70'>
                         <div className='user-message-subject'><NavLink to={`/message/${this.props.stage}/${this.props.message.job_id}/details`}>{this.props.message.job_subject}</NavLink>{this.props.message.unread_messages > 0 ? <span className='badge badge-danger ml-2'>{this.props.message.unread_messages}</span> : ''}</div>
     
-                        <div><small>{this.props.message.message_sender === this.props.user.username ? <span>Sent {moment(this.props.message.message_date).fromNow()} to <NavLink to={`/user/${this.props.message.message_recipient}`}>{this.props.message.message_recipient}</NavLink></span> : <span>Received {moment(this.props.message.message_date).fromNow()} from <NavLink to={`/user/${this.props.message.message_sender}`}>{this.props.message.message_sender}</NavLink></span>}</small></div>
+                        <div><small>{this.props.user && this.props.message.message_sender === this.props.user.username ? <span>Sent {moment(this.props.message.message_date).fromNow()} to <NavLink to={`/user/${this.props.message.message_recipient}`}>{this.props.message.message_recipient}</NavLink></span> : <span>Received {moment(this.props.message.message_date).fromNow()} from <NavLink to={`/user/${this.props.message.message_sender}`}>{this.props.message.message_sender}</NavLink></span>}</small></div>
                     </div>
                     <div className='w-10'>{statusButton}</div>
                     <div className='w-10 d-flex-end-center'>
                         {reviewButton}
                         {appealButton}
                         {pinnedButton}
-                        {this.props.type !== 'deleted' ? <button className='btn btn-secondary btn-sm' onClick={() => this.props.delete()}><FontAwesomeIcon icon={faTrash} /></button> : ''}
                     </div>
                 </div>
                 {review}

@@ -1,6 +1,7 @@
 const app = require('express').Router();
 const db = require('../db');
 const bcrypt = require('bcrypt');
+const error = require('../utils/error-handler');
 
 app.post('/api/user/settings/profile/save', (req, resp) => {
     if (req.session.user) {
@@ -52,7 +53,7 @@ app.post('/api/user/settings/profile/save', (req, resp) => {
                         .then(() => resp.send({status: 'success', statusMessage: 'Profile saved', user: user.rows[0]}));
                     } catch (e) {
                         await client.query(`ROLLBACK`);
-                        ;
+                        throw e;
                     } finally {
                         done();
                     }
@@ -125,7 +126,7 @@ app.post('/api/user/settings/password/change', (req, resp) => {
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        ;
+                        throw e;
                     } finally {
                         done();
                     }
@@ -176,7 +177,7 @@ app.post('/api/user/settings/email/change', (req, resp) => {
                         .then(() => resp.send({status: 'success', statusMessage: 'Email saved', user: user.rows[0]}));
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        ;
+                        throw e;
                     } finally {
                         done();
                     }
@@ -193,7 +194,6 @@ app.post('/api/user/settings/email/change', (req, resp) => {
 });
 
 app.post('/api/user/settings/change', (req, resp) => {
-    console.log(req.body)
     if (req.session.user) {
         db.connect((err, client, done) => {
             if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
@@ -301,7 +301,7 @@ app.post('/api/user/profile/update', (req, resp) => {
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        ;
+                        throw e;
                     } finally {
                         done();
                     }

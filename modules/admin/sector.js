@@ -1,5 +1,6 @@
 const app = require('express').Router();
 const db = require('../db');
+const error = require('../utils/error-handler');
 
 app.post('/api/admin/sector/add', (req, resp) => {
     db.connect(async(err, client, done) => {
@@ -14,7 +15,7 @@ app.post('/api/admin/sector/add', (req, resp) => {
                 .then(() => resp.send({status: 'success', sectors: sector.rows[0]}));
             } catch (e) {
                 await client.query('ROLLBACK');
-                ;
+            throw e;
             } finally {
                 done()
             }

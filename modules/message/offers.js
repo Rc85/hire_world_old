@@ -1,5 +1,6 @@
 const app = require('express').Router();
 const db = require('../db');
+const error = require('../utils/error-handler');
 
 app.post('/api/offer/submit', (req, resp) => {
     if (req.session.user) {
@@ -16,9 +17,9 @@ app.post('/api/offer/submit', (req, resp) => {
 
                     if (authorized.rows[0].job_client === req.session.user.username) {
                         if (!negotiable.rows[0].listing_negotiable && req.body.type === 'offer') {
-                            resp.send({status: 'error', statusMessage: `Offers not accepted, refresh and try again`});
+                            resp.send({status: 'error', statusMessage: `Offer not accepted, refresh and try again`});
                         } else if (negotiable.rows[0].listing_negotiable && req.body.type === 'hire') {
-                            resp.send({status: 'error', statusMessage: 'Offers are accepted, refresh and try again'});
+                            resp.send({status: 'error', statusMessage: 'Offer are accepted, refresh and try again'});
                         } else if ((negotiable.rows[0].listing_negotiable && req.body.type === 'offer') || !negotiable.rows[0].listing_negotiable && req.body.type === 'hire') {
                             if (negotiable.rows[0].listing_negotiable) {
                                 offerType = req.body.offerType;
@@ -60,7 +61,7 @@ app.post('/api/offer/submit', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    ;
+                throw e;
                 } finally {
                     done();
                 }
@@ -105,7 +106,7 @@ app.post('/api/offer/edit', (req, resp) => {
                         });
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        ;
+                        throw e;
                     } finally {
                         done();
                     }
@@ -147,7 +148,7 @@ app.post('/api/offer/delete', (req, resp) => {
                         });
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        ;
+                        throw e;
                     } finally {
                         done();
                     }
@@ -187,7 +188,7 @@ app.post('/api/offer/accept', (req, resp) => {
                         });
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        ;
+                        throw e;
                     } finally {
                         done();
                     }
@@ -225,7 +226,7 @@ app.post('/api/offer/decline', (req, resp) => {
                         .then(() => resp.send({status: 'success', message: message.rows[0]}));
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        ;
+                        throw e;
                     } finally {
                         done();
                     }

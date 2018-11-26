@@ -4,7 +4,6 @@ const moment = require('moment');
 const error = require('../utils/error-handler');
 
 app.post('/api/message/submit', (req, resp) => {
-    console.log(req.body)
     if (req.session.user) {
         db.connect((err, client, done) => {
             if (err) { error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'}); }
@@ -98,7 +97,7 @@ app.post('/api/message/reply', (req, resp) => {
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        ;
+                        throw e;
                     } finally {
                         done();
                     }

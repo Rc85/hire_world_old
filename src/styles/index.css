@@ -638,6 +638,9 @@
   padding: 20px;
   border: 1px solid #C4C4C4;
 }
+.bordered-container hr {
+  background: #C4C4C4;
+}
 
 .dark-bordered-container {
   padding: 20px;
@@ -973,7 +976,8 @@
   padding-bottom: 5px;
   position: absolute;
   bottom: calc(100% + 2.5px);
-  right: calc(-100% - 5px);
+  transform-origin: center;
+  transform: translateX(-25%);
 }
 
 .review-button-tooltip {

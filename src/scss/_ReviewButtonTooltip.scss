@@ -2,7 +2,8 @@
     padding-bottom: 5px;
     position: absolute;
     bottom: calc(100% + 2.5px);
-    right: calc(-100% - 5px);
+    transform-origin: center;
+    transform: translateX(-25%);
 }
 
 .review-button-tooltip {

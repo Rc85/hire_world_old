@@ -240,7 +240,7 @@ class OfferSender extends Component {
     convertPayment(index) {
         let arr = [...this.state.payments];
         let percent = parseFloat(arr[index]) / 100;
-        let rounded = Math.floor((this.state.price * percent) * 100) / 100 ;
+        let rounded = Math.round((this.state.price * percent) * 100) / 100;
         arr[index] = rounded;
 
         this.setState({payments: arr});
@@ -254,8 +254,14 @@ class OfferSender extends Component {
                 let total = 0;
 
                 for (let payment of this.state.payments) {
+                    console.log(payment)
                     total = total + payment;
                 }
+
+                let subtotal = Math.round(total * 100);
+                total = subtotal / 100;
+
+                console.log(total)
 
                 if (total !== this.state.price) {
                     error = true;
@@ -292,21 +298,24 @@ class OfferSender extends Component {
     }
 
     setOfferPrice(p) {
-        let priceArray = [];
+        let priceArray = [...this.state.payments];
         let price = 0;
 
         if (!isNaN(parseFloat(p))) {
             price = parseFloat(p);
         }
         
-        if (price && this.state.numberOfPayments > 0) {
-            priceArray = this.calculatePayments(this.state.numberOfPayments, price);
+        if (this.state.amountType === 'Equally') {
+            if (price && this.state.numberOfPayments > 0) {
+                priceArray = this.calculatePayments(this.state.numberOfPayments, price);
+            }
         }
         
         this.setState({price: price, payments: priceArray});
     }
     
     render() {
+        console.log(this.state.payments)
         let fixedSettings, offerTypeSetting, hourlySettings, paymentSettings, deleteButton, paymentType;
 
         if (this.state.offerType === 'Contract Term') {

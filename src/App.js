@@ -87,17 +87,24 @@ class App extends Component {
 					<Switch>
 						<Route exact path='/' component={Pages.Main} />
 						<Route exact path='/view' component={Pages.ViewUser} />
+
 						<Route exact path='/dashboard/list' render={() => <Pages.Dashboard user={this.props.user}><Pages.ListSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/saved_listings' render={() => <Pages.Dashboard user={this.props.user}><Pages.SavedListings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/settings' render={() => <Pages.Dashboard user={this.props.user}><Pages.UserSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/messages/:stage' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.Messages user={this.props.user} /></Pages.MessageDashboard>} />} />
+
+						<Route exact path='/messages/Inquiries' render={() => <Pages.MessageDashboard><Pages.Inquiries user={this.props.user} /></Pages.MessageDashboard>} />
 						<Route exact path='/message/:stage/:id/details' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.MessageDetails user={this.props.user} /></Pages.MessageDashboard>} />
+
+						<Route exact path='/jobs/:stage' render={() => <Pages.MessageDashboard><Pages.Jobs user={this.props.user} /></Pages.MessageDashboard>} />
+
 						<Route exact path='/listing/:id' render={() => <Pages.ListingDetails user={this.props.user} />} />
+
 						<Route exact path='/user/:username' render={() => <Pages.ViewUser />} />
+						
 						<Route exact path='/account/login' render={() => <Pages.Login user={this.props.user} />} />
 						<Route exact path='/account/register' render={() => <Pages.Register user={this.props.user} />} />
-						{sectors}
+
 						<Route exact path='/sectors/:sector' component={Pages.Sectors} />
 
 						<Route exact path='/admin-panel' render={() => <Admin.Admin><Admin.AdminOverview user={this.props.user} /></Admin.Admin>} />

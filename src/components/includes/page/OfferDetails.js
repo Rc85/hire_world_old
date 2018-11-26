@@ -28,8 +28,8 @@ const OfferDetails = props => {
 
     if (props.offer && props.offer.offer_number_of_payments > 0) {
         for (let i = 0; i < props.offer.offer_number_of_payments; i++) {
-            let el = <div key={i} className='d-flex w-30 text-center'>
-                <div className='w-20'><strong>#{i + 1}:</strong></div> <div className='w-80'>${props.offer[`offer_payment_${i + 1}`]}</div>
+            let el = <div key={i} className='d-flex-center-center w-30 text-center'>
+                <div className='mr-2'><strong>#{i + 1}:</strong></div> ${props.offer[`offer_payment_${i + 1}`]}
             </div>
 
             payments.push(el);
@@ -41,7 +41,7 @@ const OfferDetails = props => {
             <div className='d-flex-between-start flex-wrap mb-3'>
                 {payments}
             </div>
-        </div>
+        </div>;
     }
 
     if (props.show) {
@@ -85,7 +85,16 @@ const OfferDetails = props => {
     }
 
     if (props.offer && props.offer.offer_confidentiality) {
-        offer = <div className='mb-3'>The other party choose to keep the offer detail confidential between you two.</div>;
+        offer = <div className='text-center grey-panel rounded mb-3'>
+            <strong>The other party has chosen to keep the offer detail confidential.</strong>
+            
+            <div className='d-flex-between-end'>
+                <div>
+                    {props.stage === 'Inquire' ? <React.Fragment><button className='btn btn-success' onClick={() => props.accept()}>Accept</button> <button className='btn btn-danger' onClick={() => props.decline()}>Decline</button></React.Fragment> : '' }
+                </div>
+                <div><small className='text-muted'>Offer ID: {props.offer.offer_id}</small></div>
+            </div>
+        </div>;
     } else if (props.offer && !props.offer.offer_confidentiality) {
         offer = <div className='grey-panel rounded mb-3' role='alert'>
             {dateText}

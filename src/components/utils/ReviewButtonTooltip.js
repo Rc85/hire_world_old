@@ -14,7 +14,7 @@ const ReviewButtonTooltip = props => {
 }
 
 ReviewButtonTooltip.propTypes = {
-    
+    text: PropTypes.string.isRequired
 };
 
 export default ReviewButtonTooltip;

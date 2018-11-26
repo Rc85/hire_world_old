@@ -1,5 +1,6 @@
 const app = require('express').Router();
 const db = require('../db');
+const error = require('../utils/error-handler');
 
 app.post('/api/admin/get/users', async(req, resp) => {
     let userLevel, totalUserQueryString, queryString;
@@ -146,7 +147,7 @@ app.post('/api/admin/user/change-status', (req, resp) => {
                 .then(() => resp.send({status: 'success', user: user.rows[0]}));
             } catch (e) {
                 await client.query('ROLLBACK');
-                ;
+            throw e;
             } finally {
                 done();
             }
@@ -172,7 +173,7 @@ app.post('/api/admin/user/warn', (req, resp) => {
                 .then(() => resp.send({status: 'success', statusMessage: 'Warning sent'}));
             } catch (e) {
                 await client.query('ROLLBACK');
-                ;
+            throw e;
             } finally {
                 done();
             }

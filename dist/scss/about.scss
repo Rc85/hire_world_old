@@ -1,0 +1,8 @@
+@import '../../src/scss/variables';
+
+body {
+    background: url('../images/about_bg.jpg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: $theme-bg;
+}

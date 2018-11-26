@@ -1,6 +1,8 @@
 import Browse from './Browse';
 import Dashboard from './Dashboard';
 import EditUser from './EditUser';
+import Inquiries from './Inquiries';
+import Jobs from './Jobs';
 import ListingDetails from './ListingDetails';
 import ListSettings from './ListSettings';
 import Login from './Login';
@@ -15,4 +17,4 @@ import Sectors from './Sectors';
 import UserSettings from './UserSettings';
 import ViewUser from './ViewUser';
 
-export { Browse, Dashboard, EditUser, ListingDetails, ListSettings, Login, Main, MessageDashboard, MessageDetails, Messages, Register, Response, SavedListings, Sectors, UserSettings, ViewUser }
+export { Browse, Dashboard, EditUser, Inquiries, Jobs, ListingDetails, ListSettings, Login, Main, MessageDashboard, MessageDetails, Messages, Register, Response, SavedListings, Sectors, UserSettings, ViewUser }

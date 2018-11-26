@@ -1,6 +1,7 @@
 const app = require('express').Router();
 const db = require('../db');
 const validate = require('../utils/validate');
+const error = require('../utils/error-handler');
 
 app.post('/api/listing/create', (req, resp) => {
     if (req.session.user) {
@@ -76,7 +77,7 @@ app.post('/api/listing/toggle', (req, resp) => {
                     .then(() => resp.send({status: 'success', listing_status: status.rows[0].listing_status}));
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    ;
+                throw e;
                 } finally {
                     done();
                 }
@@ -108,7 +109,7 @@ app.post('/api/listing/edit', (req, resp) => {
                         let authorized = await client.query(`SELECT listing_user FROM user_listings WHERE listing_id = $1`, [req.body.listing_id]);
 
                         if (authorized.rows[0].listing_user === req.session.user.username) {
-                            let listing = await client.query(`UPDATE user_listings SET listing_title = $1, listing_sector = $2, listing_price = $3, listing_price_currency = $4, listing_price_type = $5, listing_negotiable = $6, listing_detail = $7 WHERE listing_id = $8 RETURNING *`, [title, req.body.listing_sector, req.body.listing_price, req.body.listing_currency, req.body.listing_price_type, req.body.listing_negotiable, req.body.listing_detail, req.body.listing_id]);
+                            let listing = await client.query(`UPDATE user_listings SET listing_title = $1, listing_sector = $2, listing_price = $3, listing_price_currency = $4, listing_price_type = $5, listing_negotiable = $6, listing_detail = $7 WHERE listing_id = $8 RETURNING *`, [title, req.body.listing_sector, req.body.listing_price, req.body.listing_price_currency, req.body.listing_price_type, req.body.listing_negotiable, req.body.listing_detail, req.body.listing_id]);
 
                             await client.query('COMMIT')
                             .then(() => resp.send({status: 'success', statusMessage: 'Listing updated', listing: listing.rows[0]}));
@@ -118,7 +119,7 @@ app.post('/api/listing/edit', (req, resp) => {
                         }
                     } catch (e) {
                         await client.query(`ROLLBACK`);
-                        ;
+                        throw e;
                     } finally {
                         done();
                     }
@@ -215,7 +216,7 @@ app.post('/api/saved_listings/unsave', (req, resp) => {
                     .then(() => resp.send({status: 'success', statusMessage: 'Saved listing(s) deleted'}));
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    ;
+                throw e;
                 } finally {
                     done();
                 }

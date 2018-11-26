@@ -1,5 +1,6 @@
 const app = require('express').Router();
 const db = require('../db');
+const error = require('../utils/error-handler');
 
 app.get('/api/admin/config/get', async(req, resp) => {
     let configs = await db.query(`SELECT * FROM site_configs`);

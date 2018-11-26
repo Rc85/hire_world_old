@@ -29,7 +29,7 @@ class ConfirmMessage extends Component {
 
         if (this.props.job.job_user_complete === false && this.props.job.job_client_complete === false) {
             buttons = <div className='text-center'><strong><em>You declined the request.</em></strong></div>;
-            alertClass = 'danger';
+            alertClass = 'warning';
         } else if (this.props.job.job_user_complete && this.props.job.job_client_complete) {
             buttons = <div className='text-center'><strong><em>You approved the request.</em></strong></div>;
             alertClass = 'success';

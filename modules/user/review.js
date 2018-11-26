@@ -1,6 +1,7 @@
 const app = require('express').Router();
 const db = require('../db');
 const cryptojs = require('crypto-js');
+const error = require('../utils/error-handler');
 
 app.post('/api/user/review/submit', (req, resp) => {
     if (req.session.user) {
@@ -54,7 +55,7 @@ app.post('/api/user/review/submit', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query(`ROLLBACK`);
-                    ;
+                throw e;
                 } finally {
                     done();
                 }
@@ -86,7 +87,7 @@ app.post('/api/review/submit', (req, resp) => {
                     .then(() => resp.send({status: 'success', statusMessage: 'Review submitted', review: review.rows[0]}));
                 } catch (e) {
                     await client.query(`ROLLBACK`);
-                    ;
+                throw e;
                 } finally {
                     done();
                 }
@@ -125,7 +126,7 @@ app.post('/api/review/edit', (req, resp) => {
                     .then(() => resp.send({status: 'success', statusMessage: 'Review updated', review: review.rows[0]}))
                 } catch (e) {
                     await client.query(`ROLLBACK`);
-                    ;
+                throw e;
                 } finally {
                     done();
                 }

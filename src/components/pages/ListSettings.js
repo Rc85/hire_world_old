@@ -194,7 +194,6 @@ class ListSettings extends Component {
     }
     
     render() {
-        console.log('list settings rendered')
         let status, sectors, buttons, listInfo;
 
         if (this.state.status === 'Loading') {
@@ -240,7 +239,7 @@ class ListSettings extends Component {
 
                             <div className='w-25'>
                                 <label htmlFor='listing-sector'>List Under: <span className='required-asterisk'>*</span></label>
-                                <select name='sector' id='listing-sector' className='form-control' onChange={(e) => this.setSettings('listing_sector', e.target.value)} defaultValue={this.state.initialSettings.listing_sector} disabled={this.props.user.user && this.props.user.user.account_type === 'User'}>
+                                <select name='sector' id='listing-sector' className='form-control' onChange={(e) => this.setSettings('listing_sector', e.target.value)} value={this.state.newSettings.listing_sector} disabled={this.props.user.user && this.props.user.user.account_type === 'User'}>
                                     {sectors}
                                 </select>
                             </div>

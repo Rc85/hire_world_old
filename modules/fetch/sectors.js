@@ -1,5 +1,6 @@
 const app = require('express').Router();
 const db = require('../db');
+const error = require('../utils/error-handler');
 
 app.get('/api/get/sectors', async(req, resp) => {
     db.query(`SELECT * FROM sectors WHERE sector_status = 'Open' ORDER BY sector`)

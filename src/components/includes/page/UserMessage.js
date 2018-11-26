@@ -76,12 +76,12 @@ class UserMessage extends Component {
 
         return(
             <div className={`${this.props.rowClass} mb-3`}>
-                <div className='col-2'>
+                <div className='col-1'>
                     <div className={`profile-pic w-75 ${this.props.profilePicAlignment}`} style={{background: `url(${this.props.message.avatar_url}) center top / cover`}}></div>
                     <div className={`w-75 text-center ${this.props.profilePicAlignment}`}><NavLink to={`/user/${this.props.message.message_sender}`}>{this.props.message.message_sender}</NavLink></div>
                     <div></div>
                 </div>
-                <div className='col-10'>
+                <div className='col-11'>
                     <div className={this.props.panelClass}>
                         <div className='d-flex-between-start mb-3'>
                             <small>{this.props.text} {moment(this.props.message.message_date).fromNow()} {this.props.message.message_modified_date ? `(Edited ${moment(this.props.message.message_modified_date).fromNow()})` : ''}</small>

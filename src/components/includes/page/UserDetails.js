@@ -16,44 +16,26 @@ class UserDetails extends Component {
         }
     }
 
-    openEditor() {
-        this.setState({
-            editor: !this.state.editor
-        });
-    }
-
     submitBio() {
-        this.props.dispatch(EditUser('user_bio', this.state.value, this.props.user.user))
+        this.props.dispatch(EditUser('user_bio', this.state.value, this.props.user.user));
+        this.setState({editor: false});
     }
 
     render() {
-        let editor;
-        let icon;
-        let bio;
+        let editor, icon, bio;
         
         if (this.props.user.user) {
             if (this.state.editor) {
                 editor = <div id='user-bio-editor'>
-                    <textarea className='form-control w-100' name='user-bio' rows={'6'}
-                    onChange={(e) => {
-                        this.setState({
-                            value: e.target.value
-                        });
-                    }}
-                    ></textarea>
-                    <div className='text-right mt-1'><button className='btn btn-primary' onClick={() => {
-                        this.submitBio();
-
-                        document.getElementById('user-bio-editor').value = '';
-
-                        this.setState({
-                            editor: !this.state.editor
-                        });
-                    }}>Submit</button></div>
+                    <textarea className='form-control w-100' name='user-bio' rows='6'
+                    onChange={(e) => this.setState({value: e.target.value})} placeholder='Write about yourself and what you do'></textarea>
+                    <div className='text-right mt-1'>
+                    <button className='btn btn-primary mr-1' onClick={() => this.submitBio()}>Submit</button>
+                    <button className='btn btn-secondary' onClick={() => this.setState({editor: false})}>Cancel</button>
+                    </div>
                 </div>;
-                icon = <FontAwesomeIcon icon={faTimes} />;
             } else {
-                icon = <FontAwesomeIcon icon={faEdit} />
+                icon = <button className='btn btn-info btn-sm' onClick={() => this.setState({editor: !this.state.editor})}><FontAwesomeIcon icon={faEdit} /></button>
             }
 
             if (this.props.user.status === 'edit user_bio loading') {
@@ -68,9 +50,9 @@ class UserDetails extends Component {
         return(
             <section id='user-details'>
                 <div className='d-flex justify-content-between mb-2'>
-                    <h5>About</h5>
+                    <h5>Details</h5>
                     
-                    <button className='btn btn-info btn-sm' onClick={this.openEditor.bind(this)}>{icon}</button>
+                    {icon}
                 </div>
 
                 {editor}

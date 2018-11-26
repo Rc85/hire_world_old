@@ -52,7 +52,7 @@ app.use(require('./modules/user/reports'));
 app.use(require('./modules/fetch/sectors'));
 app.use(require('./modules/fetch/user'));
 app.use(require('./modules/fetch/messages'));
-app.use(require('./modules/fetch/offers'));
+app.use(require('./modules/fetch/jobs'));
 app.use(require('./modules/fetch/listings'));
 
 app.use(require('./modules/message/messages'));

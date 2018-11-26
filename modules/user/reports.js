@@ -1,5 +1,6 @@
 const app = require('express').Router();
 const db = require('../db');
+const error = require('../utils/error-handler');
 
 app.post('/api/report/submit', async(req, resp) => {
     if (req.session.user) {

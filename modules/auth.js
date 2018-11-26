@@ -5,6 +5,7 @@ const validate = require('./utils/validate');
 const moment = require('moment');
 const cryptoJS = require('crypto-js');
 const sgMail = require('@sendgrid/mail');
+const error = require('./utils/error-handler');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 

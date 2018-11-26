@@ -1,6 +1,7 @@
 const app = require('express').Router();
 const db = require('../db');
 const cryptojs = require('crypto-js');
+const error = require('../utils/error-handler');
 
 app.post('/api/jobs/delete', (req, resp) => {
     if (req.session.user) {
@@ -69,7 +70,7 @@ app.post('/api/jobs/delete', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    ;
+                throw e;
                 } finally {
                     done();
                 }
@@ -111,7 +112,7 @@ app.post('/api/job/complete', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
-                    ;
+                throw e;
                 } finally {
                     done();
                 }
@@ -160,7 +161,7 @@ app.post('/api/job/complete/:decision', (req, resp) => {
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        ;
+                        throw e;
                     } finally {
                         done();
                     }
@@ -194,7 +195,7 @@ app.post('/api/job/complete/:decision', (req, resp) => {
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
-                        ;
+                        throw e;
                     } finally {
                         done();
                     }
@@ -238,7 +239,7 @@ app.post('/api/job/close', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query(`ROLLBACK`);
-                    ;
+                throw e;
                 } finally {
                     done();
                 }
@@ -269,11 +270,11 @@ app.post('/api/job/abandon', (req, resp) => {
                         
                         REASON: ${req.body.reason}
                         
-                        <small>Should you agree to abandon this job, it will not negatively impact the other party's reputation. If you do not decide within 3 weeks, the job will automatically be deemed as abandoned and will negatively impact the other party's reputation.</small>`;
+                        Should you agree to abandon this job, it will not negatively impact the other party's reputation. If you do not decide within 3 weeks, then an agreement will automatically be made on your behalf by our system.`;
 
-                        let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, [req.body.job_id, `A request to abandon this job has been sent.`, req.session.user.username, 'Abandonment', true, 'System']);
+                        let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, [req.body.job_id, `A request to abandon this job has been sent.`, req.session.user.username, 'Update', true, 'System']);
                         
-                        await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (belongs_to_job, message_type) WHERE message_type = $4 DO NOTHING`, [req.body.job_id, messageBody, authorized.rows[0].job_client, 'Abandonment', true, 'System']);
+                        await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (belongs_to_job, message_type) WHERE message_type = $4 DO UPDATE SET message_body = $2, message_modified_date = current_timestamp`, [req.body.job_id, messageBody, authorized.rows[0].job_client, 'Abandonment', true, 'System']);
 
                         await client.query(`COMMIT`)
                         .then(() => {
@@ -284,7 +285,7 @@ app.post('/api/job/abandon', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query(`ROLLBACK`);
-                    ;
+                throw e;
                 } finally {
                     done();
                 }
@@ -310,15 +311,15 @@ app.post('/api/job/cancel-abandon', (req, resp) => {
 
                     let authorized = await client.query(`SELECT job_client, job_user FROM jobs WHERE job_id = $1`, [req.body.job_id]);
 
-                    if (authorized && authorized[0].job_user === req.session.user.username) {
+                    if (authorized && authorized.rows[0].job_user === req.session.user.username) {
                         await client.query(`UPDATE messages SET message_body = $1, message_type = $2 WHERE message_type = $3 AND belongs_to_job = $4 AND message_recipient = $5`, [`The other party cancelled the abandon request.`, 'Update', 'Abandonment', req.body.job_id, req.body.recipient]);
 
                         let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, [req.body.job_id, `Your abandon request has been cancelled.`, req.session.user.username, 'Update', true, 'System']);
 
-                        await client.query(`UPDATE jobs SET job_status = $1, job_abandoned_date = $2, abandon_reason = $3 WHERE job_id = $4`, ['Active', null, null, req.body.job_id]);
+                        let job = await client.query(`UPDATE jobs SET job_status = $1, job_abandoned_date = $2, abandon_reason = $3 WHERE job_id = $4 RETURNING *`, ['', null, null, req.body.job_id]);
 
                         await client.query('COMMIT')
-                        .then(() => resp.send({status: 'success', message: message.rows[0]}));
+                        .then(() => resp.send({status: 'success', message: message.rows[0], job: job.rows[0]}));
                     } else {
                         let error = new Error(`You're not authorized`);
                         error.type = 'user_defined';
@@ -366,7 +367,7 @@ app.post('/api/job/abandon/:decision', (req, resp) => {
 
                             await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6)`, [req.body.job_id, `The other party declined your request to abandon this job. This job is now considered as "Abandoned".`, authorized.rows[0].job_user, 'Warning', true, 'System']);
                         } else if (req.params.decision === 'decline') {
-                            job = await client.query(`UPDATE jobs SET job_stage = 'Abandon', job_status = 'Abandon' WHERE job_id = $1 RETURNING *`, [req.body.job_id]);
+                            job = await client.query(`UPDATE jobs SET job_stage = 'Abandoned', job_status = 'Abandoned', job_user_complete = false, job_client_complete = false WHERE job_id = $1 RETURNING *`, [req.body.job_id]);
 
                             message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, [req.body.job_id, `You approved the request to abandon this job. This job is now considered as "Incomplete".`, req.session.user.username, 'Update', true, 'System']);
 
@@ -383,7 +384,7 @@ app.post('/api/job/abandon/:decision', (req, resp) => {
                     }
                 } catch (e) {
                     await client.query(`ROLLBACK`);
-                    ;
+                throw e;
                 } finally {
                     done();
                 }
@@ -406,26 +407,42 @@ app.post('/api/job/abandon/:decision', (req, resp) => {
 
 app.post('/api/job/pin', async(req, resp) => {
     if (req.session.user) {
-        let exist = await db.query(`SELECT * FROM pinned_jobs WHERE pinned_job = $1 AND pinned_by = $2`, [req.body.id, req.session.user.username]);
-        let queryString, action;
+        db.connect((err, client, done) => {
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
-        if (exist && exist.rows.length === 1) {
-            queryString = `DELETE FROM pinned_jobs WHERE pinned_job = $1 AND pinned_by = $2`;
-            action = 'delete';
-        } else if (exist && exist.rows.length === 0) {
-            queryString = `INSERT INTO pinned_jobs (pinned_job, pinned_by) VALUES ($1, $2)`;
-            action = 'pin';
-        }
+            (async() => {
+                try {
+                    await client.query('BEGIN');
 
-        await db.query(queryString, [req.body.id, req.session.user.username])
-        .then(result => {
-            if (result && result.rowCount === 1) {
-                resp.send({status: 'success', action: action});
-            }
-        })
-        .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
+                    let exist = await db.query(`SELECT * FROM pinned_jobs WHERE pinned_job = $1 AND pinned_by = $2`, [req.body.id, req.session.user.username]);
+                    let queryString, action, date;
+
+                    if (exist && exist.rows.length === 1) {
+                        await client.query(`DELETE FROM pinned_jobs WHERE pinned_job = $1 AND pinned_by = $2`, [req.body.id, req.session.user.username]);
+                        date = null;
+                        action = 'delete';
+                    } else if (exist && exist.rows.length === 0) {
+                        date = await client.query(`INSERT INTO pinned_jobs (pinned_job, pinned_by) VALUES ($1, $2) RETURNING pinned_date`, [req.body.id, req.session.user.username])
+                        .then(result => {
+                            return result.rows[0].pinned_date;
+                        });
+
+                        action = 'pin';
+                    }
+
+                    await client.query('COMMIt')
+                    .then(() => resp.send({status: 'success', pinnedDate: date, action: action}));
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
         });
     }
 });
@@ -433,7 +450,7 @@ app.post('/api/job/pin', async(req, resp) => {
 app.post('/api/jobs/appeal-abandon', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             (async() => {
                 try {

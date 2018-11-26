@@ -16,8 +16,8 @@ class MessageSender extends Component {
     }
     
     componentDidUpdate(prevProps, prevState) {
-        if (this.props.status !== prevProps.status && this.props.status === 'success') {
-            this.setState({subject: '', message: ''});
+        if (this.props.status !== prevProps.status && this.props.status === 'send success') {
+            this.setState({status: '', subject: '', message: ''});
         }
     }
     

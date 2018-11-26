@@ -124,11 +124,10 @@ class ViewUser extends Component {
     }
 
     sendMessage(message, subject) {
-        this.setState({status: 'Sending'});
+        this.setState({status: 'Sending', sendStatus: ''});
 
         fetch.post('/api/message/submit', {subject: subject, message: message, user: this.state.user})
         .then(resp => {
-            console.log(resp);
             this.setState({status: '', sendStatus: resp.data.status});
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));

@@ -13,7 +13,7 @@ class Sectors extends Component {
         super(props);
 
         this.state = {
-            sector: this.props.name,
+            sector: this.props.match.params.sector,
             status: 'loading',
             statusMessage: '',
             listings: []
@@ -21,7 +21,7 @@ class Sectors extends Component {
     }
 
     componentDidMount() {
-        fetch.post('/api/get/listings', {sector: this.props.name})
+        fetch.post('/api/get/listings', {sector: this.props.match.params.sector})
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({status: '', listings: resp.data.listings});
@@ -35,7 +35,7 @@ class Sectors extends Component {
     filterListings(data) {
         this.setState({status: 'Loading'});
 
-        data['sector'] = this.props.name;
+        data['sector'] = this.props.match.params.sector;
 
         fetch.post('/api/filter/listings', data)
         .then(resp => {

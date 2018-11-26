@@ -8,10 +8,10 @@ const MessageDashboard = props => {
     return(
         <section id='message-dashboard' className='main-panel w-100'>
             <TabBar items={[
-                {name: 'Inquiries', active: /^\/message(s)?\/Inquire.*/.test(props.location.pathname) ? true : false, link: '/messages/Inquire'},
-                {name: 'Active', active: /^\/message(s)?\/Active.*/.test(props.location.pathname) ? true : false, link: '/messages/Active'},
-                {name: 'Completed', active: /^\/message(s)?\/Completed.*/.test(props.location.pathname) ? true : false, link: '/messages/Completed'},
-                {name: 'Abandoned', active: /^\/message(s)?\/Abandoned.*/.test(props.location.pathname) ? true : false, link: '/messages/Abandoned'},
+                {name: 'Inquiries', active: /^\/message(s)?\/Inquiries.*/.test(props.location.pathname) ? true : false, link: '/messages/Inquiries'},
+                {name: 'Active', active: /^\/(message|jobs)\/Active.*/.test(props.location.pathname) ? true : false, link: '/jobs/Active'},
+                {name: 'Completed', active: /^\/(message|jobs)\/Completed.*/.test(props.location.pathname) ? true : false, link: '/jobs/Completed'},
+                {name: 'Abandoned', active: /^\/(message|jobs)\/Abandoned.*/.test(props.location.pathname) ? true : false, link: '/jobs/Abandoned'},
             ]} />
 
             {props.children}

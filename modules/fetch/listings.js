@@ -1,5 +1,6 @@
 const app = require('express').Router();
 const db = require('../db');
+const error = require('../utils/error-handler');
 
 app.post('/api/get/listing', async(req, resp) => {
     if (req.session.user) {
@@ -21,6 +22,7 @@ app.post('/api/get/listing', async(req, resp) => {
 });
 
 app.post('/api/get/listings', async(req, resp) => {
+    console.log(req.body)
     await db.query(`SELECT user_listings.*, user_profiles.user_title, user_reviews.rating, (SELECT COUNT(job_id) AS job_completed FROM jobs WHERE job_stage = 'Complete') FROM user_listings
     LEFT JOIN users ON users.username = user_listings.listing_user
     LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
@@ -30,8 +32,8 @@ app.post('/api/get/listings', async(req, resp) => {
     WHERE listing_sector = $1 AND listing_status = 'Active'
     ORDER BY listing_renewed_date DESC, listing_id`, [req.body.sector])
     .then(result => {
-        console.log
         if (result) {
+            console.log(result.rows)
             resp.send({status: 'success', listings: result.rows});
         }
     })

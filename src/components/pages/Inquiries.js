@@ -7,13 +7,14 @@ import Pagination from '../utils/Pagination';
 import MessageRow from '../includes/page/MessageRow';
 import Loading from '../utils/Loading';
 import InquiryRow from '../includes/page/InquiryRow';
+import { withRouter } from 'react-router-dom';
 
 class Inquiries extends Component {
     constructor(props) {
         super(props);
         
         this.state = {
-            status: '',
+            status: 'Loading',
             statusMessage: '',
             offset: 0,
             showing: 'all',
@@ -23,7 +24,7 @@ class Inquiries extends Component {
     }
     
     componentDidUpdate(prevProps, prevState) {
-        if (prevState.showing !== this.state.showing || prevState.offset !== this.state.offset) {
+        if (prevState.showing !== this.state.showing || prevState.offset !== this.state.offset || prevProps.location.key !== this.props.location.key) {
             this.setState({status: 'Loading'});
 
             fetch.post(`/api/get/messages/${this.state.showing}`, {stage: 'Inquire', offset: this.state.offset})
@@ -41,6 +42,8 @@ class Inquiries extends Component {
                     this.setState({status: ''});
 
                     this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+                } else if (resp.data.status === 'suspended') {
+                    this.setState({status: 'suspended'});
                 }
             })
             .catch(err => LogError(err, `/api/get/messages/${this.state.showing}`));
@@ -48,8 +51,6 @@ class Inquiries extends Component {
     }
     
     componentDidMount() {
-        this.setState({status: 'Loading'});
-
         fetch.post(`/api/get/messages/${this.state.showing}`, {stage: 'Inquire', offset: this.state.offset})
         .then(resp => {
             if (resp.data.status === 'success') {
@@ -65,6 +66,8 @@ class Inquiries extends Component {
                 this.setState({status: ''});
 
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            } else if (resp.data.status === 'suspended') {
+                this.setState({status: 'suspended'});
             }
         })
         .catch(err => LogError(err, `/api/get/messages/${this.state.showing}`));
@@ -95,7 +98,7 @@ class Inquiries extends Component {
     }
     
     render() {
-        let status;
+        let status, body, message;
 
         if (this.state.status === 'Loading') {
             status = <Loading size='5x' />;
@@ -111,9 +114,32 @@ class Inquiries extends Component {
             return <InquiryRow key={i} user={this.props.user.user} stage='Inquire' message={message} pin={() => this.pinMessage(message.job_id)} pinned={pinned} />
         });
 
+        if (this.state.messages.length > 0) {
+            body = <React.Fragment>
+                <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
+
+                <hr />
+
+                {messages}
+
+                <hr />
+
+                <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
+            </React.Fragment>;
+        } else {
+            body = <div className='text-center p-5'>
+                <h2 className='text-muted'>There are no inquiries at the moment</h2>
+            </div>;
+        }
+
+        if (this.state.status === 'suspended') {
+            message = <div className='alert alert-danger'>You cannot retrieve your messages during a temporary ban.</div>
+        }
+
         return (
             <section id='inquiries' className='blue-panel shallow three-rounded w-100'>
                 {status}
+                {message}
                 <div className='btn-group'>
                     <button className={`btn ${this.state.showing === 'all' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'all'})}>All</button>
                     <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received'})}>Received</button>
@@ -121,15 +147,7 @@ class Inquiries extends Component {
                     <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned'})}>Pinned</button>
                 </div>
 
-                {this.state.messages.length > 0 ? <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} /> : ''}
-
-                {this.state.messages.length > 0 ? <hr /> : ''}
-
-                {messages}
-
-                {this.state.messages.length > 0 ? <hr /> : ''}
-
-                {this.state.messages.length > 0 ? <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} /> : ''}
+                {body}
             </section>
         );
     }
@@ -139,4 +157,4 @@ Inquiries.propTypes = {
 
 };
 
-export default connect()(Inquiries);
+export default withRouter(connect()(Inquiries));

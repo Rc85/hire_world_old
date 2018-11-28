@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { PromptReset, PromptSubmit } from '../../actions/PromptActions';
 import { connect } from 'react-redux';
+import { Alert } from '../../actions/AlertActions';
 
 class Prompt extends Component {
     constructor(props) {
@@ -29,11 +30,23 @@ class Prompt extends Component {
                     <div className='modal-text'>{this.props.text}</div>
 
                     <input type='text' name='prompt' id='prompt-input' className='form-control mb-1' onChange={(e) => this.setState({input: e.target.value})} autoFocus='on' onKeyDown={(e) => {
-                        if (e.keyCode === 13) this.props.dispatch(PromptSubmit(this.state.input, this.props.data));
+                        if (e.keyCode === 13) {
+                            if (this.state.input) {
+                                this.props.dispatch(PromptSubmit(this.state.input, this.props.data));
+                            } else {
+                                this.props.dispatch(Alert('error', 'Please specify a reason'));
+                            }
+                        }
                     }} />
 
                     <div className='text-right'>
-                        <button className='btn btn-primary mr-1' onClick={() => this.props.dispatch(PromptSubmit(this.state.input, this.props.data))}>Submit</button>
+                        <button className='btn btn-primary mr-1' onClick={() => {
+                            if (this.state.input) {
+                                this.props.dispatch(PromptSubmit(this.state.input, this.props.data));
+                            } else {
+                                this.props.dispatch(Alert('error', 'Please specify a reason'));
+                            }
+                        }}>Submit</button>
                         <button className='btn btn-secondary' onClick={() => this.props.dispatch(PromptReset())}>Cancel</button>
                     </div>
                 </div>

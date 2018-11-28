@@ -502,15 +502,15 @@ class MessageDetails extends Component {
 
 
             if (abandonedDate) {
-                if (abandonedDate.diff(now, 'weeks') >= 3 || this.state.job.job_status === 'Abandoned') {
+                if (abandonedDate.diff(now, 'weeks') >= 3 || this.state.job.job_stage === 'Abandoned') {
                     jobStatus = <span className='badge badge-danger'>Abandoned</span>;
-                } else if (this.state.job.job_status === 'Incomplete') {
+                } else if (this.state.job.job_stage === 'Incomplete') {
                     jobStatus = <span className='badge badge-warning'>Incomplete</span>;
-                } else if (this.state.job.job_status === 'Abandoning') {
+                } else if (this.state.job.job_stage === 'Abandoning') {
                     jobStatus = <span className='badge badge-warning'>Pending</span>;
-                } else if (this.state.job.job_status === 'Completed') {
+                } else if (this.state.job.job_stage === 'Completed') {
                     jobStatus = <span className='badge badge-success'>Complete</span>;
-                } else if (this.state.job.job_status === 'Closed') {
+                } else if (this.state.job.job_stage === 'Closed') {
                     jobStatus = <span className='badge badge-danger'>Closed</span>;
                 }
             }
@@ -558,7 +558,7 @@ class MessageDetails extends Component {
                 fetchStatus = <div className='position-relative'><Loading size='5x' /></div>;
             }
 
-            if (this.state.job && this.state.job.job_status === 'Active') {
+            if (this.state.job && (this.state.job.job_stage === 'Active' || this.state.job.job_stage === 'Inquire')) {
                 if (!this.state.send) {
                     sendButton = <button className='btn btn-primary mr-1' onClick={() => this.setState({send: true, makeOffer: false})}>Message</button>;
                 } else {
@@ -630,6 +630,7 @@ class MessageDetails extends Component {
                 });
             }
 
+            console.log(this.state.offer)
             if ((this.state.offer && this.state.job && this.state.job.job_user === this.props.user.user.username) || this.props.match.params.stage !== 'Inquire') {
                 offerConfirmation = <OfferDetails offer={this.state.offer} accept={() => this.props.dispatch(ShowConfirmation('Are you sure you want to accept this offer?', false, {action: 'accept offer'}))} stage={this.props.match.params.stage} show={this.state.showOfferDetail} toggleOfferDetail={() => this.setState({showOfferDetail: !this.state.showOfferDetail})} decline={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to decline this offer?`, false, {action: 'decline offer'}))} />;
             }

@@ -476,6 +476,12 @@
   justify-content: center;
 }
 
+.d-flex-center-col {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
 #sector-name {
   width: 75px;
 }
@@ -651,7 +657,7 @@
   position: fixed;
   bottom: 10px;
   left: 10px;
-  z-index: 2;
+  z-index: 10;
 }
 
 .scroller-div {

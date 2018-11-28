@@ -7,10 +7,11 @@ export const GetSession = () => {
 
         fetch.post('/api/auth/login')
         .then(resp => {
+            console.log(resp)
             if (resp.data.status === 'get session success') {
-                dispatch(GetSessionSuccess(resp.data.status, resp.data.user, resp.data.messageCount, resp.data.notifications));
+                dispatch(GetSessionSuccess(resp.data.status, resp.data.user));
             } else {
-                dispatch(GetSessionFail(resp.data.status, null));
+                dispatch(GetSessionFail(resp.data.status, resp.data.statusMessage));
             }
         })
         .catch(err => LogError(err, '/api/auth/login'));
@@ -24,20 +25,18 @@ const GetSessionBegin = status => {
     }
 }
 
-const GetSessionSuccess = (status, user, messageCount, notifications) => {
+const GetSessionSuccess = (status, user) => {
     return {
         type: 'LOGIN_USER_UPDATE',
         user,
-        status,
-        messageCount,
-        notifications
+        status
     }
 }
 
-const GetSessionFail = (status, user) => {
+const GetSessionFail = (status, message) => {
     return {
         type: 'LOGIN_USER_ERROR',
-        user,
+        message,
         status
     }
 }
@@ -71,9 +70,26 @@ const UpdateSectorsError = (status) => {
     }
 }
 
-export const UpdateUserNotifications = notifications => {
+export const UpdateUserNotifications = () => {
+    fetch.get
+}
+
+export const GetUserNotificationAndMessageCount = () => {
+    return dispatch => {
+        fetch.get('/api/get/user/notification-and-message-count')
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                dispatch(UpdateUserNotificationAndMessageCount(resp.data.notifications, resp.data.messages));
+            }
+        })
+        .catch(err => LogError(err, 'api/get/user/notification-and-message-count'));
+    }
+}
+
+const UpdateUserNotificationAndMessageCount = (notifications, messages) => {
     return {
-        type: 'UPDATE_NOTIFICATIONS',
-        notifications
+        type: 'UPDATE_NOTIFICATION_AND_MESSAGE_COUNT',
+        notifications,
+        messages
     }
 }

@@ -9,12 +9,8 @@ import UserTitle from '../includes/page/UserTitle';
 import { GetSession } from '../../actions/FetchActions';
 
 class EditUser extends Component {   
-    componentDidMount() {
-        this.props.dispatch(GetSession());
-    }
-    
     render() {
-        let userEducationStatus, userGithubStatus, userTwitterStatus, userFacebookStatus, userLinkedInStatus, userWebsiteStatus, userInstagramStatus, fullName, businessName, email, phone, address, avatarURL;
+        let userEducationStatus, userGithubStatus, userTwitterStatus, userFacebookStatus, userLinkedInStatus, userWebsiteStatus, userInstagramStatus, fullName, businessName, email, phone, address;
 
         if (this.props.user.user) {
             switch(this.props.user.status) {

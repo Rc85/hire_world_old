@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import SubmitButton from '../utils/SubmitButton';
 import { withRouter, Redirect } from 'react-router-dom';
 import Response from './Response';
+import Loading from '../utils/Loading';
+import { Alert } from '../../actions/AlertActions';
 
 class Login extends Component {
     constructor() {
@@ -14,16 +16,6 @@ class Login extends Component {
             password: null
         }
     }
-
-    componentDidUpdate(prevProps, prevState) {
-        if (prevProps.user.status !== this.props.user.status) {
-            this.setState({status: this.props.user.status});
-        }
-
-        if (prevProps.location.key !== this.props.location.key) {
-            this.setState({status: ''});
-        }
-    }
     
     handleLogin() {
         this.props.dispatch(LoginUser(this.state));
@@ -32,45 +24,39 @@ class Login extends Component {
     render() {
         if (this.props.user.user) {
             return <Redirect to='/dashboard/edit' />;
-        } else if (this.state.status === 'access error') {
-            let message = <span>
-                <p>{this.props.user.statusMessage}</p>
-                <p><a href='/resend-confirmation'>Resend Confirmation Email</a></p>
-            </span>;
-
-            return <Response code={403} header={'Forbidden'} message={message} />;
-        } else {
-            return(
-                <section id='login' className='main-panel'>
-                    <div className='blue-panel shallow rounded'>
-                        <h2>Login</h2>
-
-                        <form onSubmit={(e) => {
-                            e.preventDefault();
-                            this.handleLogin();
-                        }}>
-                            <div className='form-group'>
-                                <label htmlFor='username'>Username: </label>
-                                <input className='form-control' type='text' name='username' id='login-username' onChange={(e) => this.setState({username: e.target.value})} />
-                            </div>
-            
-                            <div className='form-group'>
-                                <label htmlFor='password'>Password: </label>
-                                <input className='form-control' type='password' name='password' id='login-password' onChange={(e) => this.setState({password: e.target.value})} />
-                            </div>
-    
-                            <div className='text-right'>
-                                <SubmitButton type='submit' loading={/loading$/.test(this.props.user.status)} value='Login' onClick={() => {return false}}/>
-    
-                                <div className='mt-3'>
-                                    Forgot Password
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </section>
-            )
+        } else if (this.props.user.status === 'getting session') {
+            return <Loading size='7x' />
         }
+        return(
+            <section id='login' className='main-panel'>
+                <div className='blue-panel shallow rounded'>
+                    <h2>Login</h2>
+
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        this.handleLogin();
+                    }}>
+                        <div className='form-group'>
+                            <label htmlFor='username'>Username: </label>
+                            <input className='form-control' type='text' name='username' id='login-username' onChange={(e) => this.setState({username: e.target.value})} />
+                        </div>
+        
+                        <div className='form-group'>
+                            <label htmlFor='password'>Password: </label>
+                            <input className='form-control' type='password' name='password' id='login-password' onChange={(e) => this.setState({password: e.target.value})} />
+                        </div>
+
+                        <div className='text-right'>
+                            <SubmitButton type='submit' loading={/loading$/.test(this.props.user.status)} value='Login' onClick={() => {return false}}/>
+
+                            <div className='mt-3'>
+                                Forgot Password
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        )
     }
 }
 

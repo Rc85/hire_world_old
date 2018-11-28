@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Route, withRouter, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { GetSession, GetSectors } from './actions/FetchActions';
+import { GetSession, GetSectors, GetUserNotificationAndMessageCount } from './actions/FetchActions';
 import { RemoveAlert } from './actions/AlertActions';
 import * as Pages from './components/pages';
 import * as Admin from './components/admin';
@@ -22,10 +22,16 @@ class App extends Component {
 			mainMenu: false
 		}
 	}
+
+	componentDidUpdate(prevProps, prevState) {
+		if (this.props.location.key !== prevProps.location.key) {
+			this.props.dispatch(GetUserNotificationAndMessageCount());
+		}
+	}
 		
 	componentDidMount() {
 		this.props.dispatch(GetSession());
-		this.props.dispatch(GetSectors());
+		this.props.dispatch(GetUserNotificationAndMessageCount());
 
 		document.body.addEventListener('click', (e) => {
 			if (typeof e.target.className === 'object' || e.target.classList.contains('admin-menu-button') || e.target.classList.contains('menu-item') || e.target.classList.contains('menu') || e.target.id === 'browse-menu-button') {
@@ -85,7 +91,7 @@ class App extends Component {
 
 				<section className='main-container'>
 					<Switch>
-						<Route exact path='/' component={Pages.Main} />
+						<Route exact path='/' render={() => <Pages.Login user={this.props.user} />} />
 						<Route exact path='/view' component={Pages.ViewUser} />
 
 						<Route exact path='/dashboard/list' render={() => <Pages.Dashboard user={this.props.user}><Pages.ListSettings user={this.props.user} /></Pages.Dashboard>} />
@@ -93,16 +99,15 @@ class App extends Component {
 						<Route exact path='/dashboard/settings' render={() => <Pages.Dashboard user={this.props.user}><Pages.UserSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
 
-						<Route exact path='/messages/Inquiries' render={() => <Pages.MessageDashboard><Pages.Inquiries user={this.props.user} /></Pages.MessageDashboard>} />
+						<Route exact path='/messages/Inquiries' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.Inquiries user={this.props.user} /></Pages.MessageDashboard>} />
 						<Route exact path='/message/:stage/:id/details' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.MessageDetails user={this.props.user} /></Pages.MessageDashboard>} />
 
-						<Route exact path='/jobs/:stage' render={() => <Pages.MessageDashboard><Pages.Jobs user={this.props.user} /></Pages.MessageDashboard>} />
+						<Route exact path='/jobs/:stage' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.Jobs user={this.props.user} /></Pages.MessageDashboard>} />
 
 						<Route exact path='/listing/:id' render={() => <Pages.ListingDetails user={this.props.user} />} />
 
-						<Route exact path='/user/:username' render={() => <Pages.ViewUser />} />
+						<Route exact path='/user/:username' render={() => <Pages.ViewUser user={this.props.user} />} />
 						
-						<Route exact path='/account/login' render={() => <Pages.Login user={this.props.user} />} />
 						<Route exact path='/account/register' render={() => <Pages.Register user={this.props.user} />} />
 
 						<Route exact path='/sectors/:sector' component={Pages.Sectors} />

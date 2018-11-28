@@ -74,9 +74,9 @@ app.post('/api/get/user', async(req, resp) => {
             ORDER BY ${orderby}user_reviews.review_date DESC`, reviewsParam);
 
             let stats = await db.query(`SELECT
-                (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_stage = 'Complete'),
+                (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_stage = 'Completed'),
                 (SELECT COUNT(job_id) AS job_abandon FROM jobs WHERE job_stage = 'Abandoned'),
-                (SELECT (SUM(review_rating) / COUNT(review_id)) AS rating FROM user_reviews WHERE reviewing = $1),
+                (SELECT (SUM(review_rating) / COUNT(review_id)) AS rating FROM user_reviews WHERE reviewing = $1 AND review_rating IS NOT NULL),
                 (SELECT COUNT(review_id) AS job_count FROM user_reviews WHERE review IS NOT NULL AND reviewing = $1 AND review_status = 'Active'),
                 user_view_count.view_count,
                 users.user_last_login FROM users
@@ -105,6 +105,37 @@ app.get('/api/get/business_hours', async(req, resp) => {
         })
         .catch(err => {
             error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
+        });
+    }
+});
+
+app.get('/api/get/user/notification-and-message-count', async(req, resp) => {
+    if (req.session.user) {
+        let notifications = await db.query(`SELECT COUNT(notification_id) AS notification_count FROM notifications WHERE notification_recipient = $1 AND notification_status = 'New'`, [req.session.user.username]);
+
+        let messages = await db.query(`SELECT COUNT(job_id) AS message_count FROM jobs WHERE job_user = $1 AND job_status = 'New'`, [req.session.user.username]);
+
+        if (notifications && messages) {
+            resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0].message_count});
+        } else {
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
+        }
+    }
+});
+
+app.get('/api/get/user/notifications', async(req, resp) => {
+    if (req.session.user) {
+        await db.query(`SELECT * FROM notifications WHERE notification_recipient = $1 AND notification_status = 'New'`, [req.session.user.username])
+        .then(async result => {
+            if (result) {
+                await db.query(`UPDATE notifications SET notification_status = 'Viewed' WHERE notification_recipient = $1`, [req.session.user.username]);
+
+                resp.send({status: 'success', notifications: result.rows});
+            }
+        })
+        .catch(err => {
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: '/api/get/user/notifications'});
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     }

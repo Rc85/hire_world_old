@@ -1,14 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { LogoutUser } from '../../../actions/LoginActions';
-import { faUserCog, faSignOutAlt, faSignInAlt, faUserPlus, faEnvelope, faBell, faCog, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt, faSignInAlt, faUserPlus, faEnvelope, faBell, faCog, faUser } from '@fortawesome/free-solid-svg-icons';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
-import Loading from '../../utils/Loading';
-import fetch from 'axios';
-import { UpdateUserNotifications } from '../../../actions/FetchActions';
-import Alert from '../../utils/Alert';
 import NotificationPanel from './NotificationPanel';
 
 class UserPanel extends Component {
@@ -45,29 +41,31 @@ class UserPanel extends Component {
                             <NavLink to='/messages/Inquiries'>
                                 <span className='fa-layers fa-fw'>
                                     <FontAwesomeIcon icon={faEnvelope} size='lg' />
-                                    {parseInt(this.props.user.messageCount) > 0 ? <small className='icon-counter fa-layers-text'><strong className='badge badge-danger'>{this.props.user.messageCount}</strong></small> : ''}
+                                    {parseInt(this.props.user.messages) > 0 ? <small className='icon-counter fa-layers-text'><strong className='badge badge-danger'>{this.props.user.messages}</strong></small> : ''}
                                 </span>
                             </NavLink>
                         </div>
                         <div className='nav-item mr-3' title='Notifications'>
                             <span id='notification-icon' className='fa-layers fa-fw' onClick={() => this.setState({showNotification: !this.state.showNotification})}>
                                 <FontAwesomeIcon icon={faBell} size='lg' />
-                                {this.props.user.notifications.length > 0 ? <small className='icon-counter fa-layers-text'><strong className='badge badge-danger'>{this.props.user.notifications.length}</strong></small> : ''}
+                                {parseInt(this.props.user.notifications) > 0 ? <small className='icon-counter fa-layers-text'><strong className='badge badge-danger'>{this.props.user.notifications}</strong></small> : ''}
                             </span>
                         </div>
                         <div className='nav-item mr-3' title='Logout' onClick={() => this.props.dispatch(LogoutUser())}><FontAwesomeIcon icon={faSignOutAlt} size='lg' /></div>
                     </div>
                 </div>
             </React.Fragment>;
-        } else {
+        } else if (this.props.user.status === 'get session fail' || this.props.user.status === 'access error' || this.props.user.status === 'error' || this.props.user.status === 'not logged in') {
             panel = <div className='d-flex-between-center w-50'>
-                <div className='nav-item' title='Login'><NavLink to='/account/login'><FontAwesomeIcon icon={faSignInAlt} size='2x' /></NavLink></div>
+                <div className='nav-item' title='Login'><NavLink to='/'><FontAwesomeIcon icon={faSignInAlt} size='2x' /></NavLink></div>
                 <div className='nav-item' title='Register'><NavLink to='/account/register'><FontAwesomeIcon icon={faUserPlus} size='2x' /></NavLink></div>
             </div>
+        } else {
+            panel = <div></div>;
         }
 
         if (this.state.showNotification) {
-            notificationPanel = <NotificationPanel items={this.props.user.notifications} close={() => this.setState({showNotification: false})} />;
+            notificationPanel = <NotificationPanel close={() => this.setState({showNotification: false})} />;
         }
 
         return (

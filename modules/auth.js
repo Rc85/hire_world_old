@@ -110,68 +110,152 @@ app.post('/api/auth/login', async(req, resp, next) => {
     if (req.session.user) {
         next();
     } else {
-        let auth = await db.query(`SELECT * FROM users WHERE username = $1`, [req.body.username])
-        .then(result => {
-            return result;
-        })
-        .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
-        });
-
-        let banEndDate = await db.query(`SELECT ban_end_date FROM user_bans WHERE banned_user = $1 ORDER BY ban_id DESC LIMIT 1`, [req.body.username])
-        .then(result => {
-            if (result && result.rows.length === 1) {
-                return result.rows[0].ban_end_date
-            }
-        })
-        .catch(err => error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}));
-
+        let auth = await db.query(`SELECT * FROM users WHERE username = $1`, [req.body.username]);
+        // Get user's ban date and today's date
+        let banEndDate = await db.query(`SELECT ban_end_date FROM user_bans WHERE banned_user = $1 ORDER BY ban_id DESC LIMIT 1`, [req.body.username]);
         let today = new Date();
 
+        // If user exists
         if (auth && auth.rows.length === 1) {
-            if (today < banEndDate) {
-                if (auth.rows[0].user_status === 'Ban') {
-                    resp.send({status: 'access error', statusMessage: 'Your account has been permanently banned'});
-                } else if (auth.rows[0].user_status === 'Suspend') {
-                    let date = moment(banEndDate).format('MMM DD, YYYY');
-
-                    resp.send({status: 'access error', statusMessage: `Your account has been temporarily banned. You will have access again after ${date}`});
+            // If user is banned, deny access
+            if (auth.rows[0].user_status === 'Ban') {
+                let error = new Error(`Your account has been permanently banned`);
+                error.type = 'CUSTOM';
+                error.status = 'access error';
+                throw error;
+            // if users haven't activated their account
+            } else if (auth.rows[0].user_status === 'Pending') {
+                let error = new Error(`You need to activate your account`);
+                error.type = 'CUSTOM';
+                error.status === 'inactive error';
+                throw error;
+            // If user is temporarily banned, check if today is after ban date. If it is, set user status to 'Active'
+            } else if (auth.rows[0].user_status === 'Suspend') {
+                if (today >= banEndDate) {
+                    await db.query(`UPDATE users SET user_status = 'Active' WHERE username = $1`, [req.body.username]);
                 }
-            } else if (today >= banEndDate) {
-                await db.query(`UPDATE users SET user_status = 'Active' WHERE username = $1`, [req.body.username]);
             }
-            
-            if (auth.rows[0].user_status === 'Pending') {
-                resp.send({status: 'access error', statusMessage: `You need to activate your account.`});
-            } else {
-                bcrypt.compare(req.body.password, auth.rows[0].user_password, async(err, match) => {
-                    if (err) {
-                        error.log({name: err.name, message: err.message, origin: 'bcrypt Comparing', url: req.url});
-                        resp.send({status: 'error', statusMessage: 'An error occurred'});
+
+            // Compare password
+            bcrypt.compare(req.body.password, auth.rows[0].user_password, async(err, match) => {
+                if (err) error.log({name: err.name, message: err.message, origin: 'bcrypt Comparing', url: req.url});
+
+                if (match) {
+                    await db.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
+                    .catch(err => error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}));
+
+                    let session = {
+                        user_id: auth.rows[0].user_id,
+                        username: auth.rows[0].username,
+                        accountType: auth.rows[0].account_type,
+                        userLevel: auth.rows[0].user_level
                     }
 
-                    if (match) {
-                        await db.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
-                        .catch(err => error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}));
+                    req.session.user = session;
+                    
+                    resp.send({status: 'success'});
+                } else {
+                    resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
+                }
+            });
+        } else {
+            resp.send({status: 'error', statusMessage: 'User does not exist'});
+        }
+        /* db.connect((err, client, done) => {
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
-                        let session = {
-                            user_id: auth.rows[0].user_id,
-                            username: auth.rows[0].username,
-                            accountType: auth.rows[0].account_type,
-                            userLevel: auth.rows[0].user_level
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    // Get user from database
+                    let auth = await client.query(`SELECT * FROM users WHERE username = $1`, [req.body.username]);
+                    // Get user's ban date and today's date
+                    let banEndDate = await client.query(`SELECT ban_end_date FROM user_bans WHERE banned_user = $1 ORDER BY ban_id DESC LIMIT 1`, [req.body.username]);
+                    let today = new Date();
+
+                    // If user exists
+                    if (auth && auth.rows.length === 1) {
+                        // If user is banned, deny access
+                        if (auth.rows[0].user_status === 'Ban') {
+                            let error = new Error(`Your account has been permanently banned`);
+                            error.type = 'CUSTOM';
+                            error.status = 'access error';
+                            throw error;
+                        // if users haven't activated their account
+                        } else if (auth.rows[0].user_status === 'Pending') {
+                            let error = new Error(`You need to activate your account`);
+                            error.type = 'CUSTOM';
+                            error.status === 'inactive error';
+                            throw error;
+                        // If user is temporarily banned, check if today is after ban date. If it is, set user status to 'Active'
+                        } else if (auth.rows[0].user_status === 'Suspend') {
+                            if (today >= banEndDate) {
+                                await client.query(`UPDATE users SET user_status = 'Active' WHERE username = $1`, [req.body.username]);
+                            }
                         }
 
-                        req.session.user = session;
-                        resp.send({status: 'success'});
+                        // Compare password
+                        bcrypt.compare(req.body.password, auth.rows[0].user_password, (err, match) => {
+                            (async() => {
+                                try {
+                                    if (err) throw err;
+                
+                                    if (match) {
+                                        await client.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
+                                        .catch(err => error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}));
+                
+                                        let session = {
+                                            user_id: auth.rows[0].user_id,
+                                            username: auth.rows[0].username,
+                                            accountType: auth.rows[0].account_type,
+                                            userLevel: auth.rows[0].user_level
+                                        }
+                
+                                        req.session.user = session;
+                                        
+                                        await client.query('COMMIT')
+                                        .then(() => resp.send({status: 'success'}));
+                                    } else {
+                                        let error = new Error('Incorrect username or password');
+                                        error.type = 'CUSTOM';
+                                        error.status = 'error';
+                                        throw error;
+                                    }
+                                } catch (e) {
+                                    throw e;
+                                }
+                            })()
+                            .catch(err => {
+                                throw err;
+                            });
+                        });
                     } else {
-                        resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
+                        let error = new Error(`That user does not exist`);
+                        error.type = 'CUSTOM';
+                        error.status = 'error';
+                        throw error;
                     }
-                });
-            }
-        } else {
-            resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
-        }
+                } catch (e) {
+                    console.log(e);
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                console.log(err);
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                let message = 'An error occurred';
+
+                if (err.type === 'CUSTOM') {
+                    message = err.message;
+                }
+
+                resp.send({status: err.status, statusMessage: message});
+            });
+        }); */
     }
 });
 
@@ -182,14 +266,10 @@ app.post('/api/auth/login', async(req, resp) => {
         LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
         WHERE users.user_id = $1`, [req.session.user.user_id]);
 
-        let newMessageCount = await db.query(`SELECT COUNT(job_id) AS message_count FROM jobs WHERE job_status = 'New' AND job_user = $1`, [req.session.user.username]);
-
-        let notifications = await db.query(`SELECT * FROM notifications WHERE notification_recipient = $1 AND notification_status = 'New'`, [req.session.user.username]);
-
         if (user && user.rows.length === 1) {
             delete user.rows[0].user_id;
             
-            resp.send({status: 'get session success', user: user.rows[0], messageCount: newMessageCount.rows[0].message_count, notifications: notifications.rows});
+            resp.send({status: 'get session success', user: user.rows[0]});
         } else {
             resp.send({status: 'get session fail'});
         }

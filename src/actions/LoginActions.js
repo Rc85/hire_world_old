@@ -5,11 +5,12 @@ import { GetSession } from './FetchActions';
 
 export const LoginUser = (data) => {
     return dispatch => {
-        dispatch(LoginBegin('Logging in'));
+        dispatch(LoginBegin('getting session'));
 
         return fetch.post('/api/auth/login', data)
         .then(resp => {
-            if (resp.data.status === 'success') {
+            console.log(resp)
+            if (resp.data.status === 'get session success') {
                 dispatch(GetSession());
             } else if (resp.data.status === 'error') {
                 dispatch(LoginError(resp.data.status, resp.data.statusMessage));

@@ -13,7 +13,7 @@ class ConfirmMessage extends Component {
     }
     
     render() {
-        let declineMessageInput;
+        let declineMessageInput, messageStatus;
         let alertClass = this.props.type;
 
         let buttons = <div className='mb-3'>
@@ -26,6 +26,10 @@ class ConfirmMessage extends Component {
                 }
             }}>Decline</button>
         </div>;
+
+        if (this.props.user.username === this.props.message.message_recipient && this.props.message.message_status === 'New') {
+            messageStatus = <h4><span className='badge badge-success'>New</span></h4>;
+        }
 
         if (this.props.job.job_user_complete === false && this.props.job.job_client_complete === false) {
             buttons = <div className='text-center'><strong><em>You declined the request.</em></strong></div>;
@@ -50,7 +54,10 @@ class ConfirmMessage extends Component {
 
         return(
             <div className={`alert alert-${alertClass} mb-3 p-2`} role='alert'>
-                <small className='text-muted'>Sent {moment(this.props.message.message_date).from()} {this.props.message.message_modified_date ? <span>(Resent {moment(this.props.message.message_modified_date).fromNow()})</span> : ''}</small>
+                <div className='d-flex-between-center'>
+                    <small className='text-muted'>Sent {moment(this.props.message.message_date).from()} {this.props.message.message_modified_date ? <span>(Resent {moment(this.props.message.message_modified_date).fromNow()})</span> : ''}</small>
+                    {messageStatus}
+                </div>
 
                 <div className='text-center mb-3 keep-format'><strong>{this.props.message.message_body}</strong></div>
 

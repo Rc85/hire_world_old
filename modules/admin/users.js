@@ -134,11 +134,20 @@ app.post('/api/admin/user/change-status', (req, resp) => {
                         val = 'Ban';
                     }
 
+                    let message = `You have been temporarily banned.
+                    
+                    Reason: ${reason}`;
+
+                    // Deactive all of user's listings
+                    await client.query(`UPDATE user_listings SET listing_status = 'Inactive' WHERE listing_user = $1`, [req.body.username]);
+                    // Record the ban
                     await client.query(`INSERT INTO user_bans (banned_user, banned_by, ban_reason, ban_type, ban_end_date) VALUES ($1, $2, $3, $4, $5)`, [req.body.username, req.session.user.username, reason, banType, endDate]);
+                    // Send the user a notification
+                    await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [req.body.username, message, 'Warning']);
                 } else if (val === 'User' || val === 'Moderator' || val === 'Admin') {
                     let message = `Role changed to ${val}`;
 
-                    await client.query(`INSERT INTO notifications (notification_recipient, notification_message) VALUES ($1, $2)`, [req.body.username, message]);
+                    await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [req.body.username, message, 'Update']);
                 }
 
                 let user = await client.query(`UPDATE users SET ${col} = $1 WHERE username = $2 RETURNING username, user_level, user_status, account_type, user_last_login`, [val, req.body.username]);

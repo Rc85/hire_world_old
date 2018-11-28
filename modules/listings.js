@@ -87,7 +87,7 @@ app.post('/api/filter/listings', async(req, resp) => {
         (SELECT (SUM(review_rating) / COUNT(review_id)) AS rating, reviewing FROM user_reviews GROUP BY reviewing) AS user_reviews
     ON user_reviews.reviewing = user_listings.listing_user
 	LEFT JOIN
-		(SELECT job_user, (SELECT COUNT(job_status) AS job_complete FROM jobs WHERE job_status = 'Complete'), (SELECT COUNT(job_status) AS job_abandoned FROM jobs WHERE job_status = 'Abandoned') FROM jobs) AS jobs
+		(SELECT job_user, (SELECT COUNT(job_status) AS job_complete FROM jobs WHERE job_status = 'Completed'), (SELECT COUNT(job_status) AS job_abandoned FROM jobs WHERE job_status = 'Abandoned') FROM jobs) AS jobs
 	ON jobs.job_user = user_listings.listing_user
     WHERE listing_status = 'Active'
     ${whereArray.join(' ')}

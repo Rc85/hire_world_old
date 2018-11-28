@@ -10,30 +10,35 @@ app.post('/api/get/jobs', async(req, resp) => {
             (async() => {
                 try {
                     await client.query('BEGIN');
-                    let jobs = await client.query(`SELECT jobs.*, unread.unread_messages, user_reviews.*, pinned_jobs.pinned_date,
-                        (SELECT COUNT(job_id) AS job_count FROM jobs WHERE job_stage = $1)
-                    FROM jobs
-                    LEFT JOIN
-                        (SELECT COUNT(message_id) AS unread_messages, belongs_to_job FROM messages
-                        WHERE message_status = 'New'
-                        GROUP BY belongs_to_job) AS unread ON jobs.job_id = unread.belongs_to_job
-                    LEFT JOIN
-                        (SELECT review_job_id, token_status FROM user_reviews WHERE reviewer = $2) AS user_reviews ON user_reviews.review_job_id = jobs.job_id
-                    LEFT JOIN pinned_jobs ON pinned_jobs.pinned_job = jobs.job_id
-                    WHERE job_stage = $1 AND (job_client = $2 OR job_user = $2)
-                    ORDER BY pinned_jobs.pinned_date
-                    LIMIT 25 OFFSET $3`, [req.body.stage, req.session.user.username, req.body.offset]);
+                    let jobs = [];
+                    let jobCount = 0;
+                    let user = client.query(`SELECT user_status FROM users WHERE user_id = $1`, [req.session.user.user_id]);
+                    
+                    if (user && user.rows[0].user_status === 'Active') {
+                        let jobResults = await client.query(`SELECT jobs.*, unread.unread_messages, user_reviews.*, pinned.pinned_date,
+                            (SELECT COUNT(job_id) AS job_count FROM jobs WHERE job_stage = $1)
+                        FROM jobs
+                        LEFT JOIN
+                            (SELECT COUNT(message_id) AS unread_messages, belongs_to_job FROM messages
+                            WHERE message_status = 'New'
+                            GROUP BY belongs_to_job) AS unread ON jobs.job_id = unread.belongs_to_job
+                        LEFT JOIN
+                            (SELECT * FROM user_reviews WHERE reviewer = $2) AS user_reviews ON user_reviews.review_job_id = jobs.job_id
+                        LEFT JOIN
+                            (SELECT pinned_date, pinned_job FROM pinned_jobs WHERE pinned_by = $2) AS pinned ON pinned.pinned_job = jobs.job_id
+                        WHERE job_stage = $1 AND (job_client = $2 OR job_user = $2)
+                        ORDER BY pinned.pinned_date, jobs.job_created_date DESC
+                        LIMIT 25 OFFSET $3`, [req.body.stage, req.session.user.username, req.body.offset]);
 
-                    await client.query('COMMIT')
-                    .then(() => {
-                        let jobCount = 0;
+                        jobs = jobResults.rows;
 
                         if (jobs.rows.length > 0) {
                             jobCount = jobs.rows[0].job_count;
                         }
+                    }
 
-                        resp.send({status: 'success', jobs: jobs.rows, jobCount: jobCount});
-                    });
+                    await client.query('COMMIT')
+                    .then(() => resp.send({status: 'success', jobs: jobs, jobCount: jobCount}));
                 } catch (e) {
                     await client.query('ROLLBACK');
                     throw e;

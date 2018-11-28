@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
         }
     },
     filename: (req, file, cb) => {
-        cb(null, file.originalname);
+        cb(null, `profile_pic.jpg`);
     }
 });
 
@@ -53,21 +53,31 @@ const upload = multer({
 
 app.post('/api/user/profile-pic/upload', upload.single('profile_pic'), (req, resp) => {
     if (req.session.user) {
-        let path = `/${req.file.destination.substring(2)}/${req.file.originalname}`;
+        db.connect((err, client, done) => {
+            if (err) error.log({err: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
-        db.query('UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2 RETURNING *', [path, req.session.user.user_id])
-        .then(result => {
-            if (result !== undefined && result.rowCount === 1) {
-                req.session.user.avatar_url = result.rows[0].avatar_url;
-                
-                resp.send({status: 'success', statusMessage: 'Upload successful', user: result.rows[0]});
-            } else if (result.rowCount === 0) {
-                resp.send({status: 'error', statusMessage: 'Upload failed'});
-            }
-        })
-        .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
+            let filePath = `/${req.file.destination.substring(2)}/profile_pic.jpg`;
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+                    await client.query(`UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2`, [filePath, req.session.user.user_id]);
+
+                    let user = await client.query(`SELECT users.username, users.user_email, users.user_last_login, user_profiles.* FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id WHERE user_id = $1`, [req.session.user.user_id]);
+
+                    await client.query('COMMIt')
+                    .then(() => resp.send({status: 'success', user: user.rows[0]}));
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
         });
     }
 });

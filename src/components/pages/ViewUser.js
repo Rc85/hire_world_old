@@ -12,7 +12,7 @@ import SubmitReview from '../includes/page/SubmitReview';
 import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding } from '@fortawesome/free-regular-svg-icons';
-import { faUserCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faExclamationTriangle, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
 import { LogError } from '../utils/LogError';
@@ -45,7 +45,7 @@ class ViewUser extends Component {
                 } else if (resp.data.status === 'error') {
                     this.setState({status: ''});
                     this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-                } else if (resp.data.status === 'error page') {
+                } else if (resp.data.status === 'access error') {
                     this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
                 }
             })
@@ -63,7 +63,7 @@ class ViewUser extends Component {
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-            } else if (resp.data.status === 'error page') {
+            } else if (resp.data.status === 'access error') {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
         })
@@ -136,7 +136,15 @@ class ViewUser extends Component {
     }
 
     render() {
-        let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, reviewed, reportButton, businessName, message;
+        let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, reviewed, reportButton, businessName, message, friendIcon;
+
+        if (this.state.status === 'access error') {
+            return <Response header={'Error'} message={this.state.statusMessage} />;
+        } else if (this.state.status === 'Loading') {
+            return <Loading size='7x' />;
+        } else if (this.state.status === 'redirect') {
+            return <Redirect to='/account/login' />;
+        }
 
         if (this.state.reviews && this.props.user) {
             reviewed = this.state.reviews.findIndex(review => review.reviewer === this.props.user.username)
@@ -149,7 +157,7 @@ class ViewUser extends Component {
         if (this.state.user) {
             contacts = <ViewUserContacts user={this.state.user} />;
             socialMedia = <ViewUserSocialMedia user={this.state.user} listing={this.state.user ? {id: this.state.user.listing_id, status: this.state.user.listing_status} : {}} />;
-            profile = <ViewUserProfile user={this.state.user} />;
+            profile = <ViewUserProfile user={this.state.user} stats={this.state.stats} />;
 
             if (this.state.user.user_business_name) {
                 businessName = <div className='d-flex-center mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faBuilding} className='view-user-icon mr-1' size='lg' /></div> {this.state.user.user_website ? <a href={this.state.user.user_website}>{this.state.user.user_business_name}</a> : this.state.user.user_business_name}</div>;
@@ -177,15 +185,9 @@ class ViewUser extends Component {
                 }
             }
 
-            if (this.state.status === 'error page') {
-                return <Response header={'Error'} message={this.state.statusMessage} />;
-            } else if (this.state.status === 'Loading') {
-                return <Loading size='7x' />;
-            } else if (this.state.status === 'redirect') {
-                return <Redirect to='/account/login' />;
-            }
-
             if (this.props.user && this.props.user.username !== this.state.user.username) {
+                friendIcon = <FontAwesomeIcon icon={faHeart} />;
+                
                 if (!this.state.userReported) {
                     reportButton = <span>
                         <FontAwesomeIcon icon={faExclamationTriangle} size='xs' className='menu-button' id='report-user-button' onClick={() => this.submitReport()} />
@@ -212,9 +214,8 @@ class ViewUser extends Component {
                         <div className='col-3'>
                             {businessName}
                             {contacts}
-                            <ViewUserStats stats={this.state.stats || {}} hours={this.state.hours} />
+                            {/* <ViewUserStats stats={this.state.stats || {}} hours={this.state.hours} /> */}
                             {socialMedia}
-                            <div className='text-right'>{reportButton}</div>
                         </div>
 
                         <div className='col-9'>
@@ -223,6 +224,8 @@ class ViewUser extends Component {
                             {message}
                         </div>
                     </div>
+
+                    <div>{friendIcon} {reportButton}</div>
                 </div>
 
                 <div className='text-right mt-3'>

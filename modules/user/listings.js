@@ -17,8 +17,9 @@ app.post('/api/listing/create', (req, resp) => {
                     try {
                         await client.query('BEGIN');
                         let user = await client.query(`SELECT account_type, user_status FROM users WHERE user_id = $1`, [req.session.user.user_id]);
+                        console.log(user.rows[0])
 
-                        if (user && user.rows[0].user_status !== 'Suspend') {
+                        if (user && user.rows[0].user_status === 'Active') {
                             if (user && (user.rows[0].account_type === 'Listing' || user.rows[0].account_type === 'Business')) {
                                 let listing = await client.query('INSERT INTO user_listings (listing_title, listing_user, listing_sector, listing_price, listing_price_type, listing_price_currency, listing_negotiable, listing_detail) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *', [title, req.session.user.username, req.body.listing_sector, parseInt(req.body.listing_price), req.body.listing_price_type, req.body.listing_price_currency.toUpperCase(), req.body.listing_negotiable, req.body.listing_detail]);
 
@@ -26,12 +27,12 @@ app.post('/api/listing/create', (req, resp) => {
                                 .then(() => resp.send({status: 'success', listing: listing.rows[0]}));
                             } else {
                                 let error = new Error(`You're not subscribed to a monthly plan`);
-                                error.type = 'user_defined';
+                                error.type = 'CUSTOM';
                                 throw error;
                             }
                         } else {
                             let error = new Error(`You're temporarily banned`);
-                            error.type = 'user_defined';
+                            error.type = 'CUSTOM';
                             throw error;
                         }
                     } catch (e) {
@@ -45,8 +46,8 @@ app.post('/api/listing/create', (req, resp) => {
                     error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                     let message = `An error occurred`;
 
-                    if (err.type === 'user_defined') {
-                        message = `You're not subscribed to a monthly plan`;
+                    if (err.type === 'CUSTOM') {
+                        message = err.message;
                     }
 
                     resp.send({status: 'error', statusMessage: message});

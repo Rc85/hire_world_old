@@ -916,13 +916,16 @@
   position: absolute;
   top: 100%;
   max-height: 500px;
-  background: #F9F6F4;
-  color: #000;
+  background: #8b8b8b;
+  color: #F9F6F4;
   padding: 20px;
-  border: 1px solid #2988BC;
+  border: 1px solid #F9F6F4;
   width: 100%;
   z-index: 3;
   overflow-y: scroll;
+}
+#notification-panel hr {
+  background: #F9F6F4;
 }
 
 .pagination-container {
@@ -1169,6 +1172,10 @@
 
 .view-user-icon {
   color: #ED463D;
+}
+
+#view-user-title {
+  min-width: 50%;
 }
 
 #user-reviews {

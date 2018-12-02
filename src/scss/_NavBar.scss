@@ -22,11 +22,13 @@
     position: absolute;
     top: 100%;
     max-height: 500px;
-    background: $theme-fg;
-    color: #000;
+    background: $theme-medgrey;
+    color: $theme-fg;
     padding: 20px;
-    border: 1px solid $theme-highlight;
+    border: 1px solid $theme-fg;
     width: 100%;
     z-index: 3;
     overflow-y: scroll;
+
+    hr { background: $theme-fg }
 }

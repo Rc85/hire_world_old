@@ -107,6 +107,7 @@ app.post('/api/auth/register', (req, resp) => {
 });
 
 app.post('/api/auth/login', async(req, resp, next) => {
+    console.log('here');
     if (req.session.user) {
         next();
     } else {
@@ -153,13 +154,13 @@ app.post('/api/auth/login', async(req, resp, next) => {
 
                     req.session.user = session;
                     
-                    resp.send({status: 'success'});
+                    next();
                 } else {
                     resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
                 }
             });
         } else {
-            resp.send({status: 'error', statusMessage: 'User does not exist'});
+            next();
         }
         /* db.connect((err, client, done) => {
             if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
@@ -260,6 +261,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
 });
 
 app.post('/api/auth/login', async(req, resp) => {
+    console.log(req.session.user);
     if (req.session.user) {
         let user = await db.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, user_profiles.*, user_settings.* FROM users
         LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
@@ -271,10 +273,10 @@ app.post('/api/auth/login', async(req, resp) => {
             
             resp.send({status: 'get session success', user: user.rows[0]});
         } else {
-            resp.send({status: 'get session fail'});
+            resp.send({status: 'get session fail', statusMessage: `The user does not exist`});
         }
     } else {
-        resp.send({status: 'get session fail'});
+        resp.send({status: 'get session fail', statusMessage: `You're not logged in`});
     }
 });
 

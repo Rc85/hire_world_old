@@ -73,3 +73,7 @@ i { color: $theme-highlight; }
     align-items: center;
     flex-direction: column;
 }
+
+.text-black { color: #000 }
+.text-blue { color: $theme-blue }
+.text-highlight { color: $theme-highlight }

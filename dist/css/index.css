@@ -5795,6 +5795,18 @@ i {
   flex-direction: column;
 }
 
+.text-black {
+  color: #000;
+}
+
+.text-blue {
+  color: #2F496E;
+}
+
+.text-highlight {
+  color: #2988BC;
+}
+
 #pricing-table {
   width: 50%;
   margin: 0 auto 30px auto;

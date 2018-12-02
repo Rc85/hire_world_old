@@ -10,6 +10,7 @@ import { UncontrolledTooltip } from 'reactstrap';
 import ListInfo from '../includes/page/ListInfo';
 import moment from 'moment';
 import { LogError } from '../utils/LogError';
+import { GetSectors } from '../../actions/FetchActions';
 
 class ListSettings extends Component {
     constructor(props) {
@@ -49,6 +50,7 @@ class ListSettings extends Component {
     }
     
     componentDidMount() {
+        this.props.dispatch(GetSectors());
         this.setState({status: 'Loading'});
 
         fetch.post('/api/get/listing')

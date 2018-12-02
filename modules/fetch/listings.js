@@ -27,8 +27,10 @@ app.post('/api/get/listings', async(req, resp) => {
     LEFT JOIN users ON users.username = user_listings.listing_user
     LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
     LEFT JOIN
-        (SELECT (SUM(review_rating) / COUNT(review_id)) AS rating, reviewing FROM user_reviews GROUP BY reviewing) AS user_reviews
-    ON user_reviews.reviewing = user_listings.listing_user
+        (SELECT reviewing, SUM(review_rating) / COUNT(review_id) AS rating
+        FROM user_reviews
+        WHERE review_rating IS NOT NULL
+        GROUP BY reviewing) AS user_reviews ON user_reviews.reviewing = user_listings.listing_user
     WHERE listing_sector = $1 AND listing_status = 'Active'
     ORDER BY listing_renewed_date DESC, listing_id`, [req.body.sector])
     .then(result => {

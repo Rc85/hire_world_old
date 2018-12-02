@@ -12,10 +12,10 @@ app.post('/api/get/jobs', async(req, resp) => {
                     await client.query('BEGIN');
                     let jobs = [];
                     let jobCount = 0;
-                    let user = client.query(`SELECT user_status FROM users WHERE user_id = $1`, [req.session.user.user_id]);
+                    let user = await client.query(`SELECT user_status FROM users WHERE user_id = $1`, [req.session.user.user_id]);
                     
                     if (user && user.rows[0].user_status === 'Active') {
-                        let jobResults = await client.query(`SELECT jobs.*, unread.unread_messages, user_reviews.*, pinned.pinned_date,
+                        let jobsResults = await client.query(`SELECT jobs.*, unread.unread_messages, user_reviews.*, pinned.pinned_date,
                             (SELECT COUNT(job_id) AS job_count FROM jobs WHERE job_stage = $1)
                         FROM jobs
                         LEFT JOIN
@@ -32,8 +32,8 @@ app.post('/api/get/jobs', async(req, resp) => {
 
                         jobs = jobResults.rows;
 
-                        if (jobs.rows.length > 0) {
-                            jobCount = jobs.rows[0].job_count;
+                        if (jobsResult.rows.length > 0) {
+                            jobCount = jobsResults.rows[0].job_count;
                         }
                     }
 
@@ -47,7 +47,7 @@ app.post('/api/get/jobs', async(req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                error.log(err, {name: err.name, message: err.message, origin: 'Database Query', url: req.url});
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });

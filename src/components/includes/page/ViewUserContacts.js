@@ -42,14 +42,14 @@ const ViewUserContacts = user => {
         location = <div className='d-flex-center mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faMapMarkerAlt} size='lg' className='view-user-icon' /></div><span>{country} {region} {city}</span></div>
     }    
 
-    if (user.user.user_education) {
+    /* if (user.user.user_education) {
         education = <div className='d-flex-center mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faGraduationCap} className='view-user-icon' size='lg' /></div> {user.user.user_education}</div>
-    }
+    } */
 
     if (email || phone || address || education) {
         return(
             <div id='view-user-contacts'>
-                {education}
+                {/* education */}
                 {email}
                 {phone}
                 {address}

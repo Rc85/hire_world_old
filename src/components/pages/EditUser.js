@@ -113,8 +113,8 @@ class EditUser extends Component {
                             {address}
                             <UserTitle user={this.props.user} />
                             <hr/>
-                            <UserInfo label='Education' value={this.props.user.user ? this.props.user.user.user_education : ''} type='user_education' status={userEducationStatus} />
-                            <hr/>
+                            {/* <UserInfo label='Education' value={this.props.user.user ? this.props.user.user.user_education : ''} type='user_education' status={userEducationStatus} />
+                            <hr/> */}
                             <UserInfo label='Github' value={this.props.user.user ? this.props.user.user.user_github : ''} type='user_github' status={userGithubStatus} />
                             <hr/>
                             <UserInfo label='Twitter' value={this.props.user.user ? this.props.user.user.user_twitter : ''} type='user_twitter' status={userTwitterStatus} />

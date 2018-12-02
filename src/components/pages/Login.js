@@ -24,9 +24,8 @@ class Login extends Component {
     render() {
         if (this.props.user.user) {
             return <Redirect to='/dashboard/edit' />;
-        } else if (this.props.user.status === 'getting session') {
-            return <Loading size='7x' />
         }
+
         return(
             <section id='login' className='main-panel'>
                 <div className='blue-panel shallow rounded'>
@@ -47,7 +46,7 @@ class Login extends Component {
                         </div>
 
                         <div className='text-right'>
-                            <SubmitButton type='submit' loading={/loading$/.test(this.props.user.status)} value='Login' onClick={() => {return false}}/>
+                            <SubmitButton type='submit' loading={this.props.user.status === 'getting session'} value='Login' onClick={() => {return false}}/>
 
                             <div className='mt-3'>
                                 Forgot Password

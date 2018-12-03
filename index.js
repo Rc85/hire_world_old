@@ -36,12 +36,30 @@ app.use('/fonts', express.static('src/fonts'));
 app.use('/styles', express.static('src/styles'));
 app.use('/user_files', express.static(`user_files`))
 
-app.use('/images', express.static('images'));
+app.use('/images', express.static('src/images'));
 app.use('/webfonts', express.static('webfonts'));
 
-//app.use(require('./modules/utils/error-handler'));
+app.use(/^\/mploy\/(?!admin-panel).*/, async(req, resp, next) => {
+    let status = await db.query(`SELECT config_status FROM site_configs WHERE config_name = 'Site'`);
+
+    if (status.rows[0].config_status === 'Active') {
+        next();
+    } else {
+        resp.render('offline', {header: 'Site Offline', message: 'M-ploy has been brought down for maintenance, please check back later'});
+    }
+});
+
+app.use(/^\/api\/(?!admin).*/, async(req, resp, next) => {
+    let status = await db.query(`SELECT config_status FROM site_configs WHERE config_name = 'Site'`);
+
+    if (status.rows[0].config_status === 'Active') {
+        next();
+    } else {
+        resp.send({status: 'error', statusMessage: 'Site is offline'});
+    }
+});
+
 app.use(require('./modules/auth'));
-app.use(require('./modules/listings'));
 
 app.use(require('./modules/user/user'));
 app.use(require('./modules/user/settings'));
@@ -95,7 +113,7 @@ app.get('/activate-account', async(req, resp) => {
 
         if (decrypted.toString(cryptoJS.enc.Utf8) === user.rows[0].user_email) {
             await db.query(`UPDATE users SET user_status = 'Active' WHERE user_id = $1`, [user.rows[0].user_id]);
-            resp.render('activated', {header: `Account Activated`, message: `You can now <a href='/mploy/account/login'>login</a> to your account`});
+            resp.render('activated', {header: `Account Activated`, message: `You can now <a href='/mploy'>login</a> to your account`});
         } else {
             resp.render('activated', {header: '404 Not Found', message: `The content you're looking for cannot be found.`});
         }
@@ -112,25 +130,25 @@ app.post('/resend', async(req, resp) => {
     let user = await db.query(`SELECT * FROM users WHERE user_email = $1`, [req.body.email]);
 
     if (user && user.rows.length === 1) {
-        let registrationKey = cryptoJS.AES.encrypt(req.body.email, 'registering for m-ploy');
+        let encrypted = cryptoJS.AES.encrypt(req.body.email, 'registering for m-ploy');
+        let registrationKey = encrypted.toString();
 
-        await db.query(`UPDATE users SET registration_key = $1, reg_key_expire_date = current_timestamp + interval '1' day WHERE user_id = $2`, [registrationKey.toString(), user.rows[0].user_id]);
+        await db.query(`UPDATE users SET registration_key = $1, reg_key_expire_date = current_timestamp + interval '1' day WHERE user_id = $2`, [registrationKey, user.rows[0].user_id]);
 
         let message = {
             to: req.body.email,
             from: 'support@m-ploy.org',
-            subject: 'Welcome to M-ploy',
-            html: `<div style="text-align: center;">In order to start using M-ploy, you need to activate your account. Click on the button below to activate your account.
-
-            <p><a href='http://localhost:9999/activate-account?key=${registrationKey.toString()}'>
-                <button type='button' style="background: #007bff; padding: 10px; border-radius: 0.25rem; color: #fff; border: 0px; cursor: pointer;">Activate</button>
-            </a></p>
-            
-            <p><strong>You have 24 hours to activate your account.</strong> You will need to <a href='http://localhost:9999/resend-confirmation'>request a new confirmation email</a> if 24 hours have past.</p>
-            
-            <p><small><strong>Note:</strong> New confirmation emails may end up in your spam folder.</small></p>
-            
-            <p><small><a href='https://www.m-ploy.org'>M-ploy.org</a></div>`
+            subject: 'Welcome to Mploy',
+            templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
+            dynamicTemplateData: {
+                url: 'localhost:9999',
+                regkey: registrationKey
+            },
+            trackingSettings: {
+                clickTracking: {
+                    enable: false
+                }
+            }
         }
 
         sgMail.send(message);
@@ -165,7 +183,7 @@ app.get('/contact', (req, resp) => {
     resp.render('contact');
 });
 
-app.get('/mploy/*', (req, resp) => {
+app.get(/^\/(m-ploy|m-ploy(\/)?.*)?/, (req, resp) => {
     resp.sendFile(__dirname + '/dist/app.html');
 });
 

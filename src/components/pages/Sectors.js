@@ -21,6 +21,20 @@ class Sectors extends Component {
         }
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.location.key !== this.props.location.key) {
+            fetch.post('/api/get/listings', {sector: this.props.match.params.sector})
+            .then(resp => {
+                if (resp.data.status === 'success') {
+                    this.setState({status: '', sector: this.props.match.params.sector, listings: resp.data.listings});
+                } else if (resp.data.status === 'access error') {
+                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                }
+            })
+            .catch(err => LogError(err, '/api/get/listings'));
+        }
+    }
+    
     componentDidMount() {
         fetch.post('/api/get/listings', {sector: this.props.match.params.sector})
         .then(resp => {
@@ -81,7 +95,7 @@ class Sectors extends Component {
                         {loading}
 
                         <div className='listings-header mb-3'>
-                            <div className='w-40'>Title</div>
+                            <div className='w-40'>User</div>
                             <div className='w-20'>Price</div>
                             <div className='w-15'>Completed Jobs</div>
                             <div className='w-15'>Posted Date</div>

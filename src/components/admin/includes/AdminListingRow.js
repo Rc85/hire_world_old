@@ -25,7 +25,6 @@ class AdminListingRow extends Component {
                 listing_renewed_date: '',
                 listing_sector: '',
                 listing_status: '',
-                listing_title: '',
                 listing_user: ''
             }
         }
@@ -93,11 +92,10 @@ class AdminListingRow extends Component {
             return (
                 <div className='d-flex-between-center mb-3'>
                     <div className='w-5'>{this.state.listing.listing_id}</div>
-                    <div className='w-35 text-truncate'><NavLink to={`/listing/${this.state.listing.listing_id}`}>{this.state.listing.listing_title}</NavLink></div>
-                    <div className='w-15'><NavLink to={`/user/${this.state.listing.listing_user}`}>{this.state.listing.listing_user}</NavLink></div>
-                    <div className='w-10'>{moment(this.state.listing.listing_created_date).format('MM-DD-YYYY')}</div>
-                    <div className='w-15'>{moment(this.state.listing.listing_renewed_date).format('MM-DD-YYYY h:mm:ss') !== 'Invalid date' ? moment(this.state.listing.listing_renewed_date).format('MM-DD-YYYY h:mm:ss') : ''}</div>
-                    <div className='w-10'>{this.state.listing.listing_sector}</div>
+                    <div className='w-25'><NavLink to={`/user/${this.state.listing.listing_user}`}>{this.state.listing.listing_user}</NavLink></div>
+                    <div className='w-20'>{moment(this.state.listing.listing_created_date).format('MM-DD-YYYY')}</div>
+                    <div className='w-25'>{moment(this.state.listing.listing_renewed_date).format('MM-DD-YYYY h:mm:ss') !== 'Invalid date' ? moment(this.state.listing.listing_renewed_date).format('MM-DD-YYYY h:mm:ss') : ''}</div>
+                    <div className='w-15'>{this.state.listing.listing_sector}</div>
                     <div className='w-5'>{listingStatus}</div>
                     <div className='w-5 text-right position-relative'>
                         <button className='btn btn-info btn-sm admin-menu-button' onClick={() => this.toggleMenu()}>{this.props.menu.open === 'admin' ? <FontAwesomeIcon icon={faCaretUp} /> : <FontAwesomeIcon icon={faCaretDown} />}</button>

@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faTimesCircle, faListAlt } from '@fortawesome/free-regular-svg-icons';
-import { faEye } from '@fortawesome/free-solid-svg-icons';
-import { UncontrolledTooltip } from 'reactstrap';
-import UserProfilePic from '../../includes/page/UserProfilePic';
 import moment from 'moment';
+import UserProfilePic from '../../includes/page/UserProfilePic';
 import UserRating from './UserRating';
-import { NavLink } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faTimesCircle } from '@fortawesome/free-regular-svg-icons';
+import { UncontrolledTooltip } from 'reactstrap';
 
 const ViewUserProfile = props => {
     console.log(props.user)
@@ -21,38 +20,36 @@ const ViewUserProfile = props => {
             name = <span>{props.user.user_firstname} {props.user.user_lastname}</span>
         }
         
-        bio = props.user.user_bio;
+        bio = props.user.listing_detail;
     }
 
     return(
         <div id='view-user-profile' className='mb-3'>
-            <div className='d-flex'>
-                <div className='w-10'>
-                    <div className='w-90 text-center'>
-                        <div>{avatar}</div>
+            <div className='d-flex-between-start mb-3'>
+                <div className='d-flex w-75'>
+                    <div className='w-10 mr-3'>
+                        <div className='w-100 text-center'>
+                            <div>{avatar}</div>
+                        </div>
+                    </div>
+    
+                    <div id='view-user-title'>
+                        <h1 className='d-flex mb-0'>{name}</h1>
+                        <h5 className='mb-0'>{props.user.user_title}</h5>
+                        <div className='w-40'><UserRating rating={props.stats.rating || 0} /></div>
                     </div>
                 </div>
 
-                <div id='view-user-title'>
-                    <h1 className='d-flex mb-0'>{name}</h1>
-                    <h5 className='mb-0'>{props.user.user_title}</h5>
-                    <div className='w-40'><UserRating rating={props.stats.rating || 0} /></div>
+                <div>
+                    {props.stats.user_last_login ?
+                    <div className='d-flex-between-center'>
+                        <div className='mr-2'><strong>Last Login</strong></div>
+                        {moment(props.stats.user_last_login).format('MM-DD-YY @ hh:mm A')}
+                    </div> : ''}
                 </div>
             </div>
 
             <div className='d-flex'>
-                <div className='mr-5'>
-                    <FontAwesomeIcon icon={faListAlt} id='user-listed-under' className='view-user-icon mr-2' />
-                    <UncontrolledTooltip placement='top' target='user-listed-under' delay={{show: 0, hide: 0}}>Listed Under</UncontrolledTooltip>
-                    <NavLink to={`/sector/${props.user.listing_sector}`}>{props.user.listing_sector}</NavLink>
-                </div>
-
-                <div className='mr-5'>
-                    <FontAwesomeIcon icon={faEye} id='user-views' className='mr-2' />
-                    <UncontrolledTooltip placement='top' target='user-views' delay={{show: 0, hide: 0}}>Views</UncontrolledTooltip>
-                    <span>{props.stats.view_count}</span>
-                </div>
-
                 <div className='mr-5'>
                     <FontAwesomeIcon icon={faCheckCircle} className='text-success mr-2' id='job-success' />
                     <UncontrolledTooltip placement='top' target='job-success' delay={{show: 0, hide: 0}}>Job Completed</UncontrolledTooltip>
@@ -65,18 +62,16 @@ const ViewUserProfile = props => {
                     <span>{props.stats.job_abandon}</span>
                 </div>
 
-                {props.stats.user_last_login ? 
                 <div className='mr-5'>
-                    <div className='d-flex-between-center'>
-                        <div className='mr-2'><strong>Last Login</strong></div>
-                        {moment(props.stats.user_last_login).format('MM-DD-YY @ hh:mm A')}
-                    </div>
-                </div> : ''}
+                    <FontAwesomeIcon icon={faEye} id='user-views' className='mr-2' />
+                    <UncontrolledTooltip placement='top' target='user-views' delay={{show: 0, hide: 0}}>Views</UncontrolledTooltip>
+                    <span>{props.stats.view_count}</span>
+                </div>
             </div>
 
             <hr/>
 
-            {bio ? <React.Fragment><div id='view-user-details' className='rounded'>{bio}</div><hr/></React.Fragment> : ''}
+            {bio ? <React.Fragment><div id='view-user-details' className='rounded'>{bio}</div></React.Fragment> : ''}
         </div>
     )
 }

@@ -13,7 +13,7 @@ app.post('/api/get/user', async(req, resp) => {
                 let listed = await client.query(`SELECT listing_user FROM user_listings WHERE listing_user = $1 AND listing_status = 'Active'`, [req.body.username]);
 
                 if (listed && listed.rows.length === 1) {
-                    let user = await client.query(`SELECT users.username, users.user_email, users.user_last_login, user_profiles.*, user_settings.allow_messaging, user_listings.listing_id, user_listings.listing_status, user_listings.listing_sector FROM users
+                    let user = await client.query(`SELECT users.username, users.user_email, users.user_last_login, user_profiles.*, user_settings.allow_messaging, user_listings.* FROM users
                     LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
                     LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
                     LEFT JOIN user_listings ON users.username = user_listings.listing_user
@@ -244,7 +244,7 @@ app.get('/api/get/user/notification-and-message-count', async(req, resp) => {
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         }
     } else {
-        resp.end();
+        resp.send('done');
     }
 });
 
@@ -263,7 +263,7 @@ app.get('/api/get/user/notifications', async(req, resp) => {
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     } else {
-        resp.end();
+        resp.send('done');
     }
 });
 

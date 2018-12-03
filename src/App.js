@@ -94,7 +94,6 @@ class App extends Component {
 						<Route exact path='/' render={() => <Pages.Login user={this.props.user} />} />
 						<Route exact path='/view' component={Pages.ViewUser} />
 
-						<Route exact path='/dashboard/list' render={() => <Pages.Dashboard user={this.props.user}><Pages.ListSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/saved_listings' render={() => <Pages.Dashboard user={this.props.user}><Pages.SavedListings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/settings' render={() => <Pages.Dashboard user={this.props.user}><Pages.UserSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />

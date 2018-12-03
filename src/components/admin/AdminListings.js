@@ -94,11 +94,10 @@ class AdminListings extends Component {
 
                 <div className='d-flex-between-center'>
                     <div className='w-5'><strong>ID</strong></div>
-                    <div className='w-35'><strong>Title</strong></div>
-                    <div className='w-15'><strong>User</strong></div>
-                    <div className='w-10'><strong>Created</strong></div>
-                    <div className='w-15'><strong>Renewed</strong></div>
-                    <div className='w-10'><strong>Sector</strong></div>
+                    <div className='w-25'><strong>User</strong></div>
+                    <div className='w-20'><strong>Created</strong></div>
+                    <div className='w-25'><strong>Renewed</strong></div>
+                    <div className='w-15'><strong>Sector</strong></div>
                     <div className='w-5'></div>
                     <div className='w-5'></div>
                 </div>

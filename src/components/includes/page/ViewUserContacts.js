@@ -2,54 +2,86 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
-import { faPhone, faGraduationCap, faMapMarkedAlt, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
+import { faPhone, faGraduationCap, faMapMarkedAlt, faMapMarkerAlt, faDollarSign, faCommentsDollar } from '@fortawesome/free-solid-svg-icons';
+import { faListAlt, faBuilding } from '@fortawesome/free-regular-svg-icons';
+import { UncontrolledTooltip } from 'reactstrap';
 import { NavLink } from 'react-router-dom';
 
-const ViewUserContacts = user => {
-    let email, phone, address, education, location, city, region, country;
+const ViewUserContacts = props => {
+    let email, phone, address, education, location, city, region, country, businessName;
 
-    if (user.user.user_email) {
-        email = <div className='d-flex-center mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faEnvelope} size='lg' className='view-user-icon' /></div><NavLink to={`mailto: ${user.user.user_email}`}>{user.user.user_email}</NavLink></div>
+    if (props.user.user_email) {
+        email = <div className='d-flex-center mb-3'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faEnvelope} size='lg' className='view-user-icon' /></div><a href={`mailto: ${props.user.user_email}`}>{props.user.user_email}</a></div>
     }
 
-    if (user.user.user_phone) {
-        phone = <div className='d-flex-center mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faPhone} size='lg' className='view-user-icon' /></div>{user.user.user_phone}</div>
+    if (props.user.user_phone) {
+        phone = <div className='d-flex-center mb-3'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faPhone} size='lg' className='view-user-icon' /></div>{props.user.user_phone}</div>
     }
 
-    if (user.user.user_address) {
+    if (props.user.user_address) {
         let city_code;
 
-        if (user.user.user_city_code) {
-            city_code = <span>, {user.user.user_city_code}</span>;
+        if (props.user.user_city_code) {
+            city_code = <span>, {props.user.user_city_code}</span>;
         }
 
-        address = <div className='d-flex-center mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faMapMarkedAlt} size='lg' className='view-user-icon' /></div>{user.user.user_address} {city_code}</div>
+        address = <div className='d-flex-center mb-3'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faMapMarkedAlt} size='lg' className='view-user-icon' /></div>{props.user.user_address} {city_code}</div>
     }
 
-    if (user.user.user_city) {
-        city = user.user.user_city;
+    if (props.user.user_city) {
+        city = props.user.user_city;
     }
 
-    if (user.user.user_region) {
-        region = city ? <span>{user.user.user_region},</span> : user.user.user_region;
+    if (props.user.user_region) {
+        region = city ? <span>{props.user.user_region},</span> : props.user.user_region;
     }
 
-    if (user.user.user_country) {
-        country = region || city ? <span>{user.user.user_country},</span> : user.user.user_country;
+    if (props.user.user_country) {
+        country = region || city ? <span>{props.user.user_country},</span> : props.user.user_country;
     }
 
     if (city || region || country) {
-        location = <div className='d-flex-center mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faMapMarkerAlt} size='lg' className='view-user-icon' /></div><span>{country} {region} {city}</span></div>
-    }    
+        location = <div className='d-flex-center mb-3'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faMapMarkerAlt} size='lg' className='view-user-icon' /></div><span>{country} {region} {city}</span></div>
+    }
 
-    /* if (user.user.user_education) {
-        education = <div className='d-flex-center mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faGraduationCap} className='view-user-icon' size='lg' /></div> {user.user.user_education}</div>
+    if (props.user.user_business_name) {
+        businessName = <div className='d-flex-center mb-3'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faBuilding} className='view-user-icon mr-1' size='lg' /></div> {props.user.user_website ? <a href={props.user.user_website}>{props.user.user_business_name}</a> : props.user.user_business_name}</div>;
+    }
+
+    /* if (props.user.user_education) {
+        education = <div className='d-flex-center mb-3'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faGraduationCap} className='view-user-icon' size='lg' /></div> {props.user.user_education}</div>
     } */
 
     if (email || phone || address || education) {
         return(
             <div id='view-user-contacts'>
+                <div className='d-flex-center mb-3'>
+                    <div className='text-center w-10 mr-1'>
+                        <FontAwesomeIcon icon={faListAlt} id='user-listed-under' className='view-user-icon' size='lg' />
+                        <UncontrolledTooltip placement='top' target='user-listed-under' delay={{show: 0, hide: 0}}>Listed Under</UncontrolledTooltip>
+                    </div>
+                    <NavLink to={`/sector/${props.user.listing_sector}`}>{props.user.listing_sector}</NavLink>
+                </div>
+
+                <div className='d-flex-center mb-3'>
+                    <div className='text-center w-10 mr-1'>
+                        <FontAwesomeIcon icon={faDollarSign} id='user-list-price' className='view-user-icon' size='lg' />
+                        <UncontrolledTooltip placement='top' target='user-list-price' delay={{show: 0, hide: 0}}>Asking Price</UncontrolledTooltip>
+                    </div>
+                    ${props.user.listing_price} / {props.user.listing_price_type} {props.user.listing_price_currency}
+                </div>
+
+                <div className='d-flex-center mb-3'>
+                    <div className='text-center w-10 mr-1'>
+                        <FontAwesomeIcon icon={faCommentsDollar} id='list-negotiable' className='view-user-icon' size='lg' />
+                        <UncontrolledTooltip placement='top' target='list-negotiable' delay={{show: 0, hide: 0}}>Negotiable</UncontrolledTooltip>
+                    </div>
+                    {props.user.listing_negotiable ? 'Yes' : 'No'}
+                </div>
+
+                <hr/>
                 {/* education */}
+                {businessName}
                 {email}
                 {phone}
                 {address}

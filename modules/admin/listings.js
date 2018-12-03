@@ -10,19 +10,8 @@ app.post('/api/admin/listings/get', async(req, resp) => {
     let params = [req.body.offset];
     let totalListingsQueryParams = [];
 
-    if (req.body.title || req.body.sector || req.body.user) {
+    if (req.body.sector || req.body.user) {
         let blankCheck = /^\s*$/
-
-        if (req.body.title) {
-            if (!blankCheck.test(req.body.title)) {
-                params.push(`%${req.body.title}%`);
-                paramStringParts.push(`listing_title ILIKE $${params.length}`);
-                totalListingsQueryParams.push(`%${req.body.title}%`);
-                totalListingParamStringParts.push(`listing_title ILIKE $${totalListingsQueryParams.length}`);
-            } else {
-                resp.send({status: 'error', statusMessage: 'Title cannot be blank'});
-            }
-        }
 
         if (req.body.sector) {
             params.push(req.body.sector);
@@ -47,7 +36,7 @@ app.post('/api/admin/listings/get', async(req, resp) => {
     }
 
     let totaListingsQuery = `SELECT COUNT(listing_id) as listing_count FROM user_listings WHERE listing_status != 'Delete'${totalListingWhereConditionString}`;
-    let query = `SELECT listing_id, listing_title, listing_created_date, listing_renewed_date, listing_sector, listing_status, listing_user FROM user_listings WHERE listing_status != 'Delete'${whereConditionString} ORDER BY listing_id LIMIT 25 OFFSET $1`;
+    let query = `SELECT listing_id, listing_created_date, listing_renewed_date, listing_sector, listing_status, listing_user FROM user_listings WHERE listing_status != 'Delete'${whereConditionString} ORDER BY listing_id LIMIT 25 OFFSET $1`;
     let totalListings = await db.query(totaListingsQuery, totalListingsQueryParams);
 
     await db.query(query, params)
@@ -61,7 +50,7 @@ app.post('/api/admin/listings/get', async(req, resp) => {
 });
 
 app.post('/api/admin/listing/change-status', async(req, resp) => {
-    await db.query(`UPDATE user_listings SET listing_status = $1 WHERE listing_id = $2 RETURNING listing_id, listing_title, listing_created_date, listing_renewed_date, listing_sector, listing_status, listing_user`, [req.body.status, req.body.id])
+    await db.query(`UPDATE user_listings SET listing_status = $1 WHERE listing_id = $2 RETURNING listing_id, listing_created_date, listing_renewed_date, listing_sector, listing_status, listing_user`, [req.body.status, req.body.id])
     .then(result => {
         let listing;
 

@@ -146,7 +146,8 @@ app.post('/api/user/edit', (req, resp) => {
 app.post('/api/user/search/titles', async(req, resp) => {
     //let searchValue = new RegExp('\\b' + req.body.value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi');
 
-    await db.query(`SELECT user_title FROM user_profiles WHERE user_title ILIKE $1`, [`%${req.body.value}%`])
+    await db.query(`SELECT user_title FROM user_profiles
+    LEFT JOIN users ON users.user_id = user_profiles.user_profile_id WHERE user_title ILIKE $1 AND user_status = 'Active'`, [`%${req.body.value}%`])
     .then(result => {
         if (result) {
             let titles = [];

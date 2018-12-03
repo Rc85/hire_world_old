@@ -46,9 +46,10 @@ app.post('/api/auth/register', (req, resp) => {
                         try {
                             await client.query(`BEGIN`);
 
-                            let registrationKey = cryptoJS.AES.encrypt(req.body.email, 'registering for m-ploy');
+                            let encrypted = cryptoJS.AES.encrypt(req.body.email, 'registering for m-ploy');
+                            let registrationKey = encrypted.toString();
 
-                            let user = await client.query(`INSERT INTO users (username, user_password, user_email, account_type, registration_key) VALUES ($1, $2, $3, $4, $5) RETURNING user_id`, [req.body.username, result, req.body.email, req.body.accountType, registrationKey.toString()]);
+                            let user = await client.query(`INSERT INTO users (username, user_password, user_email, account_type, registration_key) VALUES ($1, $2, $3, $4, $5) RETURNING user_id`, [req.body.username, result, req.body.email, req.body.accountType, registrationKey]);
 
                             await client.query(`INSERT INTO user_profiles (user_profile_id, user_firstname, user_lastname, user_country, user_region, user_city, user_title) VALUES ($1, $2, $3, $4, $5, $6, $7)`, [user.rows[0].user_id, req.body.firstName, req.body.lastName, req.body.country, req.body.region, req.body.city, req.body.title]);
                             await client.query(`INSERT INTO user_settings (user_setting_id) VALUES ($1)`, [user.rows[0].user_id]);
@@ -56,21 +57,21 @@ app.post('/api/auth/register', (req, resp) => {
                             let message = {
                                 to: req.body.email,
                                 from: 'support@m-ploy.org',
-                                subject: 'Welcome to M-ploy',
-                                html: `<div style="text-align: center;">In order to start using M-ploy, you need to activate your account. Click on the button below to activate your account.
-
-                                <p><a href='http://localhost:9999/activate-account?key=${registrationKey.toString()}'>
-                                    <button type='button' style="background: #007bff; padding: 10px; border-radius: 0.25rem; color: #fff; border: 0px; cursor: pointer;">Activate</button>
-                                </a></p>
-                                
-                                <p><strong>You have 24 hours to activate your account.</strong> You will need to <a href='http://localhost:9999/resend-confirmation'>request a new confirmation email</a> if 24 hours have past.</p>
-                                
-                                <p><small><strong>Note:</strong> New confirmation emails may end up in your spam folder.</small></p>
-                                
-                                <p><small><a href='https://www.m-ploy.org'>M-ploy.org</a></div>`
+                                subject: 'Welcome to Mploy',
+                                templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
+                                dynamicTemplateData: {
+                                    url: 'localhost:9999',
+                                    regkey: registrationKey
+                                },
+                                trackingSettings: {
+                                    clickTracking: {
+                                        enable: false
+                                    }
+                                }
                             }
 
-                            sgMail.send(message);
+                            sgMail.send(message)
+                            .catch(err => console.log(err.response.body.errors));
 
                             await client.query(`COMMIT`)
                             .then(() => resp.send({status: 'success', statusMessage: 'Registration successful. Please check your email to confirm your account'}));
@@ -107,76 +108,23 @@ app.post('/api/auth/register', (req, resp) => {
 });
 
 app.post('/api/auth/login', async(req, resp, next) => {
-    console.log('here');
     if (req.session.user) {
         next();
     } else {
-        let auth = await db.query(`SELECT * FROM users WHERE username = $1`, [req.body.username]);
-        // Get user's ban date and today's date
-        let banEndDate = await db.query(`SELECT ban_end_date FROM user_bans WHERE banned_user = $1 ORDER BY ban_id DESC LIMIT 1`, [req.body.username]);
-        let today = new Date();
-
-        // If user exists
-        if (auth && auth.rows.length === 1) {
-            // If user is banned, deny access
-            if (auth.rows[0].user_status === 'Ban') {
-                let error = new Error(`Your account has been permanently banned`);
-                error.type = 'CUSTOM';
-                error.status = 'access error';
-                throw error;
-            // if users haven't activated their account
-            } else if (auth.rows[0].user_status === 'Pending') {
-                let error = new Error(`You need to activate your account`);
-                error.type = 'CUSTOM';
-                error.status === 'inactive error';
-                throw error;
-            // If user is temporarily banned, check if today is after ban date. If it is, set user status to 'Active'
-            } else if (auth.rows[0].user_status === 'Suspend') {
-                if (today >= banEndDate) {
-                    await db.query(`UPDATE users SET user_status = 'Active' WHERE username = $1`, [req.body.username]);
-                }
-            }
-
-            // Compare password
-            bcrypt.compare(req.body.password, auth.rows[0].user_password, async(err, match) => {
-                if (err) error.log({name: err.name, message: err.message, origin: 'bcrypt Comparing', url: req.url});
-
-                if (match) {
-                    await db.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
-                    .catch(err => error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}));
-
-                    let session = {
-                        user_id: auth.rows[0].user_id,
-                        username: auth.rows[0].username,
-                        accountType: auth.rows[0].account_type,
-                        userLevel: auth.rows[0].user_level
-                    }
-
-                    req.session.user = session;
-                    
-                    next();
-                } else {
-                    resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
-                }
-            });
-        } else {
-            next();
-        }
-        /* db.connect((err, client, done) => {
+        db.connect((err, client, done) => {
             if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             (async() => {
                 try {
                     await client.query('BEGIN');
 
-                    // Get user from database
                     let auth = await client.query(`SELECT * FROM users WHERE username = $1`, [req.body.username]);
-                    // Get user's ban date and today's date
-                    let banEndDate = await client.query(`SELECT ban_end_date FROM user_bans WHERE banned_user = $1 ORDER BY ban_id DESC LIMIT 1`, [req.body.username]);
-                    let today = new Date();
-
+                   
                     // If user exists
                     if (auth && auth.rows.length === 1) {
+                        // Get user's ban date and today's date
+                        let banEndDate = await client.query(`SELECT ban_end_date FROM user_bans WHERE banned_user = $1 ORDER BY ban_id DESC LIMIT 1`, [req.body.username]);
+                        let today = new Date();
                         // If user is banned, deny access
                         if (auth.rows[0].user_status === 'Ban') {
                             let error = new Error(`Your account has been permanently banned`);
@@ -187,7 +135,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
                         } else if (auth.rows[0].user_status === 'Pending') {
                             let error = new Error(`You need to activate your account`);
                             error.type = 'CUSTOM';
-                            error.status === 'inactive error';
+                            error.status = 'error';
                             throw error;
                         // If user is temporarily banned, check if today is after ban date. If it is, set user status to 'Active'
                         } else if (auth.rows[0].user_status === 'Suspend') {
@@ -197,48 +145,36 @@ app.post('/api/auth/login', async(req, resp, next) => {
                         }
 
                         // Compare password
-                        bcrypt.compare(req.body.password, auth.rows[0].user_password, (err, match) => {
-                            (async() => {
-                                try {
-                                    if (err) throw err;
-                
-                                    if (match) {
-                                        await client.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
-                                        .catch(err => error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}));
-                
-                                        let session = {
-                                            user_id: auth.rows[0].user_id,
-                                            username: auth.rows[0].username,
-                                            accountType: auth.rows[0].account_type,
-                                            userLevel: auth.rows[0].user_level
-                                        }
-                
-                                        req.session.user = session;
-                                        
-                                        await client.query('COMMIT')
-                                        .then(() => resp.send({status: 'success'}));
-                                    } else {
-                                        let error = new Error('Incorrect username or password');
-                                        error.type = 'CUSTOM';
-                                        error.status = 'error';
-                                        throw error;
-                                    }
-                                } catch (e) {
-                                    throw e;
+                        bcrypt.compare(req.body.password, auth.rows[0].user_password, async(err, match) => {
+                            if (err) error.log({name: err.name, message: err.message, origin: 'bcrypt Comparing', url: req.url});
+
+                            if (match) {
+                                await client.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
+                                .catch(err => error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}));
+
+                                let session = {
+                                    user_id: auth.rows[0].user_id,
+                                    username: auth.rows[0].username,
+                                    accountType: auth.rows[0].account_type,
+                                    userLevel: auth.rows[0].user_level
                                 }
-                            })()
-                            .catch(err => {
-                                throw err;
-                            });
+
+                                req.session.user = session;
+                                
+                                await client.query('COMMIT')
+                                .then(() => next());
+                            } else {
+                                let error = new Error('Incorrect username or password');
+                                error.type = 'CUSTOM';
+                                error.status = 'error';
+                                throw error;
+                            }
                         });
                     } else {
-                        let error = new Error(`That user does not exist`);
-                        error.type = 'CUSTOM';
-                        error.status = 'error';
-                        throw error;
-                    }
+                        client.query('ROLLBACK');
+                        next();
+                    }    
                 } catch (e) {
-                    console.log(e);
                     await client.query('ROLLBACK');
                     throw e;
                 } finally {
@@ -246,24 +182,24 @@ app.post('/api/auth/login', async(req, resp, next) => {
                 }
             })()
             .catch(err => {
-                console.log(err);
                 error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                
                 let message = 'An error occurred';
+                let errorStatus = 'error';
 
                 if (err.type === 'CUSTOM') {
+                    errorStatus = err.status;
                     message = err.message;
                 }
 
-                resp.send({status: err.status, statusMessage: message});
+                resp.send({status: errorStatus, statusMessage: message});
             });
-        }); */
+        }); 
     }
-});
-
-app.post('/api/auth/login', async(req, resp) => {
-    console.log(req.session.user);
+},
+async(req, resp) => {
     if (req.session.user) {
-        let user = await db.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, user_profiles.*, user_settings.* FROM users
+        let user = await db.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, users.account_type, user_profiles.*, user_settings.* FROM users
         LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
         LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
         WHERE users.user_id = $1`, [req.session.user.user_id]);

@@ -22,8 +22,7 @@ app.post('/api/get/listing', async(req, resp) => {
 });
 
 app.post('/api/get/listings', async(req, resp) => {
-    console.log(req.body)
-    await db.query(`SELECT user_listings.*, user_profiles.user_title, user_reviews.rating, (SELECT COUNT(job_id) AS job_completed FROM jobs WHERE job_stage = 'Completed') FROM user_listings
+    await db.query(`SELECT user_listings.*, user_profiles.user_title, user_reviews.rating, jobs.job_complete FROM user_listings
     LEFT JOIN users ON users.username = user_listings.listing_user
     LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
     LEFT JOIN
@@ -31,11 +30,22 @@ app.post('/api/get/listings', async(req, resp) => {
         FROM user_reviews
         WHERE review_rating IS NOT NULL
         GROUP BY reviewing) AS user_reviews ON user_reviews.reviewing = user_listings.listing_user
+    LEFT JOIN
+        (SELECT job_user,
+            (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Completed')
+        FROM jobs) AS jobs ON jobs.job_user = user_listings.listing_user
     WHERE listing_sector = $1 AND listing_status = 'Active'
     ORDER BY listing_renewed_date DESC, listing_id`, [req.body.sector])
     .then(result => {
         if (result) {
+            for (let row of result.rows) {
+                if (!row.job_complete) {
+                    row.job_complete = 0;
+                }
+            }
+
             console.log(result.rows)
+
             resp.send({status: 'success', listings: result.rows});
         }
     })

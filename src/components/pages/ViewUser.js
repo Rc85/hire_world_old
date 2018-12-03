@@ -6,17 +6,17 @@ import { withRouter, Redirect } from 'react-router-dom';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
 import Response from './Response';
-import ViewUserStats from '../includes/page/ViewUserStats';
 import ViewUserReview from '../includes/page/ViewUserReview';
 import SubmitReview from '../includes/page/SubmitReview';
 import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBuilding } from '@fortawesome/free-regular-svg-icons';
-import { faUserCircle, faExclamationTriangle, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faEye, faExclamationTriangle, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
 import { LogError } from '../utils/LogError';
 import MessageSender from '../includes/page/MessageSender';
+import { faCheckCircle, faTimesCircle } from '@fortawesome/free-regular-svg-icons';
+import moment from 'moment';
 
 class ViewUser extends Component {
     constructor(props) {
@@ -30,7 +30,13 @@ class ViewUser extends Component {
             review: '',
             hours: {},
             reportedReviews: [],
-            userReported: false
+            userReported: false,
+            stats: {
+                view_count: 0,
+                job_complete: 0,
+                job_abandon: 0,
+                last_login: null
+            }
         }
     }
 
@@ -159,10 +165,6 @@ class ViewUser extends Component {
             socialMedia = <ViewUserSocialMedia user={this.state.user} listing={this.state.user ? {id: this.state.user.listing_id, status: this.state.user.listing_status} : {}} />;
             profile = <ViewUserProfile user={this.state.user} stats={this.state.stats} />;
 
-            if (this.state.user.user_business_name) {
-                businessName = <div className='d-flex-center mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faBuilding} className='view-user-icon mr-1' size='lg' /></div> {this.state.user.user_website ? <a href={this.state.user.user_website}>{this.state.user.user_business_name}</a> : this.state.user.user_business_name}</div>;
-            }
-
             if (this.state.reviews.length > 0) {
                 reviews = this.state.reviews.map((review, i) => {
                     let reported = false;
@@ -200,8 +202,14 @@ class ViewUser extends Component {
                     </span>;
                 }
 
-                if (this.state.user.username !== this.props.user.username) {
-                    message = <MessageSender send={(message, subject) => this.sendMessage(message, subject)} status={this.state.sendStatus} />;
+                if (this.state.user.username !== this.props.user.username && this.state.user.allow_messaging) {
+                    message = <React.Fragment>
+                        <hr/>
+
+                        <MessageSender send={(message, subject) => this.sendMessage(message, subject)} status={this.state.sendStatus} />
+                        
+                        <hr/>
+                    </React.Fragment>;
                 }
             }
         }
@@ -212,10 +220,8 @@ class ViewUser extends Component {
                 <div className='blue-panel shallow rounded'>
                     <div className='row'>
                         <div className='col-3'>
-                            {businessName}
                             {contacts}
                             {/* <ViewUserStats stats={this.state.stats || {}} hours={this.state.hours} /> */}
-                            {socialMedia}
                         </div>
 
                         <div className='col-9'>
@@ -225,7 +231,15 @@ class ViewUser extends Component {
                         </div>
                     </div>
 
-                    <div>{friendIcon} {reportButton}</div>
+                    <div className='row'>
+                        <div className='col-3'>
+                            <div>{friendIcon} {reportButton}</div>
+                        </div>
+
+                        <div className='col-9'>
+                            {socialMedia}
+                        </div>
+                    </div>
                 </div>
 
                 <div className='text-right mt-3'>

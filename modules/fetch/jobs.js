@@ -30,9 +30,9 @@ app.post('/api/get/jobs', async(req, resp) => {
                         ORDER BY pinned.pinned_date, jobs.job_created_date DESC
                         LIMIT 25 OFFSET $3`, [req.body.stage, req.session.user.username, req.body.offset]);
 
-                        jobs = jobResults.rows;
+                        jobs = jobsResults.rows;
 
-                        if (jobsResult.rows.length > 0) {
+                        if (jobsResults.rows.length > 0) {
                             jobCount = jobsResults.rows[0].job_count;
                         }
                     }

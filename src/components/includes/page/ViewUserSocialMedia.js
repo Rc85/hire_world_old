@@ -8,32 +8,32 @@ const ViewUserSocialMedia = props => {
     let github, facebook, twitter, instagram, linkedin, website;
     
     if (props.user.user_github) {
-        github = <div className='d-flex mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faGithub} className='view-user-icon' size='lg' /></div> <a href={props.user.user_github}>Github</a></div>;
+        github = <div className='ml-3'><a href={props.user.user_github}><FontAwesomeIcon icon={faGithub} size='lg' /></a></div>;
     }
     
     if (props.user.user_facebook) {
-        facebook = <div className='d-flex mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faFacebook} className='view-user-icon' size='lg' /></div> <a href={props.user.user_facebook}>Facebook</a></div>;
+        facebook = <div className='ml-3'><a href={props.user.user_facebook}><FontAwesomeIcon icon={faFacebook} size='lg' /></a></div>;
     }
     
     if (props.user.user_twitter) {
-        twitter = <div className='d-flex mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faTwitter} className='view-user-icon' size='lg' /></div> <a href={props.user.user_twitter}>Twitter</a></div>;
+        twitter = <div className='ml-3'><a href={props.user.user_twitter}><FontAwesomeIcon icon={faTwitter} size='lg' /></a></div>;
     }
     
     if (props.user.user_instagram) {
-        instagram = <div className='d-flex mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faInstagram} className='view-user-icon' size='lg' /></div> <a href={props.user.user_instagram}>Instagram</a></div>;
+        instagram = <div className='ml-3'><a href={props.user.user_instagram}><FontAwesomeIcon icon={faInstagram} size='lg' /></a></div>;
     }
     
     if (props.user.user_linkedin) {
-        linkedin = <div className='d-flex mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faLinkedin} className='view-user-icon' size='lg' /></div> <a href={props.user.user_linkedin}>LinkedIn</a></div>;
+        linkedin = <div className='ml-3'><a href={props.user.user_linkedin}><FontAwesomeIcon icon={faLinkedin} size='lg' /></a></div>;
     }
     
     if (props.user.user_website) {
-        website = <div className='d-flex mb-3'><div className='w-10 mr-1'><FontAwesomeIcon icon={faGlobe} className='view-user-icon' size='lg' /></div> <a href={props.user.user_website}>Website</a></div>
+        website = <div className='ml-3'><a href={props.user.user_website}><FontAwesomeIcon icon={faGlobe} size='lg' /></a></div>;
     }
     
     if (github || facebook || twitter || instagram || linkedin || website) {
         return(
-            <div id='view-user-social-media'>
+            <div id='view-user-social-media' className='d-flex-end-center'>
                 {github}
                 {facebook}
                 {twitter}

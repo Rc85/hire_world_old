@@ -3,7 +3,7 @@ const db = require('../db');
 const error = require('../utils/error-handler');
 
 app.get('/api/admin/config/get', async(req, resp) => {
-    let configs = await db.query(`SELECT * FROM site_configs`);
+    let configs = await db.query(`SELECT * FROM site_configs ORDER BY config_id`);
     let promotions = await db.query(`SELECT * FROM promotions`);
     let plans = await db.query(`SELECT * FROM subscription_plans WHERE plan_status != 'Delete'`);
     let announcements = await db.query(`SELECT * FROM announcements ORDER BY announcement_created_date DESC LIMIT 3`);

@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';
 import { unsaveListing } from '../utils/Utils';
 import { LogError } from '../utils/LogError';
+import Response from '../pages/Response'
 
 class SavedListings extends Component {
     constructor(props) {
@@ -127,7 +128,6 @@ class SavedListings extends Component {
     }
     
     render() {
-        console.log('saved listings rendered')
         let status, listings;
 
         if (this.state.status === 'Loading') {
@@ -140,7 +140,7 @@ class SavedListings extends Component {
         
         if (this.state.status === 'access error') {
             return(
-                <Response code={500} header='Internal Server Error' message={this.state.statusMessage} />
+                <div className='blue-panel three-rounded'><Response code={500} header='Internal Server Error' message={this.state.statusMessage} /></div>
             )
         }
 

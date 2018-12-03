@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import UserTitle from '../includes/page/UserTitle';
 import { GetSession } from '../../actions/FetchActions';
+import ListSettings from '../includes/page/ListSettings';
 
 class EditUser extends Component {   
     render() {
@@ -135,7 +136,7 @@ class EditUser extends Component {
 
                         <hr/>
 
-                        <UserDetails user={this.props.user} />
+                        {this.props.user.user.account_type === 'Listing' ? <ListSettings user={this.props.user} /> : ''}
                     </div>
                 </div>
             </section>

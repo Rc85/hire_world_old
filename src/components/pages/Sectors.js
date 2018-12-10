@@ -95,10 +95,11 @@ class Sectors extends Component {
                         {loading}
 
                         <div className='listings-header mb-3'>
-                            <div className='w-40'>User</div>
+                            <div className='w-30'>Title</div>
+                            <div className='w-20'>User</div>
                             <div className='w-20'>Price</div>
-                            <div className='w-15'>Completed Jobs</div>
-                            <div className='w-15'>Posted Date</div>
+                            <div className='w-10'>Completed Jobs</div>
+                            <div className='w-10'>Posted Date</div>
                             <div className='w-10 text-right'>Rating</div>
                         </div>
 

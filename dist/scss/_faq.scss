@@ -5,10 +5,10 @@
 }
 
 #questions, .announcements {
-    a { color: $theme-highlight; }
+    a { color: $theme-alt-highlight; }
 }
 
-#answers { color: #FFF; }
+#answers, #questions { color: #FFF; }
 
 .answer { margin: 20px 0 0 40px; }
 

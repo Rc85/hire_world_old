@@ -26,6 +26,8 @@
     background: $theme-blue;
     border-bottom-right-radius: 0.25rem;
     border-bottom-left-radius: 0.25rem;
+
+    h1, h2, h3, h4, h5, h6 { color: $theme-blue; }
 }
 
 .how-body {

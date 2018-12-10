@@ -5725,27 +5725,46 @@ readers do not read off random characters that represent icons */
 }
 
 #main-section {
-  background: url("/images/globe.jpg");
+  background-image: url("/images/main.jpg");
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: 100% auto;
+  background-color: #FCFCFC;
+  display: flex;
+  align-items: stretch;
+  padding: 30px;
+  height: 540px;
+  color: #F9F6F4;
+}
+#main-section div {
   display: flex;
   justify-content: space-around;
   flex-direction: column;
-  padding: 30px;
-  min-height: 50vh;
-  color: #F9F6F4;
+  width: 50%;
+}
+
+#benefits {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  margin-top: 5rem;
+}
+
+#sub-section-parent {
+  background-color: #FCFCFC;
+  background-image: url("/images/bg_grey.jpg");
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  background-position: center 250px;
 }
 
 .sub-section {
   padding: 30px;
-  color: black;
-  background: #C4C4C4;
+  color: #1F1F1F;
   min-height: 50vh;
   font-size: 1.2rem;
 }
-
-.sub-section:nth-child(2n+1) {
-  background: #DFDFDF;
+.sub-section h1, .sub-section h2, .sub-section h3, .sub-section h4, .sub-section h5, .sub-section h6 {
+  color: #2F496E;
 }
 
 i {
@@ -5810,6 +5829,7 @@ i {
 #pricing-table {
   width: 50%;
   margin: 0 auto 30px auto;
+  background-color: #DFDFDF;
 }
 #pricing-table thead th {
   border-bottom-width: 1px;
@@ -5830,6 +5850,27 @@ i {
 #pricing-table thead tr {
   background: #2F496E;
   color: white;
+}
+
+#pricing-facts {
+  font-size: 1.2rem;
+}
+
+.pricing-section {
+  color: #000;
+  width: 50%;
+  margin: 0 auto 0 auto;
+}
+.pricing-section h1, .pricing-section h4, .pricing-section h5 {
+  color: #2988BC;
+}
+.pricing-section a {
+  color: #2988BC;
+  text-decoration: underline;
+}
+.pricing-section a:hover {
+  color: #7dd2ff;
+  text-decoration: underline;
 }
 
 #how-it-works {
@@ -5860,6 +5901,9 @@ i {
   border-bottom-right-radius: 0.25rem;
   border-bottom-left-radius: 0.25rem;
 }
+#how-get-hired h1, #how-get-hired h2, #how-get-hired h3, #how-get-hired h4, #how-get-hired h5, #how-get-hired h6, #how-hire h1, #how-hire h2, #how-hire h3, #how-hire h4, #how-hire h5, #how-hire h6 {
+  color: #2F496E;
+}
 
 .how-body {
   background: #DFDFDF;
@@ -5885,10 +5929,10 @@ i {
 }
 
 #questions a, .announcements a {
-  color: #2988BC;
+  color: #7dd2ff;
 }
 
-#answers {
+#answers, #questions {
   color: #FFF;
 }
 
@@ -5939,7 +5983,11 @@ i {
   src: url("/fonts/Montserrat-Bold.ttf");
 }
 body {
-  background: #C4C4C4;
+  background-image: url("/images/bg_grey.jpg");
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  background-position: center 300px;
+  background-color: #FCFCFC;
   overflow-x: hidden;
   margin: 0;
   font-family: "Montserrat";

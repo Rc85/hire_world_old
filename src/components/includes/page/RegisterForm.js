@@ -26,6 +26,7 @@ class RegisterForm extends Component {
             city: null,
             accountType: 'User',
             agreed: false,
+            legal: false,
             status: '',
             statusMessage: '',
             title: null,
@@ -247,7 +248,8 @@ class RegisterForm extends Component {
                     {payment} */}
 
                     <div className='mb-3'>
-                        <input type='checkbox' name='agree' id='reg-agree' onClick={() => this.setState({agreed: !this.state.agreed})} /> <label className='form-check-label' htmlFor='reg-agree'>I read, understand, and agree with the terms of service.</label>
+                        <div><input type='checkbox' name='agree' id='reg-agree' onClick={() => this.setState({agreed: !this.state.agreed})} /> <label className='form-check-label' htmlFor='reg-agree'>I have read and agree with the terms of service and privacy policy.</label></div>
+                        <div><input type='checkbox' name='legal_age' id='legal-age' onClick={() => this.setState({legal: !this.state.legal})} /> <label htmlFor='legal-age' className='form-check-label'>I acknowledge that I am 18 years of age or older.</label></div>
                     </div>
                     
 

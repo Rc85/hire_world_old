@@ -30,6 +30,7 @@ class ListSettings extends Component {
                 listing_price_currency: '',
                 listing_detail: '',
                 listing_status: '',
+                listing_title: '',
             },
             newSettings: {
                 listing_negotiable: false,
@@ -41,7 +42,8 @@ class ListSettings extends Component {
                 listing_price: '',
                 listing_price_currency: '',
                 listing_detail: '',
-                listing_status: ''
+                listing_status: '',
+                listing_title: ''
             }
         }
     }
@@ -64,7 +66,8 @@ class ListSettings extends Component {
                         listing_price_currency: resp.data.listing.listing_price_currency,
                         listing_negotiable: resp.data.listing.listing_negotiable,
                         listing_detail: resp.data.listing.listing_detail,
-                        listing_status: resp.data.listing.listing_status
+                        listing_status: resp.data.listing.listing_status,
+                        listing_title: resp.data.listing.listing_title
                     }
                 } else {
                     this.initialSettings = this.state.initialSettings;
@@ -226,57 +229,60 @@ class ListSettings extends Component {
                     </div>
                 </div>
 
-                <form>
-                    <div className='d-flex-between-start mb-3'>
-                        <div className='w-50'>
-                            <label htmlFor='listing-sector'>List Under: <span className='required-asterisk'>*</span></label>
-                            <select name='sector' id='listing-sector' className='form-control' onChange={(e) => this.setSettings('listing_sector', e.target.value)} value={this.state.newSettings.listing_sector} disabled={this.state.initialSettings.listing_status === 'Active'} >
-                                {sectors}
-                            </select>
-                        </div>
+                <div className='mb-3'>
+                    <label htmlFor='listing-title'>List Title: <span className='require-asterisk'>*</span></label>
+                    <input type='text' name='title' id='listing-title' className='form-control' onChange={(e) => this.setSettings('listing_title', e.target.value)} defaultValue={this.state.newSettings.listing_title} disabled={this.state.initialSettings.listing_status === 'Active'} />
+                </div>
 
-                        <div className='w-45'>
-                            <div className='d-flex-between-start mb-3'>
-                                <div className='w-30'>
-                                    <label htmlFor='listing-price'>Price Rate: <span className='required-asterisk'>*</span></label>
-                                    <input type='number' name='price' id='listing-price' className='form-control' onChange={(e) => this.setSettings('listing_price', e.target.value)} defaultValue={this.state.initialSettings.listing_price} disabled={this.state.initialSettings.listing_status === 'Active'} />
-                                </div>
-
-                                <div className='w-30'>
-                                    <label htmlFor='listing-price-type'>Per: <span className='required-asterisk'>*</span></label>
-                                    <select name='listing-price-type' id='listing-price-type' className='form-control' onChange={(e) => this.setSettings('listing_price_type', e.target.value)} defaultValue={this.state.initialSettings.listing_price_type}  disabled={this.state.initialSettings.listing_status === 'Active'}>
-                                        <option value='Hour'>Hour</option>
-                                        <option value='Bi-weekly'>Bi-weekly</option>
-                                        <option value='Month'>Month</option>
-                                        <option value='Delivery'>Delivery</option>
-                                        <option value='One Time Payment'>One Time Payment</option>
-                                    </select>
-                                </div>
-
-                                <div className='w-30'>
-                                    <label htmlFor='listing-currency'>Currency: <span className='required-asterisk'>*</span></label>
-                                    <input type='text' name='listing-currency' id='listing-currency' className='form-control' list='currency-list' maxLength='5' placeholder='Currency' onChange={(e) => this.setSettings('listing_price_currency', e.target.value)} defaultValue={this.state.initialSettings.listing_price_currency} disabled={this.state.initialSettings.listing_status === 'Active'} />
-                                    <datalist id='currency-list'>
-                                        <option value='USD'>USD</option>
-                                        <option value='CAD'>CAD</option>
-                                        <option value='AUD'>AUD</option>
-                                        <option value='EUR'>EUR</option>
-                                        <option value='GBP'>GBP</option>
-                                        <option value='CNY'>CNY</option>
-                                        <option value='JPY'>JPY</option>
-                                    </datalist>
-                                </div>
-                            </div>
-
-                            <label id='listing-negotiable-label' htmlFor='listing-negotiable'><input type='checkbox' name='listing-negotiable' id='listing-negotiable' onClick={() => this.setSettings('listing_negotiable', !this.state.newSettings.listing_negotiable)} checked={this.state.newSettings.listing_negotiable} disabled={this.state.initialSettings.listing_status === 'Active'} /> Negotiable</label>
-                            <UncontrolledTooltip target='listing-negotiable-label' placement='top'>Enabling this will allow your clients to send you offers.</UncontrolledTooltip>
-                        </div>
+                <div className='d-flex-between-start mb-3'>
+                    <div className='w-45'>
+                        <label htmlFor='listing-sector'>List Under: <span className='required-asterisk'>*</span></label>
+                        <select name='sector' id='listing-sector' className='form-control' onChange={(e) => this.setSettings('listing_sector', e.target.value)} value={this.state.newSettings.listing_sector} disabled={this.state.initialSettings.listing_status === 'Active'} >
+                            {sectors}
+                        </select>
                     </div>
 
-                    Details:
+                    <div className='w-50'>
+                        <div className='d-flex-between-start mb-3'>
+                            <div className='w-30'>
+                                <label htmlFor='listing-price'>Price Rate: <span className='required-asterisk'>*</span></label>
+                                <input type='number' name='price' id='listing-price' className='form-control' onChange={(e) => this.setSettings('listing_price', e.target.value)} defaultValue={this.state.initialSettings.listing_price} disabled={this.state.initialSettings.listing_status === 'Active'} />
+                            </div>
 
-                    <textarea name='listing-detail' id='listing-detail' rows='10' className='form-control w-100 mb-3' placeholder='Describe the type of products or service you offer' onChange={(e) => this.setSettings('listing_detail', e.target.value)} value={this.state.newSettings.listing_detail} disabled={this.state.initialSettings.listing_status === 'Active'}></textarea>
-                </form>
+                            <div className='w-30'>
+                                <label htmlFor='listing-price-type'>Per: <span className='required-asterisk'>*</span></label>
+                                <select name='listing-price-type' id='listing-price-type' className='form-control' onChange={(e) => this.setSettings('listing_price_type', e.target.value)} defaultValue={this.state.initialSettings.listing_price_type}  disabled={this.state.initialSettings.listing_status === 'Active'}>
+                                    <option value='Hour'>Hour</option>
+                                    <option value='Bi-weekly'>Bi-weekly</option>
+                                    <option value='Month'>Month</option>
+                                    <option value='Delivery'>Delivery</option>
+                                    <option value='One Time Payment'>One Time Payment</option>
+                                </select>
+                            </div>
+
+                            <div className='w-30'>
+                                <label htmlFor='listing-currency'>Currency: <span className='required-asterisk'>*</span></label>
+                                <input type='text' name='listing-currency' id='listing-currency' className='form-control' list='currency-list' maxLength='5' placeholder='Currency' onChange={(e) => this.setSettings('listing_price_currency', e.target.value)} defaultValue={this.state.initialSettings.listing_price_currency} disabled={this.state.initialSettings.listing_status === 'Active'} />
+                                <datalist id='currency-list'>
+                                    <option value='USD'>USD</option>
+                                    <option value='CAD'>CAD</option>
+                                    <option value='AUD'>AUD</option>
+                                    <option value='EUR'>EUR</option>
+                                    <option value='GBP'>GBP</option>
+                                    <option value='CNY'>CNY</option>
+                                    <option value='JPY'>JPY</option>
+                                </datalist>
+                            </div>
+                        </div>
+
+                        <label id='listing-negotiable-label' htmlFor='listing-negotiable'><input type='checkbox' name='listing-negotiable' id='listing-negotiable' onClick={() => this.setSettings('listing_negotiable', !this.state.newSettings.listing_negotiable)} checked={this.state.newSettings.listing_negotiable} disabled={this.state.initialSettings.listing_status === 'Active'} /> Negotiable</label>
+                        <UncontrolledTooltip target='listing-negotiable-label' placement='top'>Enabling this will allow your clients to send you offers.</UncontrolledTooltip>
+                    </div>
+                </div>
+
+                Details:
+
+                <textarea name='listing-detail' id='listing-detail' rows='10' className='form-control w-100 mb-3' placeholder='Describe the type of products or service you offer' onChange={(e) => this.setSettings('listing_detail', e.target.value)} value={this.state.newSettings.listing_detail} disabled={this.state.initialSettings.listing_status === 'Active'}></textarea>
             </section>
         );
     }

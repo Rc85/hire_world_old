@@ -6,7 +6,23 @@ block content
             div.alert.alert-info.text-center
                 h4 #{promo.promo_name}
                 .mt-3 #{promo.promo_description}
-        table#pricing-table.table.table-bordered
+        #pricing-facts.w-50.mx-auto.blue-panel.shallow.rounded.mb-3
+            .d-flex.align-items-center
+                i.fa.fa-check.fa-lg.mr-3
+                strong No hidden fees
+            .d-flex.align-items-center
+                i.fa.fa-check.fa-lg.mr-3
+                strong No cost per click charges
+            .d-flex.align-items-center
+                i.fa.fa-check.fa-lg.mr-3
+                strong No percent of project fees
+            .d-flex.align-items-center
+                i.fa.fa-check.fa-lg.mr-3
+                strong One flat monthly rate to start listing
+            hr
+            .text-center
+                h1 $7 / month
+        //-table#pricing-table.table.table-bordered
             thead
                 tr
                     th(colspan='3') Plans
@@ -27,26 +43,6 @@ block content
             tbody
                 tr
                     td
-                        i.fas.fa-user-circle.fa-lg.mr-2
-                        span User Profile
-                    td
-                        i.far.fa-check-circle.fa-2x.text-success
-                    td
-                        i.far.fa-check-circle.fa-2x.text-success
-                    //-td
-                        i.far.fa-check-circle.fa-2x.text-success
-                tr
-                    td
-                        i.far.fa-comment-dots.fa-lg.mr-2
-                        span Reviews
-                    td
-                        i.far.fa-check-circle.fa-2x.text-success
-                    td
-                        i.far.fa-check-circle.fa-2x.text-success
-                    //-td
-                        i.far.fa-check-circle.fa-2x.text-success
-                tr
-                    td
                         i.far.fa-envelope.fa-lg.mr-2
                         span Messaging
                     td
@@ -64,6 +60,26 @@ block content
                     td
                         i.far.fa-check-circle.fa-2x.text-success
                     //-td
+                        i.far.fa-check-circle.fa-2x.text-success
+                //-tr
+                    td
+                        i.fas.fa-user-circle.fa-lg.mr-2
+                        span User Profile
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                //-tr
+                    td
+                        i.far.fa-comment-dots.fa-lg.mr-2
+                        span Reviews
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    td
+                        i.far.fa-check-circle.fa-2x.text-success
+                    td
                         i.far.fa-check-circle.fa-2x.text-success
                 tr
                     td
@@ -88,8 +104,32 @@ block content
                         i.far.fa-check-circle.fa-2x.text-success
         .text-center.mb-3
             button.btn.btn-primary Register Now
+        hr.mt-5.mb-5.w-50.mx-auto
         //-.mx-auto.w-50.d-flex
             .mr-3
                 i.fas.fa-medal.fa-3x
             span.text-black Purchase and honor medals to users who have delivered work beyond your expectations
             h1.text-highlight $5
+        #medal-pricing.pricing-section
+            .d-flex
+                i.fa.fa-ribbon.fa-6x.mr-3
+                div
+                    h4 Medals (coming soon)
+                    span Did the user(s) you worked with delivered beyond your expectations? Honor them with a medal of recognition and help their business grow. Medals can be purchased through each individual users' profile.
+                h1 $5
+        hr.mt-5.mb-5.w-50.mx-auto
+        #payment-handling.pricing-section
+            .d-flex.justify-content-between.mb-3
+                i.fa.fa-user.fa-3x
+                i.fa.fa-long-arrow-alt-right.fa-3x
+                i.far.fa-money-bill-alt.fa-3x
+                i.fa.fa-long-arrow-alt-right.fa-3x
+                i.fa.fa-user-tie.fa-3x
+            h4.mb-3 Payment Handling (coming soon)
+            .mb-3 Working on a project with another user from across the world and need to transfer payment to the user? 
+                nobr M-ploy
+                |  uses Stripe Connect to transfer your funds and we charge the lowest processing fee on the market
+            .text-center
+                h5.mb-0 5% of funds to a maximum of $75.
+                small plus any applicable charges by 
+                    a(href='https://stripe.com/ca/connect/pricing') Stripe Connect.

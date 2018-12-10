@@ -44,8 +44,6 @@ app.post('/api/get/listings', async(req, resp) => {
                 }
             }
 
-            console.log(result.rows)
-
             resp.send({status: 'success', listings: result.rows});
         }
     })

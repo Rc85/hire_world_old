@@ -11,96 +11,100 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.post('/api/auth/register', (req, resp) => {
     if (req.body.agreed) {
-        if (!validate.usernameCheck.test(req.body.username)) {
-            resp.send({status: 'error', statusMessage: 'Invalid username'});
-        } else if (req.body.password !== req.body.confirmPassword) {
-            resp.send({status: 'error', statusMessage: 'Passwords do not match'});
-        } else if (!validate.passwordCheck.test(req.body.password)) {
-            resp.send({status: 'error', statusMessage: 'Passwords too short or long'});
-        } else if (req.body.email !== req.body.confirmEmail) {
-            resp.send({status: 'error', statusMessage: 'Emails do not match'});
-        } else if (!validate.emailCheck.test(req.body.email)) {
-            resp.send({status: 'error', statusMessage: 'Invalid email format'});
-        } else if (!validate.nameCheck.test(req.body.firstName)) {
-            resp.send({status: 'error', statusMessage: 'Invalid first name'});
-        } else if (!validate.nameCheck.test(req.body.lastName)) {
-            resp.send({status: 'error', statusMessage: 'Invalid last name'});
-        } else if (validate.blankCheck.test(req.body.firstName)) {
-            resp.send({status: 'error', statusMessage: 'First name cannot be blank'});
-        } else if (validate.blankCheck.test(req.body.lastName)) {
-            resp.send({status: 'error', statusMessage: 'Last name cannot be blank'});
-        } else if (validate.blankCheck.test(req.body.country)) {
-            resp.send({status: 'error', statusMessage: 'Please select a country'});
-        } else if (validate.blankCheck.test(req.body.region)) {
-            resp.send({status: 'error', statusMessage: 'Please select a region'});
-        } else if (validate.blankCheck.test(req.body.city)) {
-            resp.send({status: 'error', statusMessage: 'Please enter your city name'});
-        } else {
-            bcrypt.hash(req.body.password, 10, (err, result) => {
-                if (err) { error.log({name: err.name, message: err.message, origin: 'bcrypt Unhashing', url: req.url}); }
+        if (req.body.legal) {
+            if (!validate.usernameCheck.test(req.body.username)) {
+                resp.send({status: 'error', statusMessage: 'Invalid username'});
+            } else if (req.body.password !== req.body.confirmPassword) {
+                resp.send({status: 'error', statusMessage: 'Passwords do not match'});
+            } else if (!validate.passwordCheck.test(req.body.password)) {
+                resp.send({status: 'error', statusMessage: 'Passwords too short or long'});
+            } else if (req.body.email !== req.body.confirmEmail) {
+                resp.send({status: 'error', statusMessage: 'Emails do not match'});
+            } else if (!validate.emailCheck.test(req.body.email)) {
+                resp.send({status: 'error', statusMessage: 'Invalid email format'});
+            } else if (!validate.nameCheck.test(req.body.firstName)) {
+                resp.send({status: 'error', statusMessage: 'Invalid first name'});
+            } else if (!validate.nameCheck.test(req.body.lastName)) {
+                resp.send({status: 'error', statusMessage: 'Invalid last name'});
+            } else if (validate.blankCheck.test(req.body.firstName)) {
+                resp.send({status: 'error', statusMessage: 'First name cannot be blank'});
+            } else if (validate.blankCheck.test(req.body.lastName)) {
+                resp.send({status: 'error', statusMessage: 'Last name cannot be blank'});
+            } else if (validate.blankCheck.test(req.body.country)) {
+                resp.send({status: 'error', statusMessage: 'Please select a country'});
+            } else if (validate.blankCheck.test(req.body.region)) {
+                resp.send({status: 'error', statusMessage: 'Please select a region'});
+            } else if (validate.blankCheck.test(req.body.city)) {
+                resp.send({status: 'error', statusMessage: 'Please enter your city name'});
+            } else {
+                bcrypt.hash(req.body.password, 10, (err, result) => {
+                    if (err) { error.log({name: err.name, message: err.message, origin: 'bcrypt Unhashing', url: req.url}); }
 
-                db.connect((err, client, done) => {
-                    if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
-                    
-                    (async() => {
-                        try {
-                            await client.query(`BEGIN`);
+                    db.connect((err, client, done) => {
+                        if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+                        
+                        (async() => {
+                            try {
+                                await client.query(`BEGIN`);
 
-                            let encrypted = cryptoJS.AES.encrypt(req.body.email, 'registering for m-ploy');
-                            let registrationKey = encrypted.toString();
+                                let encrypted = cryptoJS.AES.encrypt(req.body.email, 'registering for m-ploy');
+                                let registrationKey = encrypted.toString();
 
-                            let user = await client.query(`INSERT INTO users (username, user_password, user_email, account_type, registration_key) VALUES ($1, $2, $3, $4, $5) RETURNING user_id`, [req.body.username, result, req.body.email, req.body.accountType, registrationKey]);
+                                let user = await client.query(`INSERT INTO users (username, user_password, user_email, account_type, registration_key) VALUES ($1, $2, $3, $4, $5) RETURNING user_id`, [req.body.username, result, req.body.email, req.body.accountType, registrationKey]);
 
-                            await client.query(`INSERT INTO user_profiles (user_profile_id, user_firstname, user_lastname, user_country, user_region, user_city, user_title) VALUES ($1, $2, $3, $4, $5, $6, $7)`, [user.rows[0].user_id, req.body.firstName, req.body.lastName, req.body.country, req.body.region, req.body.city, req.body.title]);
-                            await client.query(`INSERT INTO user_settings (user_setting_id) VALUES ($1)`, [user.rows[0].user_id]);
+                                await client.query(`INSERT INTO user_profiles (user_profile_id, user_firstname, user_lastname, user_country, user_region, user_city, user_title) VALUES ($1, $2, $3, $4, $5, $6, $7)`, [user.rows[0].user_id, req.body.firstName, req.body.lastName, req.body.country, req.body.region, req.body.city, req.body.title]);
+                                await client.query(`INSERT INTO user_settings (user_setting_id) VALUES ($1)`, [user.rows[0].user_id]);
 
-                            let message = {
-                                to: req.body.email,
-                                from: 'support@m-ploy.org',
-                                subject: 'Welcome to Mploy',
-                                templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
-                                dynamicTemplateData: {
-                                    url: 'localhost:9999',
-                                    regkey: registrationKey
-                                },
-                                trackingSettings: {
-                                    clickTracking: {
-                                        enable: false
+                                let message = {
+                                    to: req.body.email,
+                                    from: 'support@m-ploy.org',
+                                    subject: 'Welcome to Mploy',
+                                    templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
+                                    dynamicTemplateData: {
+                                        url: 'localhost:9999',
+                                        regkey: registrationKey
+                                    },
+                                    trackingSettings: {
+                                        clickTracking: {
+                                            enable: false
+                                        }
                                     }
                                 }
+
+                                sgMail.send(message)
+                                .catch(err => console.log(err.response.body.errors));
+
+                                await client.query(`COMMIT`)
+                                .then(() => resp.send({status: 'success', statusMessage: 'Registration successful. Please check your email to confirm your account'}));
+                            } catch (e) {
+                                await client.query(`ROLLBACK`);
+                                throw e;
+                            } finally {
+                                done();
+                            }
+                        })()
+                        .catch(err => {
+                            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                            
+                            let message = `An error occurred`;
+                            
+                            if (err.code === '23505') {
+                                if (err.constraint === 'unique_email') {
+                                    message = 'Email already taken';
+                                } else if (err.constraint === 'unique_username') {
+                                    message = 'Username already taken';
+                                }
+                            } else if (err.code === '23502') {
+                                message = 'All fields are required';
                             }
 
-                            sgMail.send(message)
-                            .catch(err => console.log(err.response.body.errors));
-
-                            await client.query(`COMMIT`)
-                            .then(() => resp.send({status: 'success', statusMessage: 'Registration successful. Please check your email to confirm your account'}));
-                        } catch (e) {
-                            await client.query(`ROLLBACK`);
-                            throw e;
-                        } finally {
-                            done();
-                        }
-                    })()
-                    .catch(err => {
-                        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
-                        
-                        let message = `An error occurred`;
-                        
-                        if (err.code === '23505') {
-                            if (err.constraint === 'unique_email') {
-                                message = 'Email already taken';
-                            } else if (err.constraint === 'unique_username') {
-                                message = 'Username already taken';
-                            }
-                        } else if (err.code === '23502') {
-                            message = 'All fields are required';
-                        }
-
-                        resp.send({status: 'error', statusMessage: message});
+                            resp.send({status: 'error', statusMessage: message});
+                        });
                     });
                 });
-            });
+            }
+        } else {
+            resp.send({status: 'error', statusMessage: 'You must be 18 years or older'});
         }
     } else {
         resp.send({status: 'error', statusMessage: 'You must agree to the terms of service'});

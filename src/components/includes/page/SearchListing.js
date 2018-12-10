@@ -41,6 +41,7 @@ class SearchListing extends Component {
     }
     
     render() {
+        console.log(this.state)
         return (
             <div className='blue-panel shallow rounded mb-5'>
                 <div className='d-flex-between-start mb-3'>
@@ -72,7 +73,7 @@ class SearchListing extends Component {
 
                         <div className='d-flex-between-center input-group'>
                             <div className='w-15'>
-                                <select name='operator' id='price-operator' className='form-control no-border-radius-right' onChange={(e) => this.setState({priceOperator: e.target.value})}>
+                                <select name='operator' id='price-operator' className='form-control no-border-radius-right' onChange={(e) => this.setState({priceOperator: e.target.value})} value={this.state.priceOperator}>
                                     <option value='='>&#61;</option>
                                     <option value='>='>&#62;&#61;</option>
                                     <option value='>'>&#62;</option>
@@ -84,13 +85,13 @@ class SearchListing extends Component {
                             <div className='w-10 justify-content-center input-group-text seperator'>$</div>
                             
                             <div className='w-20'>
-                                <input type='number' name='search-price' id='search-price' className='form-control no-border-radius' onChange={(e) => this.setState({price: e.target.value})}/>
+                                <input type='number' name='search-price' id='search-price' className='form-control no-border-radius' onChange={(e) => this.setState({price: e.target.value})} value={this.state.price} />
                             </div>
 
                             <div className='w-10 justify-content-center input-group-text seperator'>/</div>
 
                             <div className='w-45'>
-                                <select name='price-type' id='price-type' className='form-control no-border-radius-left' onChange={(e) => this.setState({priceType: e.target.value})}>
+                                <select name='price-type' id='price-type' className='form-control no-border-radius-left' onChange={(e) => this.setState({priceType: e.target.value})} value={this.state.priceType}>
                                     <option>-</option>
                                     <option value='Hour'>Hour</option>
                                     <option value='Bi-weekly'>Bi-weekly</option>
@@ -106,18 +107,18 @@ class SearchListing extends Component {
                             <label htmlFor='completed-jobs'>Completed Jobs:</label>
                             
                             <div className='d-flex-between-center'>
-                                <select name='completed-jobs-op' id='completed-jobs-op' className='form-control no-border-radius-right' onChange={(e) => this.setState({completedJobsOp: e.target.value})}>
+                                <select name='completed-jobs-op' id='completed-jobs-op' className='form-control no-border-radius-right' onChange={(e) => this.setState({completedJobsOp: e.target.value})} value={this.state.completedJobsOp}>
                                     <option value='='>&#61;</option>
                                     <option value='>='>&#62;&#61;</option>
                                     <option value='>'>&#62;</option>
                                     <option value='<='>&#60;&#61;</option>
                                     <option value='<'>&#60;</option>
                                 </select>
-                                <input type='number' name='completed-jobs' id='completed-jobs' className='form-control no-border-radius-left' onChange={(e) => this.setState({completedJobs: e.target.value})}/>
+                                <input type='number' name='completed-jobs' id='completed-jobs' className='form-control no-border-radius-left' onChange={(e) => this.setState({completedJobs: e.target.value})} value={this.state.completedJobs} />
                             </div>
                         </div>
 
-                        <div className='w-45'><label htmlFor='no-abandoned-jobs'><input type='checkbox' name='no-abandoned-jobs' id='no-abandoned-jobs' onClick={() => this.setState({noAbandonedJobs: !this.state.noAbandonedJobs})}/> No Abandoned Jobs</label></div>
+                        <div className='w-45'><label htmlFor='no-abandoned-jobs'><input type='checkbox' name='no-abandoned-jobs' id='no-abandoned-jobs' onClick={() => this.setState({noAbandonedJobs: !this.state.noAbandonedJobs})} value={this.state.noAbandonedJobs} /> No Abandoned Jobs</label></div>
                     </div>
                 </div>
 

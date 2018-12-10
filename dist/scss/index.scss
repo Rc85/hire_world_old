@@ -24,7 +24,11 @@
 }
 
 body {
-    background: $theme-bg;
+    background-image: url('/images/bg_grey.jpg');
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    background-position: center 300px;
+    background-color: $not-white;
     overflow-x: hidden;
     margin: 0;
     font-family: 'Montserrat';
@@ -44,10 +48,10 @@ a:hover {
     color: $theme-fg;
 }
 
-h1, h2, h3, h4, h5, h6 { font-family: 'Montserrat Bold' }
+h1, h2, h3, h4, h5, h6 { font-family: 'Montserrat Bold'; }
 
 .blue-panel {
-    background: #2F496E;
+    background: $theme-blue;
 
     a {
         color: $theme-alt-highlight;

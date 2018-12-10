@@ -1,6 +1,7 @@
 #pricing-table {
     width: 50%;
     margin: 0 auto 30px auto;
+    background-color: $theme-lightgrey;
 
     thead th { border-bottom-width: 1px }
 
@@ -18,5 +19,25 @@
     thead tr {
         background: $theme-blue;
         color: white;
+    }
+}
+
+#pricing-facts { font-size: 1.2rem; }
+
+.pricing-section {
+    h1, h4, h5 { color: $theme-highlight; }
+
+    color: #000;
+    width: 50%;
+    margin: 0 auto 0 auto;
+
+    a {
+        color: $theme-highlight;
+        text-decoration: underline;
+    }
+
+    a:hover {
+        color: $theme-alt-highlight;
+        text-decoration: underline;
     }
 }

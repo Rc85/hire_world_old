@@ -298,19 +298,20 @@ app.post('/api/filter/listings', async(req, resp) => {
         whereArray.push(`AND listing_price_type = '${req.body.priceType}'`);
     }
 
+    console.log(req.body);
     if (req.body.completedJobs) {
         let operator;
 
         // Hard coding operators to prevent SQL injection
-        if (req.body.completedJobsOP === '=') {
+        if (req.body.completedJobsOp === '=') {
             operator = '=';
-        } else if (req.body.completedJobsOP === '>=') {
+        } else if (req.body.completedJobsOp === '>=') {
             operator = '>=';
-        } else if (req.body.completedJobsOP === '>') {
+        } else if (req.body.completedJobsOp === '>') {
             operator = '>';
-        } else if (req.body.completedJobsOP === '<=') {
+        } else if (req.body.completedJobsOp === '<=') {
             operator = '<=';
-        } else if (req.body.completedJobsOP === '<') {
+        } else if (req.body.completedJobsOp === '<') {
             operator = '<';
         }
 
@@ -318,7 +319,7 @@ app.post('/api/filter/listings', async(req, resp) => {
 
         let index = params.length;
 
-        whereArray.push(`AND job_completed ${operator} $${index}`);
+        whereArray.push(`AND job_complete ${operator} $${index}`);
     }
 
     if (req.body.noAbandonedJobs) {
@@ -368,6 +369,8 @@ app.post('/api/filter/listings', async(req, resp) => {
     WHERE listing_status = 'Active'
     ${whereArray.join(' ')}
     ORDER BY listing_renewed_date DESC, listing_id`;
+
+    console.log(queryString)
 
     await db.query(queryString, params)
     .then(result => {

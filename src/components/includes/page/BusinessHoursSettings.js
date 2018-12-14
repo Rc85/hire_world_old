@@ -36,104 +36,111 @@ class BusinessHoursSettings extends Component {
     componentDidMount() {
         fetch.get('/api/get/business_hours')
         .then(resp => {
+            console.log(resp);
             if (resp.data.status === 'success') {
-                let monStart, monEnd, tueStart, tueEnd, wedStart, wedEnd, thuStart, thuEnd, friStart, friEnd, satStart, satEnd, sunStart, sunEnd;
-
-                for (let day in resp.data.hours) {
-                    let hours = resp.data.hours[day].split(' - ');
-
-                    if (hours.length === 2) {
-                        if (day === 'monday') {
-                            monStart = hours[0];
-                            monEnd = hours[1];
-                        } else if (day === 'tuesday') {
-                            tueStart = hours[0];
-                            tueEnd = hours[1];
-                        } else if (day === 'wednesday') {
-                            wedStart = hours[0];
-                            wedEnd = hours[1];
-                        } else if (day === 'thursday') {
-                            thuStart = hours[0];
-                            thuEnd = hours[1];
-                        } else if (day === 'friday') {
-                            friStart = hours[0];
-                            friEnd = hours[1];
-                        } else if (day === 'saturday') {
-                            satStart = hours[0];
-                            satEnd = hours[1];
-                        } else if (day === 'sunday') {
-                            sunStart = hours[0];
-                            sunEnd = hours[1];
-                        }
-                    }
-                }
-
-                this.initialState = {
-                    monStartTime: monStart,    
-                    tueStartTime: tueStart,
-                    wedStartTime: wedStart,
-                    thuStartTime: thuStart,
-                    friStartTime: friStart,
-                    satStartTime: satStart,
-                    sunStartTime: sunStart,
-                    monEndTime: monEnd,
-                    tueEndTime: tueEnd,
-                    wedEndTime: wedEnd,
-                    thuEndTime: thuEnd,
-                    friEndTime: friEnd,
-                    satEndTime: satEnd,
-                    sunEndTime: sunEnd
-                }
+                this.initialState = splitHours(resp.data.hours);
 
                 this.setState(this.initialState);
             }
         })
         .catch(err => LogError(err, '/api/get/business_hours'));
     }
+
+    splitHours(days) {
+        let monStart, monEnd, tueStart, tueEnd, wedStart, wedEnd, thuStart, thuEnd, friStart, friEnd, satStart, satEnd, sunStart, sunEnd;
+
+        for (let day in days) {
+            let hours = days[day].split(' - ');
+
+            if (hours.length === 2) {
+                if (day === 'monday') {
+                    monStart = hours[0];
+                    monEnd = hours[1];
+                } else if (day === 'tuesday') {
+                    tueStart = hours[0];
+                    tueEnd = hours[1];
+                } else if (day === 'wednesday') {
+                    wedStart = hours[0];
+                    wedEnd = hours[1];
+                } else if (day === 'thursday') {
+                    thuStart = hours[0];
+                    thuEnd = hours[1];
+                } else if (day === 'friday') {
+                    friStart = hours[0];
+                    friEnd = hours[1];
+                } else if (day === 'saturday') {
+                    satStart = hours[0];
+                    satEnd = hours[1];
+                } else if (day === 'sunday') {
+                    sunStart = hours[0];
+                    sunEnd = hours[1];
+                }
+            }
+        }
+
+        let initialState = {
+            monStartTime: monStart,    
+            tueStartTime: tueStart,
+            wedStartTime: wedStart,
+            thuStartTime: thuStart,
+            friStartTime: friStart,
+            satStartTime: satStart,
+            sunStartTime: sunStart,
+            monEndTime: monEnd,
+            tueEndTime: tueEnd,
+            wedEndTime: wedEnd,
+            thuEndTime: thuEnd,
+            friEndTime: friEnd,
+            satEndTime: satEnd,
+            sunEndTime: sunEnd
+        }
+
+        return initialState;
+    }
     
-    save() {
+    save(state) {
         this.setState({status: 'Loading'});
 
         let days = {}
 
-        if (this.state.monStartTime && this.state.monEndTime) {
-            days['mon'] = this.state.monStartTime + ' - ' + this.state.monEndTime;
+        if (state.monStartTime && state.monEndTime) {
+            days['mon'] = state.monStartTime + ' - ' + state.monEndTime;
         } else {
             days['mon'] = 'Closed';
         }
 
-        if (this.state.tueStartTime && this.state.tueEndTime) {
-            days['tue'] = this.state.tueStartTime + ' - ' + this.state.tueEndTime;
+        if (state.tueStartTime && state.tueEndTime) {
+            days['tue'] = state.tueStartTime + ' - ' + state.tueEndTime;
         } else {
             days['tue'] = 'Closed';
         }
 
-        if (this.state.wedStartTime && this.state.wedEndTime) {
-            days['wed'] = this.state.wedStartTime + ' - ' + this.state.wedEndTime;
+        if (state.wedStartTime && state.wedEndTime) {
+            days['wed'] = state.wedStartTime + ' - ' + state.wedEndTime;
         } else {
             days['wed'] = 'Closed';
         }
 
-        if (this.state.thuStartTime && this.state.thuEndTime) {
-            days['thu'] = this.state.thuStartTime + ' - ' + this.state.thuEndTime;
+        if (state.thuStartTime && state.thuEndTime) {
+            days['thu'] = state.thuStartTime + ' - ' + state.thuEndTime;
         } else {
             days['thu'] = 'Closed';
         }
 
-        if (this.state.friStartTime && this.state.friEndTime) {
-            days['fri'] = this.state.friStartTime + ' - ' + this.state.friEndTime;
+        if (state.friStartTime && state.friEndTime) {
+            days['fri'] = state.friStartTime + ' - ' + state.friEndTime;
         } else {
             days['fri'] = 'Closed';
         }
 
-        if (this.state.satStartTime && this.state.satEndTime) {
-            days['sat'] = this.state.satStartTime + ' - ' + this.state.satEndTime;
+        if (state.satStartTime && state.satEndTime) {
+            days['sat'] = state.satStartTime + ' - ' + state.satEndTime;
         } else {
             days['sat'] = 'Closed';
         }
 
-        if (this.state.sunStartTime && this.state.sunEndTime) {
-            days['sun'] = this.state.sunStartTime + ' - ' + this.state.sunEndTime;
+        if (state.sunStartTime && state.sunEndTime) {
+            days['sun'] = state.sunStartTime + ' - ' + state.sunEndTime;
         } else {
             days['sun'] = 'Closed';
         }
@@ -141,7 +148,7 @@ class BusinessHoursSettings extends Component {
         fetch.post('/api/user/business_hours/save', days)
         .then(resp => {
             if (resp.data.status === 'success') {
-                let clonedState = Object.assign({}, this.state);
+                let clonedState = Object.assign({}, state);
 
                 this.setState(clonedState);
 
@@ -165,7 +172,7 @@ class BusinessHoursSettings extends Component {
         delete clonedState.showSettings;
 
         if (this.state.showSettings) {
-            settings = <div className='bordered-container rounded'>
+            settings = <div id='hours-settings' className='bordered-container rounded'>
                 <HourSetters day='Monday' startTime={(val) => this.setState({monStartTime: val})} endTime={(val) => this.setState({monEndTime: val})} startValue={this.state.monStartTime} endValue={this.state.monEndTime} />
                 <HourSetters day='Tuesday' startTime={(val) => this.setState({tueStartTime: val})} endTime={(val) => this.setState({tueEndTime: val})} startValue={this.state.tueStartTime} endValue={this.state.tueEndTime} />
                 <HourSetters day='Wednesday' startTime={(val) => this.setState({wedStartTime: val})} endTime={(val) => this.setState({wedEndTime: val})} startValue={this.state.wedStartTime} endValue={this.state.wedEndTime} />
@@ -174,7 +181,7 @@ class BusinessHoursSettings extends Component {
                 <HourSetters day='Saturday' startTime={(val) => this.setState({satStartTime: val})} endTime={(val) => this.setState({satEndTime: val})} startValue={this.state.satStartTime} endValue={this.state.satEndTime} />
                 <HourSetters day='Sunday' startTime={(val) => this.setState({sunStartTime: val})} endTime={(val) => this.setState({sunEndTime: val})} startValue={this.state.sunStartTime} endValue={this.state.sunEndTime} />
 
-                <div className='text-right'><SubmitButton loading={this.state.status === 'Loading'} type='button' value='Save' onClick={() => this.save()} disabled={JSON.stringify(clonedState) == JSON.stringify(this.initialState)} /></div>
+                <div className='text-right'><SubmitButton loading={this.state.status === 'Loading'} type='button' value='Save' onClick={() => this.save(this.state)} disabled={JSON.stringify(clonedState) == JSON.stringify(this.initialState)} /></div>
             </div>;
         }
 
@@ -188,7 +195,7 @@ class BusinessHoursSettings extends Component {
                     </div>
                     
                     
-                    <button className='btn btn-info btn-sm' onClick={() => this.setState({showSettings: !this.state.showSettings})}>{this.state.showSettings ? <FontAwesomeIcon icon={faCaretUp} /> : <FontAwesomeIcon icon={faCaretDown} />}</button>
+                    <button id='toggle-hours-setting-button' className='btn btn-info btn-sm' onClick={() => this.setState({showSettings: !this.state.showSettings})}>{this.state.showSettings ? <FontAwesomeIcon icon={faCaretUp} /> : <FontAwesomeIcon icon={faCaretDown} />}</button>
                 </div>
 
                 {settings}
@@ -199,7 +206,7 @@ class BusinessHoursSettings extends Component {
 
 const HourSetters = props => {
     return(
-        <div className='mb-3'>
+        <div id={props.day} className='mb-3'>
             <label>{props.day}</label>
                                     
             <div className='d-flex-between-center'>

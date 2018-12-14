@@ -5,9 +5,8 @@ export const GetSession = () => {
     return dispatch => {
         dispatch(GetSessionBegin('getting session'));
 
-        fetch.post('/api/auth/login')
+        return fetch.post('/api/auth/login')
         .then(resp => {
-            console.log(resp)
             if (resp.data.status === 'get session success') {
                 dispatch(GetSessionSuccess(resp.data.status, resp.data.user));
             } else {

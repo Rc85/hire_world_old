@@ -6,7 +6,7 @@ exports[`Login page snapshot 1`] = `
     Array [
       Object {
         "key": "login",
-        "pathname": "/account/login",
+        "pathname": "/",
       },
     ]
   }

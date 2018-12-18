@@ -1,0 +1,68 @@
+extends layout
+
+block header
+    script(src='https://www.google.com/recaptcha/api.js')
+    script(src='/js/register.js')
+
+block content
+    section#main-panel
+        #register.blue-panel.shallow.rounded.w-50.mx-auto
+            form#register-form(action='/api/auth/register', method='POST')
+                .text-right
+                    small
+                        em All fields are required
+                .mb-3
+                    label(for='reg-username') Username:
+                    input#reg-username.form-control(type='text', name='username', required, placeholder='5-15 alpha-numeric, dash, and underscore', minlength='3', maxlength='15')
+                .mb-3
+                    label(for='title') Profession Title:
+                    input#reg-title.form-control(type='text', name='title', required, autocomplete='off')
+                .d-flex.justify-content-between.mb-3
+                    .w-45
+                        label(for='reg-fname') First Name:
+                        input#reg-fname.form-control(type='text', name='firstName', required, maxlength='15')
+                    .w-45
+                        label(for='reg-lname') Last Name:
+                        input#reg-lname.form-control(type='text', name='lastName', required, maxlength='15')
+                .d-flex.justify-content-between.mb-3
+                    .w-45
+                        label(for='reg-password') Password:
+                        input#reg-password.form-control(type='password', name='password', required, placeholder='6-20 characters', minlength='6', maxlength='20')
+                    .w-45
+                        label(for='reg-confirm-password') Confirm Password:
+                        input#reg-confirm-password.form-control(type='password', name='confirmPassword', required, minlength='6', maxlength='20', autocomplete='off')
+                .d-flex.justify-content-between.mb-3
+                    .w-45
+                        label(for='reg-email') Email:
+                        input#reg-email.form-control(type='email', name='email', required)
+                    .w-45
+                        label(for='reg-confirm-email') Confirm Email:
+                        input#reg-confirm-email.form-control(type='email', name='confirmEmail', required, autocomplete='off')
+                .mb-3
+                    label(for='reg-country') Country:
+                    select#reg-country.form-control(name='country', required)
+                        option
+                        option(value='Canada') Canada
+                        option(value='Mexico') Mexico
+                        option(value='United States') United States
+                .mb-3
+                    label(for='reg-region') State/Province:
+                    select#reg-region.form-control(name='region', required)
+                        option
+                .mb-3
+                    label(for='reg-city') City:
+                    input#reg-city.form-control(type='text', name='city', required)
+                .mb-3
+                    div
+                        label(for='reg-agree')
+                            input#reg-agree(type='checkbox', name='agreed', required)
+                            |  I have read and agreed with the terms of service and privacy policy.
+                    div
+                        label(for='reg-legal-age')
+                            input#reg-legal-age(type='checkbox', name='legal', required)
+                            |  I am 18 years of age or older.
+                .mb-3
+                    .g-recaptcha(data-sitekey='6LdKOIIUAAAAAPRGJ4dDSoHfb1Dad0vxuD4s5gjG')
+                .text-right
+                    button.btn.btn-primary.mr-1(type='submit') Submit
+                    button.btn.btn-secondary(type='reset') Clear

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Login page snapshot 1`] = `
+exports[`Login page Matches snapshot 1`] = `
 <MemoryRouter
   initialEntries={
     Array [

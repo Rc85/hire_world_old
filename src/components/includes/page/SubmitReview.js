@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar } from '@fortawesome/free-solid-svg-icons';
 import TextArea from '../../utils/TextArea';
 import { NavLink } from 'react-router-dom';
+import Rating from '../../utils/Rating';
 
 class SubmitReview extends Component {
     constructor(props) {
@@ -40,40 +39,7 @@ class SubmitReview extends Component {
                     {authMessage}
 
                     <div className='d-flex mb-3'>
-                        <div className={`${this.state.starActive >= 1 ? 'review-star active' : 'review-star'} mr-1`}
-                        onClick={() => this.setRating(1)}
-                        onMouseOver={() => this.setState({starActive: 1})}
-                        onMouseOut={() => this.setState({starActive: this.state.star})}>
-                            <FontAwesomeIcon icon={faStar} />
-                        </div>
-
-                        <div className={`${this.state.starActive >= 2 ? 'review-star active' : 'review-star'} mr-1`}
-                        onClick={() => this.setRating(2)}
-                        onMouseOver={() => this.setState({starActive: 2})}
-                        onMouseOut={() => this.setState({starActive: this.state.star})}>
-                            <FontAwesomeIcon icon={faStar} />
-                        </div>
-
-                        <div className={`${this.state.starActive >= 3 ? 'review-star active' : 'review-star'} mr-1`}
-                        onClick={() => this.setRating(3)}
-                        onMouseOver={() => this.setState({starActive: 3})}
-                        onMouseOut={() => this.setState({starActive: this.state.star})}>
-                            <FontAwesomeIcon icon={faStar} />
-                        </div>
-
-                        <div className={`${this.state.starActive >= 4 ? 'review-star active' : 'review-star'} mr-1`}
-                        onClick={() => this.setRating(4)}
-                        onMouseOver={() => this.setState({starActive: 4})}
-                        onMouseOut={() => this.setState({starActive: this.state.star})}>
-                            <FontAwesomeIcon icon={faStar} />
-                        </div>
-
-                        <div className={`${this.state.starActive >= 5 ? 'review-star active' : 'review-star'} mr-1`}
-                        onClick={() => this.setRating(5)}
-                        onMouseOver={() => this.setState({starActive: 5})}
-                        onMouseOut={() => this.setState({starActive: this.state.star})}>
-                            <FontAwesomeIcon icon={faStar} />
-                        </div>
+                        <Rating star={this.props.star} set={(stars) => this.setState({star: stars})} />
                     </div>
                 </div>
                 <TextArea submit={(review) => this.props.submit(review, this.state.star)} cancel={() => this.props.cancel()} value={this.props.review} />

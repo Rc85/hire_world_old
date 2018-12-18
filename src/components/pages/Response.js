@@ -31,7 +31,9 @@ class Response extends Component {
                 <div className='blue-panel shallow rounded text-center'>
                     <h3>{this.props.code !== 200 ? this.props.code : ''} {this.props.header}</h3>
     
-                    {this.props.message}
+                    <div dangerouslySetInnerHTML={{__html: this.props.message}}></div>
+
+                    {this.props.children ? this.props.children : ''}
                 </div>
             </div>
         )

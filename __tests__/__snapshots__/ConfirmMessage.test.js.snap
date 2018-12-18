@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[` 1`] = `
+<div
+  className="alert alert-undefined mb-3 p-2"
+  role="alert"
+>
+  <div
+    className="d-flex-between-center"
+  >
+    <small
+      className="text-muted"
+    >
+      Sent 
+      a few seconds ago
+       
+      <span>
+        (Resent 
+        a few seconds ago
+        )
+      </span>
+    </small>
+    <h4>
+      <span
+        className="badge badge-success"
+      >
+        New
+      </span>
+    </h4>
+  </div>
+  <div
+    className="text-center mb-3 keep-format"
+  >
+    <strong />
+  </div>
+  <hr />
+  <div
+    className="mb-3"
+  >
+    <button
+      className="btn btn-success mr-1"
+      id="confirm-message-approve-button"
+      onClick={[Function]}
+    >
+      Approve
+    </button>
+    <button
+      className="btn btn-danger"
+      id="confirm-message-decline-button"
+      onClick={[Function]}
+    >
+      Decline
+    </button>
+  </div>
+  <div
+    className="text-right"
+  >
+    <small
+      className="text-muted"
+    >
+      Message ID: 
+    </small>
+  </div>
+</div>
+`;

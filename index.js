@@ -32,12 +32,10 @@ app.use(function (req, res, next) {
 });
 
 app.use(express.static('dist'));
-app.use('/fonts', express.static('src/fonts'));
-app.use('/styles', express.static('src/styles'));
+app.use('/fonts', express.static('dist/fonts'));
+app.use('/styles', express.static('dist/css'));
 app.use('/user_files', express.static(`user_files`))
-
-app.use('/images', express.static('src/images'));
-app.use('/webfonts', express.static('webfonts'));
+app.use('/images', express.static('dist/images'));
 
 app.use(/^\/mploy\/(?!admin-panel).*/, async(req, resp, next) => {
     let status = await db.query(`SELECT config_status FROM site_configs WHERE config_name = 'Site'`);
@@ -101,6 +99,18 @@ app.get('/how-it-works', (req, resp) => {
 
 app.get('/faq', (req, resp) => {
     resp.render('faq', {user: req.session.user});
+});
+
+app.get('/register', (req, resp) => {
+    if (req.session.user) {
+        resp.redirect('/mploy');
+    } else {
+        resp.render('register');
+    }
+});
+
+app.get('/register/success', (req, resp) => {
+    resp.render('register_success');
 });
 
 app.get('/activate-account', async(req, resp) => {
@@ -181,6 +191,21 @@ app.get('/advertise', (req, resp) => {
 
 app.get('/contact', (req, resp) => {
     resp.render('contact');
+});
+
+app.post('/api/site/review', (req, resp) => {
+    db.query(`INSERT INTO site_review (reviewer, rating) VALUES ($1, $2)`, [req.session.user.username, req.body.stars])
+    .then(result => {
+        if (result && result.rowCount === 1) {
+            resp.send({status: 'success'});
+        } else {
+            resp.send({status: 'error', statusMessage: 'Not available at this time'});
+        }
+    })
+    .catch(err => {
+        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+        resp.send({status: 'error', statusMessage: 'An error occurred'});
+    });
 });
 
 app.get(/^\/(m-ploy|m-ploy(\/)?.*)?/, (req, resp) => {

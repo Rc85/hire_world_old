@@ -65,7 +65,7 @@ const ViewUserStats = props => {
                     <FontAwesomeIcon icon={faEye} id='user-views' />
                     <UncontrolledTooltip placement='top' target='user-views' delay={{show: 0, hide: 0}}>Views</UncontrolledTooltip>
                 </div>
-                <span>{props.stats.view_count}</span>
+                <span>{props.stats.view_count ? props.stats.view_count : '0'}</span>
             </div>
 
             {props.stats.user_last_login ? 

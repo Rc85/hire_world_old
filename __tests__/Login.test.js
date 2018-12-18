@@ -8,7 +8,7 @@ import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import App from '../src/App';
 import { LoginUser } from '../src/actions/LoginActions';
-import { User } from '../src/actions/__mocks__/LoginActions';
+import { User } from '../__mocks__/userMock';
 import moxios from 'moxios';
 import { createStore, applyMiddleware } from 'redux';
 import { reducers } from '../src/reducers';
@@ -21,7 +21,7 @@ Enzyme.configure({adapter: new Adapter()});
 jest.setTimeout(30000);
 
 describe('Login page', () => {
-    test('snapshot', (done) => {
+    it('Matches snapshot', (done) => {
         const wrapper = shallow(
             <Provider store={store}><MemoryRouter initialEntries={[{pathname: '/', key: 'login'}]}><App /></MemoryRouter></Provider>
         );
@@ -31,7 +31,7 @@ describe('Login page', () => {
     });
 
     describe('clicking on body', () => {
-        test('browse menu should appear', (done) => {
+        test('Browse menu should appear', (done) => {
             const wrapper = mount(
                 <Provider store={store}><MemoryRouter initialEntries={[{pathname: '/', key: 'login'}]}><App /></MemoryRouter></Provider>
             );
@@ -42,7 +42,7 @@ describe('Login page', () => {
         });
     });
 
-    describe('login', () => {
+    describe('Login', () => {
         beforeEach(() => {
             moxios.install();
         });
@@ -51,7 +51,7 @@ describe('Login page', () => {
             moxios.uninstall();
         });
 
-        test('login in with existing credentials', async(done) => {
+        test('Login in with existing credentials', async(done) => {
             moxios.stubRequest('/api/auth/login', {
                 status: 200,
                 response: {
@@ -77,7 +77,7 @@ describe('Login page', () => {
         });
     });
 
-    describe('get session', () => {
+    describe('Get session', () => {
         beforeEach(() => {
             moxios.install();
         });
@@ -86,7 +86,7 @@ describe('Login page', () => {
             moxios.uninstall();
         });
 
-        test('get session should be successful', async(done) => {
+        test('Get session should be successful', async(done) => {
             moxios.stubRequest('/api/auth/login', {
                 status: 200,
                 response: {

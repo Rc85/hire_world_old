@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Route, withRouter, Switch } from 'react-router-dom';
+import { Route, withRouter, Switch, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { GetSession, GetSectors, GetUserNotificationAndMessageCount } from './actions/FetchActions';
 import { RemoveAlert } from './actions/AlertActions';
@@ -13,6 +13,7 @@ import Prompt from './components/utils/Prompt';
 import Warning from './components/utils/Warning';
 import { ToggleMenu } from './actions/MenuActions';
 import Footer from './components/includes/site/Footer';
+import ReviewMploy from './components/includes/page/ReviewMploy';
 
 class App extends Component {
 	constructor(props) {
@@ -110,6 +111,9 @@ class App extends Component {
 						<Route exact path='/account/register' render={() => <Pages.Register user={this.props.user} />} />
 
 						<Route exact path='/sectors/:sector' component={Pages.Sectors} />
+
+						<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Subscribed!'} message={`Thank you for subscribing to M-ploy. We hope you'll enjoy our services.`}><div><NavLink to='/dashboard/edit'>Start listing now</NavLink></div></Pages.Response>} />
+						<Route exact path='/subscription/cancelled' render={() => <Pages.Response code={200} header={'Unsubscribed!'} message={'We hate to see you go. Please take a moment and give M-ploy a rating.'}><div className='d-flex-center-center'><ReviewMploy /></div></Pages.Response>} />
 
 						<Route exact path='/admin-panel' render={() => <Admin.Admin><Admin.AdminOverview user={this.props.user} /></Admin.Admin>} />
 						<Route exact path='/admin-panel/sectors' render={() => <Admin.Admin><Admin.AdminSectors user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />

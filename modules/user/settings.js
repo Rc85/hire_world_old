@@ -2,31 +2,26 @@ const app = require('express').Router();
 const db = require('../db');
 const bcrypt = require('bcrypt');
 const error = require('../utils/error-handler');
+const validate = require('../utils/validate');
 
 app.post('/api/user/settings/profile/save', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
             if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
-
-            let businessNameCheck = /^(\w|\d|\s(?!\s)|,|\.|\/|\?|;|'|\[|\]|!|@|#|\$|%|\^|&|\*|\(|\)|_|\+|-|=|{|}|:|"){1,40}$/;
-            let addressCheck = /^(\w|\d|\s(?!\s)|,|\.|\/|\?|;|'|\[|\]|!|@|#|\$|%|\^|&|\*|\(|\)|_|\+|-|=|{|}|:|"){1,300}$/;
-            let cityCodeCheck = /^([0-9]{1,5}|[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}(\s)?[0-9]{1}[a-zA-Z]{1}[0-9]{1})$/;
-            let phoneCheck = /^(\+1)?(\s)?([0-9]{1,15}|(\()?[0-9]{3}(\))?(\s|\-)?([0-9]{7,12}|[0-9]{3}(\s|\-)?[0-9]{4,9}))$/;
-            let locationCheck = /^[a-zA-Z0-9À-ž,'().\-\s]*$/;
-
-            if (req.body.businessName && !businessNameCheck.test(req.body.businessName)) {
+            
+            if (req.body.businessName && !validate.businessNameCheck.test(req.body.businessName)) {
                 resp.send({status: 'error', statusMessage: 'Business name too long or has invalid characters'});
-            } else if (req.body.address && !addressCheck.test(req.body.address)) {
+            } else if (req.body.address && !validate.addressCheck.test(req.body.address)) {
                 resp.send({status: 'error', statusMessage: 'Address too long or has invalid characters'});
-            } else if (req.body.phone && !phoneCheck.test(req.body.phone)) {
+            } else if (req.body.phone && !validate.phoneCheck.test(req.body.phone)) {
                 resp.send({status: 'error', statusMessage: 'Phone number too long or invalid format'});
-            } else if (req.body.code && !cityCodeCheck.test(req.body.code)) {
+            } else if (req.body.code && !validate.cityCodeCheck.test(req.body.code)) {
                 resp.send({status: 'error', statusMessage: 'Invalid city code format'});
-            } else if (req.body.country && !locationCheck.test(req.body.country)) {
+            } else if (req.body.country && !validate.locationCheck.test(req.body.country)) {
                 resp.send({status: 'error', statusMessage: 'Invalid character(s) in country'});
-            } else if (req.body.region && !locationCheck.test(req.body.region)) {
+            } else if (req.body.region && !validate.locationCheck.test(req.body.region)) {
                 resp.send({status: 'error', statusMessage: 'Invalid character(s) in region'});
-            } else if (req.body.city && !locationCheck.test(req.body.city)) {
+            } else if (req.body.city && !validate.locationCheck.test(req.body.city)) {
                 resp.send({status: 'error', statusMessage: 'Invalid character(s) in city'});
             } else {
                 (async() => {

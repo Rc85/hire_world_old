@@ -4,6 +4,8 @@ const path = require('path');
 const app = require('express').Router();
 const db = require('../db');
 const error = require('../utils/error-handler');
+const stripe = require('stripe')(process.env.STRIPE_TEST_KEY);
+const validate = require('../utils/validate');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -12,7 +14,7 @@ const storage = multer.diskStorage({
         if (fs.existsSync(dir)) {
             cb(null, dir);
         } else {
-            return cb(new Error('DIR_NOT_EXIST'));
+            return cb(new Error('Directory does not exist'));
         }
     },
     filename: (req, file, cb) => {
@@ -43,51 +45,84 @@ const upload = multer({
                     })
                 }
             } else {
-                return cb(new Error('FILE_SIZE_EXCEEDED'));
+                return cb(new Error('File size exceeded'));
             }
         } else {
-            return cb(new Error('INVALID_FILE_TYPE'));
+            return cb(new Error('Invalid file type'));
         }
     }
 });
 
-app.post('/api/user/profile-pic/upload', upload.single('profile_pic'), (req, resp) => {
+app.post('/api/user/profile-pic/upload', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
             if (err) error.log({err: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
-            let filePath = `/${req.file.destination.substring(2)}/profile_pic.jpg`;
+            let uploadProfilePic = upload.single('profile_pic');
 
-            (async() => {
-                try {
-                    await client.query('BEGIN');
-                    await client.query(`UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2`, [filePath, req.session.user.user_id]);
+            uploadProfilePic(req, resp, err => {
+                if (err) {
+                    resp.send({status: 'error', statusMessage: err.message});
+                } else {
+                    let filePath = `/${req.file.destination.substring(2)}/profile_pic.jpg`;
 
-                    let user = await client.query(`SELECT users.username, users.user_email, users.user_last_login, user_profiles.* FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id WHERE user_id = $1`, [req.session.user.user_id]);
+                    (async() => {
+                        try {
+                            await client.query('BEGIN');
+                            await client.query(`UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2`, [filePath, req.session.user.user_id]);
 
-                    await client.query('COMMIt')
-                    .then(() => resp.send({status: 'success', user: user.rows[0]}));
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                    throw e;
-                } finally {
-                    done();
+                            let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
+
+                            delete user.rows[0].user_password;
+                            delete user.rows[0].user_level;
+
+                            if (user.rows[0].hide_email) {
+                                delete user.rows[0].user_email;
+                            }
+
+                            if (!user.rows[0].display_fullname) {
+                                delete user.rows[0].user_firstname;
+                                delete user.rows[0].user_lastname;
+                            }
+
+                            await client.query('COMMIt')
+                            .then(() => resp.send({status: 'success', user: user.rows[0]}));
+                        } catch (e) {
+                            await client.query('ROLLBACK');
+                            throw e;
+                        } finally {
+                            done();
+                        }
+                    })()
+                    .catch(err => {
+                        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}, (type) => {
+                            resp.send({status: type, statusMessage: err.message});
+                        });
+                    });
                 }
-            })()
-            .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
     }
 });
 
-app.post('/api/user/profile-pic/delete', (req, resp) => {
+app.post('/api/user/profile-pic/delete', async(req, resp) => {
     if (req.session.user) {
-        db.query('UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2 RETURNING *', ['/src/images/profile.png', req.session.user.user_id])
+        await db.query('UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2', ['/images/profile.png', req.session.user.user_id]);
+
+        await db.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id])
         .then(result => {
             if (result !== undefined && result.rowCount === 1) {
-                req.session.user.avatar_url = result.rows[0].avatar_url;
+                delete result.rows[0].user_password;
+                delete result.rows[0].user_level;
+
+                if (result.rows[0].hide_email) {
+                    delete result.rows[0].user_email;
+                }
+
+                if (!result.rows[0].display_fullname) {
+                    delete result.rows[0].user_firstname;
+                    delete result.rows[0].user_lastname;
+                }
 
                 resp.send({status: 'success', user: result.rows[0]});
             } else if (result.rowCount === 0) {
@@ -237,6 +272,221 @@ app.post('/api/user/notifications/viewed', async(req, resp) => {
             error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
             resp.send({status: 'error'});
         });
+    }
+});
+
+app.post('/api/user/payment/submit', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+
+            (async() => {
+                try {
+                    if (!req.body.defaultAddress) {
+                        if (req.body.country && !validate.locationCheck.test(req.body.country)) {
+                            let error = new Error('Country is required');
+                            error.type = 'CUSTOM';
+                            throw error;
+                        } else if (req.body.region && !validate.locationCheck.test(req.body.region)) {
+                            let error = new Error('Region is required');
+                            error.type = 'CUSTOM';
+                            throw error;
+                        } else if (req.body.city && !validate.locationCheck.test(req.body.city)) {
+                            let error = new Error('City is required');
+                            error.type = 'CUSTOM';
+                            throw error;
+                        } else if (req.body.name && !validate.fullNameCheck.test(req.body.name)) {
+                            let error = new Error('Name is required');
+                            error.type = 'CUSTOM';
+                            throw error;
+                        } else if (req.body.cityCode && !validate.cityCodeCheck.test(req.body.cityCode)) {
+                            let error = new Error('Postal/Zip code is required');
+                            error.type = 'CUSTOM';
+                            throw error;
+                        }
+                    }
+                
+                    await client.query('BEGIN');
+
+                    let address, city, region, country, cityCode;
+
+                    let user = await client.query(`SELECT * FROM users
+                    LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+                    WHERE username = $1`, [req.session.user.username]);
+
+                    if (req.body.defaultAddress) {
+                        if (user.rows[0].user_address) {
+                            address = user.rows[0].user_address;
+                        } else {
+                            let error = new Error('Address is not set');
+                            error.type = 'CUSTOM';
+                            throw error;
+                        }
+
+                        if (user.rows[0].user_city) {
+                            city = user.rows[0].user_city;
+                        } else {
+                            let error = new Error('City is not set');
+                            error.type = 'CUSTOM';
+                            throw error;
+                        }
+
+                        if (user.rows[0].user_region) {
+                            region = user.rows[0].user_region;
+                        } else {
+                            let error = new Error('State/Province is not set');
+                            error.type = 'CUSTOM';
+                            throw error;
+                        }
+
+                        if (user.rows[0].user_country) {
+                            country = user.rows[0].user_country;
+                        } else {
+                            let error = new Error('Country is not set');
+                            error.type = 'CUSTOM';
+                            throw error;
+                        }
+
+                        if (user.rows[0].user_city_code) {
+                            cityCode = user.rows[0].user_city_code;
+                        } else {
+                            let error = new Error('Postal/Zip Code not set');
+                            error.type = 'CUSTOM';
+                            throw error;
+                        }
+                    } else {
+                        address = req.body.address;
+                        city = req.body.city;
+                        region = req.body.region;
+                        country = req.body.country;
+                        cityCode = req.body.cityCode;
+
+                        if (req.body.saveAddress) {
+                            await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [address, city, region, country, cityCode, req.session.user.user_id]);
+                        }
+                    }
+
+                    let customer, subscription;
+
+                    if (user.rows[0].stripe_cust_id) {
+                        await stripe.customers.update(user.rows[0].stripe_cust_id, {
+                            source: req.body.token.id,
+                            shipping: {
+                                name: req.body.name,
+                                address: {
+                                    line1: address,
+                                    city: city,
+                                    country: country,
+                                    postal_code: cityCode,
+                                    state: region
+                                }
+                            }
+                        });
+
+                        if (!user.rows[0].is_subscribed) {
+                            let subscriptionParams = {
+                                customer: user.rows[0].stripe_cust_id,
+                                items: [{plan: req.body.plan}]
+                            }
+
+                            let now = new Date();
+
+                            if (user.rows[0].subscription_end_date > now) {
+                                subscriptionParams['trial_period_days'] = now + user.rows[0].subscription_end_date;
+                               
+                                console.log(user.rows[0].subscription_end_date > now);
+                                console.log(now + user.rows[0].subscription_end_date);
+                            }
+
+                            subscription = await stripe.subscriptions.create(subscriptionParams);
+                        }
+                    } else {
+                        customer = await stripe.customers.create({
+                            email: user.rows[0].user_email,
+                            source: req.body.token.id,
+                            shipping: {
+                                name: req.body.name,
+                                address: {
+                                    line1: address,
+                                    city: city,
+                                    country: country,
+                                    postal_code: cityCode,
+                                    state: region
+                                }
+                            }
+                        });
+
+                        let accountType;
+
+                        if (req.body.plan === 'plan_EAIyF94Yhy1BLB') {
+                            accountType = 'Listing';
+                        }
+
+                        subscription = await stripe.subscriptions.create({
+                            customer: customer.id,
+                            items: [{plan: req.body.plan}]
+                        });
+
+                        await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_cust_id = $1, subscription_id = $4, subscription_end_date = current_timestamp + interval '32' day WHERE username = $2`, [customer.id, req.session.user.username, accountType, subscription.id]);
+
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success'}));
+                    }
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                
+                let message = 'An error occurred';
+
+                if (err.type === 'CUSTOM') {
+                    message = err.message;
+                }
+
+                resp.send({status: 'error', statusMessage: message});
+            });
+        });
+    }
+});
+
+app.post('/api/user/subscription/cancel', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let subscriptionId = await client.query('SELECT subscription_id FROM users WHERE username = $1', [req.session.user.username]);
+
+                    let subscription = await stripe.subscriptions.del(subscriptionId.rows[0].subscription_id);
+
+                    if (subscription.status === 'canceled') {
+                        await client.query(`UPDATE users SET account_type = 'User', is_subscribed = false, subscription_id = null WHERE username = $1`, [req.session.user.username]);
+                    }
+
+                    await client.query('COMMIT')
+                    .then(() => resp.send({status: 'success'}));
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
+        });
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
     }
 });
 

@@ -146,11 +146,13 @@
     padding: 20px;
 }
 
-.theme-highlight { color: $theme-highlight }
-.theme-bg { color: $theme-bg }
-.theme-darkgrey { color: $theme-darkgrey }
-.theme-orange { color: $theme-orange }
-.theme-orange-bg { background: $theme-orange }
-.theme-medgrey { color: $theme-medgrey }
+.theme-highlight { color: $theme-highlight; }
+.theme-bg { color: $theme-bg; }
+.theme-darkgrey { color: $theme-darkgrey; }
+.theme-orange { color: $theme-orange; }
+.theme-orange-bg { background: $theme-orange; }
+.theme-lightgrey-bg { background: $theme-lightgrey; }
+.theme-medgrey { color: $theme-medgrey; }
+.theme-medgrey-bg { background: $theme-medgrey; }
 
 .modal-container { max-width: 50% }

@@ -36,7 +36,6 @@ class BusinessHoursSettings extends Component {
     componentDidMount() {
         fetch.get('/api/get/business_hours')
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.initialState = splitHours(resp.data.hours);
 

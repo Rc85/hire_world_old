@@ -17,8 +17,8 @@ class ConfirmMessage extends Component {
         let alertClass = this.props.type;
 
         let buttons = <div className='mb-3'>
-            <button className='btn btn-success mr-1' onClick={() => this.props.approve()}>Approve</button>
-            <button className='btn btn-danger' onClick={() => {
+            <button id='confirm-message-approve-button' className='btn btn-success mr-1' onClick={() => this.props.approve()}>Approve</button>
+            <button id='confirm-message-decline-button' className='btn btn-danger' onClick={() => {
                 if (this.props.prompt) {
                     this.setState({decline: true});
                 } else {
@@ -32,15 +32,15 @@ class ConfirmMessage extends Component {
         }
 
         if (this.props.job.job_user_complete === false && this.props.job.job_client_complete === false) {
-            buttons = <div className='text-center'><strong><em>You declined the request.</em></strong></div>;
+            buttons = <div id='confirm-message-declined-message' className='text-center'><strong><em>You declined the request.</em></strong></div>;
             alertClass = 'warning';
         } else if (this.props.job.job_user_complete && this.props.job.job_client_complete) {
-            buttons = <div className='text-center'><strong><em>You approved the request.</em></strong></div>;
+            buttons = <div id='confirm-message-approved-message' className='text-center'><strong><em>You approved the request.</em></strong></div>;
             alertClass = 'success';
         }
 
         if (this.state.decline) {
-            declineMessageInput = <div className='mb-3'>
+            declineMessageInput = <div id='confirm-message-reason-input' className='mb-3'>
                 <textarea rows='3' className='form-control w-100 mb-1' onChange={(e) => this.setState({declineMessage: e.target.value})} placeholder={`Briefly describe the reason why you are declining the other party's request.`}></textarea>
                 <div className='text-right'>
                     <button className='btn btn-primary mr-1' onClick={() => {

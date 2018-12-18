@@ -5,11 +5,11 @@ import fetch from 'axios';
 import Loading from '../../utils/Loading';
 import { Alert } from '../../../actions/AlertActions';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Redirect } from 'react-router-dom';
 import { UncontrolledTooltip } from 'reactstrap';
 import moment from 'moment';
 import { LogError } from '../../utils/LogError';
-import { GetSectors } from '../../../actions/FetchActions';
+import { GetSectors, GetSession } from '../../../actions/FetchActions';
 
 class ListSettings extends Component {
     constructor(props) {
@@ -82,53 +82,11 @@ class ListSettings extends Component {
         .catch(err => LogError(err, '/api/get/listing'));
     }
     
-    /* createListing() {
-        let blankCheck = /^\s*$/;
-
-        if (blankCheck.test(this.state.newSettings.listing_sector)) {
-            this.props.dispatch(Alert('error', 'Sector required'));
-        } else if (blankCheck.test(this.state.newSettings.listing_price)) {
-            this.props.dispatch(Alert('error', 'Asking price required'));
-        } else if (blankCheck.test(this.state.newSettings.listing_price_currency)) {
-            this.props.dispatch(Alert('error', 'Preferred currency required'));
-        } else if (blankCheck.test(this.state.newSettings.listing_title)) {
-            this.props.dispatch(Alert('error', 'Title required'));
-        } else {
-            this.setState({status: 'Loading'});
-
-            fetch.post('/api/listing/create', this.state.newSettings)
-            .then(resp => {
-                if (resp.data.status === 'success') {
-                    this.initialSettings = {
-                        listing_id: resp.data.listing.listing_id,
-                        listing_renewed_date: resp.data.listing.listing_renewed_date,
-                        listing_created_date: resp.data.listing.listing_created_date,
-                        listing_sector: resp.data.listing.listing_sector,
-                        listing_price: resp.data.listing.listing_price,
-                        listing_price_type: resp.data.listing.listing_price_type,
-                        listing_price_currency: resp.data.listing.listing_price_currency,
-                        listing_negotiable: resp.data.listing.listing_negotiable,
-                        listing_detail: resp.data.listing.listing_detail,
-                        listing_status: resp.data.listing.listing_status
-                    }
-
-                    this.setState({status: '', initialSettings: this.initialSettings, newSettings: this.initialSettings});
-                } else if (resp.data.status === 'error') {
-                    this.setState({status: ''});
-                }
-
-                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-            })
-            .catch(err => LogError(err, '/api/listing/create'));
-        }
-    } */
-
     toggleListing() {
         this.setState({status: 'Loading'});
 
         fetch.post('/api/listing/toggle', this.state.newSettings)
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.initialSettings = resp.data.listing;
 
@@ -141,35 +99,6 @@ class ListSettings extends Component {
         })
         .catch(err => LogError(err, '/api/listing/toggle'));
     }
-
-    /* updateListing() {
-        this.setState({status: 'Loading'});
-
-        fetch.post('/api/listing/edit', this.state.newSettings)
-        .then(resp => {
-            if (resp.data.status === 'success') {
-                this.initialSettings = {
-                    listing_id: resp.data.listing.listing_id,
-                    listing_renewed_date: resp.data.listing.listing_renewed_date,
-                    listing_created_date: resp.data.listing.listing_created_date,
-                    listing_sector: resp.data.listing.listing_sector,
-                    listing_price: resp.data.listing.listing_price,
-                    listing_price_type: resp.data.listing.listing_price_type,
-                    listing_price_currency: resp.data.listing.listing_price_currency,
-                    listing_negotiable: resp.data.listing.listing_negotiable,
-                    listing_detail: resp.data.listing.listing_detail,
-                    listing_status: resp.data.listing.listing_status
-                }
-
-                this.setState({status: '', initialSettings: this.initialSettings, newSettings: this.initialSettings});
-            } else if (resp.data.status === 'error') {
-                this.setState({status: ''});
-            }
-            
-            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-        })
-        .catch(err => LogError(err, '/api/listing/edit'));
-    } */
 
     renewListing() {
         this.setState({status: 'Loading'});
@@ -185,6 +114,22 @@ class ListSettings extends Component {
         .catch(err => LogError(err, '/api/listing/renew'));
     }
 
+    cancelSubscription() {
+        this.setSettings({status: 'Loading'});
+
+        fetch.post('/api/user/subscription/cancel')
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({status: 'Unsubscribed'});
+                this.props.dispatch(GetSession());
+            } else if (resp.data.status === 'error') {
+                this.setSettings({status: ''});
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+        })
+        .catch(err => LogError(err, '/api/user/subscription/cancel'));
+    }
+
     setSettings(k, v) {
         let obj = {};
         obj[k] = v;
@@ -198,6 +143,8 @@ class ListSettings extends Component {
 
         if (this.state.status === 'Loading') {
             status = <Loading size='7x' />;
+        } else if (this.state.status === 'Unsubscribed') {
+            return <Redirect to='/subscription/cancelled' />;
         }
 
         if (this.props.sectors) {
@@ -209,6 +156,8 @@ class ListSettings extends Component {
         if (this.state.initialSettings.listing_created_date) {
             let now = new Date();
             let lastRenew = new Date(this.state.initialSettings.listing_renewed_date);
+
+            console.log(this.state.initialSettings.listing_renewed_date)
 
             renewButton = <React.Fragment>
                 <button id='renew-button' className='btn btn-primary ml-1' onClick={() => this.renewListing()} disabled={now - lastRenew < 8.64e+7}>Renew</button>
@@ -226,11 +175,13 @@ class ListSettings extends Component {
                     <div className='d-flex-between-center'>
                         <SlideToggle status={this.state.initialSettings.listing_status === 'Active'} onClick={() => this.toggleListing()} />
                         {renewButton}
+                        <button id='unsubscribe-listing-button' className='btn btn-danger ml-1' onClick={() => this.cancelSubscription()}>Unsubscribe</button>
+                        <UncontrolledTooltip placement='top' target='unsubscribe-listing-button'>Cancel your listing subscription</UncontrolledTooltip>
                     </div>
                 </div>
 
                 <div className='mb-3'>
-                    <label htmlFor='listing-title'>List Title: <span className='require-asterisk'>*</span></label>
+                    <label htmlFor='listing-title'>List Title: <span className='required-asterisk'>*</span></label>
                     <input type='text' name='title' id='listing-title' className='form-control' onChange={(e) => this.setSettings('listing_title', e.target.value)} defaultValue={this.state.newSettings.listing_title} disabled={this.state.initialSettings.listing_status === 'Active'} />
                 </div>
 

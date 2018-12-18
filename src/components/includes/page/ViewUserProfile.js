@@ -43,7 +43,7 @@ const ViewUserProfile = props => {
                 <div>
                     {props.stats.user_last_login ?
                     <div className='d-flex-between-center'>
-                        <div className='mr-2'><strong>Last Login</strong></div>
+                        <div className='mr-2'><strong>Last Login:</strong></div>
                         {moment(props.stats.user_last_login).format('MM-DD-YY @ hh:mm A')}
                     </div> : ''}
                 </div>

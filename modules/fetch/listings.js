@@ -22,7 +22,7 @@ app.post('/api/get/listing', async(req, resp) => {
 });
 
 app.post('/api/get/listings', async(req, resp) => {
-    await db.query(`SELECT user_listings.*, user_profiles.user_title, user_reviews.rating, jobs.job_complete FROM user_listings
+    await db.query(`SELECT user_listings.*, user_profiles.user_title, user_reviews.rating, jobs.job_complete, user_profiles.avatar_url FROM user_listings
     LEFT JOIN users ON users.username = user_listings.listing_user
     LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
     LEFT JOIN

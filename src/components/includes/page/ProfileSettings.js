@@ -100,7 +100,12 @@ class ProfileSettings extends Component {
                 <div className='d-flex-between-start'>
                     <div className='w-30 mb-3'>
                         <label htmlFor='country'>Country:</label>
-                        <CountryDropdown value={this.state.settings.country} onChange={(val) => this.setSettings({country: val})} classes='form-control' />
+                        <select name='country' id='country' className='form-control' onChange={(e) => this.setSettings({country: e.target.value})} defaultValue={this.initialSettings.country}>
+                            <option value=''>Select Country</option>
+                            <option value='Canada'>Canada</option>
+                            <option value='Mexico'>Mexico</option>
+                            <option value='United States'>United States</option>
+                        </select>
                     </div>
 
                     <div className='w-30 mb-3'>

@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
 import UserInfo from '../includes/page/UserInfo';
-import UserDetails from '../includes/page/UserDetails';
 import { NavLink } from 'react-router-dom';
 import UserProfilePic from '../includes/page/UserProfilePic';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import UserTitle from '../includes/page/UserTitle';
-import { GetSession } from '../../actions/FetchActions';
 import ListSettings from '../includes/page/ListSettings';
+import { Elements, StripeProvider } from 'react-stripe-elements';
+import Checkout from '../includes/page/Checkout';
+import paymentMethod from '../../../dist/images/payment_methods.png';
+import poweredByStripe from '../../../dist/images/powered_by_stripe.png';
 
-class EditUser extends Component {   
+class EditUser extends Component {
     render() {
         let userEducationStatus, userGithubStatus, userTwitterStatus, userFacebookStatus, userLinkedInStatus, userWebsiteStatus, userInstagramStatus, fullName, businessName, email, phone, address;
 
@@ -99,6 +101,23 @@ class EditUser extends Component {
             }
         }
 
+        let payment = <StripeProvider apiKey='pk_test_KgwS8DEnH46HAFvrCaoXPY6R'>
+            <div id='payment-input'>
+                <div className='d-flex-between-center'>
+                    <div className='w-50'>To begin listing, you need to subscribe to a monthly plan.</div>
+
+                    <div className='text-right w-50'>
+                        <img src={poweredByStripe} className='w-25' />
+                        <img src={paymentMethod} className='w-25' />
+                    </div>
+                </div>
+
+                <Elements>
+                    <Checkout user={this.props.user.user} />
+                </Elements>
+            </div>
+        </StripeProvider>;
+
         return(
             <section id='edit-user' className='blue-panel shallow three-rounded'>
                 <div className='row'>
@@ -136,7 +155,7 @@ class EditUser extends Component {
 
                         <hr/>
 
-                        {this.props.user.user.account_type === 'Listing' ? <ListSettings user={this.props.user} /> : ''}
+                        {this.props.user.user.account_type === 'Listing' ? <ListSettings user={this.props.user} /> : payment}
                     </div>
                 </div>
             </section>

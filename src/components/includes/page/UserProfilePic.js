@@ -29,12 +29,6 @@ class UserProfilePic extends Component {
         }
     }
     
-    shouldComponentUpdate(nextProps, nextState) {
-        console.log(nextProps)
-        console.log(this.props)
-        return true;
-    }
-    
     onDrop(accepted) {
         let data = new FormData();
         data.set('profile_pic', accepted[0]);
@@ -44,11 +38,12 @@ class UserProfilePic extends Component {
         fetch.post('/api/user/profile-pic/upload', data)
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: ''});
                 this.props.dispatch(UpdateUser(resp.data.user));
             } else if (resp.data.status === 'error') {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
+
+            this.setState({status: ''});
         })
         .catch(err => LogError(err, '/api/user/profile-pic/upload'));
     }
@@ -64,13 +59,14 @@ class UserProfilePic extends Component {
         fetch.post('/api/user/profile-pic/delete')
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: ''});
                 this.props.dispatch(UpdateUser(resp.data.user));
             } else if (resp.data.status === 'error') {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
+
+            this.setState({status: ''});
         })
-        .catch(err => LogError(err, '/api/user/profile-pic/delete'));
+        .catch((err) =>  LogError(err, '/api/user/profile-pic/delete'));
     }
 
     render() {

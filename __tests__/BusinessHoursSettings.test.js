@@ -6,7 +6,7 @@ import { MemoryRouter } from 'react-router';
 import Dashboard from '../src/components/pages/Dashboard';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
-import { User } from '../src/actions/__mocks__/LoginActions';
+import { User } from '../__mocks__/userMock';
 import moxios from 'moxios';
 import { createStore, applyMiddleware } from 'redux';
 import { reducers } from '../src/reducers';

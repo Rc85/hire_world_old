@@ -58,7 +58,7 @@ class UserPanel extends Component {
         } else if (this.props.user.status === 'get session fail' || this.props.user.status === 'access error' || this.props.user.status === 'error' || this.props.user.status === 'not logged in') {
             panel = <div className='d-flex-between-center w-50'>
                 <div className='nav-item' title='Login'><NavLink to='/'><FontAwesomeIcon icon={faSignInAlt} size='2x' /></NavLink></div>
-                <div className='nav-item' title='Register'><NavLink to='/account/register'><FontAwesomeIcon icon={faUserPlus} size='2x' /></NavLink></div>
+                <div className='nav-item' title='Register'><a href='/register'><FontAwesomeIcon icon={faUserPlus} size='2x' /></a></div>
             </div>
         } else {
             panel = <div></div>;

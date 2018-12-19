@@ -7,7 +7,7 @@ const session = require('cookie-session');
 const pug = require('pug');
 const path = require('path');
 const server = http.createServer(app);
-const port = 9999;
+const port = 80;
 const db = require('./modules/db');
 const cryptoJS = require('crypto-js');
 const sgMail = require('@sendgrid/mail');
@@ -20,6 +20,7 @@ app.set('views', ['dist', 'dist/inc']);
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+app.use(bodyParser.raw({type: '*/*'}));
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -262,6 +263,8 @@ app.use(require('./modules/admin/errors')); */
     console.log('here');
     resp.sendFile(`${__dirname}/dist/index.html`);
 }); */
+
+app.use(require('./modules/webhook'));
 
 server.listen(port, (err) => {
     if (err) {

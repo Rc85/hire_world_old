@@ -30,22 +30,26 @@ class UserProfilePic extends Component {
     }
     
     onDrop(accepted) {
-        let data = new FormData();
-        data.set('profile_pic', accepted[0]);
+        if (accepted.length === 0) {
+            this.props.dispatch(Alert('error', 'No files were found'));
+        } else {
+            let data = new FormData();
+            data.set('profile_pic', accepted[0]);
 
-        this.setState({status: 'Loading'});
+            this.setState({status: 'Loading'});
 
-        fetch.post('/api/user/profile-pic/upload', data)
-        .then(resp => {
-            if (resp.data.status === 'success') {
-                this.props.dispatch(UpdateUser(resp.data.user));
-            } else if (resp.data.status === 'error') {
-                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-            }
+            fetch.post('/api/user/profile-pic/upload', data)
+            .then(resp => {
+                if (resp.data.status === 'success') {
+                    this.props.dispatch(UpdateUser(resp.data.user));
+                } else if (resp.data.status === 'error') {
+                    this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+                }
 
-            this.setState({status: ''});
-        })
-        .catch(err => LogError(err, '/api/user/profile-pic/upload'));
+                this.setState({status: ''});
+            })
+            .catch(err => LogError(err, '/api/user/profile-pic/upload'));
+        }
     }
 
     confirmDelete() {

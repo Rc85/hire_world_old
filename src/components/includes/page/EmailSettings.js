@@ -5,6 +5,9 @@ import SubmitButton from '../../utils/SubmitButton';
 import { UpdateUser } from '../../../actions/LoginActions';
 import fetch from 'axios';
 import { LogError } from '../../utils/LogError';
+import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { UncontrolledTooltip } from 'reactstrap';
 
 class EmailSettings extends Component {
     constructor(props) {
@@ -40,7 +43,11 @@ class EmailSettings extends Component {
         return(
             <div id='email-settings' className='mb-3'>
                 <div>
-                    <label>Change Email:</label>
+                    <div className='d-flex-between-start'>
+                        <label>Change Email:</label>
+                        <FontAwesomeIcon icon={faQuestionCircle} id='change-email-tip' />
+                        <UncontrolledTooltip placement='top' target='change-email-tip'>Changing your email will require you to re-verify your email</UncontrolledTooltip>
+                        </div>
 
                     <div className='bordered-container rounded mb-3'>
                         <div className='mb-3'>

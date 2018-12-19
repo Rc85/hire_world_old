@@ -9,3 +9,17 @@
         }
     }
 }
+
+@mixin new-component-colors {
+    @each $component in 'button', 'badge', 'border', 'text' {
+        @each $colorName, $color in 
+        (purple, darkviolet),
+        (orange, darkorange),
+        (pink, hotpink) {
+            .#{$component}-#{$colorName} {
+                background-color: $color;
+                color: #FFF;
+            }
+        }
+    }
+}

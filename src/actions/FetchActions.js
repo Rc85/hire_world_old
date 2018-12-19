@@ -81,7 +81,7 @@ export const GetUserNotificationAndMessageCount = () => {
                 dispatch(UpdateUserNotificationAndMessageCount(resp.data.notifications, resp.data.messages));
             }
         })
-        .catch(err => LogError(err, 'api/get/user/notification-and-message-count'));
+        .catch(err => LogError(err, '/api/get/user/notification-and-message-count'));
     }
 }
 

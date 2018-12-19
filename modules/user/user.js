@@ -48,7 +48,7 @@ const upload = multer({
                 return cb(new Error('File size exceeded'));
             }
         } else {
-            return cb(new Error('Invalid file type'));
+            return cb(new Error('Cannot use that file'));
         }
     }
 });
@@ -64,11 +64,20 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
                 if (err) {
                     resp.send({status: 'error', statusMessage: err.message});
                 } else {
-                    let filePath = `/${req.file.destination.substring(2)}/profile_pic.jpg`;
-
                     (async() => {
                         try {
                             await client.query('BEGIN');
+
+                            let filePath;
+                    
+                            if (req.file) {
+                                filePath = `/${req.file.destination.substring(2)}/profile_pic.jpg`;
+                            } else {
+                                let error = new Error('No file found');
+                                error.type = 'CUSTOM';
+                                throw error;
+                            }
+
                             await client.query(`UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2`, [filePath, req.session.user.user_id]);
 
                             let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
@@ -85,7 +94,7 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
                                 delete user.rows[0].user_lastname;
                             }
 
-                            await client.query('COMMIt')
+                            await client.query('COMMIT')
                             .then(() => resp.send({status: 'success', user: user.rows[0]}));
                         } catch (e) {
                             await client.query('ROLLBACK');
@@ -96,7 +105,7 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
                     })()
                     .catch(err => {
                         error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}, (type) => {
-                            resp.send({status: type, statusMessage: err.message});
+                            resp.send({status: type, statusMessage: err.message, user: user.rows[0]});
                         });
                     });
                 }
@@ -427,7 +436,7 @@ app.post('/api/user/payment/submit', (req, resp) => {
                             items: [{plan: req.body.plan}]
                         });
 
-                        await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_cust_id = $1, subscription_id = $4, subscription_end_date = current_timestamp + interval '32' day WHERE username = $2`, [customer.id, req.session.user.username, accountType, subscription.id]);
+                        await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_cust_id = $1, subscription_id = $4, subscription_end_date = current_timestamp + interval '32 days' WHERE username = $2`, [customer.id, req.session.user.username, accountType, subscription.id]);
 
                         await client.query('COMMIT')
                         .then(() => resp.send({status: 'success'}));

@@ -27,10 +27,12 @@ class Checkout extends Component {
     }
     
     componentWillReceiveProps(nextProps) {
-        if (nextProps.confirm.data.action === 'submit payment' && nextProps.confirm.option) {
-            this.submit();
+        if (nextProps.confirm.data) {
+            if (nextProps.confirm.data.action === 'submit payment' && nextProps.confirm.option) {
+                this.submit();
 
-            this.props.dispatch(ResetConfirmation());
+                this.props.dispatch(ResetConfirmation());
+            }
         }
     }
     

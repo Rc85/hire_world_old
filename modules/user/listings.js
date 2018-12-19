@@ -82,11 +82,11 @@ app.post('/api/listing/toggle', (req, resp) => {
                                 newValue = 'Active';
                             }
 
-                            listing = await client.query(`UPDATE user_listings SET listing_title = $9, listing_sector = $3, listing_price = $4, listing_price_type = $5, listing_price_currency = $6, listing_negotiable = $7, listing_detail = $8, listing_status = $1 WHERE listing_id = $2 RETURNING *`, [newValue, listed.rows[0].listing_id, req.body.listing_sector, req.body.listing_price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_detail, req.body.listing_title]);
+                            listing = await client.query(`UPDATE user_listings SET listing_title = $9, listing_sector = $3, listing_price = $4, listing_price_type = $5, listing_price_currency = $6, listing_negotiable = $7, listing_detail = $8, listing_status = $1, listing_purpose = $10 WHERE listing_id = $2 RETURNING *`, [newValue, listed.rows[0].listing_id, req.body.listing_sector, req.body.listing_price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_detail, req.body.listing_title, req.body.listing_purpose]);
                         } else if (listed && listed.rows.length === 0) {
                             let listingEndDate = await client.query(`SELECT subscription_end_date FROM users WHERE username = $1`, [req.session.user.username]);
 
-                            listing = await client.query(`INSERT INTO user_listings (listing_title, listing_user, listing_sector, listing_price, listing_price_type, listing_price_currency, listing_negotiable, listing_detail, listing_end_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`, [req.body.listing_title, req.session.user.username, req.body.listing_sector, req.body.listing_price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_detail, listingEndDate.rows[0].subscription_end_date]);
+                            listing = await client.query(`INSERT INTO user_listings (listing_title, listing_user, listing_sector, listing_price, listing_price_type, listing_price_currency, listing_negotiable, listing_detail, listing_end_date, listing_purpose) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`, [req.body.listing_title, req.session.user.username, req.body.listing_sector, req.body.listing_price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_detail, listingEndDate.rows[0].subscription_end_date, req.body.listing_purpose]);
                         }
 
                         await client.query('COMMIT')

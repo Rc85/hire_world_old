@@ -61,7 +61,7 @@ class UserSettings extends Component {
                         </div>
 
                         <div className='d-flex-between-center mb-3'>
-                            <label htmlFor='emailNotifications'>Enable email notifications: <FontAwesomeIcon icon={faQuestionCircle} id='email-notification-tips' /><UncontrolledTooltip placement='top' target='email-notification-tips'>You will receive email when you receive new messages and when your account is banned.</UncontrolledTooltip></label>
+                            <label htmlFor='emailNotifications'>Email notifications: <FontAwesomeIcon icon={faQuestionCircle} id='email-notification-tips' /><UncontrolledTooltip placement='top' target='email-notification-tips'>You will receive email when you have new messages and when there are changes to your account.</UncontrolledTooltip></label>
 
                             <SlideToggle status={this.props.user.user ? this.props.user.user.email_notifications : false} id='emailNotifications' onClick={() => this.saveSetting('email_notifications')} />
                         </div>

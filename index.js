@@ -7,11 +7,11 @@ const session = require('cookie-session');
 const pug = require('pug');
 const path = require('path');
 const server = http.createServer(app);
-const port = 80;
 const db = require('./modules/db');
 const cryptoJS = require('crypto-js');
 const sgMail = require('@sendgrid/mail');
 const error = require('./modules/utils/error-handler');
+let port = process.env.NODE_ENV === 'development' ? process.env.DEV_PORT : process.env.PORT;
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -38,7 +38,7 @@ app.use('/styles', express.static('dist/css'));
 app.use('/user_files', express.static(`user_files`))
 app.use('/images', express.static('dist/images'));
 
-app.use(/^\/mploy\/(?!admin-panel).*/, async(req, resp, next) => {
+app.use(/^\/app\/(?!admin-panel).*/, async(req, resp, next) => {
     let status = await db.query(`SELECT config_status FROM site_configs WHERE config_name = 'Site'`);
 
     if (status.rows[0].config_status === 'Active') {
@@ -148,11 +148,11 @@ app.post('/resend', async(req, resp) => {
 
         let message = {
             to: req.body.email,
-            from: 'support@m-ploy.org',
+            from: 'support@m-ploy.ca',
             subject: 'Welcome to Mploy',
             templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
             dynamicTemplateData: {
-                url: 'localhost:9999',
+                url: process.env.NODE_ENV === 'development' ? `${process.env.DEV_SITE_URL}` : `${process.env.SITE_URL}`,
                 regkey: registrationKey
             },
             trackingSettings: {
@@ -209,7 +209,7 @@ app.post('/api/site/review', (req, resp) => {
     });
 });
 
-app.get(/^\/(m-ploy|m-ploy(\/)?.*)?/, (req, resp) => {
+app.get(/^\/(app|app(\/)?.*)?/, (req, resp) => {
     resp.sendFile(__dirname + '/dist/app.html');
 });
 
@@ -264,7 +264,7 @@ app.use(require('./modules/admin/errors')); */
     resp.sendFile(`${__dirname}/dist/index.html`);
 }); */
 
-app.use(require('./modules/webhook'));
+app.use(require('./modules/webhooks'));
 
 server.listen(port, (err) => {
     if (err) {

@@ -2,17 +2,19 @@ $(document).ready(function() {
     $('#register-form').on('submit', function(e) {
         e.preventDefault();
 
+        $('#register-button').attr('disabled', true).html(`<i class='fas fa-circle-notch fa-spin fa-lg text-white'></i>`);
+
         $.post({
             url: '/api/auth/register',
             data: $(this).serialize(),
             success: resp => {
-                console.log(resp);
                 if (resp.status === 'success') {
                     location.href = '/register/success';
                 } else if (resp.status === 'error') {
                     let error = $('<div>').attr('id', 'alert').addClass('alert-error').css({'position': 'absolute', 'bottom': '10px', 'left': '10px'}).text(resp.statusMessage);
 
                     $('#main-panel').append(error);
+                    $('#register-button').attr('disabled', false).html('Submit');
 
                     setTimeout(function() {
                         error.remove();

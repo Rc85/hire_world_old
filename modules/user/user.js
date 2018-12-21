@@ -4,7 +4,7 @@ const path = require('path');
 const app = require('express').Router();
 const db = require('../db');
 const error = require('../utils/error-handler');
-const stripe = require('stripe')(process.env.STRIPE_TEST_KEY);
+const stripe = require('stripe')(process.env.NODE_ENV === 'development' ? process.env.DEV_STRIPE_API_KEY : process.env.STRIPE_API_KEY);
 const validate = require('../utils/validate');
 
 const storage = multer.diskStorage({

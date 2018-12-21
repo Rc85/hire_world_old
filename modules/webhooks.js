@@ -1,13 +1,12 @@
 const app = require('express').Router();
 const db = require('./db');
-const stripe = require('stripe')(process.env.STRIPE_TEST_KEY);
+const stripe = require('stripe')(process.env.NODE_ENV === 'development' ? process.env.DEV_STRIPE_API_KEY : process.env.STRIPE_API_KEY);
 
 app.post('/api/subscription/renew', async(req, resp) => {
-    const webhookKey = process.env.STRIPE_RENEW_WEBHOOK_KEY;
     let sig = req.headers['stripe-signature'];
 
     try {
-        let event = stripe.webhooks.constructEvent(req.body, sig, webhookKey);
+        let event = stripe.webhooks.constructEvent(req.body, sig, process.env.NODE_ENV === 'development' ? process.env.DEV_STRIPE_RENEW_WEBHOOK_KEY : process.env.STRIPE_RENEW_WEBHOOK_KEY);
 
         if (event.data.object.paid) {
             resp.json({received: true});

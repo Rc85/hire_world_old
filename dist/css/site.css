@@ -5734,8 +5734,9 @@ readers do not read off random characters that represent icons */
 #main-section {
   background-image: url("/images/main.jpg");
   background-repeat: no-repeat;
-  background-size: 100% auto;
+  background-size: cover;
   background-color: #FCFCFC;
+  background-position: top right;
   display: flex;
   align-items: stretch;
   padding: 30px;

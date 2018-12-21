@@ -64,11 +64,11 @@ app.post('/api/auth/register', (req, resp) => {
 
                                         let message = {
                                             to: req.body.email,
-                                            from: 'support@m-ploy.org',
+                                            from: 'support@m-ploy.ca',
                                             subject: 'Welcome to Mploy',
                                             templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
                                             dynamicTemplateData: {
-                                                url: 'localhost:9999',
+                                                url: process.env.NODE_ENV === 'development' ? `${process.env.DEV_SITE_URL}` : `${process.env.SITE_URL}`,
                                                 regkey: registrationKey
                                             },
                                             trackingSettings: {

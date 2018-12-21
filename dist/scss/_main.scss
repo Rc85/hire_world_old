@@ -12,8 +12,9 @@
 #main-section {
     background-image: url('/images/main.jpg');
     background-repeat: no-repeat;
-    background-size: 100% auto;
+    background-size: cover;
     background-color: $not-white;
+    background-position: top right;
     display: flex;
     align-items: stretch;
     padding: 30px;

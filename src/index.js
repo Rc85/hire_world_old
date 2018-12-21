@@ -18,7 +18,7 @@ store.subscribe(() => { console.log(store.getState()) });
 
 ReactDOM.render(
     <Provider store={store}>
-        <Router exact basename='/mploy'>
+        <Router exact basename='/app'>
             <App />
         </Router>
     </Provider>,

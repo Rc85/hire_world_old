@@ -69,7 +69,7 @@ class ListSettings extends Component {
         fetch.post('/api/listing/toggle', this.state)
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', listing_status: resp.data.listing_status});
+                this.setState({status: '', listing_status: resp.data.listing.listing_status});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));

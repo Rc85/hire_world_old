@@ -18,7 +18,9 @@ const storage = multer.diskStorage({
         }
     },
     filename: (req, file, cb) => {
-        cb(null, `profile_pic.jpg`);
+        let fileHash = Date.now();
+
+        cb(null, `profile_pic_${fileHash}.jpg`);
     }
 });
 
@@ -32,18 +34,28 @@ const upload = multer({
         let extCheck = /.(jpg|jpeg|png|gif)$/;
         let filesize = parseInt(req.headers['content-length']);
         let dir = `./user_files/${req.session.user.user_id}`;
+        let filenameCheck = /^profile_pic/;
 
         if (extCheck.test(extension)) {
             if (filesize < 2000000) {
-                if (fs.existsSync(dir)) {
-                    cb(null, true);
-                } else {
+                if (!fs.existsSync(dir)) {
                     fs.mkdir(dir, (err) => {
                         if (err) error.log({name: err.name, message: err.message, origin: 'fs Creating Directory', url: req.url});
-
-                        return cb(null, true);
-                    })
+                    });
                 }
+
+                fs.readdir(dir, (err, files) => {
+                    if (err) error.log({name: err.name, message: err.message, origin: 'fs Reading Directory', url: req.url});
+
+                    for (let file of files) {
+                        console.log(file);
+                        if (file.match(filenameCheck)) {
+                            fs.unlinkSync(`${dir}/${file}`);
+                        }
+                    }
+                });
+
+                cb(null, true);
             } else {
                 return cb(new Error('File size exceeded'));
             }
@@ -69,9 +81,11 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
                             await client.query('BEGIN');
 
                             let filePath;
+
+                            console.log(req.file);
                     
                             if (req.file) {
-                                filePath = `/${req.file.destination.substring(2)}/profile_pic.jpg`;
+                                filePath = `/${req.file.destination.substring(2)}/${req.file.filename}`;
                             } else {
                                 let error = new Error('No file found');
                                 error.type = 'CUSTOM';

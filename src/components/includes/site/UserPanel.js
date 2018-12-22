@@ -15,16 +15,20 @@ class UserPanel extends Component {
             showNotification: false
         }
     }
-
+    
     shouldComponentUpdate(nextProps, nextState) {
         if (nextProps.user.status === 'getting session') {
             return false;
-        } else {
-            return true;
         }
+
+        return true;
     }
     
     render() {
+        if (this.props.user.user) {
+        console.log(this.props.user.user.avatar_url);
+        }
+
         let panel, notificationPanel;
 
         if (this.props.user.status === 'get session success') {

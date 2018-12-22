@@ -41,7 +41,6 @@ class SearchListing extends Component {
     }
     
     render() {
-        console.log(this.state)
         return (
             <div className='blue-panel shallow rounded mb-5'>
                 <div className='d-flex-between-start mb-3'>

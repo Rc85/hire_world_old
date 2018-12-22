@@ -93,7 +93,6 @@ class Jobs extends Component {
 
         fetch.post('/api/user/review/submit', {review: review, message, star: star})
         .then(resp => {
-            console.log(resp);
             let jobs = [...this.state.jobs];
             jobs[index] = resp.data.job;
 

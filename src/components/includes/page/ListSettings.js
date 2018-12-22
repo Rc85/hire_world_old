@@ -51,12 +51,10 @@ class ListSettings extends Component {
         fetch.post('/api/get/listing')
         .then(resp => {
             if (resp.data.status === 'success') {
-                if (resp.data.listing) {
-                    let newState = {...this.state, ...resp.data.listing};
-                    newState.status = '';
+                let newState = {...this.state, ...resp.data.listing};
+                newState.status = '';
 
-                    this.setState(newState);
-                }
+                this.setState(newState);
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -70,7 +68,6 @@ class ListSettings extends Component {
 
         fetch.post('/api/listing/toggle', this.state)
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', listing_status: resp.data.listing_status});
             } else if (resp.data.status === 'error') {
@@ -116,7 +113,7 @@ class ListSettings extends Component {
     }
 
     render() {
-        let status, sectors, renewButton;
+        let status, sectors, renewButton, unsubscribeButton;
 
         if (this.state.status === 'Loading') {
             status = <Loading size='7x' />;
@@ -139,6 +136,11 @@ class ListSettings extends Component {
                 <UncontrolledTooltip placement='top' target='renew-button' delay={0}>{now - lastRenew < 8.64e+7 ? <span>You must wait 24 hours from your last renew before you can renew again</span> : <span>Renewing your listing will bring it to the top of the list</span>}</UncontrolledTooltip>
             </React.Fragment>;
         }
+
+        if (this.props.user.user && this.props.user.user.is_subscribed) {
+            unsubscribeButton = <React.Fragment><button id='unsubscribe-listing-button' className='btn btn-danger ml-1' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to unsubscribe?', false, {action: 'unsubscribe'}))}>Unsubscribe</button>
+            <UncontrolledTooltip placement='top' target='unsubscribe-listing-button' delay={0}>Cancel your listing subscription</UncontrolledTooltip></React.Fragment>;
+        }
         
         return(
             <section id='list-settings'>
@@ -150,8 +152,7 @@ class ListSettings extends Component {
                     <div className='d-flex-between-center'>
                         <SlideToggle status={this.state.listing_status === 'Active'} onClick={() => this.toggleListing()} />
                         {renewButton}
-                        <button id='unsubscribe-listing-button' className='btn btn-danger ml-1' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to unsubscribe?', false, {action: 'unsubscribe'}))}>Unsubscribe</button>
-                        <UncontrolledTooltip placement='top' target='unsubscribe-listing-button' delay={0}>Cancel your listing subscription</UncontrolledTooltip>
+                        {unsubscribeButton}
                     </div>
                 </div>
 

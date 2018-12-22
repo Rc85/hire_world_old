@@ -23,7 +23,6 @@ class UserSettings extends Component {
 
        fetch.post(`/api/user/settings/change`, setting)
         .then(resp => {
-            console.log(resp)
             if (resp.data.status === 'success') {
                 this.props.dispatch(UpdateUser(resp.data.user));
 

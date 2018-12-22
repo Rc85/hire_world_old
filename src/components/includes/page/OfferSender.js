@@ -254,14 +254,11 @@ class OfferSender extends Component {
                 let total = 0;
 
                 for (let payment of this.state.payments) {
-                    console.log(payment)
                     total = total + payment;
                 }
 
                 let subtotal = Math.round(total * 100);
                 total = subtotal / 100;
-
-                console.log(total)
 
                 if (total !== this.state.price) {
                     error = true;
@@ -315,7 +312,6 @@ class OfferSender extends Component {
     }
     
     render() {
-        console.log(this.state.payments)
         let fixedSettings, offerTypeSetting, hourlySettings, paymentSettings, deleteButton, paymentType;
 
         if (this.state.offerType === 'Contract Term') {

@@ -9,7 +9,6 @@ import moment from 'moment';
 import UserProfilePic from '../page/UserProfilePic';
 
 const ListingRow = props => {
-    console.log(props.listing)
     let purpose;
 
     const selectRow = () => {

@@ -60,12 +60,12 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
 
             let uploadProfilePic = upload.single('profile_pic');
 
-            uploadProfilePic(req, resp, err => {
-                if (err) {
-                    resp.send({status: 'error', statusMessage: err.message});
-                } else {
-                    (async() => {
-                        try {
+            (async() => {
+                try {
+                    uploadProfilePic(req, resp, async err => {
+                        if (err) {  
+                            throw err;
+                        } else {
                             await client.query('BEGIN');
 
                             let filePath;
@@ -96,19 +96,19 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
 
                             await client.query('COMMIT')
                             .then(() => resp.send({status: 'success', user: user.rows[0]}));
-                        } catch (e) {
-                            await client.query('ROLLBACK');
-                            throw e;
-                        } finally {
-                            done();
                         }
-                    })()
-                    .catch(err => {
-                        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}, (type) => {
-                            resp.send({status: type, statusMessage: err.message, user: user.rows[0]});
-                        });
                     });
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
                 }
+            })()
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}, (type) => {
+                    resp.send({status: type, statusMessage: err.message});
+                });
             });
         });
     }

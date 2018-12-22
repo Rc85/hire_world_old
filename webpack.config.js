@@ -39,14 +39,13 @@ module.exports = {
         },
         historyApiFallback: {
             rewrites: [
-                {from: /\/mploy\/*/, to: '/app.html'}
+                {from: /\/app\/*/, to: '/app.html'}
             ]
         }
     },
     plugins: [
         new htmlWebpackPlugin({
             template: './public/index.html',
-            favicon: './public/favicon.ico',
             filename: 'app.html'
         })
     ]

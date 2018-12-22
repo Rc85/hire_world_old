@@ -630,7 +630,6 @@ class MessageDetails extends Component {
                 });
             }
 
-            console.log(this.state.offer)
             if ((this.state.offer && this.state.job && this.state.job.job_user === this.props.user.user.username) || this.props.match.params.stage !== 'Inquire') {
                 offerConfirmation = <OfferDetails offer={this.state.offer} accept={() => this.props.dispatch(ShowConfirmation('Are you sure you want to accept this offer?', false, {action: 'accept offer'}))} stage={this.props.match.params.stage} show={this.state.showOfferDetail} toggleOfferDetail={() => this.setState({showOfferDetail: !this.state.showOfferDetail})} decline={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to decline this offer?`, false, {action: 'decline offer'}))} />;
             }

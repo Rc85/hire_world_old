@@ -30,6 +30,7 @@ class UserProfilePic extends Component {
     }
     
     onDrop(accepted) {
+        console.log(accepted);
         if (accepted.length === 0) {
             this.props.dispatch(Alert('error', 'No files were found'));
         } else {

@@ -218,7 +218,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
 },
 async(req, resp) => {
     if (req.session.user) {
-        let user = await db.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, users.account_type, user_profiles.*, user_settings.* FROM users
+        let user = await db.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, users.account_type, users.is_subscribed, user_profiles.*, user_settings.* FROM users
         LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
         LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
         WHERE users.user_id = $1`, [req.session.user.user_id]);

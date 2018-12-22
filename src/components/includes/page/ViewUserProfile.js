@@ -9,7 +9,6 @@ import { faCheckCircle, faTimesCircle } from '@fortawesome/free-regular-svg-icon
 import { UncontrolledTooltip } from 'reactstrap';
 
 const ViewUserProfile = props => {
-    console.log(props.user)
     let avatar, bio, name;
 
     if (props.user) {

@@ -19,8 +19,15 @@ app.set('view engine', 'pug');
 app.set('views', ['dist', 'dist/inc']);
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-app.use(bodyParser.raw({type: '*/*'}));
+app.use(bodyParser.json({
+    verify: function(req, resp, buffer) {
+        let url = req.originalUrl;
+
+        if (url.startsWith('/stripe-webhooks')) {
+            req.rawBody = buffer.toString();
+        }
+    }
+}));
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -104,7 +111,7 @@ app.get('/faq', (req, resp) => {
 
 app.get('/register', (req, resp) => {
     if (req.session.user) {
-        resp.redirect('/mploy');
+        resp.redirect('/app');
     } else {
         resp.render('register');
     }
@@ -124,7 +131,7 @@ app.get('/activate-account', async(req, resp) => {
 
         if (decrypted.toString(cryptoJS.enc.Utf8) === user.rows[0].user_email) {
             await db.query(`UPDATE users SET user_status = 'Active' WHERE user_id = $1`, [user.rows[0].user_id]);
-            resp.render('activated', {header: `Account Activated`, message: `You can now <a href='/mploy'>login</a> to your account`});
+            resp.render('activated', {header: `Account Activated`, message: `You can now <a href='/app'>login</a> to your account`});
         } else {
             resp.render('activated', {header: '404 Not Found', message: `The content you're looking for cannot be found.`});
         }

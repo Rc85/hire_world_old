@@ -13,7 +13,7 @@ module.exports = function(grunt) {
                     },
                     {
                         expand: true,
-                        cwd: 'dist/scss',
+                        cwd: 'scss',
                         src: ['*.scss', '**/*.scss'],
                         dest: 'dist/css',
                         ext: '.css'
@@ -22,7 +22,7 @@ module.exports = function(grunt) {
             }
         },
         watch: {
-            files: ['src/scss/*.scss', 'src/scss/**/*.scss', 'dist/scss/*.scss', 'dist/scss/**/*.scss'],
+            files: ['src/scss/*.scss', 'src/scss/**/*.scss', 'scss/*.scss', 'scss/**/*.scss'],
             tasks: ['sass:dist:newer']
         }
     })

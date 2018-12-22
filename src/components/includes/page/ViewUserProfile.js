@@ -33,7 +33,7 @@ const ViewUserProfile = props => {
                     </div>
     
                     <div id='view-user-title'>
-                        <h1 className='d-flex mb-0'>{name}</h1>
+                        <h1 className='d-flex m-0'>{name}</h1>
                         <h5 className='mb-0'>{props.user.user_title}</h5>
                         <div className='w-40'><UserRating rating={props.stats.rating || 0} /></div>
                     </div>

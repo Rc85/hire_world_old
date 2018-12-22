@@ -1,5 +1,6 @@
 const path = require('path');
 const htmlWebpackPlugin = require('html-webpack-plugin');
+const express = require('express');
 
 module.exports = {
     entry: './src/index.js',
@@ -41,6 +42,13 @@ module.exports = {
             rewrites: [
                 {from: /\/app\/*/, to: '/app.html'}
             ]
+        },
+        setup (app) {
+            app.use('/styles', express.static(path.join(__dirname, '/dist/css')));
+            app.use('/fonts', express.static(path.join(__dirname,  '/dist/fonts')));
+            app.use('/styles', express.static(path.join(__dirname, '/dist/css')));
+            app.use('/user_files', express.static(path.join(__dirname, `/user_files`)));
+            app.use('/images', express.static(path.join(__dirname, '/dist/images')));
         }
     },
     plugins: [

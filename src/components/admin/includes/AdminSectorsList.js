@@ -13,7 +13,7 @@ class AdminSectorsList extends Component {
 
         return(
             <div id='sectors-list'>
-                {this.props.status === 'add sector loading' ? <Loading size='4x' /> : ''}
+                {this.props.status === 'add sector loading' ? <Loading size='5x' /> : ''}
 
                 <div className='d-flex-center'>
                     <div className='w-5'><strong>ID</strong></div>

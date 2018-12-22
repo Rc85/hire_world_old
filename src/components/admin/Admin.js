@@ -19,7 +19,7 @@ class Admin extends Component {
     
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.location.key !== this.props.location.key) {
-            fetch.get('/api/admin/privilege')
+            fetch.post('/api/admin/privilege')
             .then(resp => {
                 if (resp.data.status === 'success') {
                     this.setState({status: '', authorized: true});
@@ -27,20 +27,22 @@ class Admin extends Component {
                     this.setState({status: '', statusMessage: resp.data.statusMessage});
                 }
             })
-            .catch(err => LogError(err, '/api/admin/privilege'));
+            .catch(err => LogError(err, '/api/auth/privilege'));
         }
     }
 
     componentDidMount() {
-        fetch.get('/api/admin/privilege')
+        fetch.post('/api/admin/privilege')
         .then(resp => {
+            console.log(resp);
+            
             if (resp.data.status === 'success') {
                 this.setState({status: '', authorized: true});
             } else if (resp.data.status === 'error') {
                 this.setState({status: '', statusMessage: resp.data.statusMessage});
             }
         })
-        .catch(err => LogError(err, '/api/admin/privilege'));
+        .catch(err => LogError(err, '/api/auth/privilege'));
     }
     
     render() {

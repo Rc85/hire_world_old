@@ -32,7 +32,7 @@ class AdminConfig extends Component {
     }
     
     componentDidMount() {
-        fetch.get('/api/admin/config/get')
+        fetch.post('/api/admin/config/get')
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({status: '', site: resp.data.configs[0].config_status, registration: resp.data.configs[1].config_status, plans: resp.data.plans, promotions: resp.data.promotions, announcements: resp.data.announcements});

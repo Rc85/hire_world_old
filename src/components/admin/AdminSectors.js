@@ -8,6 +8,7 @@ import AdminSectorsList from './includes/AdminSectorsList';
 import { Alert } from '../../actions/AlertActions';
 import fetch from 'axios';
 import { LogError } from '../utils/LogError';
+import { GetSectors } from '../../actions/FetchActions';
 
 class AdminSectors extends Component {
     constructor(props) {
@@ -15,17 +16,12 @@ class AdminSectors extends Component {
 
         this.state = {
             status: '',
-            sector: null,
-            sectors: []
+            sector: null
         }
-
-        this.addSector = this.addSector.bind(this);
     }
-
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.sectors !== prevProps.sectors) {
-            this.setState({sectors: this.props.sectors});
-        }
+    
+    componentDidMount() {
+        this.props.dispatch(GetSectors());
     }
     
     addSector() {
@@ -34,11 +30,9 @@ class AdminSectors extends Component {
         fetch.post('/api/admin/sector/add', {sector: this.state.sector})
         .then(resp => {
             if (resp.data.status === 'success') {
-                let sectors = [...this.state.sectors];
-                sectors.push(resp.data.sector);
-                sectors.sort();
+                this.props.dispatch(GetSectors());
 
-                this.setState({status: '', sectors: sectors, sector: null});
+                this.setState({status: '', sector: null});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
             }
@@ -49,6 +43,7 @@ class AdminSectors extends Component {
     }
 
     render() {
+        console.log(this.props.sectors);
         return(
             <div className='blue-panel shallow three-rounded'>
                 <div className='input-group mb-5'>
@@ -64,13 +59,13 @@ class AdminSectors extends Component {
                         }
                     }} />
                     <div className='input-group-append'>
-                        <button className='btn btn-primary' id='sector-name' onClick={this.addSector} disabled={this.props.status === 'add sector loading' ? true : false}>
+                        <button className='btn btn-primary' id='sector-name' onClick={() => this.addSector()} disabled={this.state.status === 'Loading'}>
                             {this.props.status === 'add sector loading' ? <FontAwesomeIcon icon={faCircleNotch} spin /> : 'Add'}
                         </button>
                     </div>
                 </div>
 
-                <AdminSectorsList sectors={this.state.sectors} changeStatus={(status, id) => this.changeStatus(status, id)} />
+                <AdminSectorsList sectors={this.props.sectors} />
             </div>
         )
     }
@@ -80,4 +75,10 @@ AdminSectors.propTypes = {
     user: PropTypes.object
 }
 
-export default withRouter(connect()(AdminSectors));
+const mapStateToProps = state => {
+    return {
+        sectors: state.Sectors.sectors
+    }
+}
+
+export default withRouter(connect(mapStateToProps)(AdminSectors));

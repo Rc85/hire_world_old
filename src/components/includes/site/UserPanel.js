@@ -25,15 +25,11 @@ class UserPanel extends Component {
     }
     
     render() {
-        if (this.props.user.user) {
-        console.log(this.props.user.user.avatar_url);
-        }
-
         let panel, notificationPanel;
 
         if (this.props.user.status === 'get session success') {
             panel = <React.Fragment>
-                <div className='mr-2 w-25'>
+                <div className='mr-2 w-20'>
                     <div className='profile-pic' style={{background: `url('${this.props.user.user.avatar_url}') center top / cover`}}></div>
                 </div>
                 

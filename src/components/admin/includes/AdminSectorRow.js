@@ -47,7 +47,7 @@ class AdminSectorRow extends Component {
         }
     }
 
-    handleMenuClick(val) {
+    changeStatus(val) {
         fetch.post('/api/admin/sector/change-status', {status: val, id: this.state.sector.sector_id})
         .then(resp => {
             if (resp.data.status === 'success') {
@@ -89,7 +89,7 @@ class AdminSectorRow extends Component {
         }
 
         if (this.props.menu.open === 'admin' && this.props.menu.id === this.state.sector.sector_id) {
-            menu = <Menu items={['Open', 'Close', 'Delete']} onClick={(val) => this.handleMenuClick(val)} />;
+            menu = <Menu items={['Open', 'Close', 'Delete']} onClick={(val) => this.changeStatus(val)} />;
         }
 
         if (this.state.sector) {  

@@ -235,6 +235,23 @@ async(req, resp) => {
     }
 });
 
+/* app.get('/api/auth/privilege', (req, resp) => {
+    if (req.session.user) {
+        db.query(`SELECT user_level FROM users WHERE username = $1`, [req.session.user.username])
+        .then(result => {
+            if (result.rows[0].user_level > 90) {
+                resp.send({status: 'success'});
+            } else {
+                resp.send({status: 'access error', statusMessage: `You're not authorized to access this area`});
+            }
+        })
+        .catch(err => {
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+            resp.send({status: 'error', statusMessage: 'An errorr occurred'});
+        });
+    }
+}); */
+
 app.post('/api/auth/logout', (req, resp) => {
     req.session = null;
 

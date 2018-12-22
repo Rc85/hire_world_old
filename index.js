@@ -235,16 +235,38 @@ app.post('/api/log-error', (req, resp) => {
 });
 
 app.use('/api/admin', (req, resp, next) => {
-    if (req.session.user && req.session.user.userLevel > 80) {
-        next();
+    if (req.session.user) {
+        db.query(`SELECT user_level FROM users WHERE username = $1`, [req.session.user.username])
+        .then(result => {
+            if (result.rows[0].user_level > 90) {
+                next();
+            } else {
+                resp.send({status: 'access error', statusMessage: `You're not authorized to access this area`});
+            }
+        })
+        .catch(err => {
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+            resp.send({status: 'error', statusMessage: 'An errorr occurred'});
+        });
     } else {
-        resp.send({status: 'error', statusMessage: `You're not authorized`});
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
     }
 });
 
-app.get('/api/admin/privilege', (req, resp) => {
-    if (req.session.user && req.session.user.userLevel > 80) {
-        resp.send({status: 'success'});
+app.post('/api/admin/privilege', (req, resp) => {
+    if (req.session.user) {
+        db.query(`SELECT user_level FROM users WHERE username = $1`, [req.session.user.username])
+        .then(result => {
+            if (result.rows[0].user_level > 90) {
+                resp.send({status: 'success'});
+            } else {
+                resp.send({status: 'access error', statusMessage: `You're not authorized to access this area`});
+            }
+        })
+        .catch(err => {
+            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+            resp.send({status: 'error', statusMessage: 'An errorr occurred'});
+        });
     } else {
         resp.send({status: 'error', statusMessage: `You're not authorized`});
     }

@@ -2,7 +2,7 @@ const app = require('express').Router();
 const db = require('../db');
 const error = require('../utils/error-handler');
 
-app.get('/api/admin/config/get', async(req, resp) => {
+app.post('/api/admin/config/get', async(req, resp) => {
     let configs = await db.query(`SELECT * FROM site_configs ORDER BY config_id`);
     let promotions = await db.query(`SELECT * FROM promotions`);
     let plans = await db.query(`SELECT * FROM subscription_plans WHERE plan_status != 'Delete'`);

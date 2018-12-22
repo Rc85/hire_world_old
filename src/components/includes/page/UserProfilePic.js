@@ -30,7 +30,6 @@ class UserProfilePic extends Component {
     }
     
     onDrop(accepted) {
-        console.log(accepted);
         if (accepted.length === 0) {
             this.props.dispatch(Alert('error', 'No files were found'));
         } else {
@@ -76,7 +75,6 @@ class UserProfilePic extends Component {
 
     render() {
         let dropzoneRef, status, dropzone, button, deleteButton;
-        let fileHash = Date.now();
 
         if (this.props.editable) {
             dropzone = <div className='dropzone'><Dropzone ref={(node) => { dropzoneRef = node; }} onDrop={this.onDrop.bind(this)} style={{height: '100%', width: '100%'}} name='profile_pic' /></div>;
@@ -89,7 +87,7 @@ class UserProfilePic extends Component {
         }
 
         return(
-            <div className='profile-pic' style={{background: `url(${this.props.url}?${fileHash}) center top / cover`}}>
+            <div className='profile-pic' style={{background: `url(${this.props.url}) center top / cover`}}>
                 {status}
                 {dropzone}
 

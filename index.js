@@ -127,8 +127,8 @@ app.get('/activate-account', async(req, resp) => {
     let user = await db.query(`SELECT * FROM users WHERE registration_key = $1 AND reg_key_expire_date > current_timestamp`, [registrationKey])
 
     if (user && user.rows.length === 1) {
-        let encoded = decodeURIComponent(registrationKey);
-        let decrypted = cryptoJS.AES.decrypt(encoded, 'registering for m-ploy');
+        let decoded = decodeURIComponent(registrationKey);
+        let decrypted = cryptoJS.AES.decrypt(decoded, 'registering for m-ploy');
 
         if (decrypted.toString(cryptoJS.enc.Utf8) === user.rows[0].user_email) {
             await db.query(`UPDATE users SET user_status = 'Active' WHERE user_id = $1`, [user.rows[0].user_id]);

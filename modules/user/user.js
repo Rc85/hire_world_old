@@ -161,18 +161,30 @@ app.post('/api/user/profile-pic/delete', async(req, resp) => {
 
 app.post('/api/user/edit', (req, resp) => {
     if (req.session.user) {
-        let type = req.body.type;
-        let value = req.body.value;
-        let valueCheck = /[a-zA-Z0-9/'".:]*/;
+        let type;
 
-        if (valueCheck.test(value)) {
+        if (req.body.column === 'Github') {
+            type = 'user_github';
+        } else if (req.body.column === 'LinkedIn') {
+            type = 'user_linkedin';
+        } else if (req.body.column === 'Facebook') {
+            type = 'user_facebook';
+        } else if (req.body.column === 'Twitter') {
+            type = 'user_twtitter';
+        } else if (req.body.column === 'Website') {
+            type = 'user_website';
+        } else if (req.body.column === 'Instagram') {
+            type = 'user_instagram';
+        }
+
+        if (validate.urlCheck.test(req.body.value)) {
             db.connect((err, client, done) => {
                 if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
                 (async() => {
                     try {
                         await client.query(`BEGIN`);
-                        await client.query(`UPDATE user_profiles SET ${type} = $1 WHERE user_profile_id = $2`, [value, req.session.user.user_id]);
+                        await client.query(`UPDATE user_profiles SET ${type} = $1 WHERE user_profile_id = $2`, [req.body.value, req.session.user.user_id]);
 
                         let user = await client.query(`SELECT * FROM users
                         LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
@@ -180,7 +192,7 @@ app.post('/api/user/edit', (req, resp) => {
                         WHERE users.user_id = $1`, [req.session.user.user_id]);
 
                         await client.query(`COMMIT`)
-                        .then(() => resp.send({status: `edit ${type} success`, user: user.rows[0]}));
+                        .then(() => resp.send({status: 'success', user: user.rows[0]}));
                     } catch (e) {
                         await client.query(`ROLLBACK`);
                         throw e;
@@ -190,11 +202,11 @@ app.post('/api/user/edit', (req, resp) => {
                 })()
                 .catch(err => {
                     error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
-                    resp.send({status: `edit ${type} fail`});
+                    resp.send({status: 'error', statusMessage: 'An error occurred'});
                 });
             });
         } else {
-            resp.send({status: 'error', statusMessage: 'Invalid characters'});
+            resp.send({status: 'error', statusMessage: 'URL only'});
         }
     } else {
         resp.send({status: 'error', statusMessage: `You're not logged in`});

@@ -61,15 +61,19 @@ app.post('/api/listing/create', (req, resp) => {
 
 app.post('/api/listing/toggle', (req, resp) => {
     if (req.session.user) {
-        let price;
-        
-        if (!validate.blankCheck.test(req.body.listing_title)) {
+        let price = 0;
+
+        if (req.body.listing_price) {
+            price = req.body.listing_price;
+        }
+
+        if (req.body.listing_purpose !== 'Hiring' || req.body.listing_purpose !== 'For Hire') {
+            resp.send({status: 'error', statusMessage: 'Are you looking to hire or for work?'});
+        } else if (validate.blankCheck.test(req.body.listing_title)) {
             resp.send({status: 'error', statusMessage: 'Title required'});
-        } else if (!validate.blankCheck.test(req.body.listing_sector)) {
+        } else if (validate.blankCheck.test(req.body.listing_sector)) {
             resp.send({status: 'error', statusMessage: 'Sector is required'});
-        } else if (!req.body.listing_price) {
-            price = 0;
-        } else if (!validate.blankCheck.test(req.body.listing_price_currency)) {
+        } else if (validate.blankCheck.test(req.body.listing_price_currency)) {
             resp.send({status: 'error', statusMessage: 'Please set a currency for your price'});
         } else {
             db.connect((err, client, done) => {

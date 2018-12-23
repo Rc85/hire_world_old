@@ -142,7 +142,7 @@ class AdminConfig extends Component {
             status = <Loading size='5x' />;
         }
 
-        if (this.props.user.user.user_level === 99) {
+        if (this.props.user.user && this.props.user.user.user_level === 99) {
             promotions = <React.Fragment><div className='admin-scroller-header mb-3'>
                     <div className='w-5'>ID</div>
                     <div className='w-15'>Name</div>

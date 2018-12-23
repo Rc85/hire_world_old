@@ -13,33 +13,9 @@ import poweredByStripe from '../../../dist/images/powered_by_stripe.png';
 
 class EditUser extends Component {
     render() {
-        let userEducationStatus, userGithubStatus, userTwitterStatus, userFacebookStatus, userLinkedInStatus, userWebsiteStatus, userInstagramStatus, fullName, businessName, email, phone, address;
+        let fullName, businessName, email, phone, address;
 
         if (this.props.user.user) {
-            switch(this.props.user.status) {
-                case 'edit user_education loading': userEducationStatus = 'loading'; break;
-                case 'edit user_education success': userEducationStatus = 'success'; break;
-                case 'edit user_education error': userEducationStatus = 'error'; break;
-                case 'edit user_github loading': userGithubStatus = 'loading'; break;
-                case 'edit user_github success': userGithubStatus = 'success'; break;
-                case 'edit user_github error': userGithubStatus = 'error'; break;
-                case 'edit user_twitter loading': userTwitterStatus = 'loading'; break;
-                case 'edit user_twitter success': userTwitterStatus = 'success'; break;
-                case 'edit user_twitter error': userTwitterStatus = 'error'; break;
-                case 'edit user_facebook loading': userFacebookStatus = 'loading'; break;
-                case 'edit user_facebook success': userFacebookStatus = 'success'; break;
-                case 'edit user_facebook error': userFacebookStatus = 'error'; break;
-                case 'edit user_linkedin loading': userLinkedInStatus = 'loading'; break;
-                case 'edit user_linkedin success': userLinkedInStatus = 'success'; break;
-                case 'edit user_linkedin error': userLinkedInStatus = 'error'; break;
-                case 'edit user_website loading': userWebsiteStatus = 'loading'; break;
-                case 'edit user_website success': userWebsiteStatus = 'success'; break;
-                case 'edit user_website error': userWebsiteStatus = 'error'; break;
-                case 'edit user_instagram loading': userInstagramStatus = 'loading'; break;
-                case 'edit user_instagram success': userInstagramStatus = 'success'; break;
-                case 'edit user_instagram error': userInstagramStatus = 'error'; break;
-            }
-            
             if (this.props.user.user.display_fullname) {
                 fullName = <div className='user-info mb-2'>
                     <div>
@@ -135,17 +111,17 @@ class EditUser extends Component {
                             <hr/>
                             {/* <UserInfo label='Education' value={this.props.user.user ? this.props.user.user.user_education : ''} type='user_education' status={userEducationStatus} />
                             <hr/> */}
-                            <UserInfo label='Github' value={this.props.user.user ? this.props.user.user.user_github : ''} type='user_github' status={userGithubStatus} />
+                            <UserInfo label='Github' value={this.props.user.user ? this.props.user.user.user_github : ''} />
                             <hr/>
-                            <UserInfo label='Twitter' value={this.props.user.user ? this.props.user.user.user_twitter : ''} type='user_twitter' status={userTwitterStatus} />
+                            <UserInfo label='Twitter' value={this.props.user.user ? this.props.user.user.user_twitter : ''} />
                             <hr/>
-                            <UserInfo label='Facebook' value={this.props.user.user ? this.props.user.user.user_facebook : ''} type='user_facebook' status={userFacebookStatus} />
+                            <UserInfo label='Facebook' value={this.props.user.user ? this.props.user.user.user_facebook : ''} />
                             <hr/>
-                            <UserInfo label='Instagram' value={this.props.user.user ? this.props.user.user.user_instagram : ''} type='user_instagram' status={userInstagramStatus} />
+                            <UserInfo label='Instagram' value={this.props.user.user ? this.props.user.user.user_instagram : ''} />
                             <hr/>
-                            <UserInfo label='LinkedIn' value={this.props.user.user ? this.props.user.user.user_linkedin : ''} type='user_linkedin' status={userLinkedInStatus} />
+                            <UserInfo label='LinkedIn' value={this.props.user.user ? this.props.user.user.user_linkedin : ''} />
                             <hr/>
-                            <UserInfo label='Website' value={this.props.user.user ? this.props.user.user.user_website : ''} type='user_website' status={userWebsiteStatus} />
+                            <UserInfo label='Website' value={this.props.user.user ? this.props.user.user.user_website : ''} />
                         </div>
                     </div>
                     

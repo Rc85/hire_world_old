@@ -2,50 +2,64 @@ import React, { Component } from 'react';
 import { faEdit, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
-import { EditUser } from '../../../actions/EditUserActions';
 import Loading from '../../utils/Loading';
 import PropTypes from 'prop-types';
+import fetch from'axios';
+import { Alert } from '../../../actions/AlertActions';
+import { LogError } from '../../utils/LogError';
+import { UncontrolledTooltip } from 'reactstrap';
 
 class UserInfo extends Component {
     constructor(props) {
         super(props);
 
-        this.submitValue = this.submitValue.bind(this);
-
         this.state = {
+            status: '',
             input: null,
-            editing: false
+            editing: false,
+            value: this.props.value
         }     
     }
 
     submitValue(value) {
-        this.props.dispatch(EditUser(this.props.type, value, this.props.user));
+        this.setState({status: 'Loading'});
+
+        fetch.post('/api/user/edit', {column: this.props.label, value: value})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({status: '', editing: false, value: value});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+        })
+        .catch(err => LogError(err, '/api/user/edit'));
     }
 
     render() {
-        let status, button;
-        let value = this.props.value;
-        let success = /success$/;
-        let loading = /loading$/;
+        let status, button, value;
+
+        if (this.state.status === 'Loading') {
+            status = <Loading size='2x' />;
+        }
 
         if (this.state.editing) {
             button = <button className='btn btn-info btn-sm ml-auto' onClick={() => this.setState({editing: false})}><FontAwesomeIcon icon={faTimes}  /></button>;
-            value = <input className='form-control' type='text' name={this.props.type}
-            onKeyDown={(e) => {
-                if (e.keyCode === 13) {
-                    this.submitValue(this.state.input);
-                    this.setState({editing: false});
-                }
-            }}
-            onChange={(e) => this.setState({input: e.target.value})} />;
+            value = <React.Fragment>
+                <input id={`${this.props.label}-input`} className='form-control' type='text' name={this.props.type}
+                onKeyDown={(e) => {
+                    if (e.keyCode === 13) {
+                        this.submitValue(e.target.value);
+                        this.setState({editing: false});
+                    } else if (e.keyCode === 27) {
+                        this.setState({editing: false});
+                    }
+                }} />
+                <UncontrolledTooltip placement='top' target={`${this.props.label}-input`} trigger='focus'>Press enter to submit, escape to cancel</UncontrolledTooltip>
+            </React.Fragment>;
         } else {
             button = <button className='btn btn-info btn-sm ml-auto' onClick={() => this.setState({editing: true})}><FontAwesomeIcon icon={faEdit} /></button>;
-
-            if (loading.test(this.props.status)) {
-                status = <Loading size='1x' />;
-            } else if (success.test(this.props.status)) {
-                value = this.props.value;
-            }
+            value = this.state.value;
         }
 
         return(
@@ -68,7 +82,6 @@ class UserInfo extends Component {
 UserInfo.propTypes = {
     label: PropTypes.string.isRequired,
     value: PropTypes.string,
-    type: PropTypes.string.isRequired,
     status: PropTypes.string
 }
 

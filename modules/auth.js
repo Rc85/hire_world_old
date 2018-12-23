@@ -55,7 +55,8 @@ app.post('/api/auth/register', (req, resp) => {
                                         await client.query(`BEGIN`);
 
                                         let encrypted = cryptoJS.AES.encrypt(req.body.email, 'registering for m-ploy');
-                                        let registrationKey = encrypted.toString();
+                                        let regKeyString = encrypted.toString();
+                                        let registrationKey = encodeURIComponent(regKeyString);
 
                                         let user = await client.query(`INSERT INTO users (username, user_password, user_email, account_type, registration_key) VALUES ($1, $2, $3, $4, $5) RETURNING user_id`, [req.body.username, result, req.body.email, 'User', registrationKey]);
 
@@ -218,7 +219,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
 },
 async(req, resp) => {
     if (req.session.user) {
-        let user = await db.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, users.account_type, users.is_subscribed, user_profiles.*, user_settings.* FROM users
+        let user = await db.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, users.account_type, users.user_level, users.is_subscribed, user_profiles.*, user_settings.* FROM users
         LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
         LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
         WHERE users.user_id = $1`, [req.session.user.user_id]);

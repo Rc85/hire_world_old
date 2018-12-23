@@ -2,7 +2,7 @@ $(document).ready(function() {
     $('#register-form').on('submit', function(e) {
         e.preventDefault();
 
-        $('#register-button').attr('disabled', true).html(`<i class='fas fa-circle-notch fa-spin fa-lg text-white'></i>`);
+        $('#register-button').attr('disabled', true).html(`<i class='fas fa-circle-notch fa-spin fa-lg text-white'> </i>`);
 
         $.post({
             url: '/api/auth/register',

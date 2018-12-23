@@ -136,19 +136,48 @@ class AdminConfig extends Component {
     }
 
     render() {
-        let status, announcementsHeader;
+        let status, announcementsHeader, promotions, plans;
 
         if (this.state.status === 'Loading') {
             status = <Loading size='5x' />;
         }
 
-        let promotions = this.state.promotions.map((promo, i) => {
-            return <AdminPromoRow key={i} promo={promo} />;
-        });
+        if (this.props.user.user.user_level === 99) {
+            promotions = <React.Fragment><div className='admin-scroller-header mb-3'>
+                    <div className='w-5'>ID</div>
+                    <div className='w-15'>Name</div>
+                    <div className='w-15'>Start Date</div>
+                    <div className='w-15'>End Date</div>
+                    <div className='w-15'>Code</div>
+                    <div className='w-25'>Description</div>
+                    <div className='w-5 text-center'>Status</div>
+                    <div className='w-5'></div>
+                </div>
+                
+                <div className='scroller-div rounded mb-5'>
+                    {this.state.promotions.map((promo, i) => {
+                        return <AdminPromoRow key={i} promo={promo} />;
+                    })}
+                </div>
+            </React.Fragment>
 
-        let plans = this.state.plans.map((plan, i) => {
-            return <AdminPlanRow key={i} plan={plan} />;
-        });
+            plans = <React.Fragment>
+                <div className='admin-scroller-header mb-3'>
+                    <div className='w-5'>ID</div>
+                    <div className='w-40'>Name</div>
+                    <div className='w-25'>Price</div>
+                    <div className='w-25'>Created</div>
+                    <div className='w-5 text-center'>Status</div>
+                    <div className='w-5'></div>
+                </div>
+
+                <div className='scroller-div rounded mb-5'>
+                    {this.state.plans.map((plan, i) => {
+                        return <AdminPlanRow key={i} plan={plan} />;
+                    })}
+                </div>
+            </React.Fragment>
+        }
 
         let announcements = this.state.announcements.map((a, i) => {
             return <div key={i} className='d-flex-between-center mb-3'>
@@ -214,33 +243,9 @@ class AdminConfig extends Component {
                     <small>Only 3 announcements are allowed</small>
                 </div>
 
-                <div className='admin-scroller-header mb-3'>
-                    <div className='w-5'>ID</div>
-                    <div className='w-15'>Name</div>
-                    <div className='w-15'>Start Date</div>
-                    <div className='w-15'>End Date</div>
-                    <div className='w-15'>Code</div>
-                    <div className='w-25'>Description</div>
-                    <div className='w-5 text-center'>Status</div>
-                    <div className='w-5'></div>
-                </div>
-                
-                <div className='scroller-div rounded mb-5'>
-                    {promotions}
-                </div>
+                {promotions}
 
-                <div className='admin-scroller-header mb-3'>
-                    <div className='w-5'>ID</div>
-                    <div className='w-40'>Name</div>
-                    <div className='w-25'>Price</div>
-                    <div className='w-25'>Created</div>
-                    <div className='w-5 text-center'>Status</div>
-                    <div className='w-5'></div>
-                </div>
-
-                <div className='scroller-div rounded mb-5'>
-                    {plans}
-                </div>
+                {plans}
             </div>
         );
     }

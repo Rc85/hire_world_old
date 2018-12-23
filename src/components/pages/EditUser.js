@@ -8,8 +8,6 @@ import UserTitle from '../includes/page/UserTitle';
 import ListSettings from '../includes/page/ListSettings';
 import { Elements, StripeProvider } from 'react-stripe-elements';
 import Checkout from '../includes/page/Checkout';
-import paymentMethod from '../../../dist/images/payment_methods.png';
-import poweredByStripe from '../../../dist/images/powered_by_stripe.png';
 import BusinessHoursSettings from '../includes/page/BusinessHoursSettings';
 
 class EditUser extends Component {
@@ -84,7 +82,8 @@ class EditUser extends Component {
                     <div className='w-50'>To begin listing, you need to subscribe to a monthly plan.</div>
 
                     <div className='text-right w-50'>
-                        <img src={poweredByStripe} className='w-25' />
+                        <img src='/images/powered_by_stripe.png' className='w-25 mr-1' />
+                        <img src='/images/payment_methods.png' className='w-25' />
                     </div>
                 </div>
 
@@ -135,7 +134,7 @@ class EditUser extends Component {
 
                         <hr/>
 
-                        <BusinessHoursSettings />
+                        {this.props.user.user.account_type === 'Listing' ? <BusinessHoursSettings /> : ''}
                     </div>
                 </div>
             </section>

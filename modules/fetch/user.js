@@ -272,15 +272,19 @@ app.post('/api/get/payments', async(req, resp) => {
     if (req.session.user) {
         let user = await db.query(`SELECT stripe_cust_id FROM users WHERE username = $1`, [req.session.user.username])
 
-        stripe.customers.retrieve(user.rows[0].stripe_cust_id, (err, customer) => {
-            if (err) {
-                error.log({name: err.name, message: err.message, origin: 'Updating Stripe customer', url: req.url});
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
-            }
+        if (user && user.rows[0].stripe_cust_id) {
+            stripe.customers.retrieve(user.rows[0].stripe_cust_id, (err, customer) => {
+                if (err) {
+                    error.log({name: err.name, message: err.message, origin: 'Updating Stripe customer', url: req.url});
+                    resp.send({status: 'error', statusMessage: 'An error occurred'});
+                }
 
-            resp.send({status: 'success', defaultSource: customer.default_source, payments: customer.sources.data});
-        });
+                resp.send({status: 'success', defaultSource: customer.default_source, payments: customer.sources.data});
+            });
+        } else {
+            resp.send({status: 'success', payments: []});
+        }
     }
-})
+});
 
 module.exports = app;

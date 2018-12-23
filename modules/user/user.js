@@ -534,20 +534,30 @@ app.post('/api/user/payment/add', (req, resp) => {
                 try {
                     await client.query('BEGIN');
 
-                    let user = await client.query(`SELECT stripe_cust_id FROM users WHERE username = $1`, [req.session.user.username]);
+                    let user = await client.query(`SELECT stripe_cust_id, user_email FROM users WHERE username = $1`, [req.session.user.username]);
 
                     if (req.body.saveAddress) {
-                        await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_id = $6`, [req.body.address, req.body.city, req.body.region, req.body.country, req.body.cityCode, req.session.user.user_id]);
+                        await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.address_line1, req.body.address_city, req.body.address_state, req.body.address_country, req.body.address_zip, req.session.user.user_id]);
                     }
 
-                    await stripe.customers.createSource(user.rows[0].stripe_cust_id, {source: req.body.token.id}, async(err, card) => {
-                        if (err) throw err;
+                    if (user && user.rows[0].stripe_cust_id) {
+                        let card = await stripe.customers.createSource(user.rows[0].stripe_cust_id, {source: req.body.token.id});
 
-                        console.log(card);
+                        let customer = await stripe.customers.retrieve(user.rows[0].stripe_cust_id);
 
                         await client.query('COMMIT')
-                        .then(() => resp.send({status: 'success', card: card}));
-                    });
+                        .then(() => resp.send({status: 'success', card: card, defaultSource: customer.default_source}));
+                    } else if (user && !user.rows[0].stripe_cust_id) {
+                        let customer = await stripe.customers.create({
+                            source: req.body.token.id,
+                            email: user.rows[0].user_email
+                        });
+
+                        await client.query(`UPDATE users SET stripe_cust_id = $1 WHERE username = $2`, [customer.id, req.session.user.username]);
+
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success', defaultSource: customer.default_source, card: customer.sources.data[0]}));
+                    }
                 } catch (e) {
                     await client.query('ROLLBACK');
                     throw e;
@@ -599,6 +609,111 @@ app.post('/api/user/payment/edit', (req, resp) => {
             .catch(err => {
                 error.log({name: err.name, message: err.message, origin: 'Stripe updating client card', url: req.url});
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
+        });
+    }
+});
+
+app.post('/api/user/payment/default', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let user = await client.query(`SELECT stripe_cust_id FROM users WHERE username = $1`, [req.session.user.username]);
+
+                    if (user && user.rows[0].stripe_cust_id) {
+                        await stripe.customers.update(user.rows[0].stripe_cust_id, {default_source: req.body.id}, async(err, customer) => {
+                            if (err) throw err;
+
+                            await client.query('COMMIT')
+                            .then(() => resp.send({status: 'success', statusMessage: 'Default payment has been set', defaultSource: customer.default_source}));
+                        });
+                    } else if (user && !user.rows[0].stripe_cust_id) {
+                        let error = new Error(`You need to add a payment`);
+                        error.type = 'CUSTOM';
+                        throw error;
+                    }
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: 'Setting Stripe default payment', url: req.url});
+                let message = 'An error occurred';
+
+                if (err.type === 'CUSTOM') {
+                    message = err.message;
+                }
+
+                resp.send({status: 'error', statusMessage: message});
+            });
+        });
+    }
+});
+
+app.post('/api/user/payment/delete', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let user = await client.query(`SELECT stripe_cust_id, is_subscribed FROM users WHERE username = $1`, [req.session.user.username]);
+
+                    if (user && user.rows[0].stripe_cust_id) {
+                        let customer = await stripe.customers.retrieve(user.rows[0].stripe_cust_id);
+                        console.log(customer);
+
+                        if (user.rows[0].is_subscribed && customer.sources.data.length === 1) {
+                            let error = new Error(`You're subscribed and cannot delete payment`);
+                            error.type = 'CUSTOM';
+                            throw error;
+                        } else if (customer.sources.data.length > 1) {
+                            card = await stripe.customers.deleteCard(user.rows[0].stripe_cust_id, req.body.id);
+                            console.log(card);
+
+                            if (card.deleted) {
+                                customer = await stripe.customers.retrieve(user.rows[0].stripe_cust_id);
+                                console.log(customer);
+
+                                await client.query('COMMIT')
+                                .then(() => resp.send({status: 'success', statusMessage: 'Payment method deleted', defaultSource: customer.default_source}));
+                            } else {
+                                let error = new Error('Cannot delete payment method');
+                                error.type = 'CUSTOM';
+                                throw error;
+                            }
+                        }
+                    } else {
+                        let error = new Error(`Account does not exist`);
+                        error.type = 'CUSTOM';
+                        throw error;
+                    }
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: 'Deleting payment method', url: req.url});
+                let message = 'An error occurred';
+
+                if (err.type === 'CUSTOM') {
+                    message = err.message;
+                }
+
+                resp.send({status: 'error', statusMessage: message});
             });
         });
     }

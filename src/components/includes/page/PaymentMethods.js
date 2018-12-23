@@ -8,6 +8,8 @@ import { Alert } from '../../../actions/AlertActions';
 import { LogError } from '../../utils/LogError';
 import fetch from 'axios';
 import { connect } from 'react-redux';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 
 class PaymentMethods extends Component {
     constructor(props) {
@@ -20,6 +22,15 @@ class PaymentMethods extends Component {
         }
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.confirm.data && nextProps.confirm.data.id === this.props.payment.id) {
+            if (nextProps.confirm.data.action === 'delete payment' && nextProps.confirm.option) {
+                this.props.delete(this.props.payment.id);
+                this.props.dispatch(ResetConfirmation());
+            }
+        }
+    }
+    
     set(key, val) {
         let obj = {};
         obj[key] = val;
@@ -30,7 +41,6 @@ class PaymentMethods extends Component {
     save() {
         fetch.post('/api/user/payment/edit', this.state)
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', edit: false});
                 this.props.updateCard(resp.data.card);
@@ -42,7 +52,7 @@ class PaymentMethods extends Component {
         })
         .catch(err => LogError(err, '/api/user/payment/edit'));
     }
-    
+
     render() {
         let brand;
 
@@ -67,16 +77,16 @@ class PaymentMethods extends Component {
                     </div>
     
                     <div>
-                        {this.props.defaultSource !== this.props.payment.id ? <button className='btn btn-primary mr-1'>Set as Default</button> : ''}
+                        {this.props.defaultSource !== this.props.payment.id ? <button className='btn btn-primary mr-1' onClick={() => this.props.setDefault(this.props.payment.id)} disabled={this.props.status === 'Setting'}>Set as Default</button> : ''}
                         <button className='btn btn-info mr-1' onClick={() => this.setState({edit: !this.state.edit})}>{this.state.edit ? 'Cancel' : 'Edit'}</button>
-                        <button className='btn btn-secondary'>Delete</button>
+                        <button className='btn btn-secondary' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to delete this card?`, `This cannot be reverted and your next most recent added card will be used.`, {action: 'delete payment', id: this.props.payment.id}))} disabled={this.props.status === 'Setting'}><FontAwesomeIcon icon={faTrash} /></button>
                     </div>
                 </div>
     
                 
                     {this.state.edit ? <div className='bordered-container no-top mb-5'>
                         <AddressInput saveable={false} info={this.state} set={(key, val) => this.set(key, val)} />
-                        <div className='text-right'><SubmitButton type='button' onClick={() => this.save()} loading={this.state.status === 'Loading'} value='Save' /></div>
+                        <div className='text-right'><SubmitButton type='button' onClick={() => this.save()} loading={this.state.status === 'Loading' || this.props.status === 'Setting'} value='Save' /></div>
                     </div> : ''}
                 
             </div>
@@ -88,4 +98,10 @@ PaymentMethods.propTypes = {
 
 };
 
-export default connect()(PaymentMethods);
+const mapStateToProps = state => {
+    return {
+        confirm: state.Confirmation
+    }
+}
+
+export default connect(mapStateToProps)(PaymentMethods);

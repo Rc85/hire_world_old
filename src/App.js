@@ -14,6 +14,7 @@ import Warning from './components/utils/Warning';
 import { ToggleMenu } from './actions/MenuActions';
 import Footer from './components/includes/site/Footer';
 import ReviewMploy from './components/includes/page/ReviewMploy';
+import { StripeProvider, Elements } from 'react-stripe-elements';
 
 class App extends Component {
 	constructor(props) {
@@ -81,6 +82,25 @@ class App extends Component {
 			warning = <Warning message={this.props.warning.message} />;
 		}
 
+		let userDashboardItems = [
+			{name: 'Profile', active: this.props.location.pathname === '/dashboard/edit', link: '/dashboard/edit'},
+			{name: 'Friends', active: this.props.location.pathname === '/dashboard/friends', link: '/dashboard/friends'},
+			{name: 'Medals', active: this.props.location.pathname === '/dashboard/medals', link: '/dashboard/medals'}
+		];
+
+		let messageDashboardItems = [
+			{name: 'Inquiries', active: /^\/(messages\/Inquiries|message\/Inquire).*/.test(this.props.location.pathname) ? true : false, link: '/messages/Inquiries'},
+			{name: 'Active', active: /^\/(message|jobs)\/Active.*/.test(this.props.location.pathname) ? true : false, link: '/jobs/Active'},
+			{name: 'Completed', active: /^\/(message|jobs)\/Completed.*/.test(this.props.location.pathname) ? true : false, link: '/jobs/Completed'},
+			{name: 'Abandoned', active: /^\/(message|jobs)\/Abandoned.*/.test(this.props.location.pathname) ? true : false, link: '/jobs/Abandoned'},
+			{name: 'Appealing', active: /^\/(message|jobs)\/Appealing.*/.test(this.props.location.pathname) ? true : false, link: '/jobs/Appealing'}
+		];
+
+		let settingsDashboardItems = [
+			{name: 'Account', active: this.props.location.pathname === '/settings/account', link: '/settings/account'},
+			{name: 'Payment', active: this.props.location.pathname === '/settings/payment', link: '/settings/payment'}
+		]
+
 		return (
 			<div className='col-container'>
 				{warning}
@@ -95,14 +115,15 @@ class App extends Component {
 						<Route exact path='/' render={() => <Pages.Login user={this.props.user} />} />
 						<Route exact path='/view' component={Pages.ViewUser} />
 
-						<Route exact path='/dashboard/saved_listings' render={() => <Pages.Dashboard user={this.props.user}><Pages.SavedListings user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/dashboard/settings' render={() => <Pages.Dashboard user={this.props.user}><Pages.UserSettings user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/friends' render={() => <Pages.Dashboard user={this.props.user} items={userDashboardItems}><Pages.FriendsList user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user} items={userDashboardItems}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
 
-						<Route exact path='/messages/Inquiries' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.Inquiries user={this.props.user} /></Pages.MessageDashboard>} />
-						<Route exact path='/message/:stage/:id/details' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.MessageDetails user={this.props.user} /></Pages.MessageDashboard>} />
+						<Route exact path='/settings/account' render={() =>  <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><StripeProvider apiKey='pk_test_KgwS8DEnH46HAFvrCaoXPY6R'><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
 
-						<Route exact path='/jobs/:stage' render={() => <Pages.MessageDashboard user={this.props.user}><Pages.Jobs user={this.props.user} /></Pages.MessageDashboard>} />
+						<Route exact path='/messages/Inquiries' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.Inquiries user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/message/:stage/:id/details' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.MessageDetails user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/jobs/:stage' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.Jobs user={this.props.user} /></Pages.Dashboard>} />
 
 						<Route exact path='/listing/:id' render={() => <Pages.ListingDetails user={this.props.user} />} />
 

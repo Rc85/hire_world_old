@@ -713,6 +713,9 @@
 .bordered-container hr {
   background: #C4C4C4;
 }
+.bordered-container.no-top {
+  border-top-width: 0px;
+}
 
 .dark-bordered-container {
   padding: 20px;

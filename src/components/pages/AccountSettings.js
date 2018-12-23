@@ -16,7 +16,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 import { UncontrolledTooltip } from 'reactstrap';
 
-class UserSettings extends Component {
+class AccountSettings extends Component {
     saveSetting(name) {
         let setting = Object.assign({}, this.props.user.user);
         setting[name] = !setting[name];
@@ -44,9 +44,12 @@ class UserSettings extends Component {
                 <hr/>
 
                 <div className='d-flex-between-start mb-3'>
-                    <div className='settings-col'>
-                        <PasswordSettings />
+                    <div className='w-45'><PasswordSettings /></div>
+                    <div className='w-45'><EmailSettings /></div>
+                </div>
 
+                <div className='d-flex-between-start mb-3'>
+                    <div className='settings-col'>
                         <div className='d-flex-between-center mb-3'>
                             <label htmlFor='hideEmail'>Hide email:</label>
 
@@ -58,7 +61,9 @@ class UserSettings extends Component {
 
                             <SlideToggle status={this.props.user.user ? this.props.user.user.display_fullname : false} id='displayFullName' onClick={() => this.saveSetting('display_fullname')} />
                         </div>
+                    </div>
 
+                    <div className='settings-col'>
                         <div className='d-flex-between-center mb-3'>
                             <label htmlFor='emailNotifications'>Email notifications: <FontAwesomeIcon icon={faQuestionCircle} id='email-notification-tips' /><UncontrolledTooltip placement='top' target='email-notification-tips'>You will receive email when you have new messages and when there are changes to your account.</UncontrolledTooltip></label>
 
@@ -71,19 +76,13 @@ class UserSettings extends Component {
                             <SlideToggle status={this.props.user.user ? this.props.user.user.allow_messaging : false} id='allowMessaging' onClick={() => this.saveSetting('allow_messaging')} />
                         </div>
                     </div>
-
-                    <div className='settings-col'>
-                        <EmailSettings />
-
-                        <BusinessHoursSettings />
-                    </div>
                 </div>
             </section>
         )
     }
 }
 
-UserSettings.propTypes = {
+AccountSettings.propTypes = {
     user: PropTypes.object.isRequired
 }
 
@@ -93,4 +92,4 @@ const mapStateToProps = state => {
     }
 }
 
-export default withRouter(connect(mapStateToProps)(UserSettings));
+export default withRouter(connect(mapStateToProps)(AccountSettings));

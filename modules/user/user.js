@@ -525,4 +525,83 @@ app.post('/api/user/subscription/cancel', (req, resp) => {
     }
 });
 
+app.post('/api/user/payment/add', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let user = await client.query(`SELECT stripe_cust_id FROM users WHERE username = $1`, [req.session.user.username]);
+
+                    if (req.body.saveAddress) {
+                        await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_id = $6`, [req.body.address, req.body.city, req.body.region, req.body.country, req.body.cityCode, req.session.user.user_id]);
+                    }
+
+                    await stripe.customers.createSource(user.rows[0].stripe_cust_id, {source: req.body.token.id}, async(err, card) => {
+                        if (err) throw err;
+
+                        console.log(card);
+
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success', card: card}));
+                    });
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
+        });
+    } else {
+        resp.send({status: `You're not logged in`});
+    }
+});
+
+app.post('/api/user/payment/edit', (req, resp) => {
+    if (req.session.user) {
+        console.log(req.body);
+        db.connect((err, client, done) => {
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let user = await client.query(`SELECT stripe_cust_id FROM users WHERE username = $1`, [req.session.user.username]);
+
+                    await stripe.customers.updateCard(user.rows[0].stripe_cust_id, req.body.source, {
+                        address_line1: req.body.address_line1,
+                        address_city: req.body.address_city,
+                        address_state: req.body.address_state,
+                        address_country: req.body.address_country,
+                        address_zip: req.body.address_zip
+                    }, async(err, card) => {
+                        if (err) throw err;
+
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success', statusMessage: 'Card updated', card: card}));
+                    });
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: 'Stripe updating client card', url: req.url});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
+        });
+    }
+});
+
 module.exports = app;

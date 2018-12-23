@@ -24,11 +24,7 @@ const Dashboard = props => {
     } else if (props.user.status === 'get session success') {
         return(
             <section id='dashboard' className='main-panel w-100'>
-                <TabBar items={[
-                    {name: 'Profile', active: props.location.pathname === '/dashboard/edit', link: '/dashboard/edit'},
-                    {name: 'Saved Listings', active: props.location.pathname === '/dashboard/saved_listings', link: '/dashboard/saved_listings'},
-                    {name: 'Account Settings', active: props.location.pathname === '/dashboard/settings', link: '/dashboard/settings'},
-                ]} />
+                <TabBar items={props.items} />
 
                 {status}
                 {props.children}

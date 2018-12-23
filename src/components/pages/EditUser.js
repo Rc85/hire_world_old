@@ -10,6 +10,7 @@ import { Elements, StripeProvider } from 'react-stripe-elements';
 import Checkout from '../includes/page/Checkout';
 import paymentMethod from '../../../dist/images/payment_methods.png';
 import poweredByStripe from '../../../dist/images/powered_by_stripe.png';
+import BusinessHoursSettings from '../includes/page/BusinessHoursSettings';
 
 class EditUser extends Component {
     render() {
@@ -31,7 +32,7 @@ class EditUser extends Component {
             }
 
             if (this.props.user.user.user_business_name) {
-                businessName = <h3>{this.props.user.user.user_business_name}</h3>;
+                businessName = <h4>{this.props.user.user.user_business_name}</h4>;
             }
 
             if (!this.props.user.user.hide_email) {
@@ -84,7 +85,6 @@ class EditUser extends Component {
 
                     <div className='text-right w-50'>
                         <img src={poweredByStripe} className='w-25' />
-                        <img src={paymentMethod} className='w-25' />
                     </div>
                 </div>
 
@@ -126,12 +126,16 @@ class EditUser extends Component {
                     </div>
                     
                     <div className='col-10'>
-                        <NavLink to={`/user/${this.props.user.user ? this.props.user.user.username : ''}`}><h1>{this.props.user.user ? this.props.user.user.username : ''}</h1></NavLink>
+                        <NavLink to={`/user/${this.props.user.user ? this.props.user.user.username : ''}`}><h1 className='m-0'>{this.props.user.user ? this.props.user.user.username : ''}</h1></NavLink>
                         {businessName}
 
                         <hr/>
 
                         {this.props.user.user.account_type === 'Listing' ? <ListSettings user={this.props.user} /> : payment}
+
+                        <hr/>
+
+                        <BusinessHoursSettings />
                     </div>
                 </div>
             </section>

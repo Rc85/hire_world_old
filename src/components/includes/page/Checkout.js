@@ -19,7 +19,7 @@ class Checkout extends Component {
             status: '',
             plan: 'plan_EAIyF94Yhy1BLB',
             name: '',
-            defaultAddress: this.props.user.user_address ? true : false,
+            defaultAddress: this.props.user.user_address && this.props.user.user_city && this.props.user.user_region && this.props.user.user_country && this.props.user.user_city_code ? true : false,
             saveAddress: false
         }
         
@@ -46,9 +46,7 @@ class Checkout extends Component {
     }
     
     async submit() {
-        let { token } = await this.props.stripe.createToken({
-            name: `${this.props.user.user_firstname} ${this.props.user.user_lastname}`
-        });
+        let { token } = await this.props.stripe.createToken({name: this.state.name});
 
         this.setState({status: 'Sending'});
 

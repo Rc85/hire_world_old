@@ -123,6 +123,8 @@
     border: 1px solid $theme-bg;
 
     hr { background: $theme-bg }
+
+    &.no-top { border-top-width: 0px; }
 }
 
 .dark-bordered-container {

@@ -10,9 +10,9 @@ import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';
 import { unsaveListing } from '../utils/Utils';
 import { LogError } from '../utils/LogError';
-import Response from '../pages/Response'
+import Response from './Response'
 
-class SavedListings extends Component {
+class FriendsList extends Component {
     constructor(props) {
         super(props);
         
@@ -165,7 +165,7 @@ class SavedListings extends Component {
     }
 }
 
-SavedListings.propTypes = {
+FriendsList.propTypes = {
     user: PropTypes.object.isRequired
 };
 
@@ -176,4 +176,4 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps)(SavedListings);
+export default connect(mapStateToProps)(FriendsList);

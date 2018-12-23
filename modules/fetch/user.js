@@ -1,6 +1,7 @@
 const app = require('express').Router();
 const db = require('../db');
 const error = require('../utils/error-handler');
+const stripe = require('stripe')(process.env.NODE_ENV === 'development' ? process.env.DEV_STRIPE_API_KEY : process.env.STRIPE_API_KEY)
 
 app.post('/api/get/user', async(req, resp) => {
     db.connect((err, client, done) => {
@@ -236,7 +237,7 @@ app.get('/api/get/user/notification-and-message-count', async(req, resp) => {
     if (req.session.user) {
         let notifications = await db.query(`SELECT COUNT(notification_id) AS notification_count FROM notifications WHERE notification_recipient = $1 AND notification_status = 'New'`, [req.session.user.username]);
 
-        let messages = await db.query(`SELECT COUNT(message_id) AS message_count FROM jobs WHERE message_recipient = $1 AND message_status = 'New'`, [req.session.user.username]);
+        let messages = await db.query(`SELECT COUNT(message_id) AS message_count FROM messages WHERE message_recipient = $1 AND message_status = 'New'`, [req.session.user.username]);
 
         if (notifications && messages) {
             resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0].message_count});
@@ -266,5 +267,20 @@ app.get('/api/get/user/notifications', async(req, resp) => {
         resp.send('done');
     }
 });
+
+app.post('/api/get/payments', async(req, resp) => {
+    if (req.session.user) {
+        let user = await db.query(`SELECT stripe_cust_id FROM users WHERE username = $1`, [req.session.user.username])
+
+        stripe.customers.retrieve(user.rows[0].stripe_cust_id, (err, customer) => {
+            if (err) {
+                error.log({name: err.name, message: err.message, origin: 'Updating Stripe customer', url: req.url});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            }
+
+            resp.send({status: 'success', defaultSource: customer.default_source, payments: customer.sources.data});
+        });
+    }
+})
 
 module.exports = app;

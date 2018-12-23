@@ -37,7 +37,7 @@ class BusinessHoursSettings extends Component {
         fetch.get('/api/get/business_hours')
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.initialState = splitHours(resp.data.hours);
+                this.initialState = this.splitHours(resp.data.hours);
 
                 this.setState(this.initialState);
             }
@@ -187,15 +187,12 @@ class BusinessHoursSettings extends Component {
         return (
             <div id='business-hours-settings' className='mb-3'>
                 <div className='d-flex-between-center mb-3'>
-                    <div className='d-flex-between-center'>
-                        <div className='mr-1'>Business Hours:</div>
-                        <div id='business-hours-tip'><FontAwesomeIcon icon={faQuestionCircle} /></div>
-                        <UncontrolledTooltip placement='right' target='business-hours-tip'>If one or both fields are blank, it will indicate 'Closed' for that day.<br/>Format example - 8:00 AM PST, 12:00 PM, 24:00, etc.</UncontrolledTooltip>
-                    </div>
-                    
+                    <div className='mr-1'><h5>Business Hours:</h5></div>
                     
                     <button id='toggle-hours-setting-button' className='btn btn-info btn-sm' onClick={() => this.setState({showSettings: !this.state.showSettings})}>{this.state.showSettings ? <FontAwesomeIcon icon={faCaretUp} /> : <FontAwesomeIcon icon={faCaretDown} />}</button>
                 </div>
+
+                <span>If one or both fields are blank, it will indicate 'Closed' for that day.</span>
 
                 {settings}
             </div>

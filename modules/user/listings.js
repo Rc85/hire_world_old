@@ -61,59 +61,71 @@ app.post('/api/listing/create', (req, resp) => {
 
 app.post('/api/listing/toggle', (req, resp) => {
     if (req.session.user) {
-        db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+        let price;
+        
+        if (!validate.blankCheck.test(req.body.listing_title)) {
+            resp.send({status: 'error', statusMessage: 'Title required'});
+        } else if (!validate.blankCheck.test(req.body.listing_sector)) {
+            resp.send({status: 'error', statusMessage: 'Sector is required'});
+        } else if (!req.body.listing_price) {
+            price = 0;
+        } else if (!validate.blankCheck.test(req.body.listing_price_currency)) {
+            resp.send({status: 'error', statusMessage: 'Please set a currency for your price'});
+        } else {
+            db.connect((err, client, done) => {
+                if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
-            (async() => {
-                try {
-                    await client.query('BEGIN');
+                (async() => {
+                    try {
+                        await client.query('BEGIN');
 
-                    let user = await client.query(`SELECT user_status FROM users WHERE user_id = $1`, [req.session.user.user_id]);
+                        let user = await client.query(`SELECT user_status FROM users WHERE user_id = $1`, [req.session.user.user_id]);
 
-                    if (user && user.rows[0].user_status === 'Active') {
-                        let listed = await client.query(`SELECT * FROM user_listings WHERE listing_user = $1`, [req.session.user.username]);
+                        if (user && user.rows[0].user_status === 'Active') {
+                            let listed = await client.query(`SELECT * FROM user_listings WHERE listing_user = $1`, [req.session.user.username]);
 
-                        let newValue, listing;
+                            let newValue, listing;
 
-                        if (listed && listed.rows.length === 1) {
-                            if (listed.rows[0].listing_status === 'Active') {
-                                newValue = 'Inactive';
-                            } else if (listed.rows[0].listing_status === 'Inactive') {
-                                newValue = 'Active';
+                            if (listed && listed.rows.length === 1) {
+                                if (listed.rows[0].listing_status === 'Active') {
+                                    newValue = 'Inactive';
+                                } else if (listed.rows[0].listing_status === 'Inactive') {
+                                    newValue = 'Active';
+                                }
+
+                                listing = await client.query(`UPDATE user_listings SET listing_title = $9, listing_sector = $3, listing_price = $4, listing_price_type = $5, listing_price_currency = $6, listing_negotiable = $7, listing_detail = $8, listing_status = $1, listing_purpose = $10 WHERE listing_id = $2 RETURNING *`, [newValue, listed.rows[0].listing_id, req.body.listing_sector, price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_detail, req.body.listing_title, req.body.listing_purpose]);
+                            } else if (listed && listed.rows.length === 0) {
+                                let listingEndDate = await client.query(`SELECT subscription_end_date FROM users WHERE username = $1`, [req.session.user.username]);
+
+                                listing = await client.query(`INSERT INTO user_listings (listing_title, listing_user, listing_sector, listing_price, listing_price_type, listing_price_currency, listing_negotiable, listing_detail, listing_end_date, listing_purpose) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`, [req.body.listing_title, req.session.user.username, req.body.listing_sector, price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_detail, listingEndDate.rows[0].subscription_end_date, req.body.listing_purpose]);
                             }
 
-                            listing = await client.query(`UPDATE user_listings SET listing_title = $9, listing_sector = $3, listing_price = $4, listing_price_type = $5, listing_price_currency = $6, listing_negotiable = $7, listing_detail = $8, listing_status = $1, listing_purpose = $10 WHERE listing_id = $2 RETURNING *`, [newValue, listed.rows[0].listing_id, req.body.listing_sector, req.body.listing_price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_detail, req.body.listing_title, req.body.listing_purpose]);
-                        } else if (listed && listed.rows.length === 0) {
-                            let listingEndDate = await client.query(`SELECT subscription_end_date FROM users WHERE username = $1`, [req.session.user.username]);
-
-                            listing = await client.query(`INSERT INTO user_listings (listing_title, listing_user, listing_sector, listing_price, listing_price_type, listing_price_currency, listing_negotiable, listing_detail, listing_end_date, listing_purpose) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`, [req.body.listing_title, req.session.user.username, req.body.listing_sector, req.body.listing_price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_detail, listingEndDate.rows[0].subscription_end_date, req.body.listing_purpose]);
+                            await client.query('COMMIT')
+                            .then(() => resp.send({status: 'success', listing: listing.rows[0]}));
+                        } else if (user && user.rows[0].user_status === 'Suspend') {
+                            let error = new Error(`You're temporarily banned`);
+                            error.type = 'CUSTOM';
+                            throw error;
                         }
-
-                        await client.query('COMMIT')
-                        .then(() => resp.send({status: 'success', listing: listing.rows[0]}));
-                    } else if (user && user.rows[0].user_status === 'Suspend') {
-                        let error = new Error(`You're temporarily banned`);
-                        error.type = 'CUSTOM';
-                        throw error;
+                    } catch (e) {
+                        await client.query('ROLLBACK');
+                    throw e;
+                    } finally {
+                        done();
                     }
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                throw e;
-                } finally {
-                    done();
-                }
-            })()
-            .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
-                let message = 'An error occurred';
+                })()
+                .catch(err => {
+                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    let message = 'An error occurred';
 
-                if (err.type === 'CUSTOM') {
-                    message = err.message;
-                }
+                    if (err.type === 'CUSTOM') {
+                        message = err.message;
+                    }
 
-                resp.send({status: 'error', statusMessage: message});
+                    resp.send({status: 'error', statusMessage: message});
+                });
             });
-        });
+        }
     } else {
         resp.send({status: 'error', statusMessage: `You're not logged in`});
     }

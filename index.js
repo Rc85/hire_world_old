@@ -153,7 +153,7 @@ app.post('/resend', async(req, resp) => {
         let regKeyString = encrypted.toString();
         let registrationKey = encodeURIComponent(regKeyString);
 
-        await db.query(`UPDATE users SET registration_key = $1, reg_key_expire_date = current_timestamp + interval '1' day WHERE user_id = $2`, [registrationKey, user.rows[0].user_id]);
+        await db.query(`UPDATE users SET registration_key = $1, reg_key_expire_date = current_timestamp + interval '1' day WHERE user_id = $2`, [regKeyString, user.rows[0].user_id]);
 
         let message = {
             to: req.body.email,

@@ -39,7 +39,7 @@ class SubmitReview extends Component {
                     {authMessage}
 
                     <div className='d-flex mb-3'>
-                        <Rating star={this.props.star} set={(stars) => this.setState({star: stars})} />
+                        <Rating star={this.state.star} set={(stars) => this.setState({star: stars})} />
                     </div>
                 </div>
                 <TextArea submit={(review) => this.props.submit(review, this.state.star)} cancel={() => this.props.cancel()} value={this.props.review} />

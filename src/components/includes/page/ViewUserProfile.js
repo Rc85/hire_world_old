@@ -22,6 +22,8 @@ const ViewUserProfile = props => {
         bio = props.user.listing_detail;
     }
 
+    console.log(props);
+
     return(
         <div id='view-user-profile' className='mb-3'>
             <div className='d-flex-between-start mb-3'>
@@ -35,7 +37,7 @@ const ViewUserProfile = props => {
                     <div id='view-user-title'>
                         <h1 className='d-flex m-0'>{name}</h1>
                         <h5 className='mb-0'>{props.user.user_title}</h5>
-                        <div className='w-40'><UserRating rating={props.stats.rating || 0} /></div>
+                        <div className='w-40'><UserRating rating={props.stats.rating || 0} /> ({props.stats.job_count})</div>
                     </div>
                 </div>
 

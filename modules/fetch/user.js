@@ -236,7 +236,7 @@ app.get('/api/get/user/notification-and-message-count', async(req, resp) => {
     if (req.session.user) {
         let notifications = await db.query(`SELECT COUNT(notification_id) AS notification_count FROM notifications WHERE notification_recipient = $1 AND notification_status = 'New'`, [req.session.user.username]);
 
-        let messages = await db.query(`SELECT COUNT(job_id) AS message_count FROM jobs WHERE job_user = $1 AND job_status = 'New'`, [req.session.user.username]);
+        let messages = await db.query(`SELECT COUNT(message_id) AS message_count FROM jobs WHERE message_recipient = $1 AND message_status = 'New'`, [req.session.user.username]);
 
         if (notifications && messages) {
             resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0].message_count});

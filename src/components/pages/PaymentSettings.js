@@ -125,7 +125,6 @@ class PaymentSettings extends Component {
     }
     
     render() {
-        console.log(this.state)
         let address, paymentMethods;
 
         if (!this.state.defaultAddress) {

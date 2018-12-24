@@ -310,14 +310,14 @@ app.post('/api/user/notifications/viewed', async(req, resp) => {
     }
 });
 
-app.post('/api/user/payment/submit', (req, resp) => {
+app.post('/api/user/subscription/add', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
             if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
             (async() => {
                 try {
-                    if (!req.body.defaultAddress) {
+                    /* if (!req.body.defaultAddress) {
                         if (req.body.country && !validate.locationCheck.test(req.body.country)) {
                             let error = new Error('Country is required');
                             error.type = 'CUSTOM';
@@ -339,17 +339,17 @@ app.post('/api/user/payment/submit', (req, resp) => {
                             error.type = 'CUSTOM';
                             throw error;
                         }
-                    }
+                    } */
                 
                     await client.query('BEGIN');
 
-                    let address, city, region, country, cityCode;
+                    //let address, city, region, country, cityCode;
 
                     let user = await client.query(`SELECT * FROM users
                     LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
                     WHERE username = $1`, [req.session.user.username]);
 
-                    if (req.body.defaultAddress) {
+                    /* if (req.body.defaultAddress) {
                         if (user.rows[0].user_address) {
                             address = user.rows[0].user_address;
                         } else {
@@ -394,28 +394,23 @@ app.post('/api/user/payment/submit', (req, resp) => {
                         city = req.body.city;
                         region = req.body.region;
                         country = req.body.country;
-                        cityCode = req.body.cityCode;
+                        cityCode = req.body.cityCode; */
 
                         if (req.body.saveAddress) {
-                            await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [address, city, region, country, cityCode, req.session.user.user_id]);
+                            await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.address_line1, req.body.address_city, req.body.address_state, req.body.address_country, req.body.address_zip, req.session.user.user_id]);
                         }
-                    }
+                    //}
 
-                    let customer, subscription;
+                    let customer, subscription, accountType;
+
+                    if (req.body.plan === 'plan_EAIyF94Yhy1BLB') {
+                        accountType = 'Listing';
+                    }
 
                     if (user.rows[0].stripe_cust_id) {
                         await stripe.customers.update(user.rows[0].stripe_cust_id, {
                             source: req.body.token.id,
-                            shipping: {
-                                name: req.body.name,
-                                address: {
-                                    line1: address,
-                                    city: city,
-                                    country: country,
-                                    postal_code: cityCode,
-                                    state: region
-                                }
-                            }
+                            email: user.rows[0].user_email
                         });
 
                         if (!user.rows[0].is_subscribed) {
@@ -427,46 +422,38 @@ app.post('/api/user/payment/submit', (req, resp) => {
                             let now = new Date();
 
                             if (user.rows[0].subscription_end_date > now) {
-                                subscriptionParams['trial_period_days'] = now + user.rows[0].subscription_end_date;
-                               
-                                console.log(user.rows[0].subscription_end_date > now);
-                                console.log(now + user.rows[0].subscription_end_date);
+                                let dayDiff = user.rows[0].subscription_end_date - now;
+                                subscriptionParams['trial_period_days'] = dayDiff;
+
+                                await client.query(`UPDATE users SET subscription_end_date = subscription_end_date + $1 WHERE username = $2`, [dayDiff, req.session.user.username]);
+                            } else {
+                                await client.query(`UPDATE users SET subscription_end_date = current_timestamp + interval '32 days' WHERE username = $1`, [req.session.user.username]);
                             }
 
                             subscription = await stripe.subscriptions.create(subscriptionParams);
+
+                            console.log(subscription);
+
+                            if (subscription.status = 'active') {
+                                await client.query(`UPDATE users SET is_subscribed = true, subscription_id = $1, plan_id = $2, account_type = $4 WHERE username = $3`, [subscription.id, subscription.plan.id, req.session.user.username, accountType]);
+                            }
                         }
                     } else {
                         customer = await stripe.customers.create({
-                            email: user.rows[0].user_email,
                             source: req.body.token.id,
-                            shipping: {
-                                name: req.body.name,
-                                address: {
-                                    line1: address,
-                                    city: city,
-                                    country: country,
-                                    postal_code: cityCode,
-                                    state: region
-                                }
-                            }
+                            email: user.rows[0].user_email,
                         });
-
-                        let accountType;
-
-                        if (req.body.plan === 'plan_EAIyF94Yhy1BLB') {
-                            accountType = 'Listing';
-                        }
 
                         subscription = await stripe.subscriptions.create({
                             customer: customer.id,
                             items: [{plan: req.body.plan}]
                         });
 
-                        await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_cust_id = $1, subscription_id = $4, subscription_end_date = current_timestamp + interval '32 days' WHERE username = $2`, [customer.id, req.session.user.username, accountType, subscription.id]);
-
-                        await client.query('COMMIT')
-                        .then(() => resp.send({status: 'success'}));
+                        await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_cust_id = $1, subscription_id = $4, plan_id = $5, subscription_end_date = current_timestamp + interval '32 days' WHERE username = $2`, [customer.id, req.session.user.username, accountType, subscription.id, subscription.plan.id]);
                     }
+
+                    await client.query('COMMIT')
+                    .then(() => resp.send({status: 'success'}));
                 } catch (e) {
                     await client.query('ROLLBACK');
                     throw e;
@@ -550,7 +537,14 @@ app.post('/api/user/payment/add', (req, resp) => {
                     } else if (user && !user.rows[0].stripe_cust_id) {
                         let customer = await stripe.customers.create({
                             source: req.body.token.id,
-                            email: user.rows[0].user_email
+                            email: user.rows[0].user_email,
+                            shipping: {
+                                address_line1: req.body.defaultAddress ? req.body.user.user_address : req.body.address_line1,
+                                address_city: req.body.defaultAddress ? req.body.user.user_city : req.body.address_city,
+                                address_state: req.body.defaultAddress ? req.body.user.user_region : req.body.address_state,
+                                address_country: req.body.defaultAddress ? req.body.user.user_country : req.body.address_country,
+                                address_zip: req.body.defaultAddress ? req.body.user.user_city_code : req.body.address_zip
+                            }
                         });
 
                         await client.query(`UPDATE users SET stripe_cust_id = $1 WHERE username = $2`, [customer.id, req.session.user.username]);

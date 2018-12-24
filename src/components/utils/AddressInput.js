@@ -13,8 +13,6 @@ const AddressInput = props => {
         </div>;
     }
 
-    console.log(props);
-
     return(
         <div>
             <div className='d-flex-between-center mb-3'>

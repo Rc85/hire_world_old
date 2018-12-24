@@ -15,19 +15,32 @@ import { LogError } from '../utils/LogError';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 import { UncontrolledTooltip } from 'reactstrap';
+import Loading from '../utils/Loading';
 
 class AccountSettings extends Component {
+    constructor(props) {
+        super(props);
+        
+        this.state = {
+            status: ''
+        }
+    }
+    
     saveSetting(name) {
+        this.setState({status: 'Loading'});
+
         let setting = Object.assign({}, this.props.user.user);
         setting[name] = !setting[name];
 
        fetch.post(`/api/user/settings/change`, setting)
         .then(resp => {
+            this.setState({status: ''});
+
             if (resp.data.status === 'success') {
                 this.props.dispatch(UpdateUser(resp.data.user));
 
                 if (resp.data.user.hide_email && !resp.data.user.allow_messaging) {
-                    this.props.dispatch(ShowWarning(`Consider having email displayed or allow messaging so users can contact you.`));
+                    this.props.dispatch(ShowWarning(`Consider either have email displayed or allow messaging so users can contact you.`));
                 }
             } else {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -37,8 +50,16 @@ class AccountSettings extends Component {
     }
 
     render() {
+        let status;
+
+        if (this.state.status === 'Loading') {
+            status = <Loading size='5x' />;
+        }
+
         return(
             <section id='user-settings' className='blue-panel shallow three-rounded'>
+                {status}
+
                 <ProfileSettings user={this.props.user} />
 
                 <hr/>
@@ -60,6 +81,12 @@ class AccountSettings extends Component {
                             <label htmlFor='displayFullName'>Display full name instead of username:</label>
 
                             <SlideToggle status={this.props.user.user ? this.props.user.user.display_fullname : false} id='displayFullName' onClick={() => this.saveSetting('display_fullname')} />
+                        </div>
+
+                        <div className='d-flex-between-center mb-3'>
+                            <label htmlFor='displayBusinessHours'>Display Business Hours:</label>
+
+                            <SlideToggle status={this.props.user.user ? this.props.user.user.display_business_hours : false} id='displayBusinessHours' onClick={() => this.saveSetting('display_business_hours')} />
                         </div>
                     </div>
 

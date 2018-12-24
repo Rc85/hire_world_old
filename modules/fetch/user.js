@@ -14,7 +14,7 @@ app.post('/api/get/user', async(req, resp) => {
                 let listed = await client.query(`SELECT listing_user FROM user_listings WHERE listing_user = $1 AND listing_status = 'Active'`, [req.body.username]);
 
                 if (listed && listed.rows.length === 1) {
-                    let user = await client.query(`SELECT users.username, users.user_email, users.user_last_login, user_profiles.*, user_settings.hide_email, user_settings.display_fullname, user_settings.allow_messaging, user_listings.* FROM users
+                    let user = await client.query(`SELECT users.username, users.user_email, users.user_last_login, user_profiles.*, user_settings.*, user_listings.* FROM users
                     LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
                     LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
                     LEFT JOIN user_listings ON users.username = user_listings.listing_user
@@ -35,14 +35,17 @@ app.post('/api/get/user', async(req, resp) => {
 
                         delete user.rows[0].hide_email;
                         delete user.rows[0].display_fullname;
-
+                        delete user.rows[0].email_notifications;
+                        delete user.rows[0].listing_id;
+                        delete user.rows[0].user_setting_id;
+                        
                         let orderby = '';
                         let reviewsParam, reports, reportedUser;
                         let userIsReported = false;
                         let reportedReviews = [];
                         let businessHours = {};
                         
-                        if (!user.rows[0].hide_business_hours) {
+                        if (user.rows[0].display_business_hours) {
                             businessHoursQuery = await client.query(`SELECT * FROM business_hours WHERE business_owner = $1`, [req.body.username]);
 
                             if (businessHoursQuery.rows.length === 1) {
@@ -92,6 +95,7 @@ app.post('/api/get/user', async(req, resp) => {
 
                         await client.query(`INSERT INTO user_view_count (viewing_user, view_count) VALUES ($1, $2) ON CONFLICT (viewing_user) DO UPDATE SET view_count = user_view_count.view_count + 1`, [req.body.username, 1]);
 
+                        console.log(businessHours);
                         await client.query('COMMIT')
                         .then(() =>  resp.send({status: 'success', user: user.rows[0], reviews: reviews.rows, stats: stats.rows[0], hours: businessHours, reports: reportedReviews, userReported: userIsReported}));
                     }

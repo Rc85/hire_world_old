@@ -43,13 +43,14 @@ class EmailSettings extends Component {
         return(
             <div id='email-settings' className='mb-3'>
                 <div>
-                    <div className='d-flex-between-start'>
-                        <label>Change Email:</label>
-                        <FontAwesomeIcon icon={faQuestionCircle} id='change-email-tip' />
-                        <UncontrolledTooltip placement='top' target='change-email-tip'>Changing your email will require you to re-verify your email</UncontrolledTooltip>
+                    <div className='d-flex-end-center'>
+                        <div>
+                            <FontAwesomeIcon icon={faQuestionCircle} id='change-email-tip' />
+                            <UncontrolledTooltip placement='top' target='change-email-tip'>You will not be able to log in until you verify your new email</UncontrolledTooltip>
                         </div>
+                    </div>
 
-                    <div className='bordered-container rounded mb-3'>
+                    <div className='mb-3'>
                         <div className='mb-3'>
                             <label htmlFor='new-email'>New Email:</label>
                             <input type='email' name='new_email' id='new-email' className='form-control' onChange={(e) => this.setState({newEmail: e.target.value})} value={this.state.newEmail} />

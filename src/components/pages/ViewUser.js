@@ -11,6 +11,7 @@ import SubmitReview from '../includes/page/SubmitReview';
 import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle, faEye, faExclamationTriangle, faHeart } from '@fortawesome/free-solid-svg-icons';
+import ViewUserBusinessHours from '../includes/page/ViewUserBusinessHours';
 import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
 import { LogError } from '../utils/LogError';
@@ -221,7 +222,7 @@ class ViewUser extends Component {
                     <div className='row'>
                         <div className='col-3'>
                             {contacts}
-                            {/* <ViewUserStats stats={this.state.stats || {}} hours={this.state.hours} /> */}
+                            {this.state.user && this.state.user.display_business_hours ? <ViewUserBusinessHours hours={this.state.hours} /> : ''}
                         </div>
 
                         <div className='col-9'>

@@ -61,19 +61,26 @@ class Checkout extends Component {
     }
     
     async submit() {
-        let { token } = await this.props.stripe.createToken({
-            name: this.state.name ? this.state.name : `${this.props.user.user_firstname} ${this.props.user.user_lastname}`,
-            address_line1: this.state.defaultAddress ? this.props.user.user_address : this.state.address_line1,
-            address_city: this.state.defaultAddress ? this.props.user.user_city : this.state.address_city,
-            address_state: this.state.defaultAddress ? this.props.user.user_region : this.state.address_state,
-            address_zip: this.state.defaultAddress ? this.props.user.user_city_code : this.state.address_zip,
-            address_country: this.state.defaultAddress ? this.props.user.user_country : this.state.address_country
-        });
-
         this.setState({status: 'Sending'});
 
-        let data = Object.assign({}, this.state);
-        data['token'] = token;
+        let data = { ...this.state };
+        let token;
+
+        if (this.state.usePayment === 'New') {
+            token = await this.props.stripe.createToken({
+                name: this.state.name ? this.state.name : `${this.props.user.user_firstname} ${this.props.user.user_lastname}`,
+                address_line1: this.state.defaultAddress ? this.props.user.user_address : this.state.address_line1,
+                address_city: this.state.defaultAddress ? this.props.user.user_city : this.state.address_city,
+                address_state: this.state.defaultAddress ? this.props.user.user_region : this.state.address_state,
+                address_zip: this.state.defaultAddress ? this.props.user.user_city_code : this.state.address_zip,
+                address_country: this.state.defaultAddress ? this.props.user.user_country : this.state.address_country
+            });
+
+            data['token'] = token;
+        } else {
+            data['token'] = {};
+            data.token['id'] = this.state.usePayment;
+        }
 
         fetch.post('/api/user/subscription/add', data)
         .then(resp => {
@@ -122,35 +129,39 @@ class Checkout extends Component {
             </div>;
         }
 
-        let newPayment = <div className='d-flex-between-start mb-3'>
-            <div className='w-45'>
-                <div className='w-100 mb-3'>
-                    <label htmlFor='fullname'>Name on Card:</label>
-                    <input type='text' name='fullname' id='fullname' className='form-control' onChange={(e) => this.setState({name: e.target.value})} autoComplete='ccname' />
+        let newPayment = <React.Fragment>
+            <div className='d-flex-between-start'>
+                <div className='w-45'>
+                    <div className='w-100 mb-3'>
+                        <label htmlFor='fullname'>Name on Card:</label>
+                        <input type='text' name='fullname' id='fullname' className='form-control' onChange={(e) => this.setState({name: e.target.value})} autoComplete='ccname' />
+                    </div>
+
+                    <div className='w-100'>
+                        <label htmlFor='use-default-address'><input type='checkbox' name='use-default-address' id='use-default-address' checked={this.state.defaultAddress} onChange={() => this.useDefaultAddress()} /> Use address registered with this account</label>
+                    </div>
                 </div>
 
-                <div className='w-100'>
-                    <label htmlFor='use-default-address'><input type='checkbox' name='use-default-address' id='use-default-address' checked={this.state.defaultAddress} onChange={() => this.useDefaultAddress()} /> Use address registered with this account</label>
+                <div className='d-flex-between-center w-45'>
+                    <div className='w-55'>
+                        <label htmlFor='card-number'>Credit Card Number:</label>
+                        <CardNumberElement className='form-control' />
+                    </div>
+
+                    <div className='w-20'>
+                        <label htmlFor='expiry-date'>Expirty Date:</label>
+                        <CardExpiryElement className='form-control' />
+                    </div>
+
+                    <div className='w-20'>
+                        <label htmlFor='cvc'>CVC:</label>
+                        <CardCVCElement className='form-control' />
+                    </div>
                 </div>
             </div>
 
-            <div className='d-flex-between-center w-45'>
-                <div className='w-55'>
-                    <label htmlFor='card-number'>Credit Card Number:</label>
-                    <CardNumberElement className='form-control' />
-                </div>
-
-                <div className='w-20'>
-                    <label htmlFor='expiry-date'>Expirty Date:</label>
-                    <CardExpiryElement className='form-control' />
-                </div>
-
-                <div className='w-20'>
-                    <label htmlFor='cvc'>CVC:</label>
-                    <CardCVCElement className='form-control' />
-                </div>
-            </div>
-        </div>;
+            <div className='text-right mb-3'>Note: This will become your default payment</div>
+        </React.Fragment>;
 
         return (
             <div className='checkout mt-3'>

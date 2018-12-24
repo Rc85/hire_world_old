@@ -168,7 +168,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
                                 let now = new Date();
 
                                 if (now > auth.rows[0].subscription_end_date) {
-                                    await client.query(`UPDATE users SET account_type = 'User' WHERE user_id = $1`, [auth.rows[0].user_id]);
+                                    await client.query(`UPDATE users SET account_type = 'User', subscription_id = null, plan_id = null WHERE user_id = $1`, [auth.rows[0].user_id]);
                                 }
                                 
                                 await client.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])

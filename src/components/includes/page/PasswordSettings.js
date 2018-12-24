@@ -49,13 +49,11 @@ class PasswordSettings extends Component {
             <div id='password-settings' className='position-relative mb-3'>
                 {status}
                 <div>
-                    <div className='d-flex justify-content-between'>
-                        <label>Change Password:</label>
-
+                    <div className='text-right'>
                         <span style={{fontWeight: 'bold', cursor: 'pointer'}} onClick={() => this.setState({showPassword: !this.state.showPassword})}>{showHide}</span>
                     </div>
 
-                    <div className='bordered-container rounded mb-3'>
+                    <div className='mb-3'>
                         <div className='mb-3'>
                             <label htmlFor='current-password'>Current Password:</label>
                             <input type={this.state.showPassword ? 'text' : 'password'} name='current_password' id='current-password' className='form-control' onChange={(e) => this.setState({currentPassword: e.target.value})} maxLength='15' value={this.state.currentPassword} />

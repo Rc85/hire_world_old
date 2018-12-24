@@ -6,6 +6,7 @@ const db = require('../db');
 const error = require('../utils/error-handler');
 const stripe = require('stripe')(process.env.NODE_ENV === 'development' ? process.env.DEV_STRIPE_API_KEY : process.env.STRIPE_API_KEY);
 const validate = require('../utils/validate');
+const moment = require('moment');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -408,10 +409,19 @@ app.post('/api/user/subscription/add', (req, resp) => {
                     }
 
                     if (user.rows[0].stripe_cust_id) {
-                        await stripe.customers.update(user.rows[0].stripe_cust_id, {
+                        let customerParams = {
                             source: req.body.token.id,
                             email: user.rows[0].user_email
-                        });
+                        }
+
+                        if (req.body.usePayment !== 'New') {
+                            customerParams = {
+                                default_source: req.body.token.id,
+                                email: user.rows[0].user_email
+                            }
+                        }
+
+                        await stripe.customers.update(user.rows[0].stripe_cust_id, customerParams);
 
                         if (!user.rows[0].is_subscribed) {
                             let subscriptionParams = {
@@ -422,19 +432,13 @@ app.post('/api/user/subscription/add', (req, resp) => {
                             let now = new Date();
 
                             if (user.rows[0].subscription_end_date > now) {
-                                let dayDiff = user.rows[0].subscription_end_date - now;
+                                let dayDiff = Math.ceil(moment.duration(user.rows[0].subscription_end_date - now).asDays());
                                 subscriptionParams['trial_period_days'] = dayDiff;
-
-                                await client.query(`UPDATE users SET subscription_end_date = subscription_end_date + $1 WHERE username = $2`, [dayDiff, req.session.user.username]);
-                            } else {
-                                await client.query(`UPDATE users SET subscription_end_date = current_timestamp + interval '32 days' WHERE username = $1`, [req.session.user.username]);
                             }
 
                             subscription = await stripe.subscriptions.create(subscriptionParams);
 
-                            console.log(subscription);
-
-                            if (subscription.status = 'active') {
+                            if (subscription.plan.active) {
                                 await client.query(`UPDATE users SET is_subscribed = true, subscription_id = $1, plan_id = $2, account_type = $4 WHERE username = $3`, [subscription.id, subscription.plan.id, req.session.user.username, accountType]);
                             }
                         }
@@ -490,7 +494,7 @@ app.post('/api/user/subscription/cancel', (req, resp) => {
                     let subscription = await stripe.subscriptions.del(subscriptionId.rows[0].subscription_id);
 
                     if (subscription.status === 'canceled') {
-                        await client.query(`UPDATE users SET account_type = 'User', is_subscribed = false, subscription_id = null WHERE username = $1`, [req.session.user.username]);
+                        await client.query(`UPDATE users SET is_subscribed = false WHERE username = $1`, [req.session.user.username]);
                     }
 
                     await client.query('COMMIT')

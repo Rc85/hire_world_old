@@ -67,7 +67,7 @@ app.post('/api/listing/toggle', (req, resp) => {
             price = req.body.listing_price;
         }
 
-        if (req.body.listing_purpose !== 'Hiring' || req.body.listing_purpose !== 'For Hire') {
+        if (req.body.listing_purpose !== 'Hiring' && req.body.listing_purpose !== 'For Hire') {
             resp.send({status: 'error', statusMessage: 'Are you looking to hire or for work?'});
         } else if (validate.blankCheck.test(req.body.listing_title)) {
             resp.send({status: 'error', statusMessage: 'Title required'});

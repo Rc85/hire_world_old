@@ -26,6 +26,7 @@ class UserPanel extends Component {
     
     render() {
         let panel, notificationPanel;
+        console.log(this.props.user.user);
 
         if (this.props.user.status === 'get session success') {
             panel = <React.Fragment>
@@ -34,7 +35,11 @@ class UserPanel extends Component {
                 </div>
                 
                 <div>
-                    <div className='mb-1'><NavLink to={`/user/${this.props.user.user ? this.props.user.user.username : ''}`}>{this.props.user.user ? this.props.user.user.username : ''}</NavLink></div>
+                    <div className='d-flex-center mb-1'>
+                        <div className={`listing-indicator mr-2 ${this.props.user.user.listing_status === 'Active' ? 'listed' : 'not-listed'}`} title={this.props.user.user.listing_status === 'Active' ? 'Listed' : 'Not Listed'}></div>
+                        <NavLink to={`/user/${this.props.user.user ? this.props.user.user.username : ''}`}>{this.props.user.user ? this.props.user.user.username : ''}</NavLink>
+                    </div>
+
                     <div className='d-flex-between-center'>
                         <div className='nav-item mr-3' title='Dashboard'><NavLink to='/dashboard/edit'><FontAwesomeIcon icon={faUser} size='lg' /></NavLink></div>
                         <div className='nav-item mr-3' title='Settings'><NavLink to='/settings/account'><FontAwesomeIcon icon={faCog} size='lg' /></NavLink></div>

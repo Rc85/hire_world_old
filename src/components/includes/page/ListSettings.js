@@ -11,6 +11,7 @@ import moment from 'moment';
 import { LogError } from '../../utils/LogError';
 import { GetSectors, GetSession } from '../../../actions/FetchActions';
 import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
+import { UpdateUser } from '../../../actions/LoginActions';
 
 class ListSettings extends Component {
     constructor(props) {
@@ -68,8 +69,11 @@ class ListSettings extends Component {
 
         fetch.post('/api/listing/toggle', this.state)
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
+                let user = {...this.props.user.user};
+                user.listing_status = resp.data.listing.listing_status;
+
+                this.props.dispatch(UpdateUser(user));
                 this.setState({status: '', listing_status: resp.data.listing.listing_status});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});

@@ -1201,6 +1201,18 @@
   text-decoration: none;
 }
 
+.listing-indicator {
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+}
+.listing-indicator.listed {
+  background-color: lime;
+}
+.listing-indicator.not-listed {
+  background-color: #8b8b8b;
+}
+
 #user-bio {
   white-space: pre-line;
   position: relative;

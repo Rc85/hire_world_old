@@ -215,10 +215,15 @@ app.post('/api/user/settings/change', (req, resp) => {
                             await client.query(`INSERT INTO business_hours (business_owner, monday, tuesday, wednesday, thursday, friday, saturday, sunday) VALUES ($1, $2, $2, $2, $2, $2, $2, $2) ON CONFLICT (business_owner) DO NOTHING`, [req.session.user.username, 'Closed']);
                         }
 
-                        let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
+                        let user = await client.query(`SELECT users.username, users.user_email, users.account_type, users.is_subscribed, user_profiles.*, user_settings.allow_messaging, user_settings.display_fullname, user_settings.hide_email, user_settings.display_business_hours, user_listings.listing_status FROM users
+                        LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
+                        LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
+                        LEFT JOIN user_listings ON users.username = user_listings.listing_user
+                        WHERE users.user_id = $1`, [req.session.user.user_id]);
 
                         delete user.rows[0].user_password;
                         delete user.rows[0].user_level;
+                        delete user.rows[0].user_profile_id;
 
                         if (user.rows[0].hide_email) {
                             delete user.rows[0].user_email;
@@ -228,6 +233,9 @@ app.post('/api/user/settings/change', (req, resp) => {
                             delete user.rows[0].user_firstname;
                             delete user.rows[0].user_lastname;
                         }
+
+                        delete user.rows[0].display_fullname;
+                        delete user.rows[0].hide_email;
 
                         await client.query('COMMIT')
                         .then(() => resp.send({status: 'success', user: user.rows[0]}));

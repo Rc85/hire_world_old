@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Route, withRouter, Switch, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { GetSession, GetSectors, GetUserNotificationAndMessageCount } from './actions/FetchActions';
+import { GetSession, GetUserNotificationAndMessageCount } from './actions/FetchActions';
 import { RemoveAlert } from './actions/AlertActions';
 import * as Pages from './components/pages';
 import * as Admin from './components/admin';
@@ -97,8 +97,9 @@ class App extends Component {
 		];
 
 		let settingsDashboardItems = [
+			{name: 'Listing', active: this.props.location.pathname === '/settings/listing', link: '/settings/listing'},
+			{name: 'Payment', active: this.props.location.pathname === '/settings/payment', link: '/settings/payment'},
 			{name: 'Account', active: this.props.location.pathname === '/settings/account', link: '/settings/account'},
-			{name: 'Payment', active: this.props.location.pathname === '/settings/payment', link: '/settings/payment'}
 		]
 
 		return (
@@ -120,6 +121,7 @@ class App extends Component {
 
 						<Route exact path='/settings/account' render={() =>  <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><StripeProvider apiKey='pk_test_KgwS8DEnH46HAFvrCaoXPY6R'><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+						<Route exact path='/settings/listing' render={() => <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.Listing user={this.props.user} /></Pages.Dashboard>} />
 
 						<Route exact path='/messages/Inquiries' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.Inquiries user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/message/:stage/:id/details' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.MessageDetails user={this.props.user} /></Pages.Dashboard>} />

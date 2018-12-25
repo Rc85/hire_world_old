@@ -5,10 +5,6 @@ import UserProfilePic from '../includes/page/UserProfilePic';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import UserTitle from '../includes/page/UserTitle';
-import ListSettings from '../includes/page/ListSettings';
-import { Elements, StripeProvider } from 'react-stripe-elements';
-import Checkout from '../includes/page/Checkout';
-import BusinessHoursSettings from '../includes/page/BusinessHoursSettings';
 
 class EditUser extends Component {
     render() {
@@ -76,23 +72,6 @@ class EditUser extends Component {
             }
         }
 
-        let payment = <StripeProvider apiKey='pk_test_KgwS8DEnH46HAFvrCaoXPY6R'>
-            <div id='payment-input'>
-                <div className='d-flex-between-center'>
-                    <div className='w-50'>To begin listing, you need to subscribe to a monthly plan.</div>
-
-                    <div className='text-right w-50'>
-                        <img src='/images/powered_by_stripe.png' className='w-25 mr-1' />
-                        <img src='/images/payment_methods.png' className='w-25' />
-                    </div>
-                </div>
-
-                <Elements>
-                    <Checkout user={this.props.user.user} />
-                </Elements>
-            </div>
-        </StripeProvider>;
-
         return(
             <section id='edit-user' className='blue-panel shallow three-rounded'>
                 <div className='row'>
@@ -129,12 +108,6 @@ class EditUser extends Component {
                         {businessName}
 
                         <hr/>
-
-                        {this.props.user.user.account_type === 'Listing' ? <ListSettings user={this.props.user} /> : payment}
-
-                        <hr/>
-
-                        {this.props.user.user.account_type === 'Listing' ? <BusinessHoursSettings /> : ''}
                     </div>
                 </div>
             </section>

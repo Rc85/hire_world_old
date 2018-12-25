@@ -43,7 +43,7 @@ class NotificationPanel extends Component {
             }
         });
 
-        fetch.get('/api/get/user/notifications')
+        fetch.post('/api/get/user/notifications', {new: true})
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.props.dispatch(GetUserNotificationAndMessageCount());

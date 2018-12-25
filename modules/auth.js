@@ -184,10 +184,8 @@ app.post('/api/auth/login', async(req, resp, next) => {
                                 await client.query('COMMIT')
                                 .then(() => next());
                             } else {
-                                let error = new Error('Incorrect username or password');
-                                error.type = 'CUSTOM';
-                                error.status = 'error';
-                                throw error;
+                                await client.query('ROLLBACK');
+                                resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
                             }
                         });
                     } else {

@@ -10,7 +10,6 @@ import SlideToggle from '../utils/SlideToggle';
 import fetch from 'axios';
 import { Alert } from '../../actions/AlertActions';
 import { ShowWarning } from '../../actions/WarningActions';
-import BusinessHoursSettings from '../includes/page/BusinessHoursSettings';
 import { LogError } from '../utils/LogError';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
@@ -78,15 +77,9 @@ class AccountSettings extends Component {
                         </div>
 
                         <div className='d-flex-between-center mb-3'>
-                            <label htmlFor='displayFullName'>Display full name instead of username:</label>
+                            <label htmlFor='displayFullName'>Display full name instead of username in your listing:</label>
 
                             <SlideToggle status={this.props.user.user ? this.props.user.user.display_fullname : false} id='displayFullName' onClick={() => this.saveSetting('display_fullname')} />
-                        </div>
-
-                        <div className='d-flex-between-center mb-3'>
-                            <label htmlFor='displayBusinessHours'>Display Business Hours:</label>
-
-                            <SlideToggle status={this.props.user.user ? this.props.user.user.display_business_hours : false} id='displayBusinessHours' onClick={() => this.saveSetting('display_business_hours')} />
                         </div>
                     </div>
 

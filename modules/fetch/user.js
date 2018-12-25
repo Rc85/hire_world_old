@@ -253,12 +253,22 @@ app.get('/api/get/user/notification-and-message-count', async(req, resp) => {
     }
 });
 
-app.get('/api/get/user/notifications', async(req, resp) => {
+app.post('/api/get/user/notifications', async(req, resp) => {
     if (req.session.user) {
-        await db.query(`SELECT * FROM notifications WHERE notification_recipient = $1 AND notification_status = 'New' ORDER BY notification_date DESC`, [req.session.user.username])
+        let queryString;
+
+        if (req.body.new) {
+            queryString = `SELECT * FROM notifications WHERE notification_recipient = $1 AND notification_status = 'New' ORDER BY notification_date DESC OFFSET $2`;
+        } else {
+            queryString = `SELECT * FROM notifications WHERE notification_recipient = $1 ORDER BY notification_date DESC OFFSET $2 LIMIT 20`;
+        }
+
+        await db.query(queryString, [req.session.user.username, req.body.offset])
         .then(async result => {
             if (result) {
-                await db.query(`UPDATE notifications SET notification_status = 'Viewed' WHERE notification_recipient = $1`, [req.session.user.username]);
+                if (req.body.new) {
+                    await db.query(`UPDATE notifications SET notification_status = 'Viewed' WHERE notification_recipient = $1`, [req.session.user.username]);
+                }
 
                 resp.send({status: 'success', notifications: result.rows});
             }

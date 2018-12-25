@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
-import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
+import PropTypes from 'prop-types';
 import fetch from 'axios';
 import SubmitButton from '../../utils/SubmitButton';
 import { connect } from 'react-redux';
 import { Alert } from '../../../actions/AlertActions';
-import { UncontrolledTooltip } from 'reactstrap';
 import { LogError } from '../../utils/LogError';
+import SlideToggle from '../../utils/SlideToggle';
+import { UpdateUser } from '../../../actions/LoginActions';
 
 class BusinessHoursSettings extends Component {
     constructor(props) {
@@ -162,22 +161,44 @@ class BusinessHoursSettings extends Component {
         })
         .catch(err => LogError(err, '/api/user/business_hours/save'));
     }
+
+    toggle() {
+        this.setState({status: 'Loading'});
+
+        let data = {...this.props.user.user};
+        data['display_business_hours'] = !data['display_business_hours'];
+
+        fetch.post(`/api/user/settings/change`, data)
+        .then(resp => {
+            this.setState({status: ''});
+
+            if (resp.data.status === 'success') {
+                this.props.dispatch(UpdateUser(resp.data.user));
+            } else {
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+        })
+        .catch(err => LogError(err, '/api/user/settings/change'));
+    }
     
     render() {
-        let settings;
         let clonedState = Object.assign({}, this.state);
         delete clonedState.status;
         delete clonedState.showSettings;
 
         return (
-            <div id='business-hours-settings' className='mb-3'>
-                <div className='d-flex-between-center mb-3'>
+            <section id='business-hours-settings' className='blue-panel shallow three-rounded'>
+                <div className='d-flex-between-center'>
                     <div className='mr-1'><h5>Business Hours:</h5></div>
 
-                    <span>If one or both fields are blank, it will indicate 'Closed' for that day.</span>
+                    <SlideToggle status={this.props.user.user.display_business_hours} onClick={() => this.toggle()} />
                 </div>
 
-                <div id='hours-settings' className='bordered-container no-top'>
+                <span>If one or both fields are blank, it will indicate 'Closed' for that day.</span>
+
+                <hr/>
+
+                <div id='hours-settings'>
                     <HourSetters day='Monday' startTime={(val) => this.setState({monStartTime: val})} endTime={(val) => this.setState({monEndTime: val})} startValue={this.state.monStartTime} endValue={this.state.monEndTime} />
                     <HourSetters day='Tuesday' startTime={(val) => this.setState({tueStartTime: val})} endTime={(val) => this.setState({tueEndTime: val})} startValue={this.state.tueStartTime} endValue={this.state.tueEndTime} />
                     <HourSetters day='Wednesday' startTime={(val) => this.setState({wedStartTime: val})} endTime={(val) => this.setState({wedEndTime: val})} startValue={this.state.wedStartTime} endValue={this.state.wedEndTime} />
@@ -188,7 +209,7 @@ class BusinessHoursSettings extends Component {
 
                     <div className='text-right'><SubmitButton loading={this.state.status === 'Loading'} type='button' value='Save' onClick={() => this.save(this.state)} disabled={JSON.stringify(clonedState) == JSON.stringify(this.initialState)} /></div>
                 </div>
-            </div>
+            </section>
         );
     }
 }
@@ -205,6 +226,10 @@ const HourSetters = props => {
             </div>
         </div>
     )
+}
+
+BusinessHoursSettings.propTypes = {
+    user: PropTypes.object
 }
 
 export default connect()(BusinessHoursSettings);

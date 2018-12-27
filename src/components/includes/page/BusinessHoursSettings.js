@@ -187,7 +187,7 @@ class BusinessHoursSettings extends Component {
         delete clonedState.showSettings;
 
         return (
-            <section id='business-hours-settings' className='blue-panel shallow three-rounded'>
+            <section id='business-hours-settings'>
                 <div className='d-flex-between-center'>
                     <div className='mr-1'><h5>Business Hours:</h5></div>
 

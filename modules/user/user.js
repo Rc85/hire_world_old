@@ -7,6 +7,7 @@ const error = require('../utils/error-handler');
 const stripe = require('stripe')(process.env.NODE_ENV === 'development' ? process.env.DEV_STRIPE_API_KEY : process.env.STRIPE_API_KEY);
 const validate = require('../utils/validate');
 const moment = require('moment');
+const request = require('request');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -316,167 +317,105 @@ app.post('/api/user/subscription/add', (req, resp) => {
         db.connect((err, client, done) => {
             if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
-            (async() => {
-                try {
-                    /* if (!req.body.defaultAddress) {
-                        if (req.body.country && !validate.locationCheck.test(req.body.country)) {
-                            let error = new Error('Country is required');
-                            error.type = 'CUSTOM';
-                            throw error;
-                        } else if (req.body.region && !validate.locationCheck.test(req.body.region)) {
-                            let error = new Error('Region is required');
-                            error.type = 'CUSTOM';
-                            throw error;
-                        } else if (req.body.city && !validate.locationCheck.test(req.body.city)) {
-                            let error = new Error('City is required');
-                            error.type = 'CUSTOM';
-                            throw error;
-                        } else if (req.body.name && !validate.fullNameCheck.test(req.body.name)) {
-                            let error = new Error('Name is required');
-                            error.type = 'CUSTOM';
-                            throw error;
-                        } else if (req.body.cityCode && !validate.cityCodeCheck.test(req.body.cityCode)) {
-                            let error = new Error('Postal/Zip code is required');
-                            error.type = 'CUSTOM';
-                            throw error;
-                        }
-                    } */
-                
-                    await client.query('BEGIN');
+            request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.SUBSCRIPTION_RECAPTCHA_SECRET, response: req.body.verified}}, (err, res, body) => {
+                if (err) error.log({name: err.name, message: err.message, origin: 'Subscription recaptcha', url: req.url});
 
-                    //let address, city, region, country, cityCode;
+                let response = JSON.parse(res.body);
 
-                    let user = await client.query(`SELECT * FROM users
-                    LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
-                    WHERE username = $1`, [req.session.user.username]);
+                if (response.success) {
+                    (async() => {
+                        try {
+                            await client.query('BEGIN');
 
-                    /* if (req.body.defaultAddress) {
-                        if (user.rows[0].user_address) {
-                            address = user.rows[0].user_address;
-                        } else {
-                            let error = new Error('Address is not set');
-                            error.type = 'CUSTOM';
-                            throw error;
-                        }
+                            let user = await client.query(`SELECT * FROM users
+                            LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+                            WHERE username = $1`, [req.session.user.username]);
 
-                        if (user.rows[0].user_city) {
-                            city = user.rows[0].user_city;
-                        } else {
-                            let error = new Error('City is not set');
-                            error.type = 'CUSTOM';
-                            throw error;
-                        }
-
-                        if (user.rows[0].user_region) {
-                            region = user.rows[0].user_region;
-                        } else {
-                            let error = new Error('State/Province is not set');
-                            error.type = 'CUSTOM';
-                            throw error;
-                        }
-
-                        if (user.rows[0].user_country) {
-                            country = user.rows[0].user_country;
-                        } else {
-                            let error = new Error('Country is not set');
-                            error.type = 'CUSTOM';
-                            throw error;
-                        }
-
-                        if (user.rows[0].user_city_code) {
-                            cityCode = user.rows[0].user_city_code;
-                        } else {
-                            let error = new Error('Postal/Zip Code not set');
-                            error.type = 'CUSTOM';
-                            throw error;
-                        }
-                    } else {
-                        address = req.body.address;
-                        city = req.body.city;
-                        region = req.body.region;
-                        country = req.body.country;
-                        cityCode = req.body.cityCode; */
-
-                        if (req.body.saveAddress) {
-                            await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.address_line1, req.body.address_city, req.body.address_state, req.body.address_country, req.body.address_zip, req.session.user.user_id]);
-                        }
-                    //}
-
-                    let customer, subscription, accountType;
-
-                    if (req.body.plan === 'plan_EAIyF94Yhy1BLB') {
-                        accountType = 'Listing';
-                    }
-
-                    if (user.rows[0].stripe_cust_id) {
-                        let customerParams = {
-                            source: req.body.token.id,
-                            email: user.rows[0].user_email
-                        }
-
-                        if (req.body.usePayment !== 'New') {
-                            customerParams = {
-                                default_source: req.body.token.id,
-                                email: user.rows[0].user_email
-                            }
-                        }
-
-                        await stripe.customers.update(user.rows[0].stripe_cust_id, customerParams);
-
-                        if (!user.rows[0].is_subscribed) {
-                            let subscriptionParams = {
-                                customer: user.rows[0].stripe_cust_id,
-                                items: [{plan: req.body.plan}]
+                            if (req.body.saveAddress) {
+                                await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.address_line1, req.body.address_city, req.body.address_state, req.body.address_country, req.body.address_zip, req.session.user.user_id]);
                             }
 
-                            let now = new Date();
+                            let customer, subscription, accountType;
 
-                            if (user.rows[0].subscription_end_date > now) {
-                                let dayDiff = Math.ceil(moment.duration(user.rows[0].subscription_end_date - now).asDays());
-                                subscriptionParams['trial_period_days'] = dayDiff;
+                            if (req.body.plan === 'plan_EAIyF94Yhy1BLB') {
+                                accountType = 'Listing';
                             }
 
-                            subscription = await stripe.subscriptions.create(subscriptionParams);
+                            if (user.rows[0].stripe_cust_id) {
+                                let customerParams = {
+                                    source: req.body.token.id,
+                                    email: user.rows[0].user_email
+                                }
 
-                            if (subscription.plan.active) {
-                                await client.query(`UPDATE users SET is_subscribed = true, subscription_id = $1, plan_id = $2, account_type = $4 WHERE username = $3`, [subscription.id, subscription.plan.id, req.session.user.username, accountType]);
+                                if (req.body.usePayment !== 'New') {
+                                    customerParams = {
+                                        default_source: req.body.token.id,
+                                        email: user.rows[0].user_email
+                                    }
+                                }
+
+                                await stripe.customers.update(user.rows[0].stripe_cust_id, customerParams);
+
+                                if (!user.rows[0].is_subscribed) {
+                                    let subscriptionParams = {
+                                        customer: user.rows[0].stripe_cust_id,
+                                        items: [{plan: req.body.plan}]
+                                    }
+
+                                    let now = new Date();
+
+                                    if (user.rows[0].subscription_end_date > now) {
+                                        let dayDiff = Math.ceil(moment.duration(user.rows[0].subscription_end_date - now).asDays());
+                                        subscriptionParams['trial_period_days'] = dayDiff;
+                                    }
+
+                                    subscription = await stripe.subscriptions.create(subscriptionParams);
+
+                                    if (subscription.plan.active) {
+                                        await client.query(`UPDATE users SET is_subscribed = true, subscription_id = $1, plan_id = $2, account_type = $4 WHERE username = $3`, [subscription.id, subscription.plan.id, req.session.user.username, accountType]);
+                                    }
+                                }
+                            } else {
+                                customer = await stripe.customers.create({
+                                    source: req.body.token.id,
+                                    email: user.rows[0].user_email,
+                                });
+
+                                subscription = await stripe.subscriptions.create({
+                                    customer: customer.id,
+                                    items: [{plan: req.body.plan}]
+                                });
+
+                                await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_cust_id = $1, subscription_id = $4, plan_id = $5, subscription_end_date = current_timestamp + interval '32 days' WHERE username = $2`, [customer.id, req.session.user.username, accountType, subscription.id, subscription.plan.id]);
                             }
+
+                            await client.query('COMMIT')
+                            .then(() => resp.send({status: 'success'}));
+                        } catch (e) {
+                            await client.query('ROLLBACK');
+                            throw e;
+                        } finally {
+                            done();
                         }
-                    } else {
-                        customer = await stripe.customers.create({
-                            source: req.body.token.id,
-                            email: user.rows[0].user_email,
-                        });
+                    })()
+                    .catch(err => {
+                        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                        
+                        let message = 'An error occurred';
 
-                        subscription = await stripe.subscriptions.create({
-                            customer: customer.id,
-                            items: [{plan: req.body.plan}]
-                        });
+                        if (err.type === 'CUSTOM') {
+                            message = err.message;
+                        }
 
-                        await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_cust_id = $1, subscription_id = $4, plan_id = $5, subscription_end_date = current_timestamp + interval '32 days' WHERE username = $2`, [customer.id, req.session.user.username, accountType, subscription.id, subscription.plan.id]);
-                    }
-
-                    await client.query('COMMIT')
-                    .then(() => resp.send({status: 'success'}));
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                    throw e;
-                } finally {
-                    done();
+                        resp.send({status: 'error', statusMessage: message});
+                    });
+                } else {
+                    resp.send({status: 'error', statusMessage: `You're not human`});
                 }
-            })()
-            .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
-                
-                let message = 'An error occurred';
-
-                if (err.type === 'CUSTOM') {
-                    message = err.message;
-                }
-
-                resp.send({status: 'error', statusMessage: message});
             });
         });
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
     }
 });
 

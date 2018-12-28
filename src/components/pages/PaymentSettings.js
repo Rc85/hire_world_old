@@ -55,6 +55,7 @@ class PaymentSettings extends Component {
                 payments.push(resp.data.card);
 
                 this.setState({status: '', name: '', address_line1: '', address_country: '', address_city: '', address_state: '', address_zip: '', payments: payments, defaultSource: resp.data.defaultSource});
+                this.cardName.clear();
                 this.CardExpiryElement.clear();
                 this.CardNumberElement.clear();
                 this.CardCVCElement.clear();
@@ -147,7 +148,7 @@ class PaymentSettings extends Component {
 
                 <div className='mb-3'>
                     <label htmlFor='nameOnCard'>Name on Card:</label>
-                    <input type='text' name='name' id='nameOnCard' className='form-control' onChange={(e) => this.setState({name: e.target.value})} placeholder='Your name on your profile will be used if left blank' value={this.state.name} />
+                    <input type='text' name='name' id='nameOnCard' className='form-control' onChange={(e) => this.setState({name: e.target.value})} placeholder='Your name on your profile will be used if left blank' ref={el => this.cardName = el} />
                 </div>
 
                 <div className='d-flex-between-center mb-3'>

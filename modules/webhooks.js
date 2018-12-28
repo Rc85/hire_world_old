@@ -7,7 +7,7 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
     let sig = req.headers['stripe-signature'];
 
     try {
-        let event = stripe.webhooks.constructEvent(req.rawBody, sig, 'whsec_ZPKSvPn5q5VcSvcbnBGys8XVqWHoPqy6');
+        let event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.NODE_ENV === 'development' ? process.env.DEV_STRIPE_RENEW_WEBHOOK_KEY : process.env.STRIPE_RENEW_WEBHOOK_KEY);
 
         if (event.data.object.paid) {
             await db.query(`UPDATE users SET subscription_end_date = subscription_end_date + interval '1 month' WHERE stripe_cust_id = $1`, [event.data.object.customer]);

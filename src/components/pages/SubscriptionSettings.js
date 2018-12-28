@@ -9,6 +9,7 @@ import { GetSession } from '../../actions/FetchActions';
 import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
 import { UncontrolledTooltip } from 'reactstrap';
 import { connect } from 'react-redux';
+import { Keys } from '../utils/Keys';
 
 class SubscriptionSettings extends Component {
     constructor(props) {
@@ -73,7 +74,7 @@ class SubscriptionSettings extends Component {
             }
 
             subscriptionInfo = <React.Fragment>
-                <div className='d-flex-between-center'>
+                <div className='d-flex-between-center mb-3'>
                     <h4>{subscriptionStatus}</h4>
                     {unsubscribeButton}
                 </div>
@@ -105,7 +106,7 @@ class SubscriptionSettings extends Component {
 
                 <span>Upgrading and downgrading plans will have pro-rated charges or credit applied to your next bill. See FAQ for more detail.</span>
 
-                <StripeProvider apiKey='pk_test_KgwS8DEnH46HAFvrCaoXPY6R'>
+                <StripeProvider apiKey={Keys.STRIPE_API_KEY}>
                     <Elements>
                         <Checkout user={this.props.user.user} />
                     </Elements>

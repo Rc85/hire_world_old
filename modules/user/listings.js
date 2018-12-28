@@ -17,7 +17,6 @@ app.post('/api/listing/create', (req, resp) => {
                     try {
                         await client.query('BEGIN');
                         let user = await client.query(`SELECT account_type, user_status FROM users WHERE user_id = $1`, [req.session.user.user_id]);
-                        console.log(user.rows[0])
 
                         if (user && user.rows[0].user_status === 'Active') {
                             if (user && (user.rows[0].account_type === 'Listing' || user.rows[0].account_type === 'Business')) {

@@ -3,6 +3,7 @@ const db = require('../db');
 const bcrypt = require('bcrypt');
 const error = require('../utils/error-handler');
 const validate = require('../utils/validate');
+const controller = require('../utils/controller');
 
 app.post('/api/user/settings/profile/save', (req, resp) => {
     if (req.session.user) {
@@ -30,22 +31,13 @@ app.post('/api/user/settings/profile/save', (req, resp) => {
 
                         await client.query(`UPDATE user_profiles SET user_business_name = $1, user_address = $2, user_phone = $3, user_city_code = $4, user_country = $6, user_region = $7, user_city = $8 WHERE user_profile_id = $5`, [req.body.businessName, req.body.address, req.body.phone, req.body.code, req.session.user.user_id, req.body.country, req.body.region, req.body.city]);
 
-                        let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
-
-                        delete user.rows[0].user_password;
-                        delete user.rows[0].user_level;
-
-                        if (user.rows[0].hide_email) {
-                            delete user.rows[0].user_email;
-                        }
-
-                        if (!user.rows[0].display_fullname) {
-                            delete user.rows[0].user_firstname;
-                            delete user.rows[0].user_lastname;
-                        }
+                        let user = await controller.session.retrieve(req.session.user.user_id);
 
                         await client.query(`COMMIT`)
-                        .then(() => resp.send({status: 'success', statusMessage: 'Profile saved', user: user.rows[0]}));
+                        .then(async() => {
+                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Updated profile`, req.session.user.username, 'Account']);
+                            resp.send({status: 'success', statusMessage: 'Profile saved', user: user});
+                        });
                     } catch (e) {
                         await client.query(`ROLLBACK`);
                         throw e;
@@ -95,22 +87,13 @@ app.post('/api/user/settings/password/change', (req, resp) => {
                                         
                                         await client.query(`UPDATE users SET user_password = $1 WHERE user_id = $2`, [result, req.session.user.user_id]);
 
-                                        let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
-
-                                        delete user.rows[0].user_password;
-                                        delete user.rows[0].user_level;
-
-                                        if (user.rows[0].hide_email) {
-                                            delete user.rows[0].user_email;
-                                        }
-
-                                        if (!user.rows[0].display_fullname) {
-                                            delete user.rows[0].user_firstname;
-                                            delete user.rows[0].user_lastname;
-                                        }
+                                        let user = controller.user.retrieve(req.session.user.user_id);
 
                                         await client.query('COMMIT')
-                                        .then(() => resp.send({status: 'success', statusMessage: 'Password saved', user: user.rows[0]}));
+                                        .then(async() => {
+                                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Changed password`, req.session.user.username, 'Account']);
+                                            resp.send({status: 'success', statusMessage: 'Password saved', user: user.rows[0]});
+                                        });
                                     });
                                 } else {
                                     resp.send({status: 'error', statusMessage: 'Incorrect password'});
@@ -154,22 +137,13 @@ app.post('/api/user/settings/email/change', (req, resp) => {
                         await client.query('BEGIN');
                         await client.query(`UPDATE users SET user_email = $1 WHERE user_id = $2`, [req.body.newEmail, req.session.user.user_id]);
 
-                        let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
-
-                        delete user.rows[0].user_password;
-                        delete user.rows[0].user_level;
-
-                        if (user.rows[0].hide_email) {
-                            delete user.rows[0].user_email;
-                        }
-
-                        if (!user.rows[0].display_fullname) {
-                            delete user.rows[0].user_firstname;
-                            delete user.rows[0].user_lastname;
-                        }
+                        let user = await controller.session.retrieve(req.session.user.user_id);
 
                         await client.query('COMMIT')
-                        .then(() => resp.send({status: 'success', statusMessage: 'Email saved', user: user.rows[0]}));
+                        .then(async() => {
+                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Changed email`, req.session.user.username, 'Account']);
+                            resp.send({status: 'success', statusMessage: 'Email saved', user: user});
+                        });
                     } catch (e) {
                         await client.query('ROLLBACK');
                         throw e;
@@ -215,30 +189,10 @@ app.post('/api/user/settings/change', (req, resp) => {
                             await client.query(`INSERT INTO business_hours (business_owner, monday, tuesday, wednesday, thursday, friday, saturday, sunday) VALUES ($1, $2, $2, $2, $2, $2, $2, $2) ON CONFLICT (business_owner) DO NOTHING`, [req.session.user.username, 'Closed']);
                         }
 
-                        let user = await client.query(`SELECT users.username, users.user_email, users.account_type, users.is_subscribed, user_profiles.*, user_settings.allow_messaging, user_settings.display_fullname, user_settings.hide_email, user_settings.display_business_hours, user_listings.listing_status FROM users
-                        LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
-                        LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
-                        LEFT JOIN user_listings ON users.username = user_listings.listing_user
-                        WHERE users.user_id = $1`, [req.session.user.user_id]);
-
-                        delete user.rows[0].user_password;
-                        delete user.rows[0].user_level;
-                        delete user.rows[0].user_profile_id;
-
-                        if (user.rows[0].hide_email) {
-                            delete user.rows[0].user_email;
-                        }
-
-                        if (!user.rows[0].display_fullname) {
-                            delete user.rows[0].user_firstname;
-                            delete user.rows[0].user_lastname;
-                        }
-
-                        delete user.rows[0].display_fullname;
-                        delete user.rows[0].hide_email;
+                        let user = await controller.session.retrieve(req.session.user.user_id);
 
                         await client.query('COMMIT')
-                        .then(() => resp.send({status: 'success', user: user.rows[0]}));
+                        .then(() => resp.send({status: 'success', user: user}));
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
@@ -279,20 +233,7 @@ app.post('/api/user/profile/update', (req, resp) => {
                         if (column && column.rows.length === 1) {
                             await client.query(`UPDATE user_profiles SET ${column.rows[0].column_name} = $1 WHERE user_profile_id = $2`, [req.body.value, req.session.user.user_id])
 
-                            let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
-
-                            delete user.rows[0].user_password;
-                            delete user.rows[0].user_level;
-
-                            if (user.rows[0].hide_email) {
-                                delete user.rows[0].user_email;
-                            }
-
-                            if (!user.rows[0].display_fullname) {
-                                delete user.rows[0].user_firstname;
-                                delete user.rows[0].user_lastname;
-                            }
-
+                            let user = await controller.session.retrieve(req.session.user.user_id);
                             let titleResults = await client.query(`SELECT user_title FROM user_profiles`);
 
                             let titles = [];
@@ -302,7 +243,7 @@ app.post('/api/user/profile/update', (req, resp) => {
                             }
                             
                             await client.query('COMMIT')
-                            .then(() => resp.send({status: 'success', user: user.rows[0], titles: titles}));
+                            .then(() => resp.send({status: 'success', user: user, titles: titles}));
                         } else {
                             resp.send({status: 'error', statusMessage: 'An error occurred'});
                         }

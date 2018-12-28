@@ -5,8 +5,33 @@ import UserProfilePic from '../includes/page/UserProfilePic';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import UserTitle from '../includes/page/UserTitle';
+import fetch from 'axios';
+import { LogError } from '../utils/LogError';
 
 class EditUser extends Component {
+    constructor(props) {
+        super(props);
+        
+        this.state = {
+            status: 'Loading'
+        }
+    }
+    
+    /* componentDidMount() {
+        fetch.post('/api/get/user/overview')
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({status: '', notifications: resp.data.notifications, account: resp.data.account, subscription: resp.data.subscription, payment: resp.data.payment});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
+        })
+        .catch(err => {
+            LogError(err, '/api/get/user/overview');
+            this.setState({status: ''});
+        })
+    } */
+    
     render() {
         let fullName, businessName, email, phone, address;
 
@@ -108,6 +133,9 @@ class EditUser extends Component {
                         {businessName}
 
                         <hr/>
+
+                        <div className='d-flex-between-center'>
+                        </div>
                     </div>
                 </div>
             </section>

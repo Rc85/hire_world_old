@@ -4,11 +4,10 @@ import ListSettings from '../includes/page/ListSettings';
 import { Elements, StripeProvider } from 'react-stripe-elements';
 import Checkout from '../includes/page/Checkout';
 import BusinessHoursSetting from '../includes/page/BusinessHoursSettings';
-import { Keys } from '../utils/Keys';
 
 class Listing extends Component {
     render() {
-        let payment = <StripeProvider apiKey={Keys.STRIPE_API_KEY}>
+        let payment = <StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'>
             <div id='payment-input'>
                 <div className='d-flex-between-center'>
                     <div className='w-50'>To begin listing, you need to subscribe to a monthly plan.</div>

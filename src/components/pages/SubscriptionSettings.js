@@ -9,7 +9,6 @@ import { GetSession } from '../../actions/FetchActions';
 import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
 import { UncontrolledTooltip } from 'reactstrap';
 import { connect } from 'react-redux';
-import { Keys } from '../utils/Keys';
 
 class SubscriptionSettings extends Component {
     constructor(props) {
@@ -106,7 +105,7 @@ class SubscriptionSettings extends Component {
 
                 <span>Upgrading and downgrading plans will have pro-rated charges or credit applied to your next bill. See FAQ for more detail.</span>
 
-                <StripeProvider apiKey={Keys.STRIPE_API_KEY}>
+                <StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'>
                     <Elements>
                         <Checkout user={this.props.user.user} />
                     </Elements>

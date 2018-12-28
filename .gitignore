@@ -13,7 +13,6 @@
 .DS_Store
 .env
 db.pgsql
-src/components/utils/Keys.js
 
 npm-debug.log*
 yarn-debug.log*

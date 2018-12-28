@@ -71,21 +71,25 @@ class Checkout extends Component {
         this.setState({status: 'Sending'});
 
         let data = { ...this.state };
-        let token = await this.props.stripe.createToken({
-            name: this.state.name ? this.state.name : `${this.props.user.user_firstname} ${this.props.user.user_lastname}`,
-            address_line1: this.state.defaultAddress ? this.props.user.user_address : this.state.address_line1,
-            address_city: this.state.defaultAddress ? this.props.user.user_city : this.state.address_city,
-            address_state: this.state.defaultAddress ? this.props.user.user_region : this.state.address_state,
-            address_zip: this.state.defaultAddress ? this.props.user.user_city_code : this.state.address_zip,
-            address_country: this.state.defaultAddress ? this.props.user.user_country : this.state.address_country
-        });
+        let token;
+        
+        if (!this.state.havePayments) {
+            token = await this.props.stripe.createToken({
+                name: this.state.name ? this.state.name : `${this.props.user.user_firstname} ${this.props.user.user_lastname}`,
+                address_line1: this.state.defaultAddress ? this.props.user.user_address : this.state.address_line1,
+                address_city: this.state.defaultAddress ? this.props.user.user_city : this.state.address_city,
+                address_state: this.state.defaultAddress ? this.props.user.user_region : this.state.address_state,
+                address_zip: this.state.defaultAddress ? this.props.user.user_city_code : this.state.address_zip,
+                address_country: this.state.defaultAddress ? this.props.user.user_country : this.state.address_country
+            });
 
-        if (this.state.havePayments && this.state.usePayment && this.state.usePayment !== 'New') {
+            data = { ...data, ...token };
+        } else if (this.state.havePayments && this.state.usePayment && this.state.usePayment !== 'New') {
             token = {};
             token['id'] = this.state.usePayment;
-        }
 
-        data = { ...data, ...token };
+            data['token'] = token;
+        }
         
         fetch.post('/api/user/subscription/add', data)
         .then(resp => {
@@ -112,6 +116,7 @@ class Checkout extends Component {
     }
 
     render() {
+        console.log(this.state);
         let addressInput, status, choosePaymentMethod;
 
         if (this.state.status === 'Success') {
@@ -177,7 +182,8 @@ class Checkout extends Component {
                 <div className='d-flex-between-center mb-3'>
                     <label htmlFor='choose-plan' className='w-30'>Choose a Plan:</label>
                     <select name='plan' id='choose-plan' className='form-control mb-3' onChange={(e) => this.setState({plan: e.target.value})}>
-                        <option value='plan_EAIyF94Yhy1BLB'>Listing - $7/month</option>
+                        <option value=''>Select a plan</option>
+                        {!this.props.user.is_subscribed ? <option value='plan_EAIyF94Yhy1BLB'>Listing - $7/month</option> : ''}
                     </select>
                 </div>
 
@@ -187,9 +193,11 @@ class Checkout extends Component {
 
                 {addressInput}
 
-                <Recaptcha sitekey='6Ld784QUAAAAAISqu_99k8_Qk7bHs2ud4cD7EBeI' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} />
-
-                <div className='text-right'><SubmitButton type='button' loading={this.state.status === 'Sending'} onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to subscribe to this monthly plan?`, `If you're not already subscribed, you will be charged immediately and there will be no refunds`, {action: 'submit payment'}))} /></div>
+                <div className='d-flex-between-end'>
+                    <Recaptcha sitekey='6Ld784QUAAAAAISqu_99k8_Qk7bHs2ud4cD7EBeI' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} />
+    
+                    <SubmitButton type='button' loading={this.state.status === 'Sending'} onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to subscribe to this monthly plan?`, `If you're not already subscribed, you will be charged immediately and there will be no refunds`, {action: 'submit payment'}))} />
+                </div>
             </div>
         );
     }

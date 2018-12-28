@@ -289,7 +289,7 @@ app.post('/api/get/payments', async(req, resp) => {
         if (user && user.rows[0].stripe_cust_id) {
             stripe.customers.retrieve(user.rows[0].stripe_cust_id, (err, customer) => {
                 if (err) {
-                    error.log({name: err.name, message: err.message, origin: 'Updating Stripe customer', url: req.url});
+                    error.log({name: err.name, message: err.message, origin: `Retrieiving customer's payments`, url: req.url});
                     resp.send({status: 'error', statusMessage: 'An error occurred'});
                 }
 
@@ -298,6 +298,26 @@ app.post('/api/get/payments', async(req, resp) => {
         } else {
             resp.send({status: 'success', payments: []});
         }
+    }
+});
+
+app.post('/api/get/user/subscription', async(req, resp) => {
+    if (req.session.user) {
+        let user = await db.query(`SELECT subscription_id, subscription_end_date FROM users WHERE username = $1`, [req.session.user.username]);
+        let now = new Date();
+
+        if (user && user.rows[0].subscription_end_date > now) {
+            await stripe.subscriptions.retrieve(user.rows[0].subscription_id)
+            .then(subscription => {
+                resp.send({status: 'success', subscription: subscription});
+            })
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: `Retrieving customer's subscription`, url: req.url});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
+        }
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
     }
 });
 

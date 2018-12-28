@@ -83,8 +83,6 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
                             await client.query('BEGIN');
 
                             let filePath;
-
-                            console.log(req.file);
                     
                             if (req.file) {
                                 filePath = `/${req.file.destination.substring(2)}/${req.file.filename}`;
@@ -96,19 +94,26 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
 
                             await client.query(`UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2`, [filePath, req.session.user.user_id]);
 
-                            let user = await client.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id]);
-
-                            delete user.rows[0].user_password;
-                            delete user.rows[0].user_level;
+                            let user = await client.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, users.account_type, users.user_level, users.is_subscribed, users.plan_id, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
+                            LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+                            LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
+                            LEFT JOIN user_listings ON users.username = user_listings.listing_user
+                            WHERE users.user_id = $1`, [req.session.user.user_id]);
 
                             if (user.rows[0].hide_email) {
                                 delete user.rows[0].user_email;
                             }
-
+            
                             if (!user.rows[0].display_fullname) {
                                 delete user.rows[0].user_firstname;
                                 delete user.rows[0].user_lastname;
                             }
+            
+                            delete user.rows[0].hide_email;
+                            delete user.rows[0].display_fullname;
+                            delete user.rows[0].user_profile_id;
+                            delete user.rows[0].user_setting_id;
+                            delete user.rows[0].email_notifications;
 
                             await client.query('COMMIT')
                             .then(() => resp.send({status: 'success', user: user.rows[0]}));
@@ -134,12 +139,13 @@ app.post('/api/user/profile-pic/delete', async(req, resp) => {
     if (req.session.user) {
         await db.query('UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2', ['/images/profile.png', req.session.user.user_id]);
 
-        await db.query(`SELECT * FROM users LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id WHERE users.user_id = $1`, [req.session.user.user_id])
+        await db.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, users.account_type, users.user_level, users.is_subscribed, users.plan_id, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
+        LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+        LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
+        LEFT JOIN user_listings ON users.username = user_listings.listing_user
+        WHERE users.user_id = $1`, [req.session.user.user_id])
         .then(result => {
             if (result !== undefined && result.rowCount === 1) {
-                delete result.rows[0].user_password;
-                delete result.rows[0].user_level;
-
                 if (result.rows[0].hide_email) {
                     delete result.rows[0].user_email;
                 }
@@ -148,6 +154,12 @@ app.post('/api/user/profile-pic/delete', async(req, resp) => {
                     delete result.rows[0].user_firstname;
                     delete result.rows[0].user_lastname;
                 }
+
+                delete result.rows[0].hide_email;
+                delete result.rows[0].display_fullname;
+                delete result.rows[0].user_profile_id;
+                delete result.rows[0].user_setting_id;
+                delete result.rows[0].email_notifications;
 
                 resp.send({status: 'success', user: result.rows[0]});
             } else if (result.rowCount === 0) {
@@ -188,10 +200,26 @@ app.post('/api/user/edit', (req, resp) => {
                         await client.query(`BEGIN`);
                         await client.query(`UPDATE user_profiles SET ${type} = $1 WHERE user_profile_id = $2`, [req.body.value, req.session.user.user_id]);
 
-                        let user = await client.query(`SELECT * FROM users
+                        let user = await client.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, users.account_type, users.user_level, users.is_subscribed, users.plan_id, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
                         LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
                         LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
+                        LEFT JOIN user_listings ON users.username = user_listings.listing_user
                         WHERE users.user_id = $1`, [req.session.user.user_id]);
+
+                        if (user.rows[0].hide_email) {
+                            delete user.rows[0].user_email;
+                        }
+        
+                        if (!user.rows[0].display_fullname) {
+                            delete user.rows[0].user_firstname;
+                            delete user.rows[0].user_lastname;
+                        }
+        
+                        delete user.rows[0].hide_email;
+                        delete user.rows[0].display_fullname;
+                        delete user.rows[0].user_profile_id;
+                        delete user.rows[0].user_setting_id;
+                        delete user.rows[0].email_notifications;
 
                         await client.query(`COMMIT`)
                         .then(() => resp.send({status: 'success', user: user.rows[0]}));
@@ -275,7 +303,15 @@ app.post('/api/user/business_hours/save', (req, resp) => {
                     try {
                         await client.query('BEGIN');
 
-                        await client.query(`INSERT INTO business_hours (monday, tuesday, wednesday, thursday, friday, saturday, sunday, business_owner) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (business_owner) DO UPDATE SET monday = $1, tuesday = $2, wednesday = $3, thursday = $4, friday = $5, saturday = $6, sunday = $7`, [req.body.mon, req.body.tue, req.body.wed, req.body.thu, req.body.fri, req.body.sat, req.body.sun, req.session.user.username]);
+                        let user = await client.query(`SELECT account_type FROM users WHERE username = $1`, [req.session.user.username]);
+
+                        if (user.rows[0].account_type !== 'User') {
+                            await client.query(`INSERT INTO business_hours (monday, tuesday, wednesday, thursday, friday, saturday, sunday, business_owner) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (business_owner) DO UPDATE SET monday = $1, tuesday = $2, wednesday = $3, thursday = $4, friday = $5, saturday = $6, sunday = $7`, [req.body.mon, req.body.tue, req.body.wed, req.body.thu, req.body.fri, req.body.sat, req.body.sun, req.session.user.username]);
+                        } else {
+                            let error = new Error(`You're not subscribed`);
+                            error.type = 'CUSTOM';
+                            throw error;
+                        }
 
                         await client.query('COMMIT')
                         .then(() => resp.send({status: 'success', statusMessage: 'Business hours saved'}));
@@ -288,7 +324,14 @@ app.post('/api/user/business_hours/save', (req, resp) => {
                 })()
                 .catch(err => {
                     error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
-                    resp.send({status: 'error', statusMessage: 'An error occurred'});
+
+                    let message = 'An error occurred';
+
+                    if (err.type === 'CUSTOM') {
+                        message = err.message;
+                    }
+
+                    resp.send({status: 'error', statusMessage: message});
                 });
             }
         });
@@ -341,21 +384,25 @@ app.post('/api/user/subscription/add', (req, resp) => {
                                 accountType = 'Listing';
                             }
 
+                            // If user already has a stripe account
                             if (user.rows[0].stripe_cust_id) {
                                 let customerParams = {
                                     source: req.body.token.id,
                                     email: user.rows[0].user_email
                                 }
 
-                                if (req.body.usePayment !== 'New') {
+                                // If user is using a stored payment method
+                                if (req.body.usePayment && req.body.usePayment !== 'New') {
                                     customerParams = {
                                         default_source: req.body.token.id,
                                         email: user.rows[0].user_email
                                     }
                                 }
 
+                                // Update the user's default payment method
                                 await stripe.customers.update(user.rows[0].stripe_cust_id, customerParams);
 
+                                // If user is not subscribed
                                 if (!user.rows[0].is_subscribed) {
                                     let subscriptionParams = {
                                         customer: user.rows[0].stripe_cust_id,
@@ -363,17 +410,18 @@ app.post('/api/user/subscription/add', (req, resp) => {
                                     }
 
                                     let now = new Date();
-
+                                    
+                                    // If user still have days left on their subscription
                                     if (user.rows[0].subscription_end_date > now) {
+                                        // Get the different of subscription end date and today
                                         let dayDiff = Math.ceil(moment.duration(user.rows[0].subscription_end_date - now).asDays());
+                                        // Apply the difference to the trial days so user gets billed at the end of their remaining subscription days
                                         subscriptionParams['trial_period_days'] = dayDiff;
                                     }
 
                                     subscription = await stripe.subscriptions.create(subscriptionParams);
 
-                                    if (subscription.plan.active) {
-                                        await client.query(`UPDATE users SET is_subscribed = true, subscription_id = $1, plan_id = $2, account_type = $4 WHERE username = $3`, [subscription.id, subscription.plan.id, req.session.user.username, accountType]);
-                                    }
+                                    await client.query(`UPDATE users SET is_subscribed = true, subscription_id = $1, plan_id = $2, account_type = $4 WHERE username = $3`, [subscription.id, subscription.plan.id, req.session.user.username, accountType]);
                                 }
                             } else {
                                 customer = await stripe.customers.create({

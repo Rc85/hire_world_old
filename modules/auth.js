@@ -217,14 +217,27 @@ app.post('/api/auth/login', async(req, resp, next) => {
 },
 async(req, resp) => {
     if (req.session.user) {
-        let user = await db.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, users.account_type, users.user_level, users.is_subscribed, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
+        let user = await db.query(`SELECT users.user_id, users.username, users.user_email, users.user_last_login, users.account_type, users.user_level, users.is_subscribed, users.plan_id, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
         LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
         LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
         LEFT JOIN user_listings ON users.username = user_listings.listing_user
         WHERE users.user_id = $1`, [req.session.user.user_id]);
 
         if (user && user.rows.length === 1) {
-            delete user.rows[0].user_id;
+            if (user.rows[0].hide_email) {
+                delete user.rows[0].user_email;
+            }
+
+            if (!user.rows[0].display_fullname) {
+                delete user.rows[0].user_firstname;
+                delete user.rows[0].user_lastname;
+            }
+
+            delete user.rows[0].hide_email;
+            delete user.rows[0].display_fullname;
+            delete user.rows[0].user_profile_id;
+            delete user.rows[0].user_setting_id;
+            delete user.rows[0].email_notifications;
             
             resp.send({status: 'get session success', user: user.rows[0]});
         } else {

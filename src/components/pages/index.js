@@ -15,5 +15,6 @@ import AccountSettings from './AccountSettings';
 import ViewUser from './ViewUser';
 import PaymentSettings from './PaymentSettings';
 import Listing from './Listing';
+import SubscriptionSettings from './SubscriptionSettings';
 
-export { Browse, Dashboard, EditUser, Inquiries, Jobs, ListingDetails, Login, Main, MessageDetails, Register, Response, FriendsList, Sectors, AccountSettings, ViewUser, PaymentSettings, Listing }
+export { Browse, Dashboard, EditUser, Inquiries, Jobs, ListingDetails, Login, Main, MessageDetails, Register, Response, FriendsList, Sectors, AccountSettings, ViewUser, PaymentSettings, Listing, SubscriptionSettings }

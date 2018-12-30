@@ -157,7 +157,7 @@ app.post('/resend', async(req, resp) => {
 
         let message = {
             to: req.body.email,
-            from: 'support@m-ploy.ca',
+            from: 'admin@m-ploy.ca',
             subject: 'Welcome to Mploy',
             templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
             dynamicTemplateData: {
@@ -205,7 +205,7 @@ app.get('/contact', (req, resp) => {
 
 app.post('/contact-form', (req, resp) => {
     let message = {
-        to: 'rogerchin85@gmail.com',
+        to: 'admin@m-ploy.ca',
         from: `${req.body.name} <${req.body.email}>`,
         subject: req.body.subject,
         text: req.body.message,

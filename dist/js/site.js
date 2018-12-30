@@ -168,4 +168,8 @@ $(document).ready(function() {
         $('#how-hire').hide();
         $('#how-get-hired').show();
     });
+
+    $('#pricing-register-button').on('click', function() {
+        location.href = '/register';
+    });
 });

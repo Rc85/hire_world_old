@@ -157,7 +157,7 @@ app.post('/api/user/edit', (req, resp) => {
         } else if (req.body.column === 'Facebook') {
             type = 'user_facebook';
         } else if (req.body.column === 'Twitter') {
-            type = 'user_twtitter';
+            type = 'user_twitter';
         } else if (req.body.column === 'Website') {
             type = 'user_website';
         } else if (req.body.column === 'Instagram') {

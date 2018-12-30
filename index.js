@@ -118,7 +118,7 @@ app.get('/register', (req, resp) => {
 });
 
 app.get('/register/success', (req, resp) => {
-    resp.render('register_success');
+    resp.render('response', {header: 'Registration Success', message: 'An verification email has been sent to you. Please click the link provided to activate your account.'});
 });
 
 app.get('/activate-account', async(req, resp) => {
@@ -132,12 +132,12 @@ app.get('/activate-account', async(req, resp) => {
 
         if (decrypted.toString(cryptoJS.enc.Utf8) === user.rows[0].user_email) {
             await db.query(`UPDATE users SET user_status = 'Active' WHERE user_id = $1`, [user.rows[0].user_id]);
-            resp.render('activated', {header: `Account Activated`, message: `You can now <a href='/app'>login</a> to your account`});
+            resp.render('response', {header: `Account Activated`, message: `You can now <a href='/app'>login</a> to your account`});
         } else {
-            resp.render('activated', {header: '404 Not Found', message: `The content you're looking for cannot be found.`});
+            resp.render('response', {header: '404 Not Found', message: `The content you're looking for cannot be found.`});
         }
     } else {
-        resp.render('activated', {header: 'Expired', message: 'The activation button you clicked on has expired.'});
+        resp.render('response', {header: 'Expired', message: 'The activation button you clicked on has expired.'});
     }
 });
 
@@ -173,9 +173,9 @@ app.post('/resend', async(req, resp) => {
 
         sgMail.send(message);
 
-        resp.render('activated', {header: 'Email Sent', message: 'A new confirmation email has been sent. Check your email and activate your account now.'});
+        resp.render('response', {header: 'Email Sent', message: 'A new confirmation email has been sent. Check your email and activate your account now.'});
     } else {
-        resp.render('activated', {header: '404 Not Found', message: 'That email does not exist in our system.'});
+        resp.render('response', {header: '404 Not Found', message: 'That email does not exist in our system.'});
     }
 });
 
@@ -201,6 +201,27 @@ app.get('/advertise', (req, resp) => {
 
 app.get('/contact', (req, resp) => {
     resp.render('contact');
+});
+
+app.post('/contact-form', (req, resp) => {
+    let message = {
+        to: 'rogerchin85@gmail.com',
+        from: `${req.body.name} <${req.body.email}>`,
+        subject: req.body.subject,
+        text: req.body.message,
+        trackingSettings: {
+            clickTracking: {
+                enable: false
+            }
+        }
+    }
+
+    sgMail.send(message)
+    .then(() => resp.render('response', {header: 'Message Sent', message: 'Thank you for writing to us. If your message expects a response, we will respond as soon as we can.'}))
+    .catch(err => {
+        error.log({name: err.name, message: err.message, origin: 'Sending message through contact form', url: req.url});
+        resp.render('response', {header: '500 Internal Server Error', message: 'An error occurred while trying to deliver your message. Please try again later.'});
+    });
 });
 
 app.post('/api/site/review', (req, resp) => {

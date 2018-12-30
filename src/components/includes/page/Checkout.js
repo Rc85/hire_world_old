@@ -22,7 +22,7 @@ class Checkout extends Component {
 
         this.state = {
             status: '',
-            plan: 'plan_EAIyF94Yhy1BLB',
+            plan: 'plan_EFVAGdrFIrpHx5',
             name: '',
             defaultAddress: this.props.user.user_address && this.props.user.user_city && this.props.user.user_region && this.props.user.user_country && this.props.user.user_city_code ? true : false,
             saveAddress: false
@@ -183,7 +183,7 @@ class Checkout extends Component {
                     <label htmlFor='choose-plan' className='w-30'>Choose a Plan:</label>
                     <select name='plan' id='choose-plan' className='form-control mb-3' onChange={(e) => this.setState({plan: e.target.value})}>
                         <option value=''>Select a plan</option>
-                        {!this.props.user.is_subscribed ? <option value='plan_EAIyF94Yhy1BLB'>Listing - $7/month</option> : ''}
+                        {!this.props.user.is_subscribed ? <option value='plan_EFVAGdrFIrpHx5'>Listing - $7/month</option> : ''}
                     </select>
                 </div>
 

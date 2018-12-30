@@ -7,7 +7,9 @@ import BusinessHoursSetting from '../includes/page/BusinessHoursSettings';
 
 class Listing extends Component {
     render() {
-        let payment = <StripeProvider apiKey='pk_test_KgwS8DEnH46HAFvrCaoXPY6R'>
+        // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
+        // live key pk_live_wJ7nxOazDSHu9czRrGjUqpep
+        let payment = <StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'>
             <div id='payment-input'>
                 <div className='d-flex-between-center'>
                     <div className='w-50'>To begin listing, you need to subscribe to a monthly plan.</div>

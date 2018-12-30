@@ -114,13 +114,16 @@ class SubscriptionSettings extends Component {
             }
         }
 
+        // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
+        // live key pk_live_wJ7nxOazDSHu9czRrGjUqpep
+
         return (
             <section id='subscription-setting' className='blue-panel three-rounded shallow'>
                 {subscriptionInfo}
 
-                <span>Upgrading and downgrading plans will have pro-rated charges or credit applied to your next bill. See FAQ for more detail.</span>
+                <span>Upgrading will have pro-rated credit applied to your next bill. See FAQ for more detail.</span>
 
-                <StripeProvider apiKey='pk_test_KgwS8DEnH46HAFvrCaoXPY6R'>
+                <StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'>
                     <Elements>
                         <Checkout user={this.props.user.user} />
                     </Elements>

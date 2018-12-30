@@ -1,61 +1,121 @@
 .button-purple {
   background-color: darkviolet;
-  color: #FFF;
+  color: white;
 }
 
 .button-orange {
   background-color: darkorange;
-  color: #FFF;
+  color: white;
 }
 
 .button-pink {
   background-color: hotpink;
-  color: #FFF;
+  color: black;
+}
+
+.button-lime {
+  background-color: yellowgreen;
+  color: black;
+}
+
+.button-lightblue {
+  background-color: deepskyblue;
+  color: black;
+}
+
+.button-violet {
+  background-color: mediumvioletred;
+  color: white;
 }
 
 .badge-purple {
   background-color: darkviolet;
-  color: #FFF;
+  color: white;
 }
 
 .badge-orange {
   background-color: darkorange;
-  color: #FFF;
+  color: white;
 }
 
 .badge-pink {
   background-color: hotpink;
-  color: #FFF;
+  color: black;
+}
+
+.badge-lime {
+  background-color: yellowgreen;
+  color: black;
+}
+
+.badge-lightblue {
+  background-color: deepskyblue;
+  color: black;
+}
+
+.badge-violet {
+  background-color: mediumvioletred;
+  color: white;
 }
 
 .border-purple {
   background-color: darkviolet;
-  color: #FFF;
+  color: white;
 }
 
 .border-orange {
   background-color: darkorange;
-  color: #FFF;
+  color: white;
 }
 
 .border-pink {
   background-color: hotpink;
-  color: #FFF;
+  color: black;
+}
+
+.border-lime {
+  background-color: yellowgreen;
+  color: black;
+}
+
+.border-lightblue {
+  background-color: deepskyblue;
+  color: black;
+}
+
+.border-violet {
+  background-color: mediumvioletred;
+  color: white;
 }
 
 .text-purple {
   background-color: darkviolet;
-  color: #FFF;
+  color: white;
 }
 
 .text-orange {
   background-color: darkorange;
-  color: #FFF;
+  color: white;
 }
 
 .text-pink {
   background-color: hotpink;
-  color: #FFF;
+  color: black;
+}
+
+.text-lime {
+  background-color: yellowgreen;
+  color: black;
+}
+
+.text-lightblue {
+  background-color: deepskyblue;
+  color: black;
+}
+
+.text-violet {
+  background-color: mediumvioletred;
+  color: white;
 }
 
 .w-0 {
@@ -730,12 +790,16 @@
 }
 
 .scroller-div {
-  position: relative;
   width: 100%;
-  height: 200px;
   overflow-y: scroll;
   border: 1px solid #C4C4C4;
   padding: 20px;
+}
+.scroller-div.h-200 {
+  height: 200px;
+}
+.scroller-div.h-300 {
+  height: 300px;
 }
 
 .theme-highlight {
@@ -755,11 +819,11 @@
 }
 
 .theme-orange-bg {
-  background: #e97100;
+  background-color: #e97100;
 }
 
 .theme-lightgrey-bg {
-  background: #DFDFDF;
+  background-color: #DFDFDF;
 }
 
 .theme-medgrey {
@@ -767,7 +831,7 @@
 }
 
 .theme-medgrey-bg {
-  background: #8b8b8b;
+  background-color: #8b8b8b;
 }
 
 .theme-alt-highlight {
@@ -775,7 +839,11 @@
 }
 
 .theme-alt-highlight-bg {
-  background: #7dd2ff;
+  background-color: #7dd2ff;
+}
+
+.theme-blue-bg {
+  background-color: #2F496E;
 }
 
 .modal-container {
@@ -865,6 +933,7 @@
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 9999;
 }
 
 .loading {
@@ -1186,6 +1255,21 @@
 .tab-button.active {
   background: #2F496E;
   color: #F9F6F4;
+}
+
+.titled-container-parent {
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+.titled-container {
+  position: relative;
+}
+.titled-container h4 {
+  position: absolute;
+  background: #2F496E;
+  top: -15px;
+  padding-right: 10px;
 }
 
 #topbar {

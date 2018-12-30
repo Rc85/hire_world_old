@@ -321,4 +321,46 @@ app.post('/api/get/user/subscription', async(req, resp) => {
     }
 });
 
+app.post('/api/get/user/activities', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let notifications = [];
+                    let activities = [];
+
+                    let notificationCount = await client.query(`SELECT COUNT(notification_id) AS notification_count FROM notifications WHERE notification_recipient = $1`, [req.session.user.username]);
+                    let activityCount = await client.query(`SELECT COUNT(activity_id) AS activity_count FROM activities WHERE activity_user = $1`, [req.session.user.username]);
+
+                    if (req.body.request.type === 'all' || req.body.request.type === 'notifications') {
+                        notifications = await client.query(`SELECT * FROM notifications WHERE notification_recipient = $1 ORDER BY notification_date DESC LIMIT 10 OFFSET $2`, [req.session.user.username, req.body.request.offset]);
+                    }
+
+                    if (req.body.request.type === 'all' || req.body.request.type === 'activities') {
+                        activities = await client.query(`SELECT * FROM activities WHERE activity_user = $1 ORDER BY activity_date DESC LIMIT 10 OFFSET $2`, [req.session.user.username, req.body.request.offset]);
+                    }
+
+                    await client.query('COMMIT')
+                    .then(() => resp.send({status: 'success', notifications: notifications.rows, activities: activities.rows, activityCount: activityCount.rows[0].activity_count, notificationCount: notificationCount.rows[0].notification_count}));
+                    
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: 'Getting user activities', url: req.url});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
+        });
+    }
+});
+
+
 module.exports = app;

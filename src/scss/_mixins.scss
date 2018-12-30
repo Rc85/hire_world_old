@@ -12,13 +12,16 @@
 
 @mixin new-component-colors {
     @each $component in 'button', 'badge', 'border', 'text' {
-        @each $colorName, $color in 
-        ('purple', darkviolet),
-        ('orange', darkorange),
-        ('pink', hotpink) {
+        @each $colorName, $color, $text in 
+        ('purple', darkviolet, white),
+        ('orange', darkorange, white),
+        ('pink', hotpink, black),
+        ('lime', yellowgreen, black),
+        ('lightblue', deepskyblue, black),
+        ('violet', mediumvioletred, white) {
             .#{$component}-#{$colorName} {
                 background-color: $color;
-                color: #FFF;
+                color: $text;
             }
         }
     }

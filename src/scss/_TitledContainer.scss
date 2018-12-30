@@ -1,0 +1,15 @@
+.titled-container-parent {
+    max-height: 300px;
+    overflow-y: scroll;
+}
+
+.titled-container {
+    position: relative;
+
+    h4 {
+        position: absolute;
+        background: $theme-blue;
+        top: -15px;
+        padding-right: 10px;
+    }
+}

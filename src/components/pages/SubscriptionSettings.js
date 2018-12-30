@@ -55,48 +55,63 @@ class SubscriptionSettings extends Component {
     }
     
     render() {
-        console.log(this.state);
-        let subscriptionInfo, unsubscribeButton;
+        let subscriptionInfo, unsubscribeButton, billingDate, nickname, price;
 
         if (this.props.user.user && this.props.user.user.is_subscribed) {
             unsubscribeButton = <React.Fragment><button id='unsubscribe-listing-button' className='btn btn-danger ml-1' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to unsubscribe?', false, {action: 'unsubscribe'}))}>Unsubscribe</button>
             <UncontrolledTooltip placement='top' target='unsubscribe-listing-button' delay={0}>Cancel your listing subscription</UncontrolledTooltip></React.Fragment>;
         }
 
-        if (this.state.subscription) {
-            let subscriptionStatus;
+        let now = new Date().getTime() / 1000;
 
-            if (this.state.subscription.status === 'active' || this.state.subscription.status === 'trialing') {
-                subscriptionStatus = <span className='badge badge-success'>Subscribed</span>;
-            } else if (this.state.subscription.status === 'canceled') {
-                subscriptionStatus = <span className='badge badge-danger'>Cancelled</span>
+        if (this.state.subscription && this.state.subscription.plan) {
+            if (this.state.subscription.status === 'trialing') {
+                billingDate = moment.unix(this.state.subscription.trial_end).format('MM-DD-YYYY');
+            } else {
+                billingDate = moment.unix(this.state.subscription.current_period_end).format('MM-DD-YYYY');
             }
 
-            subscriptionInfo = <React.Fragment>
-                <div className='d-flex-between-center mb-3'>
-                    <h4>{subscriptionStatus}</h4>
-                    {unsubscribeButton}
-                </div>
-
-                <div className='d-flex-between-center'>
-                    <div className='w-33'>
-                        <label htmlFor='next-billing' className='mr-2'>{this.state.subscription.status !== 'canceled' ? 'Next Billing Date:' : 'Subscription End Date:'} </label>
-                        {this.state.subscription.status === 'trialing' ? moment.unix(this.state.subscription.trial_end).format('MM-DD-YYYY') : moment.unix(this.state.subscription.current_period_end).format('MM-DD-YYYY')}
-                    </div>
-
-                    <div className='w-33 text-center'>
-                        <label htmlFor='plan' className='mr-2'>Plan: </label>
-                        {this.state.subscription.plan ? this.state.subscription.plan.nickname : ''}
-                    </div>
-
-                    <div className='w-33 text-right'>
-                        <label htmlFor='price' className='mr-2'>Price: </label>
-                        ${this.state.subscription.plan ? this.state.subscription.plan.amount / 100 : ''} {this.state.subscription.plan ? this.state.subscription.plan.currency.toUpperCase() : ''} / {this.state.subscription.plan ? this.state.subscription.plan.interval : ''}
-                    </div>
-                </div>
-
-                <hr/>
+            nickname = this.state.subscription.plan.nickname;
+            price = <React.Fragment>
+                ${this.state.subscription.plan.amount / 100} {this.state.subscription.plan.currency.toUpperCase()} / {this.state.subscription.plan.interval}
             </React.Fragment>
+
+
+            if (this.state.subscription.status !== 'canceled' || this.state.subscription.current_period_end > now) {
+                let subscriptionStatus;
+
+                if (this.state.subscription.status === 'active' || this.state.subscription.status === 'trialing') {
+                    subscriptionStatus = <span className='badge badge-success'>Subscribed</span>;
+                } else if (this.state.subscription.status === 'canceled') {
+                    subscriptionStatus = <span className='badge badge-danger'>Cancelled</span>
+                }
+
+                subscriptionInfo = <React.Fragment>
+                    <div className='d-flex-between-center mb-3'>
+                        <h4>{subscriptionStatus}</h4>
+                        {unsubscribeButton}
+                    </div>
+
+                    <div className='d-flex-between-center'>
+                        <div className='w-33'>
+                            <label htmlFor='next-billing' className='mr-2'>{this.state.subscription.status !== 'canceled' ? 'Next Billing Date:' : 'Subscription End Date:'} </label>
+                            {billingDate}
+                        </div>
+
+                        <div className='w-33 text-center'>
+                            <label htmlFor='plan' className='mr-2'>Plan: </label>
+                            {nickname}
+                        </div>
+
+                        <div className='w-33 text-right'>
+                            <label htmlFor='price' className='mr-2'>Price: </label>
+                            {price}
+                        </div>
+                    </div>
+
+                    <hr/>
+                </React.Fragment>
+            }
         }
 
         return (
@@ -105,7 +120,7 @@ class SubscriptionSettings extends Component {
 
                 <span>Upgrading and downgrading plans will have pro-rated charges or credit applied to your next bill. See FAQ for more detail.</span>
 
-                <StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'>
+                <StripeProvider apiKey='pk_test_KgwS8DEnH46HAFvrCaoXPY6R'>
                     <Elements>
                         <Checkout user={this.props.user.user} />
                     </Elements>

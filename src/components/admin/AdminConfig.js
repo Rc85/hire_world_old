@@ -154,7 +154,7 @@ class AdminConfig extends Component {
                     <div className='w-5'></div>
                 </div>
                 
-                <div className='scroller-div rounded mb-5'>
+                <div className='position-relative scroller-div h-200 rounded mb-5'>
                     {this.state.promotions.map((promo, i) => {
                         return <AdminPromoRow key={i} promo={promo} />;
                     })}
@@ -162,7 +162,7 @@ class AdminConfig extends Component {
             </React.Fragment>
 
             plans = <React.Fragment>
-                <div className='admin-scroller-header mb-3'>
+                <div className='admin-scroller-header h-200 mb-3'>
                     <div className='w-5'>ID</div>
                     <div className='w-40'>Name</div>
                     <div className='w-25'>Price</div>
@@ -171,7 +171,7 @@ class AdminConfig extends Component {
                     <div className='w-5'></div>
                 </div>
 
-                <div className='scroller-div rounded mb-5'>
+                <div className='position-relative scroller-div rounded mb-5'>
                     {this.state.plans.map((plan, i) => {
                         return <AdminPlanRow key={i} plan={plan} />;
                     })}

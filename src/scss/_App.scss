@@ -140,23 +140,30 @@
 }
 
 .scroller-div {
-    position: relative;
     width: 100%;
-    height: 200px;
     overflow-y: scroll;
     border: 1px solid $theme-bg;
     padding: 20px;
+
+    &.h-200 {
+        height: 200px;
+    }
+
+    &.h-300 {
+        height: 300px;
+    }
 }
 
 .theme-highlight { color: $theme-highlight; }
 .theme-bg { color: $theme-bg; }
 .theme-darkgrey { color: $theme-darkgrey; }
 .theme-orange { color: $theme-orange; }
-.theme-orange-bg { background: $theme-orange; }
-.theme-lightgrey-bg { background: $theme-lightgrey; }
+.theme-orange-bg { background-color: $theme-orange; }
+.theme-lightgrey-bg { background-color: $theme-lightgrey; }
 .theme-medgrey { color: $theme-medgrey; }
-.theme-medgrey-bg { background: $theme-medgrey; }
+.theme-medgrey-bg { background-color: $theme-medgrey; }
 .theme-alt-highlight { color: $theme-alt-highlight; }
-.theme-alt-highlight-bg { background: $theme-alt-highlight; }
+.theme-alt-highlight-bg { background-color: $theme-alt-highlight; }
+.theme-blue-bg { background-color: $theme-blue;}
 
 .modal-container { max-width: 50% }

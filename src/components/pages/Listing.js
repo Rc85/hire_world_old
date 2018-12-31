@@ -26,10 +26,13 @@ class Listing extends Component {
             </div>
         </StripeProvider>;
 
+        let subscriptionEndDate = new Date(this.props.user.user.subscription_end_date);
+        let now = new Date();
+
         return (
             <section id='subscription-settings' className='blue-panel shallow three-rounded'>
 
-                {this.props.user.user.account_type === 'Listing' ? <ListSettings user={this.props.user} /> : payment}
+                {subscriptionEndDate > now ? <ListSettings user={this.props.user} /> : payment}
 
                 <hr/>
 

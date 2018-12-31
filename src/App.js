@@ -15,6 +15,7 @@ import { ToggleMenu } from './actions/MenuActions';
 import Footer from './components/includes/site/Footer';
 import ReviewMploy from './components/includes/page/ReviewMploy';
 import { StripeProvider, Elements } from 'react-stripe-elements';
+import CheckoutConfirmation from './components/utils/CheckoutConfirmation';
 
 class App extends Component {
 	constructor(props) {
@@ -48,7 +49,11 @@ class App extends Component {
 		let confirmation, sectors, alerts, prompt, warning;
 
 		if (this.props.confirmation.status === true) {
-			confirmation = <Confirmation message={this.props.confirmation.message} note={this.props.confirmation.note} />
+			confirmation = <Confirmation message={this.props.confirmation.message} note={this.props.confirmation.note} />;
+
+			if (this.props.confirmation.obj.type === 'checkout') {
+				confirmation = <CheckoutConfirmation info={this.props.confirmation.obj} />;
+			}
 		}
 
 		if (this.props.sectors) {

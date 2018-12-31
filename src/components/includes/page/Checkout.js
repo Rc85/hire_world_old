@@ -6,7 +6,7 @@ import SubmitButton from '../../utils/SubmitButton';
 import { Alert } from '../../../actions/AlertActions';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
+import { CheckoutConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 import Loading from '../../utils/Loading';
 import { GetSession } from '../../../actions/FetchActions';
 import AddressInput from '../../utils/AddressInput';
@@ -21,18 +21,21 @@ class Checkout extends Component {
         super(props);
 
         this.state = {
-            status: '',
+            type: 'checkout',
+            status: 'Loading',
             plan: 'plan_EFVAGdrFIrpHx5',
             name: '',
             defaultAddress: this.props.user.user_address && this.props.user.user_city && this.props.user.user_region && this.props.user.user_country && this.props.user.user_city_code ? true : false,
-            saveAddress: false
+            saveAddress: false,
+            havePayments: false,
+            usePayment: ''
         }
         
         this.submit = this.submit.bind(this);
     }
     
     componentWillReceiveProps(nextProps) {
-        if (nextProps.confirm.data) {
+        if (nextProps.confirm.obj.type === 'checkout' && nextProps.confirm.data) {
             if (nextProps.confirm.data.action === 'submit payment' && nextProps.confirm.option) {
                 this.submit();
 
@@ -53,7 +56,7 @@ class Checkout extends Component {
                     usePayment = false;
                 }
 
-                this.setState({payments: resp.data.payments, havePayments: havePayments, usePayment: usePayment});
+                this.setState({status: '', payments: resp.data.payments, havePayments: havePayments, usePayment: usePayment});
             }
         })
         .catch(err => LogError(err, '/api/get/payments'));
@@ -116,8 +119,7 @@ class Checkout extends Component {
     }
 
     render() {
-        console.log(this.state);
-        let addressInput, status, choosePaymentMethod;
+        let addressInput, status, choosePaymentMethod, newPayment;
 
         if (this.state.status === 'Success') {
             return <Redirect to='/payment/success' />;
@@ -142,39 +144,43 @@ class Checkout extends Component {
             </div>;
         }
 
-        let newPayment = <React.Fragment>
-            <div className='d-flex-between-start'>
-                <div className='w-45'>
-                    <div className='w-100 mb-3'>
-                        <label htmlFor='fullname'>Name on Card:</label>
-                        <input type='text' name='fullname' id='fullname' className='form-control' onChange={(e) => this.setState({name: e.target.value})} autoComplete='ccname' />
+        if (this.state.status === 'Loading') {
+            newPayment = <div className='position-relative'><Loading size='5x' /></div>;
+        } else if (!this.state.havePayments || this.state.usePayment === 'New') {
+            newPayment = <React.Fragment>
+                <div className='d-flex-between-start'>
+                    <div className='w-45'>
+                        <div className='w-100 mb-3'>
+                            <label htmlFor='fullname'>Name on Card:</label>
+                            <input type='text' name='fullname' id='fullname' className='form-control' onChange={(e) => this.setState({name: e.target.value})} autoComplete='ccname' />
+                        </div>
+
+                        <div className='w-100'>
+                            <label htmlFor='use-default-address'><input type='checkbox' name='use-default-address' id='use-default-address' checked={this.state.defaultAddress} onChange={() => this.useDefaultAddress()} /> Use address registered with this account</label>
+                        </div>
                     </div>
 
-                    <div className='w-100'>
-                        <label htmlFor='use-default-address'><input type='checkbox' name='use-default-address' id='use-default-address' checked={this.state.defaultAddress} onChange={() => this.useDefaultAddress()} /> Use address registered with this account</label>
+                    <div className='d-flex-between-center w-45'>
+                        <div className='w-55'>
+                            <label htmlFor='card-number'>Credit Card Number:</label>
+                            <CardNumberElement className='form-control' />
+                        </div>
+
+                        <div className='w-20'>
+                            <label htmlFor='expiry-date'>Expirty Date:</label>
+                            <CardExpiryElement className='form-control' />
+                        </div>
+
+                        <div className='w-20'>
+                            <label htmlFor='cvc'>CVC:</label>
+                            <CardCVCElement className='form-control' />
+                        </div>
                     </div>
                 </div>
 
-                <div className='d-flex-between-center w-45'>
-                    <div className='w-55'>
-                        <label htmlFor='card-number'>Credit Card Number:</label>
-                        <CardNumberElement className='form-control' />
-                    </div>
-
-                    <div className='w-20'>
-                        <label htmlFor='expiry-date'>Expirty Date:</label>
-                        <CardExpiryElement className='form-control' />
-                    </div>
-
-                    <div className='w-20'>
-                        <label htmlFor='cvc'>CVC:</label>
-                        <CardCVCElement className='form-control' />
-                    </div>
-                </div>
-            </div>
-
-            <div className='text-right mb-3'>Note: This will become your default payment</div>
-        </React.Fragment>;
+                <div className='text-right mb-3'>Note: This will become your default payment</div>
+            </React.Fragment>;
+        }
 
         return (
             <div className='checkout mt-3'>
@@ -189,14 +195,14 @@ class Checkout extends Component {
 
                 {choosePaymentMethod}
 
-                {!this.state.havePayments || this.state.usePayment === 'New' ? newPayment : ''}
+                {newPayment}
 
                 {addressInput}
 
                 <div className='d-flex-between-end'>
                     <Recaptcha sitekey='6Ld784QUAAAAAISqu_99k8_Qk7bHs2ud4cD7EBeI' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} />
     
-                    <SubmitButton type='button' loading={this.state.status === 'Sending'} onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to subscribe to this monthly plan?`, `If you're not already subscribed, you will be charged immediately and there will be no refunds`, {action: 'submit payment'}))} />
+                    <SubmitButton type='button' loading={this.state.status === 'Sending'} onClick={() => this.props.dispatch(CheckoutConfirmation(this.state, {action: 'submit payment'}))} />
                 </div>
             </div>
         );

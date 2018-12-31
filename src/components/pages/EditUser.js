@@ -257,12 +257,12 @@ class EditUser extends Component {
 
                         <div className='d-flex-between-start'>
                             <div className='position-relative w-45'>
-                                <TitledContainer title='Notifications' content={notifications} hasMore={this.state.notificationsFetched === false} loadMore={() => this.setState({notificationOffset: this.state.notificationOffset + 10})} emptyMessage='You do not have notifications' />
+                                <TitledContainer title='Notifications' content={notifications} hasMore={this.state.notificationsFetched === false} loadMore={() => this.setState({notificationOffset: this.state.notificationOffset + 10})} emptyMessage={`You don't any have notifications`} />
                                 {notificationStatus}
                             </div>
 
                             <div className='position-relative w-45'>
-                                <TitledContainer title='Recent Activities' content={activities} hasMore={this.state.activitiesFetched === false} loadMore={() => this.setState({activityOffset: this.state.activityOffset + 10})} emptyMessage='You do not have any activities' />
+                                <TitledContainer title='Recent Activities' content={activities} hasMore={this.state.activitiesFetched === false} loadMore={() => this.setState({activityOffset: this.state.activityOffset + 10})} emptyMessage={`You don't have any activities`} />
                                 {activityStatus}
                             </div>
                         </div>

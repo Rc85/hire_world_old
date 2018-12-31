@@ -333,7 +333,7 @@ app.post('/api/user/subscription/add', (req, resp) => {
 
                             let customer, subscription, accountType;
 
-                            if (req.body.plan === 'plan_EFVAGdrFIrpHx5') {
+                            if (req.body.plan === 'plan_EFVAGdrFIrpHx5' || req.body.plan === 'plan_EAIyF94Yhy1BLB' /* testing */) {
                                 accountType = 'Listing';
                             }
 

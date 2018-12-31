@@ -23,6 +23,17 @@ export const ResetConfirmation = () => {
         type: 'RESET_CONFIRMATION',
         status: false,
         message: null,
-        option: null
+        option: null,
+        obj: {},
+        data: null
+    }
+}
+
+export const CheckoutConfirmation = (obj, data) => {
+    return {
+        type: 'CHECKOUT_CONFIRMATION',
+        obj,
+        data,
+        status: true
     }
 }

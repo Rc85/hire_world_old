@@ -1,11 +1,6 @@
 extends layout
 
 block content
-    if announcements.length > 0
-        each val, i in announcements
-            .announcements.alert.alert-info.alert-dismissible.fade.show.w-50.mr-auto.ml-auto.mt-3.mb-3(role='alert') !{announcements[i].announcement}
-                button.close(data-dismiss='alert', aria-label='Close')
-                    i.fa.fa-times
     section#main-section
         div
             h1 Find any service, anywhere

@@ -27,7 +27,7 @@ class Login extends Component {
         }
 
         return(
-            <section id='login' className='main-panel'>
+            <section id='login' className='main-panel w-40 mx-auto'>
                 <div className='blue-panel shallow rounded'>
                     <h2>Login</h2>
 

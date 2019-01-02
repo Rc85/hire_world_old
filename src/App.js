@@ -39,9 +39,14 @@ class App extends Component {
 			.then(resp => {
 				if (resp.data.status === 'success') {
 					let ids = [];
+					let localIds = JSON.parse(localStorage.getItem('dismissed'));
 
 					for (let a of resp.data.announcements) {
-						ids.push(a.announcement_id);
+						if (!localIds) {
+							ids.push(a.announcement_id);
+						} else if (localIds && localIds.indexOf(a.announcement_id) < 0) {
+							ids.push(a.announcement_id);
+						}
 					}
 
 					this.setState({announcements: resp.data.announcements, announcementIds: ids});
@@ -67,9 +72,14 @@ class App extends Component {
 		.then(resp => {
 			if (resp.data.status === 'success') {
 				let ids = [];
+				let localIds = JSON.parse(localStorage.getItem('dismissed'));
 
 				for (let a of resp.data.announcements) {
-					ids.push(a.announcement_id);
+					if (!localIds) {
+						ids.push(a.announcement_id);
+					} else if (localIds && localIds.indexOf(a.announcement_id) < 0) {
+						ids.push(a.announcement_id);
+					}
 				}
 
 				this.setState({announcements: resp.data.announcements, announcementIds: ids});
@@ -82,6 +92,16 @@ class App extends Component {
 		let ids = [...this.state.announcementIds];
 
 		ids.splice(ids.indexOf(id), 1);
+
+		let localIds = JSON.parse(localStorage.getItem('dismissed'));
+
+		if (!localIds) {
+			localIds = [];
+		}
+
+		localIds.push(id);
+
+		localStorage.setItem('dismissed', JSON.stringify(localIds));
 
 		fetch.post('/api/user/dismiss/announcement', {id: id})
 		.catch(err => LogError(err, '/api/user/dismiss/announcement'));
@@ -168,7 +188,8 @@ class App extends Component {
 				<div className='position-relative'>{this.menu}</div>
 
 				<section className='main-container'>
-					<div className='mx-auto mt-5 w-50'>{announcements}</div>
+					{this.state.announcements.length > 0 ? <div className='mx-auto mt-5 w-50'>{announcements}</div> : ''}
+
 					<Switch>
 						<Route exact path='/' render={() => <Pages.Login user={this.props.user} />} />
 						<Route exact path='/view' component={Pages.ViewUser} />

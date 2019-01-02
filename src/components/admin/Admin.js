@@ -34,8 +34,6 @@ class Admin extends Component {
     componentDidMount() {
         fetch.post('/api/admin/privilege')
         .then(resp => {
-            console.log(resp);
-            
             if (resp.data.status === 'success') {
                 this.setState({status: '', authorized: true});
             } else if (resp.data.status === 'error') {

@@ -43,7 +43,6 @@ class AdminSectors extends Component {
     }
 
     render() {
-        console.log(this.props.sectors);
         return(
             <div className='blue-panel shallow three-rounded'>
                 <div className='input-group mb-5'>

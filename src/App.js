@@ -16,19 +16,38 @@ import Footer from './components/includes/site/Footer';
 import ReviewMploy from './components/includes/page/ReviewMploy';
 import { StripeProvider, Elements } from 'react-stripe-elements';
 import CheckoutConfirmation from './components/utils/CheckoutConfirmation';
+import fetch from 'axios';
+import { LogError } from './components/utils/LogError';
+import { Alert as Alerts } from 'reactstrap';
 
 class App extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			mainMenu: false
+			mainMenu: false,
+			announcements: [],
+			announcementIds: []
 		}
 	}
 
 	componentDidUpdate(prevProps, prevState) {
 		if (this.props.location.key !== prevProps.location.key) {
 			this.props.dispatch(GetUserNotificationAndMessageCount());
+
+			fetch.post('/api/get/announcements')
+			.then(resp => {
+				if (resp.data.status === 'success') {
+					let ids = [];
+
+					for (let a of resp.data.announcements) {
+						ids.push(a.announcement_id);
+					}
+
+					this.setState({announcements: resp.data.announcements, announcementIds: ids});
+				}
+			})
+			.catch(err => LogError(err, '/api/get/announcements'));
 		}
 	}
 		
@@ -43,7 +62,32 @@ class App extends Component {
 				this.props.dispatch(ToggleMenu('', ''));
 			}
 		});
-    }
+
+		fetch.post('/api/get/announcements')
+		.then(resp => {
+			if (resp.data.status === 'success') {
+				let ids = [];
+
+				for (let a of resp.data.announcements) {
+					ids.push(a.announcement_id);
+				}
+
+				this.setState({announcements: resp.data.announcements, announcementIds: ids});
+			}
+		})
+		.catch(err => LogError(err, '/api/get/announcements'));
+	}
+	
+	dismissAlert(id) {
+		let ids = [...this.state.announcementIds];
+
+		ids.splice(ids.indexOf(id), 1);
+
+		fetch.post('/api/user/dismiss/announcement', {id: id})
+		.catch(err => LogError(err, '/api/user/dismiss/announcement'));
+
+		this.setState({announcementIds: ids});
+	}
 
 	render() {
 		let confirmation, sectors, alerts, prompt, warning;
@@ -108,6 +152,12 @@ class App extends Component {
 			{name: 'Subscription', active: this.props.location.pathname === '/settings/subscription', link: '/settings/subscription'}
 		]
 
+		let announcements = this.state.announcements.map((a, i) => {
+			return <Alerts key={i} color='info' isOpen={this.state.announcementIds.indexOf(a.announcement_id) >= 0} toggle={() => this.dismissAlert(a.announcement_id)}>
+				{a.announcement}
+			</Alerts>
+		});
+
 		return (
 			<div className='col-container'>
 				{warning}
@@ -118,6 +168,7 @@ class App extends Component {
 				<div className='position-relative'>{this.menu}</div>
 
 				<section className='main-container'>
+					<div className='mx-auto mt-5 w-50'>{announcements}</div>
 					<Switch>
 						<Route exact path='/' render={() => <Pages.Login user={this.props.user} />} />
 						<Route exact path='/view' component={Pages.ViewUser} />

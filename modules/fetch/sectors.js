@@ -3,7 +3,7 @@ const db = require('../db');
 const error = require('../utils/error-handler');
 
 app.get('/api/get/sectors', async(req, resp) => {
-    db.query(`SELECT * FROM sectors WHERE sector_status = 'Open' ORDER BY sector`)
+    db.query(`SELECT * FROM sectors WHERE sector_status != 'Delete' ORDER BY sector`)
     .then(result => {
         if (result !== undefined) {
             resp.send({status: 'get sectors success', sectors: result.rows});

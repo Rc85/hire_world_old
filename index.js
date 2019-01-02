@@ -78,6 +78,7 @@ app.use(require('./modules/fetch/user'));
 app.use(require('./modules/fetch/messages'));
 app.use(require('./modules/fetch/jobs'));
 app.use(require('./modules/fetch/listings'));
+app.use(require('./modules/fetch/configs'));
 
 app.use(require('./modules/message/messages'));
 app.use(require('./modules/message/offers'));
@@ -295,6 +296,7 @@ app.post('/api/admin/privilege', (req, resp) => {
     }
 });
 
+app.use(require('./modules/admin/overview'));
 app.use(require('./modules/admin/sector'));
 app.use(require('./modules/admin/users'));
 app.use(require('./modules/admin/listings'));

@@ -678,4 +678,15 @@ app.post('/api/user/payment/delete', (req, resp) => {
     }
 });
 
+app.post('/api/user/dismiss/announcement', async(req, resp) => {
+    if (req.session.user) {
+        await db.query(`INSERT INTO dismissed_announcements (dismissed_announcement, dismissed_by) VALUES ($1, $2) ON CONFLICT ON CONSTRAINT unique_dismiss DO NOTHING`, [req.body.id, req.session.user.username])
+        .then(() => resp.send({status: 'success'}))
+        .catch(err => {
+            error.log({name: err.name, message: err.message, origin: 'Adding to dismiss announcement table', url: req.url});
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
+        });
+    }
+});
+
 module.exports = app;

@@ -6,7 +6,10 @@ app.post('/api/admin/config/get', async(req, resp) => {
     let configs = await db.query(`SELECT * FROM site_configs ORDER BY config_id`);
     let promotions = await db.query(`SELECT * FROM promotions`);
     let plans = await db.query(`SELECT * FROM subscription_plans WHERE plan_status != 'Delete'`);
-    let announcements = await db.query(`SELECT * FROM announcements ORDER BY announcement_created_date DESC LIMIT 3`);
+    let now = new Date();
+    now.setHours(0);
+    now.setMinutes(0);
+    let announcements = await db.query(`SELECT * FROM announcements WHERE announcement_start_date >= $1 ORDER BY announcement_created_date LIMIT 3`, [now]);
 
     if (configs && promotions && plans && announcements) {
         resp.send({status: 'success', configs: configs.rows, promotions: promotions.rows, plans: plans.rows, announcements: announcements.rows});
@@ -37,15 +40,21 @@ app.post('/api/admin/config/set/:name', async(req, resp) => {
 app.post('/api/admin/announcement/create', async(req, resp) => {
     let blankCheck = /^\s*$/;
 
-    let numberOfAnnouncements = await db.query(`SELECT announcement_id FROM announcements`);
+    let numberOfAnnouncements = await db.query(`SELECT announcement_id FROM announcements WHERE announcement_start_date >= current_timestamp`);
 
     if (numberOfAnnouncements.rows.length < 3) {
+        let now = new Date();
+        let start = new Date(req.body.start);
+        let end = new Date(req.body.end);
+
         if (blankCheck.test(req.body.announcement)) {
             resp.send({status: 'error', statusMessage: 'Announcement cannot be blank'});
-        } else if (req.body.start > req.body.end) {
+        } else if (start > end) {
             resp.send({status: 'error', statusMessage: 'Start date cannot be after end date'});
+        } else if (now > start && now > end) {
+            resp.send({status: 'error', statusMessage: 'No point setting announcement in the past'});
         } else {
-            await db.query(`INSERT INTO announcements (announcement, announcement_start_date, announcement_end_date, announcer) VALUES ($1, $2, $3, $4) RETURNING *`, [req.body.announcement, req.body.start, req.body.end, req.session.user.username])
+            await db.query(`INSERT INTO announcements (announcement, announcement_start_date, announcement_end_date, announcer) VALUES ($1, $2, $3, $4) RETURNING *`, [req.body.announcement, start, end, req.session.user.username])
             .then(result => {
                 if (result) resp.send({status: 'success', announcement: result.rows[0]});
             })

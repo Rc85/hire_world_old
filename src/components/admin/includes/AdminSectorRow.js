@@ -100,7 +100,7 @@ class AdminSectorRow extends Component {
                     <div className='w-25'>{moment(this.state.sector.sector_created_on).format('MMM DD YYYY')}</div>
                     <div className='w-20'>{this.state.sector.sector_created_by}</div>
                     <div className='w-10'>
-                        <span className={this.state.sector.sector_status === 'Open' ? 'badge badge-success' : 'badge badge-danger'}>{this.state.sector.sector_status}</span>
+                        <span className={this.state.sector.sector_status === 'Open' ? 'badge badge-success' : 'badge badge-warning'}>{this.state.sector.sector_status}</span>
                     </div>
                     <div className='w-5 position-relative text-right'>
                         <button className='btn btn-info btn-sm admin-menu-button' onClick={() => this.toggleMenu()}>{this.props.menu.open === 'admin' ? <FontAwesomeIcon icon={faCaretUp} /> : <FontAwesomeIcon icon={faCaretDown} />}</button>

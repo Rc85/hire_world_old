@@ -84,7 +84,7 @@ app.post('/api/auth/register', (req, resp) => {
 
                                         await client.query(`COMMIT`)
                                         .then(async() => {
-                                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Created an account', user.rows[0].username, 'Account']);
+                                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Account created', user.rows[0].username, 'Account']);
                                             resp.send({status: 'success', statusMessage: 'Registration successful. Please check your email to confirm your account'});
                                         });
                                     } catch (e) {

@@ -124,7 +124,6 @@ app.get('/register/success', (req, resp) => {
 
 app.get('/activate-account', async(req, resp) => {
     let registrationKey = req.query.key;
-    console.log(registrationKey);
 
     let user = await db.query(`SELECT * FROM users WHERE registration_key = $1 AND reg_key_expire_date > current_timestamp`, [registrationKey])
 

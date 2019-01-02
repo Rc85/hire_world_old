@@ -25,6 +25,8 @@ class Admin extends Component {
                     this.setState({status: '', authorized: true});
                 } else if (resp.data.status === 'error') {
                     this.setState({status: '', statusMessage: resp.data.statusMessage});
+                } else if (resp.data.status === 'access error') {
+                    this.setState({status: '', authorized: false});
                 }
             })
             .catch(err => LogError(err, '/api/auth/privilege'));

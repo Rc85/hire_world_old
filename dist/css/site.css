@@ -488,31 +488,6 @@
   width: 100% !important;
 }
 
-#topbar {
-  background: #2F496E;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  width: 100%;
-}
-
-#topbar #logo a:hover {
-  text-decoration: none;
-}
-
-.listing-indicator {
-  border-radius: 50%;
-  width: 10px;
-  height: 10px;
-}
-.listing-indicator.listed {
-  background-color: lime;
-}
-.listing-indicator.not-listed {
-  background-color: #8b8b8b;
-}
-
 /*!
  * Font Awesome Free 5.4.1 by @fontawesome - https://fontawesome.com
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
@@ -5726,10 +5701,27 @@ readers do not read off random characters that represent icons */
   font-weight: 400;
 }
 
+#topbar {
+  background-color: #2F496E;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
 #navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+#mobile-nav-button {
+  display: none;
+  color: white;
+}
+
+#mobile-nav {
+  display: none;
 }
 
 #main {
@@ -5769,12 +5761,9 @@ readers do not read off random characters that represent icons */
   margin-top: 5rem;
 }
 
-#sub-section-parent {
-  background-color: #FCFCFC;
-  background-image: url("/images/bg_grey.jpg");
-  background-repeat: no-repeat;
-  background-size: 100% auto;
-  background-position: center 250px;
+#four-panel .panel {
+  width: 20%;
+  text-align: center;
 }
 
 .sub-section {
@@ -5782,6 +5771,7 @@ readers do not read off random characters that represent icons */
   color: #1F1F1F;
   min-height: 50vh;
   font-size: 1.2rem;
+  margin-bottom: 30px;
 }
 .sub-section h1, .sub-section h2, .sub-section h3, .sub-section h4, .sub-section h5, .sub-section h6 {
   color: #2F496E;
@@ -5795,7 +5785,7 @@ i {
   padding: 30px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   border-radius: 0.25rem;
 }
 .process > i {
@@ -5846,6 +5836,39 @@ i {
   color: #2988BC;
 }
 
+#what-is-it {
+  text-align: center;
+  width: 50%;
+  margin: 0 auto 0 auto;
+}
+
+.how-it-works-container {
+  text-align: center;
+}
+
+.how-it-works-step {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  display: inline-block;
+  text-align: center;
+}
+.how-it-works-step div {
+  width: 50px;
+  border-radius: 50%;
+  background-color: #2F496E;
+  color: white;
+  padding: 5px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.how-it-works-step:after {
+  display: block;
+  padding-bottom: 100%;
+  content: "";
+}
+
 #pricing-table {
   width: 50%;
   margin: 0 auto 30px auto;
@@ -5874,6 +5897,8 @@ i {
 
 #pricing-facts {
   font-size: 1.2rem;
+  width: 50%;
+  margin: 0 auto 0 auto;
 }
 
 .pricing-section {
@@ -5942,6 +5967,11 @@ i {
   padding-left: 50px;
 }
 
+#about {
+  margin: 0 auto 0 auto;
+  width: 50%;
+}
+
 #faq {
   width: 75%;
   margin: 0 auto 0 auto;
@@ -5994,6 +6024,156 @@ i {
   margin: 0;
 }
 
+#register {
+  width: 50%;
+  margin: 0 auto 0 auto;
+}
+
+.form-field-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.form-field {
+  width: 45%;
+}
+
+@media only screen and (max-width: 1366px) {
+  #main-panel {
+    padding: 15px 15px;
+    position: relative;
+  }
+
+  #pricing-facts, .pricing-section, #what-is-it, #how-it-works, #about, #faq, #register {
+    width: 90%;
+  }
+
+  #main-section {
+    background-position: top center;
+  }
+}
+@media only screen and (max-width: 768px) {
+  #navbar {
+    display: none;
+  }
+
+  #mobile-nav-button {
+    display: block;
+  }
+
+  #mobile-nav {
+    right: 0;
+    position: absolute;
+    z-index: 99;
+    transition: all ease-in-out 1s;
+  }
+  #mobile-nav .mobile-nav-item {
+    padding: 15px;
+    background-color: #2F496E;
+    color: white;
+    border: 1px solid black;
+    font-size: 1.25rem;
+  }
+  #mobile-nav .mobile-nav-item:hover {
+    background-color: #2988BC;
+    color: black;
+  }
+  #mobile-nav .mobile-nav-item:not(:last-child) {
+    border-bottom: 0px;
+  }
+  #mobile-nav.hide {
+    display: none;
+  }
+  #mobile-nav.show {
+    display: block;
+  }
+
+  #four-panel i {
+    font-size: 5em;
+  }
+  #four-panel #four-panel-children {
+    flex-direction: column;
+  }
+  #four-panel .panel {
+    width: 100%;
+    margin-bottom: 50px;
+  }
+
+  .process {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .process-div {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+}
+@media only screen and (max-width: 414px) {
+  #main {
+    position: relative;
+  }
+
+  #pricing-facts {
+    margin: 0 auto 0 auto;
+  }
+
+  #main-section {
+    padding: 15px;
+  }
+  #main-section div {
+    width: 100%;
+  }
+
+  .sub-section {
+    padding: 15px;
+    font-size: 0.6rem;
+  }
+  .sub-section h3 {
+    font-size: 0.8rem;
+  }
+
+  #how-it-works i {
+    font-size: 3rem;
+  }
+
+  .how-messaging-stages {
+    padding-left: 15px;
+    margin: 0 0 20px 15px;
+  }
+
+  .form-field-container {
+    display: block;
+    justify-content: flex-start;
+  }
+
+  .form-field {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+@media only screen and (max-width: 320px) {
+  #how-it-works i {
+    display: none;
+  }
+
+  .g-recaptcha {
+    transform: scale(0.7);
+    -webkit-transform: scale(0.7);
+    transform-origin: 0 0;
+    -webkit-transform-origin: 0 0;
+  }
+}
+@media only screen and (min-width: 321px) and (max-width: 375px) {
+  .g-recaptcha {
+    transform: scale(0.86);
+    -webkit-transform: scale(0.86);
+    transform-origin: 0 0;
+    -webkit-transform-origin: 0 0;
+  }
+}
 @font-face {
   font-family: "Montserrat";
   src: url("../fonts/Montserrat-Regular.ttf");
@@ -6003,16 +6183,13 @@ i {
   src: url("../fonts/Montserrat-Bold.ttf");
 }
 body {
-  background-image: url("/images/bg_grey.jpg");
-  background-repeat: no-repeat;
-  background-size: 100% auto;
-  background-position: center 300px;
   background-color: #FCFCFC;
   overflow-x: hidden;
   margin: 0;
   font-family: "Montserrat";
   color: #F9F6F4;
   min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -6071,6 +6248,52 @@ hr {
 
 #alert.alert-error {
   background: #ED463D;
+}
+
+#tos, #privacy, #contact {
+  width: 75%;
+}
+
+#response {
+  width: 50%;
+}
+
+#contact {
+  margin: 0 auto 0 auto;
+}
+
+@media only screen and (max-width: 414px) {
+  body {
+    font-size: 0.6rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+  }
+
+  h4 {
+    font-size: 1rem;
+  }
+
+  h5 {
+    font-size: 0.9rem;
+  }
+
+  h6 {
+    font-size: 0.8rem;
+  }
+
+  #tos, #privacy, #contact, #response {
+    width: 90%;
+  }
 }
 
 /*# sourceMappingURL=site.css.map */

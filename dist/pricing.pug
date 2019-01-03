@@ -6,7 +6,7 @@ block content
             div.alert.alert-info.text-center
                 h4 #{promo.promo_name}
                 .mt-3 #{promo.promo_description}
-        #pricing-facts.w-50.mx-auto.blue-panel.shallow.rounded.mb-3
+        #pricing-facts.blue-panel.shallow.rounded.mb-3
             .d-flex.align-items-center
                 i.fa.fa-check.fa-lg.mr-3
                 strong No hidden fees
@@ -21,9 +21,12 @@ block content
                 strong One flat monthly rate to start listing
             hr
             .text-center
-                h1 $7 / month
-                small Plus any applicable fees by 
-                    a(href='https://stripe.com') Stripe, Inc.
+                strike
+                    h1 $7 / month
+                    small Plus any applicable fees by 
+                        a(href='https://stripe.com') Stripe, Inc.
+                h1 Free
+                small For a limited time only
         //-table#pricing-table.table.table-bordered
             thead
                 tr
@@ -106,21 +109,21 @@ block content
                         i.far.fa-check-circle.fa-2x.text-success
         .text-center.mb-3
             button#pricing-register-button.btn.btn-primary Register Now
-        hr.mt-5.mb-5.w-50.mx-auto
+        //-hr.mt-5.mb-5.w-50.mx-auto
         //-.mx-auto.w-50.d-flex
             .mr-3
                 i.fas.fa-medal.fa-3x
             span.text-black Purchase and honor medals to users who have delivered work beyond your expectations
             h1.text-highlight $5
-        #medal-pricing.pricing-section
+        //-#medal-pricing.pricing-section
             .d-flex
                 i.fa.fa-ribbon.fa-6x.mr-3
                 div
                     h4 Medals (coming soon)
                     span Did the user(s) you worked with delivered beyond your expectations? Honor them with a medal of recognition and help their business grow. Medals can be purchased through each individual users' profile.
                 h1 $5
-        hr.mt-5.mb-5.w-50.mx-auto
-        #payment-handling.pricing-section
+        //-hr.mt-5.mb-5.w-50.mx-auto
+        //-#payment-handling.pricing-section
             .d-flex.justify-content-between.mb-3
                 i.fa.fa-user.fa-3x
                 i.fa.fa-long-arrow-alt-right.fa-3x

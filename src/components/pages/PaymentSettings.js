@@ -145,7 +145,6 @@ class PaymentSettings extends Component {
                     <img src='/images/payment_methods.png' className='w-10' />
                 </div>
 
-
                 <div className='mb-3'>
                     <label htmlFor='nameOnCard'>Name on Card:</label>
                     <input type='text' name='name' id='nameOnCard' className='form-control' onChange={(e) => this.setState({name: e.target.value})} placeholder='Your name on your profile will be used if left blank' ref={el => this.cardName = el} />

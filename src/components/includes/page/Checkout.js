@@ -148,6 +148,11 @@ class Checkout extends Component {
             newPayment = <div className='position-relative'><Loading size='5x' /></div>;
         } else if (!this.state.havePayments || this.state.usePayment === 'New') {
             newPayment = <React.Fragment>
+                <div className='text-right mb-3'>
+                    <img src='/images/powered_by_stripe.png' className='w-10 mr-1' />
+                    <img src='/images/payment_methods.png' className='w-10' />
+                </div>
+
                 <div className='d-flex-between-start'>
                     <div className='w-45'>
                         <div className='w-100 mb-3'>

@@ -1,0 +1,12 @@
+#register {
+    width: 50%;
+    margin: 0 auto 0 auto;
+}
+
+.form-field-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.form-field { width: 45%; }

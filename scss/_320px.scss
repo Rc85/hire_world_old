@@ -1,0 +1,21 @@
+@media only screen and (max-width: 320px) {
+    #how-it-works {
+        i { display: none; }
+    }
+
+    .g-recaptcha {
+        transform:scale(0.70);
+        -webkit-transform:scale(0.70);
+        transform-origin:0 0;
+        -webkit-transform-origin:0 0;
+    }
+}
+
+@media only screen and (min-width: 321px) and (max-width: 375px) {
+    .g-recaptcha {
+        transform:scale(0.86);
+        -webkit-transform:scale(0.86);
+        transform-origin:0 0;
+        -webkit-transform-origin:0 0;
+    }
+}

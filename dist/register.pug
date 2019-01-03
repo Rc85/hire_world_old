@@ -6,7 +6,7 @@ block header
 
 block content
     section#main-panel
-        #register.blue-panel.shallow.rounded.w-50.mx-auto
+        #register.blue-panel.shallow.rounded
             form#register-form(action='/api/auth/register', method='POST')
                 .text-right
                     small
@@ -17,25 +17,25 @@ block content
                 .mb-3
                     label(for='title') Profession Title:
                     input#reg-title.form-control(type='text', name='title', required, autocomplete='off')
-                .d-flex.justify-content-between.mb-3
-                    .w-45
+                .form-field-container.mb-3
+                    .form-field
                         label(for='reg-fname') First Name:
                         input#reg-fname.form-control(type='text', name='firstName', required, maxlength='15')
-                    .w-45
+                    .form-field
                         label(for='reg-lname') Last Name:
                         input#reg-lname.form-control(type='text', name='lastName', required, maxlength='15')
-                .d-flex.justify-content-between.mb-3
-                    .w-45
+                .form-field-container.mb-3
+                    .form-field
                         label(for='reg-password') Password:
                         input#reg-password.form-control(type='password', name='password', required, placeholder='6-20 characters', minlength='6', maxlength='20')
-                    .w-45
+                    .form-field
                         label(for='reg-confirm-password') Confirm Password:
                         input#reg-confirm-password.form-control(type='password', name='confirmPassword', required, minlength='6', maxlength='20', autocomplete='off')
-                .d-flex.justify-content-between.mb-3
-                    .w-45
+                .form-field-container.mb-3
+                    .form-field
                         label(for='reg-email') Email:
                         input#reg-email.form-control(type='email', name='email', required)
-                    .w-45
+                    .form-field
                         label(for='reg-confirm-email') Confirm Email:
                         input#reg-confirm-email.form-control(type='email', name='confirmEmail', required, autocomplete='off')
                 .mb-3

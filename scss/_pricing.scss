@@ -22,7 +22,11 @@
     }
 }
 
-#pricing-facts { font-size: 1.2rem; }
+#pricing-facts {
+    font-size: 1.2rem;
+    width: 50%;
+    margin: 0 auto 0 auto;
+}
 
 .pricing-section {
     h1, h4, h5 { color: $theme-highlight; }

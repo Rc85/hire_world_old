@@ -1,0 +1,39 @@
+@media only screen and (max-width: 414px) {
+    #main { position: relative;}
+
+    #pricing-facts {
+        margin: 0 auto 0 auto;
+    }
+
+    #main-section {
+        padding: 15px;
+    
+        div { width: 100%; }
+    }
+
+    .sub-section {
+        padding: 15px;
+        font-size: 0.6rem;
+
+        h3 { font-size: 0.8rem; }
+    }
+
+    #how-it-works {
+        i { font-size: 3rem; }
+    }
+
+    .how-messaging-stages {
+        padding-left: 15px;
+        margin: 0 0 20px 15px;
+    }
+
+    .form-field-container {
+        display: block;
+        justify-content: flex-start;
+    }
+
+    .form-field {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+}

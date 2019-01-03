@@ -4,12 +4,12 @@ block content
     section#main-section
         div
             h1 Find any service, anywhere
-            h1.d-flex-end-center Gain exposure for your business
+            h1.d-flex-end-center Gain exposure to your business
     section#sub-section-parent
         section.sub-section
             .d-flex.justify-content-center.align-items-center.mb-5
                 h1 What is it?
-            p.text-center M-ploy is a listing site for users to hire or get hired. M-ploy is very simple to use; Search and select your desired listing and quickly engage with the other user by using M-ploy's messaging system. Found the candidate you want? Hiring is just one click away.
+            p#what-is-it M-ploy is a listing site for users to hire other users or be hired by other users. M-ploy is very simple to use; Search and select your desired listing and quickly engage with the other party by using the messaging system. When you find the candidate you want, hiring is just one click away.
             #benefits.text-center
                 h4 Benefits when using M-ploy
                 .text-left.mx-auto
@@ -28,50 +28,66 @@ block content
                     div
                         i.fa.fa-check.mr-3
                         strong Keep track of your jobs
+        hr.w-90
         section#four-panel.sub-section
             .text-center.mb-5
                 h1 A community to help provide trusted services
-            .d-flex-around-start
-                .w-20.text-center
+            #four-panel-children.d-flex-around-start
+                .panel
                     h3 User Reviews
-                    i.far.fa-comments.fa-10x
+                    i.far.fa-comments.fa-5x
                     .w-50.mx-auto.mt-3
                         strong Five-star rating system and user feedback to help build your business
-                .w-20.text-center
+                .panel
                     h3 Report System
-                    i.fa.fa-exclamation-triangle.fa-10x
+                    i.fa.fa-exclamation-triangle.fa-5x
                     .w-50.mx-auto.mt-3
                         strong One-click user report to flag users, reviews, and messages
-                .w-20.text-center
+                .panel
                     h3 Moderated
-                    i.fa.fa-user-shield.fa-10x
+                    i.fa.fa-user-shield.fa-5x
                     .w-50.mx-auto.mt-3
                         strong Heavily moderated to provide a safe and appropriate community for every user
-                .w-20.text-center
+                .panel
                     h3 Job Tracking
-                    i.fa.fa-chart-area.fa-10x
+                    i.fa.fa-chart-area.fa-5x
                     .w-50.mx-auto.mt-3
                         strong Track jobs to completion stage to gain stats and 
                             span.badge.badge-success verified
                             |  reviews
+        hr.w-90
         section.sub-section.position-relative
-            .text-center.mb-5
+            .text-center.mb-3
                 h1 User friendly and easy to use
                 span Communicate, establish an agreement, and keep track of jobs
+            .text-center.mb-3 Here is a mini demo of how it works
+            .how-it-works-container
+                .how-it-works-step
+                    .steps 1
+                #intention What do you want to do?
             .text-center
                 button.btn.btn-info.mr-1#get-hired-button I want to work
                 button.btn.btn-info.ml-1#hire-button I want to hire
-                button.btn.btn-info#reset-button Reset
             #get-hired.process
-                #list-profile.process-div List your profile
+                #list-profile.process-div
+                    .how-it-works-container
+                        .how-it-works-step
+                            .steps 2
+                    span List your profile
                     input#list-title.form-control.mb-1(type='text', name='list-title', placeholder='Enter a title')
                     button.btn.btn-primary.btn-sm#list-button List
                 i.fas.fa-arrow-right.arrow1
                 #accept-offer.process-div
+                    .how-it-works-container
+                        .how-it-works-step
+                            .steps 3
                     div A user makes an offer
                     button.btn.btn-success.btn-sm#accept-offer-button Accept Offer
                 i.fas.fa-arrow-right.arrow2
                 #user-job-complete.process-div
+                    .how-it-works-container
+                        .how-it-works-step
+                            .steps 4
                     div Send request to the other party to complete the job
                     button.btn.btn-success.btn-sm#user-job-complete-button Complete
                 i.fas.fa-arrow-right.arrow3
@@ -84,7 +100,11 @@ block content
                         i.far.fa-check-circle.fa-2x.text-success.mr-2
                         span Approved
                 i.fas.fa-arrow-right.arrow4
-                #user-submit-review.process-div You can now submit a 
+                #user-submit-review.process-div 
+                    .how-it-works-container
+                        .how-it-works-step
+                            .steps 5
+                    span You can now submit a 
                     span.badge.badge-success verified 
                     |  review
                     input#user-verified-review.form-control.mb-1(type='text', name='verified-review', placeholder='Enter your feedback')
@@ -126,6 +146,7 @@ block content
                     |  review
                     input#client-verified-review.form-control.mb-1(type='text', name='verified-review', placeholder='Enter your feedback')
                     button.btn.btn-primary.btn-sm#client-submit-review-button Submit
+            button.btn.btn-info#reset-button.mx-auto Reset
         //-section.sub-section
             .text-center.mb-5
                 h1 User friendly. Easy to use

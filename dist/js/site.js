@@ -2,6 +2,10 @@ $(document).ready(function() {
     $('.alert').alert();
 
     const showProcess = (arrow, process) => {
+        if (window.matchMedia('(max-width: 768px)').matches) {
+            $(arrow).removeClass('fa-arrow-right').addClass('fa-arrow-down').css({'margin-bottom': '30px'});
+        }
+
         setTimeout(() => {
             $(arrow).css({'opacity': '1'});
         }, 250);
@@ -38,19 +42,15 @@ $(document).ready(function() {
     }
 
     const resetProcess = () => {
-        $('#user-review').hide();
-        $('#get-hired-button').show();
-        $('#hire-button').show();
-        $('#reset-button').hide();
+        $('#user-review, #reset-button').hide();
+        $('#get-hired-button, #hire-button, #intention, .how-it-works-container').show();
 
-        $('.process').css({'display': 'none'});
+        $('.process, #approved-text').css({'display': 'none'});
 
-        $('.process-div').css({'opacity': 0});
-
-        $('.process .fa-arrow-right').css({'opacity': 0});
+        $('.process .fa-arrow-right, .fa-arrow-down, .process-div').css({'opacity': 0});
 
         $('.dots').css({'visibility': 'visible'});
-        $('#approved-text').css({'display': 'none'});
+        $('#intention').text('What do you want to do?');
     }
 
     setTimeout(() => {
@@ -61,12 +61,18 @@ $(document).ready(function() {
         }, 1550);
     }, 500);
 
+    $('#list-title, #user-verified-review, #search-listing, #offer-input, #client-verified-review').on('focus', function() {
+        $(this).tooltip('hide');
+    });
+
     $('#get-hired-button').on('click', function() {
         $(this).hide();
         $('#hire-button').hide();
         $('#reset-button').show().on('click', function() {
             resetProcess();
         });
+
+        $('#intention').text('I want to work');
 
         $('#get-hired').css({'display': 'flex'});
 
@@ -75,7 +81,15 @@ $(document).ready(function() {
         }, 250);
 
         $('#list-button').on('click', function() {
-            showProcess('.arrow1', '#accept-offer');
+            if ($('#list-title').val() !== '') {
+                showProcess('.arrow1', '#accept-offer');
+            } else {
+                $('#list-title').tooltip({
+                    trigger: 'manual',
+                    title: 'Required',
+                    placement: 'top'
+                }).tooltip('show');
+            }
         });
 
         $('#accept-offer-button').on('click', function() {
@@ -93,6 +107,10 @@ $(document).ready(function() {
             }, 3000);
 
             setTimeout(() => {
+                if (window.matchMedia('(max-width: 768px)').matches) {
+                    $('.arrow4').removeClass('fa-arrow-right').addClass('fa-arrow-down').css({'margin-bottom': '30px'});
+                }
+
                 $('.arrow4').css({'opacity': 1});
             }, 3250);
 
@@ -102,9 +120,18 @@ $(document).ready(function() {
         });
 
         $('#user-submit-review-button').on('click', function() {
-            $('.process').hide();
+            if ($('#user-verified-review').val() !== '') {
+                $('.process').hide();
 
-            $('#user-review').css({'display': 'block'})
+                $('#user-review').css({'display': 'block'});
+                $('.how-it-works-container, #intention').hide();
+            } else {
+                $('#user-verified-review').tooltip({
+                    trigger: 'manual',
+                    title: 'required',
+                    placement: 'top'
+                }).tooltip('show');
+            }
         });
     });
 
@@ -115,6 +142,8 @@ $(document).ready(function() {
             resetProcess();
         });
 
+        $('#intention').text('I want to hire');
+
         $('#hire').css({'display': 'flex'});
 
         setTimeout(() => {
@@ -122,26 +151,46 @@ $(document).ready(function() {
         }, 250);
 
         $('#search-button').on('click', function() {
-            showProcess('.arrow1', '#make-offer');
+            if ($('#search-listing').val() !== '') {
+                showProcess('.arrow1', '#make-offer');
+            } else {
+                $('#search-listing').tooltip({
+                    trigger: 'manual',
+                    title: 'Required',
+                    placement: 'top'
+                }).tooltip('show');
+            }
         });
 
         $('#make-offer-button').on('click', function() {
-            setTimeout(() => {
-                showProcess('.arrow2', '#awaiting-acceptance');
-            }, 250);
+            if ($('#offer-input').val() !== '') {
+                setTimeout(() => {
+                    showProcess('.arrow2', '#awaiting-acceptance');
+                }, 250);
 
-            setTimeout(() => {
-                $('#accepted-text').css({'display': 'flex'});
-                $('.dots').css({'visibility': 'hidden'});
-            }, 3000);
+                setTimeout(() => {
+                    $('#accepted-text').css({'display': 'flex'});
+                    $('.dots').css({'visibility': 'hidden'});
+                }, 3000);
 
-            setTimeout(() => {
-                $('.arrow3').css({'opacity': 1});
-            }, 3250);
+                setTimeout(() => {
+                    if (window.matchMedia('(max-width: 768px)').matches) {
+                        $('.arrow3').removeClass('fa-arrow-right').addClass('fa-arrow-down').css({'margin-bottom': '30px'});
+                    }
 
-            setTimeout(() => {
-                $('#client-job-complete').css({'opacity': 1});
-            }, 3500);
+                    $('.arrow3').css({'opacity': 1});
+                }, 3250);
+
+                setTimeout(() => {
+                    $('#client-job-complete').css({'opacity': 1});
+                }, 3500);
+            } else {
+                $('#offer-input').tooltip({
+                    trigger: 'manual',
+                    title: 'Required',
+                    placement: 'top'
+                }).tooltip('show');
+            }
         });
 
         $('#client-job-complete-button').on('click', function() {
@@ -149,9 +198,19 @@ $(document).ready(function() {
         });
 
         $('#client-submit-review-button').on('click', function() {
-            $('.process').hide();
+            if ($('#client-verified-review').val() !== '') {
+                $('.process').hide();
 
-            $('#user-review').css({'display': 'block'})
+                $('.how-it-works-container, #intention').hide();
+
+                $('#user-review').css({'display': 'block'});
+            } else {
+                $('#client-verified-review').tooltip({
+                    trigger: 'manual',
+                    title: 'Required',
+                    placement: 'top'
+                }).tooltip('show');
+            }
         });
     });
 
@@ -170,6 +229,40 @@ $(document).ready(function() {
     });
 
     $('#pricing-register-button').on('click', function() {
+        location.href = '/register';
+    });
+
+    $('#mobile-nav-button').on('click', function() {
+        if ($('#mobile-nav').hasClass('hide')) {
+            $('#mobile-nav-button i').removeClass('fa-bars').addClass('fa-times');
+            $('#mobile-nav').removeClass('hide').addClass('show');
+        } else {
+            $('#mobile-nav-button i').addClass('fa-bars').removeClass('fa-times');
+            $('#mobile-nav').removeClass('show').addClass('hide');
+        }
+    });
+
+    $('#mobile-home-link').on('click', function() {
+        location.href = '/';
+    });
+    
+    $('#mobile-pricing-link').on('click', function() {
+        location.href = '/pricing';
+    });
+    
+    $('#mobile-how-link').on('click', function() {
+        location.href = '/how-it-works';
+    });
+
+    $('#mobile-faq-link').on('click', function() {
+        location.href = '/faq';
+    });
+    
+    $('#mobile-login-link').on('click', function() {
+        location.href = '/app/login';
+    });
+    
+    $('#mobile-register-link').on('click', function() {
         location.href = '/register';
     });
 });

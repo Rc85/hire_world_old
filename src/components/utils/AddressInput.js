@@ -14,8 +14,8 @@ const AddressInput = props => {
     }
 
     return(
-        <div>
-            <div className='d-flex-between-center mb-3'>
+        <div className='mb-3'>
+            <div className='d-flex-between-center'>
                 <div className='w-45'>
                     <label htmlFor='address'>Address:</label>
                     <input type='text' name='address' id='address' className='form-control mb-3' onChange={(e) => props.set('address_line1', e.target.value)} value={props.info ? props.info.address_line1 : ''} />

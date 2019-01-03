@@ -36,12 +36,11 @@
     margin-top: 5rem;
 }
 
-#sub-section-parent {
-    background-color: $not-white;
-    background-image: url('/images/bg_grey.jpg');
-    background-repeat: no-repeat;
-    background-size: 100% auto;
-    background-position: center 250px;
+#four-panel {
+    .panel {
+        width: 20%;
+        text-align: center;
+    }
 }
 
 .sub-section {
@@ -49,6 +48,7 @@
     color: $not-black;
     min-height: 50vh;
     font-size: 1.2rem;
+    margin-bottom: 30px;
 
     h1, h2, h3, h4, h5, h6 { color: $theme-blue; }
 }
@@ -59,7 +59,7 @@ i { color: $theme-highlight; }
     padding: 30px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     border-radius: 0.25rem;
 
     > i { color: black }
@@ -100,3 +100,35 @@ i { color: $theme-highlight; }
 .text-black { color: #000 }
 .text-blue { color: $theme-blue }
 .text-highlight { color: $theme-highlight }
+
+#what-is-it {
+    text-align: center;
+    width: 50%;
+    margin: 0 auto 0 auto;
+}
+
+.how-it-works-container { text-align: center; }
+
+.how-it-works-step {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: inline-block;
+    text-align: center;
+
+    div {
+        width: 50px;
+        border-radius: 50%;
+        background-color: $theme-blue;
+        color: white;
+        padding: 5px;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+}
+
+.how-it-works-step:after {
+    display: block;
+    padding-bottom: 100%;
+    content: '';
+}

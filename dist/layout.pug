@@ -1,6 +1,7 @@
 html
     head
         title M-ploy - Gain exposures for your self-employed business
+        meta(content='width=device-width, initial-scale=1, shrink-to-fit=no', name='viewport')
         script(src='/js/vendor/jquery-3.3.1.min.js')
         script(src='/js/vendor/bootstrap.bundle.min.js')
         link(rel='stylesheet', href='/styles/vendor/bootstrap-reboot.css', type='text/css')
@@ -13,6 +14,7 @@ html
         include ./inc/top
 
         #main
+            include ./inc/mobile-nav
             block content
         
         include ./inc/footer

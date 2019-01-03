@@ -1,5 +1,20 @@
+#topbar {
+    background-color: $theme-blue;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
 #navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
+
+#mobile-nav-button {
+    display: none;
+    color: white;
+}
+
+#mobile-nav { display: none; }

@@ -28,7 +28,7 @@ block content
                     a(href='#ten') Does M-ploy handle payments between users?
                 p
                     a(href='#eleven') I subscribed to a monthly plan but changed my mind, can I get a refund?
-                p
+                //-p
                     a(href='#twelve') What are medals?
                 p
                     a(href='#thirteen') I received a warning, what does it mean and how does that affect me?
@@ -54,21 +54,18 @@ block content
                     b How do I identify a reputable user?
                     .answer
                         p Reputable users can be identified by a combination of the following:
-                            ul.mt-3
-                                li
-                                    strong Completed Jobs 
-                                    | - The number of jobs they successfully completed.
-                                li
-                                    strong Rating 
-                                    | - The 5 star rating given by other users.
-                                li
-                                    strong Verified Reviews 
-                                    | - Reviews with 
-                                    strong Job Complete Verified 
-                                    | shows that the review came from a client who has completed a job with the user.
-                                li
-                                    strong Medals 
-                                    | - Medals are purchased and honored to the user by other users.
+                            li
+                                strong Completed Jobs 
+                                | - The number of jobs they successfully completed.
+                            li
+                                strong Rating 
+                                | - The 5 star rating given by other users.
+                            li
+                                strong Verified Reviews 
+                                | - Reviews with Job Complete Verified shows that the review came from a client who has completed a job with the user.
+                            //-li
+                                strong Medals 
+                                | - Medals are purchased and honored to the user by other users.
                         p Be aware that low numbers should be taken into consideration as users can create alternative accounts to give them the needed factors mentioned above.
                     .text-right
                         a(href='#questions') Top
@@ -134,7 +131,7 @@ block content
                     .answer
                         p Currently, M-ploy does not handle payments between users. Users who are working with other users online are responsible to handle their own payments. Good news is that, M-ploy have plans in the future to integrate 
                             a(href='https://stripe.com/connect') Stripe Connect
-                            |  with our platform so users can easily release and accept funds.
+                            |  with our platform so users can easily release and accept funds when conditions are met.
                     .text-right
                         a(href='#questions') Top
                 #eleven.answer-div
@@ -145,7 +142,7 @@ block content
                             |  for more information.
                     .text-right
                         a(href='#questions') Top
-                #twelve.answer-div
+                //-#twelve.answer-div
                     b What are medals?
                     .answer
                         p Customers who feel that the user who they worked with has exceeded their expectations can purchase a medal for the user. Medals is a way for the customer to show appreciation on a job well done and for the user to build their business reputation online. They will be displayed under the 
@@ -169,23 +166,22 @@ block content
                 #sixteen.answer-div
                     b I am banned, what did I do and is there a way to appeal it?
                     .answer
-                        p There are two types of ban
-                            ul.mt-3.ml-3
-                                li
-                                    strong Temporary Ban 
-                                    | - Temporary ban are given with a reason. You may receive temporary bans for, and not limited to the following:
-                                    li.ml-3 You received many warnings for the same reason.
-                                    li.ml-3 You were given a warning where you need to remove words/content that you submitted, but didn't do so in the given time frame.
-                                    li.ml-3 Suspicious account activity.
-                                    li.ml-3 Spams
-                                li.mt-3
-                                    strong Permanent Ban 
-                                    | - Permanent bans are given without a reason. You may receive a permanent ban for, and not limited to the follow:
-                                    li.ml-3 Fraud activities
-                                    li.ml-3 You violated the Terms of Service that have zero-tolerance for. See the 
-                                        a(href='/tos') Terms of Service
-                                        |  for more information.
-                                    li.ml-3 You have received three temporary bans already.
+                        p There are two types of ban    
+                        p
+                            strong Temporary Ban 
+                            | - Temporary ban are given with a reason. You may receive temporary bans for, and not limited to the following:
+                            li.ml-3 You received many warnings for the same reason.
+                            li.ml-3 You were given a warning where you need to remove words/content that you submitted, but didn't do so in the given time frame.
+                            li.ml-3 Suspicious account activity.
+                            li.ml-3 Spams
+                        p
+                            strong Permanent Ban 
+                            | - Permanent bans are given without a reason. You may receive a permanent ban for, and not limited to the follow:
+                            li.ml-3 Fraud activities
+                            li.ml-3 You violated the Terms of Service that have zero-tolerance for. See the 
+                                a(href='/tos') Terms of Service
+                                |  for more information.
+                            li.ml-3 You have received three temporary bans already.
                         p Bans cannot be appealed. If you are temporary banned, you cannot use any of M-ploy's features. If you have an active listing, it will be deactivated. Your messages cannot be retrieved as well.
                     .text-right
                         a(href='#questions') Top

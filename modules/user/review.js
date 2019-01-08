@@ -16,7 +16,7 @@ app.post('/api/user/review/submit', (req, resp) => {
                     let user = await client.query('SELECT user_status FROM users WHERE user_id = $1', [req.session.user.user_id]);
 
                     if (user && user.rows[0].user_status === 'Active') {
-                        if (req.body.message.review_id) {
+                        if (req.body.message.token_status === 'Valid') {
                             let decoded = decodeURIComponent(req.body.message.review_token);
                             let decrypt = cryptojs.AES.decrypt(decoded, 'authorize authentic review');
                             let authenticated = decrypt.toString(cryptojs.enc.Utf8);
@@ -58,7 +58,7 @@ app.post('/api/user/review/submit', (req, resp) => {
 
                             if (review && review.rowCount === 1) {
                                 await client.query(`COMMIT`)
-                                .then(() => resp.send({status: 'success', review: review.rows[0]}));
+                                .then(() => resp.send({status: 'success', statusMessage: 'Review submitted', review: review.rows[0]}));
                             } else {
                                 throw new Error('Insert error');
                             }

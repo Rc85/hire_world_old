@@ -1,0 +1,68 @@
+#dashboard {
+    width: 100%;
+    display: flex;
+}
+
+#dashboard-profile-pic {
+    margin: 0 auto 30px auto;
+    padding-top: 30px;
+    width: 75%;
+}
+
+#dashboard-main {
+    position: relative;
+    width: 80%;
+}
+
+#main-panel-bg {
+    position: absolute;
+    width: 100%;
+    height: 20%;
+    background-color: $theme-alt-highlight;
+    z-index: -1;
+}
+
+#dashboard-panel-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 50px 0 0 0;
+
+    .dashboard-panel-half { width: 45%; }
+    .dashboard-panel-full { width: 100%; }
+    .dashboard-panel-half, .dashboard-panel-full { margin-bottom: 50px; }
+}
+
+#dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    color: white;
+
+    #dashboard-header-wrapper {
+        width: 90%;
+        display: flex;
+
+        .profile-pic-wrapper { width: 15%; }
+    }
+}
+
+#dashboard-list-buttons-container {
+    display: flex;
+    width: 10%;
+
+    #mobile-logout-button { display: none; }
+}
+
+.dashboard-list-button {
+    cursor: pointer;
+    margin-right: 4px;
+
+    &:hover { color: $theme-special; }
+}
+
+.load-more-button {
+    text-align: center;
+    margin-top: 30px;
+}

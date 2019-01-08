@@ -1,3 +1,15 @@
+.profile-pic-container {
+    border-radius: 100%;
+
+    &.bordered {
+        padding: 5px;
+        border: 2px solid;
+        background-color: $theme-lightgrey;
+
+        &.black { border-color: black; }
+    }
+}
+
 .profile-pic {
     border-radius: 100%;
     position: relative;
@@ -24,3 +36,5 @@
     width: 100%;
     height: 100%;
 }
+
+#add-profile-pic-button { margin-right: 4px; }

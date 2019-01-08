@@ -1,4 +1,62 @@
-.message-panel {
+#message-details {
+    color: black;
+    
+    a { text-decoration: none; }
+}
+
+#message-header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 30px;
+
+    .message-subject {
+        display: flex;
+        align-items: center;
+
+        h3 { margin-right: 15px; }
+    }
+}
+
+.message-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+#complete-job-button, #abandon-job-button, #message-reply-button, #message-hire-button, #message-offer-button { margin-right: 5px; }
+.payments { margin-left: 15px; }
+.message-cancel-button { margin-left: 5px; }
+.message-subject { margin-bottom: 5px; }
+
+#offer-confirmation, .offer-date-text, .offer-message, .offer-confidential-message, #offer-detail-container { margin-bottom: 30px; }
+.offer-message { text-align: center; }
+.fetch-status { position: relative; }
+
+.message-header-buttons {
+    display: flex;
+    align-items: flex-start;
+}
+
+.make-offer-field-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+.price-input-sign {
+    position: absolute;
+    color: black;
+    top: 36px;
+    left: 5px;
+}
+
+#price-input { padding-left: 25px; }
+
+.payments-container { flex-grow: 1; }
+
+/* .message-panel {
     background: $theme-fg;
     padding: 10px;
     color: #000;
@@ -45,4 +103,4 @@
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-}
+} */

@@ -10,7 +10,7 @@ import ViewUserReview from '../includes/page/ViewUserReview';
 import SubmitReview from '../includes/page/SubmitReview';
 import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserCircle, faEye, faExclamationTriangle, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faEye, faExclamationTriangle, faHeart, faCoins } from '@fortawesome/free-solid-svg-icons';
 import ViewUserBusinessHours from '../includes/page/ViewUserBusinessHours';
 import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
@@ -143,6 +143,7 @@ class ViewUser extends Component {
     }
 
     render() {
+        console.log(this.state);
         let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, reviewed, reportButton, businessName, message, friendIcon;
 
         if (this.state.status === 'access error') {

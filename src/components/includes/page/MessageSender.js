@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { Alert } from '../../../actions/AlertActions';
 import SubmitButton from '../../utils/SubmitButton';
 import { connect } from 'react-redux';
+import InputText from '../../utils/InputText';
+import TextArea from '../../utils/TextArea';
 
 class MessageSender extends Component {
     constructor(props) {
@@ -20,20 +22,27 @@ class MessageSender extends Component {
             this.setState({status: '', subject: '', message: ''});
         }
     }
+
+    send() {
+        this.props.send(this.state.message, this.state.subject);
+        this.setState({subject: '', message: ''});
+    }
     
     render() {
+        console.log(this.state);
         return (
             <div className='mb-3'>
-                <div className='mb-3'>
-                    <div><label>Subject:</label></div>
-                    <input type='text' name='subject' className='form-control' onChange={(e) => this.setState({subject: e.target.value})} value={this.state.subject} disabled={this.props.subject ? true : false} />
+                <div className='mb-1'>
+                    <InputText label='Subject' className='w-100 message-subject' disabled={this.props.subject ? true : false} value={this.state.subject} onChange={(val) => this.setState({subject: val})} />
+                    {/* <div><label>Subject:</label></div>
+                    <input type='text' name='subject' className='form-control' onChange={(e) => this.setState({subject: e.target.value})} value={this.state.subject} disabled={this.props.subject ? true : false} /> */}
                 </div>
 
-                <div className='mb-3'><textarea name='message' rows='10' className='form-control w-100 mb-1' value={this.state.message} onChange={(e) => this.setState({message: e.target.value})} autoFocus={this.props.autoFocus}></textarea></div>
+                <div className='mb-1'><textarea name='message' rows='10' className='form-control w-100 mb-1' value={this.state.message} onChange={(e) => this.setState({message: e.target.value})} autoFocus={this.props.autoFocus}></textarea></div>
 
                 <div className='text-right'>
-                    <SubmitButton type='button' value='Send' loading={this.state.status === 'Sending' ? true : false} onClick={() => this.props.send(this.state.message, this.state.subject)} />
-                    {this.props.cancel ? <button className='btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button> : <button className='btn btn-secondary' onClick={() => this.setState({subject: '', message: ''})}>Clear</button>}
+                    <SubmitButton type='button' value='Send' loading={this.state.status === 'Sending' ? true : false} onClick={() => this.send()} />
+                    {this.props.cancel ? <button className='message-cancel-button btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button> : <button className='btn btn-secondary' onClick={() => this.setState({subject: '', message: ''})}>Clear</button>}
                 </div>
             </div>
         );

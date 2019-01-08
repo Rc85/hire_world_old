@@ -1,17 +1,31 @@
 // Theme
 $theme-blue: #2F496E;
-$theme-bg: #C4C4C4;
+$theme-bg: #EEE;
 $theme-lightgrey: #DFDFDF;
 $theme-highlight: #2988BC;
 $theme-alt-highlight: #7dd2ff;
 $theme-fg: #F9F6F4;
 $theme-special: #ED463D;
 $theme-darkgrey: #6F6F6F;
-$theme-medgrey: #8b8b8b;
+$theme-medgrey: #9b9b9b;
 $theme-orange: #e97100;
 $theme-lightblue-faded: rgba(121, 154, 199, 0.25);
 $not-black: #1F1F1F;
+$theme-lightblack: #2A2A2A;
 $not-white: #FCFCFC;
 
-$success: rgb(0, 255, 0);
-$error: rgb(255, 0, 0);
+$success: rgb(0, 201, 0);
+$danger: rgb(255, 0, 0);
+$warning: #ffc107;
+$info: rgb(0, 150, 150);
+$primary: rgb(0, 110, 255);
+$secondary: rgb(104, 104, 104);
+
+$theme-purple: #9A00E2;
+$theme-green: #009457;
+$theme-orange: rgb(233, 97, 0);
+$theme-violet: #E91C90;
+$theme-lightblue: rgb(58, 178, 252);
+$theme-pink: #FF8ECA;
+$theme-lime: #8ad400;
+$theme-yellow: rgb(255, 251, 0);

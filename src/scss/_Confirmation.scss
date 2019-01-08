@@ -8,15 +8,18 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 3;
+    z-index: 999;
 }
 
 .modal-container {
     background: $theme-bg;
     padding: 20px;
     max-width: 50%;
+
+    button:first-child { margin-right: 5px; }
 }
 
 .modal-text {
     color: #000;
+    margin-bottom: 30px;
 }

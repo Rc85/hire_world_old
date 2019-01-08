@@ -36,7 +36,6 @@ app.post('/api/get/user', async(req, resp) => {
                         delete user.rows[0].hide_email;
                         delete user.rows[0].display_fullname;
                         delete user.rows[0].email_notifications;
-                        delete user.rows[0].listing_id;
                         delete user.rows[0].user_setting_id;
                         
                         let orderby = '';
@@ -241,10 +240,39 @@ app.get('/api/get/user/notification-and-message-count', async(req, resp) => {
     if (req.session.user) {
         let notifications = await db.query(`SELECT COUNT(notification_id) AS notification_count FROM notifications WHERE notification_recipient = $1 AND notification_status = 'New'`, [req.session.user.username]);
 
-        let messages = await db.query(`SELECT COUNT(message_id) AS message_count FROM messages WHERE message_recipient = $1 AND message_status = 'New'`, [req.session.user.username]);
+        let messages = await db.query(`SELECT
+            (
+                SELECT COUNT(message_id) AS unread_inquiries FROM messages
+                LEFT JOIN jobs ON messages.belongs_to_job = jobs.job_id
+                WHERE jobs.job_stage = 'Inquire'
+                AND messages.message_status = 'New'
+                AND (messages.message_recipient = $1)
+            ),
+            (
+                SELECT COUNT(message_id) AS unread_active FROM messages
+                LEFT JOIN jobs ON messages.belongs_to_job = jobs.job_id
+                WHERE jobs.job_stage = 'Active'
+                AND messages.message_status = 'New'
+                AND (messages.message_recipient = $1)
+            ),
+            (
+                SELECT COUNT(message_id) AS unread_completed FROM messages
+                LEFT JOIN jobs ON messages.belongs_to_job = jobs.job_id
+                WHERE jobs.job_stage = 'Completed'
+                AND messages.message_status = 'New'
+                AND (messages.message_recipient = $1)
+            ),
+            (
+                SELECT COUNT(message_id) AS unread_abandoned FROM messages
+                LEFT JOIN jobs ON messages.belongs_to_job = jobs.job_id
+                WHERE jobs.job_stage = 'Abandoned'
+                AND messages.message_status = 'New'
+                AND (messages.message_recipient = $1)
+            )
+        FROM users WHERE username = $1`, [req.session.user.username]);
 
         if (notifications && messages) {
-            resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0].message_count});
+            resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0]});
         } else {
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         }
@@ -337,11 +365,11 @@ app.post('/api/get/user/activities', (req, resp) => {
                     let activityCount = await client.query(`SELECT COUNT(activity_id) AS activity_count FROM activities WHERE activity_user = $1`, [req.session.user.username]);
 
                     if (req.body.request.type === 'all' || req.body.request.type === 'notifications') {
-                        notifications = await client.query(`SELECT * FROM notifications WHERE notification_recipient = $1 ORDER BY notification_date DESC LIMIT 10 OFFSET $2`, [req.session.user.username, req.body.request.offset]);
+                        notifications = await client.query(`SELECT * FROM notifications WHERE notification_recipient = $1 ORDER BY notification_date DESC LIMIT 5 OFFSET $2`, [req.session.user.username, req.body.request.offset]);
                     }
 
                     if (req.body.request.type === 'all' || req.body.request.type === 'activities') {
-                        activities = await client.query(`SELECT * FROM activities WHERE activity_user = $1 ORDER BY activity_date DESC LIMIT 10 OFFSET $2`, [req.session.user.username, req.body.request.offset]);
+                        activities = await client.query(`SELECT * FROM activities WHERE activity_user = $1 ORDER BY activity_date DESC LIMIT 5 OFFSET $2`, [req.session.user.username, req.body.request.offset]);
                     }
 
                     await client.query('COMMIT')

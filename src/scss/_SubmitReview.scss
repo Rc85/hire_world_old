@@ -1,0 +1,37 @@
+.verified-review-container {
+    border-top: 1px solid black;
+}
+
+.review-container {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.25s ease-in-out;
+
+    &.show {
+        max-height: 400px;
+    }
+
+    .review {
+        padding: 15px;
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+
+            .review-star {
+                color: $theme-darkgrey;
+                cursor: pointer;
+                
+                &:hover, &.active {
+                    color: $warning;
+                }
+            }
+        }
+
+        .review-rating {
+            display: flex;
+        }
+    }
+}

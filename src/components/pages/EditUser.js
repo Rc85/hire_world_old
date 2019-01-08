@@ -10,6 +10,12 @@ import { LogError } from '../utils/LogError';
 import Loading from '../utils/Loading';
 import moment from 'moment';
 import TitledContainer from '../utils/TitledContainer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBuilding, faCalendarAlt } from '@fortawesome/free-regular-svg-icons';
+import SlideToggle from '../utils/SlideToggle';
+import Badge from '../utils/Badge';
+import { faCog, faBell, faListUl, faSlidersH, faCogs } from '@fortawesome/free-solid-svg-icons';
+import { LogoutUser } from '../../actions/LoginActions';
 
 class EditUser extends Component {
     constructor(props) {
@@ -95,7 +101,7 @@ class EditUser extends Component {
     }
     
     render() {
-        let fullName, businessName, email, phone, address, notificationStatus, activityStatus;
+        let notificationStatus, activityStatus;
 
         if (this.state.notificationStatus === 'Loading') {
             notificationStatus = <Loading size='3x' />;
@@ -116,8 +122,8 @@ class EditUser extends Component {
                 type = 'badge-danger';
             }
 
-            return <div key={i} className='notification-row'>
-                <div className='d-flex-between-center'>
+            return <div key={i}>
+                <div className='titled-container-row'>
                     {n.notification_message}
                     <div className='w-25'>{n.notification_status === 'New' ? <small className='badge badge-success'>New</small> : ''}</div>
                 </div>
@@ -142,85 +148,68 @@ class EditUser extends Component {
                 type = 'badge-pink';
             }
 
-            return <div key={i} className='activity-row'>
-                <div>
+            return <div key={i} className='titled-container-row'>
+                <div className='titled-container-row-title'>
                     {a.activity_action}
                 </div>
 
-                <div className='d-flex-between-center'>
-                    <div className='w-25'><small className={`badge ${type}`}>{a.activity_type}</small></div>
-                    <div className='w-75 text-right'><small>{moment(a.activity_date).format('MM-DD-YYYY h:mm:ss A')}</small></div>
+                <div className='titled-container-row-detail'>
+                    <div>
+                        <Badge className={type}
+                        items={[
+                            {text: a.activity_type},
+                            {text: moment(a.activity_date).format('MM-DD-YYYY h:mm:ss A')}
+                        ]} />
+                    </div>
                 </div>
 
                 {i + 1 !== this.state.activities.length ? <hr /> : ''}
             </div>
         });
 
-        if (this.props.user.user) {
-            if (this.props.user.user.display_fullname) {
-                fullName = <div className='user-info mb-2'>
-                    <div>
-                        <h5>Name</h5>
-                    </div>
-
-                    <div className='ml-3 mt-3'>
-                        {this.props.user.user.user_firstname} {this.props.user.user.user_lastname}
-                    </div>
-
-                    <hr/>
-                </div>;
-            }
-
-            if (this.props.user.user.user_business_name) {
-                businessName = <h4>{this.props.user.user.user_business_name}</h4>;
-            }
-
-            if (!this.props.user.user.hide_email) {
-                email = <div className='user-info mb-2'>
-                    <div>
-                        <h5>Email</h5>
-                    </div>
-
-                    <div className='ml-3 mt-3'>
-                        {this.props.user.user.user_email}
-                    </div>
-
-                    <hr/>
-                </div>;
-            }
-
-            if (this.props.user.user.user_phone) {
-                phone = <div className='user-info mb-2'>
-                    <div>
-                        <h5>Phone Number:</h5>
-                    </div>
-
-                    <div className='ml-3 mt-3'>
-                        {this.props.user.user.user_phone}
-                    </div>
-
-                    <hr/>
-                </div>;
-            }
-
-            if (this.props.user.user.user_address) {
-                address = <div className='user-info mb-2'>
-                    <div>
-                        <h5>Address:</h5>
-                    </div>
-
-                    <div className='user-address ml-3 mt-3'>
-                        {this.props.user.user.user_address}
-                    </div>
-
-                    <hr/>
-                </div>;
-            }
-        }
-
         return(
-            <section id='edit-user' className='blue-panel shallow three-rounded'>
-                <div className='row'>
+            <section id='edit-user' className='main-panel'>
+                <div id='dashboard-header'>
+                    <div id='dashboard-header-wrapper'>
+                        <div className='profile-pic-wrapper'><UserProfilePic url={this.props.user.user.avatar_url} editable bordered /></div>
+
+                        {this.props.user.user.user_business_name ? <h1 className='ml-2'><FontAwesomeIcon icon={faBuilding} className='text-special mr-1' /> {this.props.user.user.user_business_name}</h1> : ''}
+                    </div>
+
+                    <div id='dashboard-list-buttons-container'>
+                        <FontAwesomeIcon icon={faCogs} size='2x' className='dashboard-list-button' />
+                        <SlideToggle />
+                        <button id='mobile-logout-button' className='btn btn-secondary' onClick={() => this.props.dispatch(LogoutUser())}>Logout</button>
+                    </div>
+                </div>
+
+                <hr/>
+
+                <div id='dashboard-panel-container'>
+                    <div id='notifications-panel' className='dashboard-panel-half'>
+                        <TitledContainer title='Notifications' bgColor='purple' shadow scroll={this.state.notifications.length > 0 ? true : false} icon={<FontAwesomeIcon icon={faBell} />}>
+                            {notificationStatus}
+                            {this.state.notifications.length > 0 ? notifications : <h5 className='text-muted text-center'>No notifications</h5>}
+                            {!this.state.notificationsFetched ? <div className='load-more-button'><button className='btn btn-primary btn-sm' onClick={() => this.setState({notificationOffset: this.state.notificationOffset + 5})}>Load more</button></div> : ''}
+                        </TitledContainer>
+                    </div>
+
+                    <div id='activities-panel' className='dashboard-panel-half'>
+                        <TitledContainer title='Recent Activities' bgColor='orange' shadow scroll={this.state.activities.length > 0 ? true : false} icon={<FontAwesomeIcon icon={faListUl} />}>
+                            {activityStatus}
+                            {this.state.activities.length > 0 ? activities : <h5 className='text-muted text-center'>No activities</h5>}
+                            {!this.state.activitiesFetched ? <div className='load-more-button'><button className='btn btn-primary btn-sm' onClick={() => this.setState({activityOffset: this.state.activityOffset + 5})}>Load more</button></div> : ''}
+                        </TitledContainer>
+                    </div>
+
+                    <div id='upcoming-events-panel' className='dashboard-panel-full'>
+                        <TitledContainer title='Upcoming Events' bgColor='lime' shadow icon={<FontAwesomeIcon icon={faCalendarAlt} />}>
+                            <h5 className='text-muted text-center'>No upcoming events</h5>
+                        </TitledContainer>
+                    </div>
+                </div>
+
+                {/* <div className='row'>
                     <div className='col-2'>
                         <UserProfilePic url={this.props.user.user ? this.props.user.user.avatar_url : ''} editable={true} />
 
@@ -233,8 +222,8 @@ class EditUser extends Component {
                             {address}
                             <UserTitle user={this.props.user} />
                             <hr/>
-                            {/* <UserInfo label='Education' value={this.props.user.user ? this.props.user.user.user_education : ''} type='user_education' status={userEducationStatus} />
-                            <hr/> */}
+                            {<UserInfo label='Education' value={this.props.user.user ? this.props.user.user.user_education : ''} type='user_education' status={userEducationStatus} />
+                            <hr/>}
                             <UserInfo label='Github' value={this.props.user.user ? this.props.user.user.user_github : ''} />
                             <hr/>
                             <UserInfo label='Twitter' value={this.props.user.user ? this.props.user.user.user_twitter : ''} />
@@ -267,7 +256,7 @@ class EditUser extends Component {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </section>
         )
     }

@@ -27,7 +27,7 @@ const Pagination = props => {
 
     return(
         <div className='pagination-container'>
-            <span className='mr-2'>Page: </span>
+            <span>Page: </span>
             {pages}
         </div>
     )

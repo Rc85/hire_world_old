@@ -137,7 +137,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
                 try {
                     await client.query('BEGIN');
 
-                    let auth = await client.query(`SELECT * FROM users WHERE username = $1`, [req.body.username]);
+                    let auth = await client.query(`SELECT * FROM users WHERE LOWER(username) = LOWER($1)`, [req.body.username]);
                    
                     // If user exists
                     if (auth && auth.rows.length === 1) {
@@ -192,8 +192,10 @@ app.post('/api/auth/login', async(req, resp, next) => {
                             }
                         });
                     } else {
-                        client.query('ROLLBACK');
-                        next();
+                        let error = new Error('User not found');
+                        error.type = 'CUSTOM';
+                        error.status = 'error';
+                        throw error;
                     }    
                 } catch (e) {
                     await client.query('ROLLBACK');

@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Route, withRouter, Switch, NavLink } from 'react-router-dom';
+import { Route, withRouter, Switch, NavLink, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { GetSession, GetUserNotificationAndMessageCount } from './actions/FetchActions';
 import { RemoveAlert } from './actions/AlertActions';
 import * as Pages from './components/pages';
 import * as Admin from './components/admin';
 import TopBar from './components/includes/site/TopBar';
+import SideBar from './components/includes/site/SideBar';
 import BrowseMenu from './components/includes/site/BrowseMenu';
 import Confirmation from './components/utils/Confirmation';
 import Alert from './components/utils/Alert';
@@ -19,6 +20,7 @@ import CheckoutConfirmation from './components/utils/CheckoutConfirmation';
 import fetch from 'axios';
 import { LogError } from './components/utils/LogError';
 import { Alert as Alerts } from 'reactstrap';
+import Loading from './components/utils/Loading';
 
 class App extends Component {
 	constructor(props) {
@@ -112,6 +114,8 @@ class App extends Component {
 	render() {
 		let confirmation, sectors, alerts, prompt, warning;
 
+		
+
 		if (this.props.confirmation.status === true) {
 			confirmation = <Confirmation message={this.props.confirmation.message} note={this.props.confirmation.note} />;
 
@@ -183,7 +187,27 @@ class App extends Component {
 				{warning}
 				{prompt}
 				{confirmation}
-				<TopBar />
+
+				<Switch>
+					<Route exact path='/' render={() => <Pages.Login user={this.props.user} />} />
+
+					<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user} items={userDashboardItems}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
+
+					<Route exact path='/messages/:stage' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.Inquiries user={this.props.user} /></Pages.Dashboard>} />
+
+					<Route exact path='/settings/account' render={() =>  <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
+					<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+					<Route exact path='/settings/listing' render={() => <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.Listing user={this.props.user} /></Pages.Dashboard>} />
+					<Route exact path='/settings/subscription' render={() => <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
+
+					<Route exact path='/user/:username' render={() => <Pages.ViewUser user={this.props.user} />} />
+
+					<Route render={() => <Pages.Response code={404} header={'Not Found'} message={`This page you're trying to access does not exist.`} />} />
+				</Switch>
+
+				<div className='alert-container'>{alerts}</div>
+
+				{/* <TopBar />
 
 				<div className='position-relative'>{this.menu}</div>
 
@@ -207,8 +231,6 @@ class App extends Component {
 						<Route exact path='/jobs/:stage' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.Jobs user={this.props.user} /></Pages.Dashboard>} />
 
 						<Route exact path='/listing/:id' render={() => <Pages.ListingDetails user={this.props.user} />} />
-
-						<Route exact path='/user/:username' render={() => <Pages.ViewUser user={this.props.user} />} />
 						
 						<Route exact path='/account/register' render={() => <Pages.Register user={this.props.user} />} />
 
@@ -223,7 +245,6 @@ class App extends Component {
 						<Route exact path='/admin-panel/listings' render={() => <Admin.Admin><Admin.AdminListings user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />
 						<Route exact path='/admin-panel/reports' render={() => <Admin.Admin><Admin.AdminReports user={this.props.user} /></Admin.Admin>} />
 						<Route exact path='/admin-panel/config' render={() => <Admin.Admin><Admin.AdminConfig user={this.props.user} /></Admin.Admin>} />
-						{/* <Route exact path='/admin-panel/error' render={() => <Admin.Admin><Admin.AdminErrorLog user={this.props.user} /></Admin.Admin>} /> */}
 
 						<Route render={() => <Pages.Response code={404} header={'Not Found'} message={`This page you're trying to access does not exist.`} />} />
 					</Switch>
@@ -231,7 +252,7 @@ class App extends Component {
 
 				<div className='alert-container'>{alerts}</div>
 
-				<Footer />
+				<Footer /> */}
 			</div>
 		);
 	}

@@ -1,4 +1,104 @@
-.user-message-subject {
+#inquiries {
+    min-height: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.message-filter-buttons-container { margin-bottom: 30px; }
+
+#message-list-column {
+    background-color: $theme-blue;
+    padding: 20px;
+    width: 40%;
+    min-height: 100%
+}
+
+#message-column {
+    padding: 20px;
+    width: 58%;
+    min-height: 100%;
+    position: relative;
+}
+
+.inquiry-rows { margin: 30px 0; }
+
+.inquiry-row-text, .inquiry-row-buttons { padding: 5px; }
+.inquiry-row-text {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    height: 100%;
+}
+
+.inquiry-row-text-wrapper {
+    width: 100%; 
+    height: 100%;
+    padding: 3px 0;
+    display: flex;
+    align-items: center;
+    
+    &:hover, &.active {
+        background-color: $theme-highlight;
+        cursor: pointer;
+    }
+}
+
+.inquiry-row-buttons {
+    border-left: 1px solid black;
+    display: flex;
+    align-items: center;
+}
+
+.inquiry-row {
+    border: 1px solid black;
+    margin-bottom: 30px;
+    background-color: $theme-lightgrey;
+    color: black;
+    position: relative;
+
+    a {
+        color: black;
+        text-decoration: none;
+    }
+}
+
+.inquiry-main-row {
+    border-bottom: 1px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.inquiry-detail-row {
+    display: flex;
+    font-size: 0.8rem;
+}
+
+.inquiry-detail-type-indicator {
+    width: 24px;
+    border-right: 1px solid black;
+
+    &.sent { background-color: $theme-orange; }
+    &.received { background-color: $theme-green; }
+}
+
+.inquiry-detail-type { padding: 5px; }
+
+.message-active-arrow {
+    color: $theme-blue;
+    position: absolute;
+    top: 0;
+    left: calc(100% + 18px);
+}
+
+.message-option-buttons-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 30px;
+}
+
+/* .user-message-subject {
     text-overflow: ellipsis;
     overflow-x: hidden;
     white-space: nowrap;
@@ -18,4 +118,4 @@
     &:hover, &.active {
         color: #ffc107;
     }
-}
+} */

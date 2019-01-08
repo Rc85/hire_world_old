@@ -1,0 +1,22 @@
+.tooltip-container { position: relative; }
+.tooltip {
+    position: absolute;
+    min-width: 150px;
+    font-size: 0.8rem;
+    z-index: 99;
+    background-color: $theme-highlight;
+    padding: 10px;
+    border: 1px solid black;
+    color: white;
+
+    &.top {bottom: 105%; }
+    &.top-left {bottom: 105%; left: 0; }
+    &.top-right {bottom: 105%; right: 0; }
+    &.bottom {top: 105%; }
+    &.bottom-left { top: 105%; left: 0; }
+    &.bottom-right { top: 105%; right: 0; }
+    &.left { right: 105%; }
+    &.left-bottom { right: 105%; bottom: 0; }
+    &.right { left: 105%; }
+    &.right-bottom {left: 105%; bottom: 0; }
+}

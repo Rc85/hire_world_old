@@ -1,0 +1,43 @@
+.input-group-container {
+    border: 1px solid black;
+    position: relative;
+    background-color: white;
+    color: black;
+    padding-top: 30px;
+
+    .input-group-label {
+        display: block;
+        position: absolute;
+        width: 90%;
+        top: -15px;
+        left: 5%;
+        padding: 5px;
+        border: 1px solid black;
+    }
+
+    > select, input {
+        height: 100%;
+        padding: 5px;
+        border: 0;
+        width: 100%;
+    }
+
+    > div.payment-input-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid $theme-medgrey;
+        padding: 5px;
+
+        input { margin-top: 0; }
+
+        .payment-input {
+            display: flex;
+            align-items: center;
+            width: 50%;
+
+            > div { width: 5%; }
+            > input { flex-grow: 1 }
+        }
+    }
+}

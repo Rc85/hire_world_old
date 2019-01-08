@@ -14,7 +14,7 @@ class StarSelector extends Component {
     
     render() {
         return (
-            <div className='d-flex'>
+            <div className='review-rating'>
                 <div className={`${this.state.starActive >= 1 ? 'review-star active' : 'review-star'} mr-1`}
                 onClick={() => this.props.set(1)}
                 onMouseOver={() => this.setState({starActive: 1})}

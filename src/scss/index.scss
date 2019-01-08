@@ -1,20 +1,27 @@
-@import 'mixins';
 @import 'variables';
+@import 'mixins';
 @import './utils/colors';
 @import './utils/widths';
 @import './utils/flex';
+@import './utils/margins-paddings';
 @import './admin/Admin.scss';
 @import 'Alert';
 @import 'App';
+@import 'Badge';
+@import 'BottomBar';
 @import 'Browse';
 @import 'BrowseMenu';
 @import 'Confirmation';
-@import 'EditUser';
+@import 'Dashboard';
 @import 'Footer';
+@import 'InputGroup';
+@import 'InputText';
 @import 'Loading';
+@import 'Login';
 @import 'Main';
 @import 'Menu';
 @import 'MessageDetails';
+@import 'MessageRow';
 @import 'Messages';
 @import 'NavBar';
 @import 'Pagination';
@@ -24,9 +31,12 @@
 @import 'SearchListing';
 @import 'Sectors';
 @import 'ServiceDetails';
+@import 'SideBar';
 @import 'SlideToggle';
+@import 'SubmitReview';
 @import 'TabBar';
 @import 'TitledContainer';
+@import 'Tooltip';
 @import 'TopBar';
 @import 'UserDetails';
 @import 'UserInfo';
@@ -34,6 +44,7 @@
 @import 'UserSettings';
 @import 'ViewUser';
 @import 'ViewUserReview';
+@import 'mobile';
 
 @font-face {
     font-family: 'Montserrat';
@@ -45,19 +56,18 @@
     src: url('/fonts/Montserrat-Bold.ttf');
 }
 
-html {
-    min-height: 100vh;
-}
+html { min-height: 100vh; }
 
 body {
     margin: 0;
     padding: 0;
     font-family: 'Montserrat';
-    background: $theme-bg;
+    background-color: $theme-bg;
     color: $theme-fg;
     min-height: 100vh;
     display: flex;
     overflow-x: hidden;
+    line-height: 1.25;
 }
 
 a {
@@ -72,8 +82,39 @@ a:hover {
 
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Montserrat Bold';
+    margin: 0;
 }
 
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.25rem; }
+h6 { font-size: 1.1rem; }
+
 hr {
-    background: $theme-highlight;
+    background-color: $theme-highlight;
+    border: 0;
+    height: 1px;
+    margin: 20px auto;
+}
+
+textarea {
+    background-color: white;
+}
+
+button:not(:last-child) { margin-right: 5px; }
+button:hover { filter: brightness(90%) }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+@media only screen and (max-width: 414px) {
+    body { padding: 0 0 35px 0; }
+
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.4rem; }
+    h3 { font-size: 1.3rem; }
+    h4 { font-size: 1.2rem; }
+    h5 { font-size: 1.1rem; }
+    h6 { font-size: 1rem; }
 }

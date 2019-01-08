@@ -10,18 +10,123 @@
     }
 }
 
+@mixin margins-paddings {
+    @for $i from 0 through 5 {
+        @if $i == 0 {
+            $value: 0 !global;
+        } @else if $i == 1 {
+            $value: 5px !global;
+        } @else if $i == 2 {
+            $value: 15px !global;
+        } @else if $i == 3 {
+            $value: 30px !global;
+        } @else if $i == 4 {
+            $value: 45px !global;
+        } @else if $i == 5 {
+            $value: 60px !global;
+        }
+
+        @each $property in 'm', 'p' {
+            @if $property == 'm' {
+                $prop: margin !global;
+            } @else if $property == 'p' {
+                $prop: padding !global;
+            }
+
+            .#{$property}-#{$i} {
+                #{$prop}: $value;
+            }
+
+            .#{$property}t-#{$i} {
+                #{$prop}-top: $value;
+            }
+
+            .#{$property}r-#{$i} {
+                #{$prop}-right: $value;
+            }
+
+            .#{$property}b-#{$i} {
+                #{$prop}-bottom: $value;
+            }
+
+            .#{$property}l-#{$i} {
+                #{$prop}-left: $value;
+            }
+
+            .#{$property}x-auto {
+                #{$prop}-left: auto;
+                #{$prop}-right: auto;
+            }
+
+            .#{$property}y-auto {
+                #{$prop}-top: auto;
+                #{$prop}-bottom: auto;
+            }
+        }
+    }
+}
+
 @mixin new-component-colors {
-    @each $component in 'button', 'badge', 'border', 'text' {
+    @each $component in 'mini-badge', 'btn' {
         @each $colorName, $color, $text in 
-        ('purple', darkviolet, white),
-        ('orange', darkorange, white),
-        ('pink', hotpink, black),
-        ('lime', yellowgreen, black),
-        ('lightblue', deepskyblue, black),
-        ('violet', mediumvioletred, white) {
+        ('success', $success, white),
+        ('warning', $warning, black),
+        ('danger', $danger, white),
+        ('info', $info, white),
+        ('primary', $primary, white),
+        ('secondary', $secondary, white),
+        ('light', $theme-lightgrey, black),
+        ('dark', $theme-darkgrey, white),
+        ('purple', $theme-purple, white),
+        ('orange', $theme-orange, white),
+        ('pink', $theme-pink, black),
+        ('green', $theme-green, white),
+        ('lightblue', $theme-lightblue, black),
+        ('violet', $theme-violet, white),
+        ('lime', $theme-lime, white),
+        ('yellow', $theme-yellow, black),
+        ('grey', $theme-medgrey, black) {
             .#{$component}-#{$colorName} {
                 background-color: $color;
                 color: $text;
+            }
+        }
+    }
+}
+
+@mixin badges {
+    @each $colorName, $color in
+    ('success', $success),
+    ('warning', $warning),
+    ('danger', $danger),
+    ('info', $info),
+    ('primary', $primary),
+    ('secondary', $secondary),
+    ('light', $theme-lightgrey),
+    ('dark', $theme-darkgrey),
+    ('purple', $theme-purple),
+    ('orange', $theme-orange),
+    ('pink', $theme-pink),
+    ('green', $theme-green),
+    ('lightblue', $theme-lightblue),
+    ('violet', $theme-violet),
+    ('lime', $theme-lime),
+    ('yellow', $theme-yellow),
+    ('grey', $theme-medgrey) {
+        .badge.badge-#{$colorName} {
+            .badge-header {
+                background-color: $color;
+                width: 20px;
+                border-top-left-radius: 3px;
+                border-bottom-left-radius: 3px;
+            }
+    
+            .badge-body {
+                border: 1px solid $color;
+                padding: 3px 5px;
+                color: white;
+
+                &:last-child { border-left: 0; }
             }
         }
     }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThumbtack, faGavel, faEllipsisH, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faThumbtack, faGavel, faEllipsisH, faCheck, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 import { PromptOpen, PromptReset } from '../../../actions/PromptActions';
 import { connect } from 'react-redux';
@@ -26,13 +26,14 @@ class InquiryRow extends Component {
     }
     
     render() {
+        console.log(this.props)
         let statusButton, pinnedButton, appealButton, review;
         
         if (this.props.message.job_stage !== 'Appealing') {
             if (this.props.pinned) {
-                pinnedButton = <button className='btn btn-primary btn-sm' onClick={() => this.props.pin()}><FontAwesomeIcon icon={faThumbtack} color='white' /></button>
+                pinnedButton = <button className='btn btn-yellow btn-sm' onClick={() => this.props.pin()}><FontAwesomeIcon icon={faThumbtack} /></button>
             } else {
-                pinnedButton = <button className='btn btn-secondary btn-sm' onClick={() => this.props.pin()}><FontAwesomeIcon icon={faThumbtack} /></button>
+                pinnedButton = <button className='btn btn-grey btn-sm' onClick={() => this.props.pin()}><FontAwesomeIcon icon={faThumbtack} /></button>
             }
         }
         
@@ -58,15 +59,35 @@ class InquiryRow extends Component {
             }
         }
 
-        if (this.state.review) {
+        if (this.props.message.job_status === 'Completed' && this.props.message.job_client === this.props.user.username) {
             review = <SubmitReview submit={(review, star) => {
                 this.props.submitReview(review, this.props.message, star);
                 this.setState({review: false});
-            }} cancel={() => this.setState({review: false})} user={this.props.user} message={this.props.message} />
+            }} cancel={() => this.setState({review: false})} user={this.props.user} message={this.props.message} show={this.state.review} />
         }
 
         return (
-            <React.Fragment>
+            <div className='inquiry-row'>
+                <div className='inquiry-main-row'>
+                    <div className={`inquiry-row-text-wrapper ${this.props.loadedId === this.props.message.job_id ? 'active' : ''}`} onClick={() => this.props.load(this.props.message.job_id)}>
+                        {this.props.message.job_status === 'New' && this.props.message.job_user === this.props.user.username ? <div className='mini-badge mini-badge-success'>{this.props.message.job_status}</div> : ''}
+                        <div className='inquiry-row-text'>{this.props.message.job_subject}</div>
+                        {this.props.message.unread_messages > 0 ? <span className='mini-badge mini-badge-danger'>{this.props.message.unread_messages}</span> : ''}
+                    </div>
+
+                    <div className='inquiry-row-buttons'>{appealButton} {pinnedButton}</div>
+                </div>
+
+                <div className='inquiry-detail-row'>
+                    <div className={`inquiry-detail-type-indicator ${this.props.user && this.props.message.job_client === this.props.user.username ? 'sent' : 'received'}`}></div>
+                    <div className='inquiry-detail-type'>{this.props.user && this.props.message.job_client === this.props.user.username ? `Sent to ${this.props.message.job_user} ${moment(this.props.message.job_created_date).fromNow()}` : `Received from ${this.props.message.job_client} ${moment(this.props.message.job_created_date).fromNow()}`}</div>
+                </div>
+
+                <div className={this.state.review ? 'verified-review-container' : ''}>{review}</div>
+
+                {this.props.loadedId === this.props.message.job_id ? <FontAwesomeIcon icon={faCaretRight} size='3x' className='message-active-arrow' /> : ''}
+
+            {/* <React.Fragment>
                 <div className='d-flex-between-start mb-3'>
                     <div className='w-5'>{this.props.message.job_id}</div>
                     <div className='w-75'>
@@ -85,7 +106,8 @@ class InquiryRow extends Component {
                 </div>
 
                 {review}
-            </React.Fragment>
+            </React.Fragment> */}
+            </div>
         );
     }
 }

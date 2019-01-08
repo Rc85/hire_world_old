@@ -484,7 +484,7 @@ app.post('/api/user/payment/add', (req, resp) => {
 
                         await client.query('COMMIT')
                         .then(async() => {
-                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a payment method ending in ${card.last4}`, req.session.user.username, 'Payment']);
+                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a card ending in ${card.last4}`, req.session.user.username, 'Payment']);
                             resp.send({status: 'success', card: card, defaultSource: customer.default_source});
                         });
                     } else if (user && !user.rows[0].stripe_cust_id) {
@@ -504,7 +504,7 @@ app.post('/api/user/payment/add', (req, resp) => {
 
                         await client.query('COMMIT')
                         .then(async() => {
-                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a payment method ending in ${customer.sources.data.last4}`, req.session.user.username, 'Payment']);
+                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a card ending in ${customer.sources.data.last4}`, req.session.user.username, 'Payment']);
                             resp.send({status: 'success', defaultSource: customer.default_source, card: customer.sources.data[0]});
                         });
                     }
@@ -546,7 +546,7 @@ app.post('/api/user/payment/edit', (req, resp) => {
 
                     await client.query('COMMIT')
                     .then(async() => {
-                        await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Updated payment method ending in ${card.last4}`, req.session.user.username, 'Payment']);
+                        await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Updated card ending in ${card.last4}`, req.session.user.username, 'Payment']);
                         resp.send({status: 'success', statusMessage: 'Card updated', card: card});
                     });
                 } catch (e) {
@@ -588,7 +588,7 @@ app.post('/api/user/payment/default', (req, resp) => {
 
                         await client.query('COMMIT')
                         .then(async() => {
-                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Set payment method ending in ${defaultPayment} as default`, req.session.user.username, 'Payment']);
+                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Set card ending in ${defaultPayment} as default`, req.session.user.username, 'Payment']);
                             resp.send({status: 'success', statusMessage: 'Default payment has been set', defaultSource: customer.default_source});
                         });
                     } else if (user && !user.rows[0].stripe_cust_id) {
@@ -643,7 +643,7 @@ app.post('/api/user/payment/delete', (req, resp) => {
 
                                 await client.query('COMMIT')
                                 .then(async() => {
-                                    await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Deleted a payment method`, req.session.user.username, 'Payment']);
+                                    await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Deleted a card`, req.session.user.username, 'Payment']);
                                     resp.send({status: 'success', statusMessage: 'Payment method deleted', defaultSource: customer.default_source});
                                 });
                             } else {

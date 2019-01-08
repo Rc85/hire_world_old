@@ -5,48 +5,69 @@ import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 
 const OfferDetails = props => {
-    let offer, offerTerm, completedBy, paymentPeriod, paymentContainer, offerDetail, dateText, editedText;
+    let offer, offerTerm, completedBy, paymentPeriod, paymentContainer, offerDetail, dateText, editedText, offerButtons;
     let payments = [];
 
     if (props.offer && props.offer.offer_term) {
-        offerTerm = <div className='w-30'>
-            <strong>Offer Term:</strong> {props.offer.offer_term}
-        </div>
+        offerTerm = <div className='underline-div'>
+            <strong>Offer Term</strong>
+            <div>{props.offer.offer_term}</div>
+        </div>;
     }
 
     if (props.offer && props.offer.completed_by) {
-        completedBy = <div className='w-30'>
-            <strong>Complete By:</strong> {moment(props.offer.completed_by).format('MM-DD-YYYY')}
-        </div>
+        completedBy = <div className='underline-div'>
+            <strong>Complete By</strong>
+            <div>{moment(props.offer.completed_by).format('MM-DD-YYYY')}</div>
+        </div>;
     }
 
     if (props.offer && props.offer.offer_payment_period) {
-        paymentPeriod = <div className='w-30'>
-            <strong>Payment Period:</strong> {props.offer.offer_payment_period}
-        </div>
+        paymentPeriod = <div className='underline-div'>
+            <strong>Payment Period</strong>
+            <div>{props.offer.offer_payment_period}</div>
+        </div>;
     }
 
     if (props.offer && props.offer.offer_number_of_payments > 0) {
         for (let i = 0; i < props.offer.offer_number_of_payments; i++) {
-            let el = <div key={i} className='d-flex-center-center w-30 text-center'>
-                <div className='mr-2'><strong>#{i + 1}:</strong></div> ${props.offer[`offer_payment_${i + 1}`]}
+            let el = <div key={i} className='payments underline-div'>
+                <strong>#{i + 1}:</strong>
+                
+                <div>${props.offer[`offer_payment_${i + 1}`]}</div>
             </div>
 
             payments.push(el);
         }
 
-        paymentContainer = <div>
-            <hr/>
+        paymentContainer = <div className='underline-div'>
             <strong>Payments</strong>
-            <div className='d-flex-between-start flex-wrap mb-3'>
-                {payments}
-            </div>
+            
+            <div className='payments-container'>{payments}</div>
         </div>;
     }
 
     if (props.show) {
-        offerDetail = <div className='bordered-container rounded mb-3'>
-            <div className='d-flex-between-start mb-3'>
+        offerDetail = <div id='offer-detail-container' className='bordered-container'>
+            <div className='underline-div'>
+                <strong>Offer Type</strong>
+                <div>{props.offer.offer_type}</div>
+            </div>
+
+            <div className='underline-div'>
+                <strong>Offer Price</strong>
+                <div>${props.offer.offer_price} {props.offer.offer_currency} / {props.offer.offer_payment_type}</div>
+            </div>
+
+            {offerTerm}
+
+            {completedBy}
+
+            {paymentPeriod}
+
+            {paymentContainer}
+
+            {/* <div className='d-flex-between-start mb-3'>
                 <div className='w-30'>
                     <strong>Offer Type:</strong> {props.offer.offer_type}
                 </div>
@@ -59,18 +80,14 @@ const OfferDetails = props => {
             <hr/>
 
             <div className='d-flex-between-start mb-3'>
-                <div className='w-30'>
-                    <strong>Offer Price:</strong> ${props.offer.offer_price} {props.offer.offer_currency}
-                </div>
-
-                <div className='w-30'>
-                    <strong>Payment Type:</strong> {props.offer.offer_payment_type}
+                <div className='w-45'>
+                    <strong>Offer Price:</strong> ${props.offer.offer_price} {props.offer.offer_currency} / {props.offer.offer_payment_type}
                 </div>
 
                 {paymentPeriod}
             </div>
 
-            {paymentContainer}
+            {paymentContainer} */}
         </div>
     }
 
@@ -79,41 +96,42 @@ const OfferDetails = props => {
             editedText = <span>(Modified {moment(props.offer.offer_modified_date).fromNow()})</span>;
         }
 
-        dateText = <div className='mb-3'><small className='text-muted'>Received {moment(props.offer.offer_created_date).fromNow()} {editedText}</small></div>;
+        dateText = <div className='offer-date-text'><small>Received {moment(props.offer.offer_created_date).fromNow()} {editedText}</small></div>;
     } else {
-        dateText = <div className='d-flex-between-start mb-3'><strong>Offer Details</strong><button className='btn btn-info btn-sm' onClick={() => props.toggleOfferDetail()}>{props.show ? <FontAwesomeIcon icon={faCaretUp} /> : <FontAwesomeIcon icon={faCaretDown} />}</button></div>;
+        dateText = <div className='offer-date-text'><button className='btn btn-info btn-sm' onClick={() => props.toggleOfferDetail()}>{props.show ? <FontAwesomeIcon icon={faCaretUp} /> : <FontAwesomeIcon icon={faCaretDown} />}</button></div>;
+    }
+
+    if (props.stage === 'Inquire') {
+        offerButtons = <React.Fragment>
+            <div className='d-flex-between-end'>
+                <div>
+                    <button className='btn btn-success' onClick={() => props.accept()}>Accept</button> <button className='btn btn-danger' onClick={() => props.decline()}>Decline</button>
+                    </div>
+                <div><small className='text-muted'>Offer ID: {props.offer.offer_id}</small></div>
+            </div>
+        </React.Fragment>;
     }
 
     if (props.offer && props.offer.offer_confidentiality) {
-        offer = <div className='text-center grey-panel rounded mb-3'>
-            <strong>The other party has chosen to keep the offer detail confidential.</strong>
+        offer = <div className='offer-message'>
+            <div className='offer-confidential-message'><strong>The other party has chosen to keep the offer detail confidential.</strong></div>
             
-            <div className='d-flex-between-end'>
-                <div>
-                    {props.stage === 'Inquire' ? <React.Fragment><button className='btn btn-success' onClick={() => props.accept()}>Accept</button> <button className='btn btn-danger' onClick={() => props.decline()}>Decline</button></React.Fragment> : '' }
-                </div>
-                <div><small className='text-muted'>Offer ID: {props.offer.offer_id}</small></div>
-            </div>
+            {offerButtons}
         </div>;
     } else if (props.offer && !props.offer.offer_confidentiality) {
-        offer = <div className='grey-panel rounded mb-3' role='alert'>
+        offer = <div>
             {dateText}
 
-            {props.stage === 'Inquire' ? <div className='text-center mb-3'><strong><em>The client has sent you an offer. Review it and make a decision as soon as possible.</em></strong></div> : ''}
+            {props.stage === 'Inquire' ? <div className='offer-message'><strong><em>The client has sent you an offer. Review it and make a decision as soon as possible.</em></strong></div> : ''}
 
             {offerDetail}
 
-            <div className='d-flex-between-end'>
-                <div>
-                    {props.stage === 'Inquire' ? <React.Fragment><button className='btn btn-success' onClick={() => props.accept()}>Accept</button> <button className='btn btn-danger' onClick={() => props.decline()}>Decline</button></React.Fragment> : '' }
-                </div>
-                <div><small className='text-muted'>Offer ID: {props.offer.offer_id}</small></div>
-            </div>
+            {offerButtons}
         </div>;
     }
 
     return(
-        <div className='mb-3'>
+        <div>
             {offer}
         </div>
     )

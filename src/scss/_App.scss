@@ -1,4 +1,103 @@
-.main-container {
+#root { width: 100%; }
+
+.col-container {
+    display: flex;
+    width: 100%;
+    min-height: 100%;
+    position: relative;
+}
+
+.main-panel {
+    padding: 20px 50px;
+    color: black;
+
+    hr { background-color: black; }
+}
+
+button.btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border: 0;
+    padding: 0.375rem 0.75rem;
+    min-height: 34px;
+    border-radius: 0;
+    cursor: pointer;
+
+    &.btn-sm {
+        min-height: 26px;
+        font-size: 0.8rem;
+    }
+}
+
+.badge {
+    display: flex;
+    margin: 5px 0;
+    font-size: 0.7em;
+    font-weight: bold;
+}
+
+.bg-purple { background-color: $theme-purple; }
+.bg-orange { background-color: $theme-orange; }
+.bg-green { background-color: $theme-green; }
+.bg-violet { background-color: $theme-violet; }
+.bg-highlight { background-color: $theme-highlight; }
+.bg-lime { background-color: $theme-lime; }
+.bg-success { background-color: $success; }
+
+.text-special { color: $theme-special; }
+.text-black { color: black; }
+.text-highlight { color: $theme-highlight; }
+.text-muted { color: $theme-darkgrey; }
+.text-blue { color: $theme-blue; }
+.text-light { color: $theme-lightgrey; }
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.bordered-container {
+    padding: 20px;
+    border: 1px solid $theme-bg;
+
+    hr { background: $theme-bg }
+
+    &.no-top { border-top-width: 0px; }
+}
+
+.underline-div {
+    width: 100%;
+    padding: 5px;
+    border-bottom: 1px solid $theme-medgrey;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.mini-badge {
+    font-size: 0.7rem;
+    padding: 3px 5px;
+    border-radius: 3px;
+    font-weight: bold;
+    margin: 0 2px;
+}
+
+.med-badge {
+    @extend .mini-badge;
+    font-size: 1rem;
+}
+
+#prompt-input {
+    border: 1px solid $theme-medgrey;
+    padding: 5px 10px;
+    width: 100%;
+}
+
+#m-ploy-logo {
+    margin: 30px auto;
+    cursor: pointer;
+}
+
+/* .main-container {
     flex: 1;
     display: flex;
     justify-content: center;
@@ -167,4 +266,4 @@
 .theme-alt-highlight-bg { background-color: $theme-alt-highlight; }
 .theme-blue-bg { background-color: $theme-blue;}
 
-.modal-container { max-width: 50% }
+.modal-container { max-width: 50% } */

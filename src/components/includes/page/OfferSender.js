@@ -7,6 +7,8 @@ import { UncontrolledTooltip } from 'reactstrap';
 import moment from 'moment';
 import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 import { connect } from 'react-redux';
+import InputGroup from '../../utils/InputGroup';
+import Tooltip from '../../utils/Tooltip';
 
 class OfferSender extends Component {
     constructor(props) {
@@ -115,7 +117,7 @@ class OfferSender extends Component {
         if (val === 'Contract Term') {
             tooltip = `A contract term specifies that a job is for a duration agreed upon you and the other party.`;
         } else if (val === 'Iteration') {
-            tooltip = `Iteration is for jobs that have a number of payments throughout the job term.`;
+            tooltip = `Iteration is for jobs that have a number of milestones/payments throughout the job term.`;
             
             this.setState({paymentType: 'Fixed'});
         } else if (val === 'Per Delivery') {
@@ -171,6 +173,8 @@ class OfferSender extends Component {
             this.setState({paymentType: val, numberOfPayments: 0, payments: [], paymentPeriod: 'Bi-weekly'});
         } else if (val === 'Fixed') {
             this.setState({paymentType: val, paymentPeriod: null});
+        } else {
+            this.setState({paymentType: val, numberOfPayments: 0, payments: [], paymentPeriod: ''});
         }
     }
 
@@ -312,41 +316,41 @@ class OfferSender extends Component {
     }
     
     render() {
+        console.log(this.state);
         let fixedSettings, offerTypeSetting, hourlySettings, paymentSettings, deleteButton, paymentType;
 
         if (this.state.offerType === 'Contract Term') {
-            paymentType = <React.Fragment>
-                <span>Payment Type:</span>
-                <select name='payment_type' id='payment-type' className='form-control' onChange={(e) => this.setPaymentType(e.target.value)} disabled={this.state.confidential} value={this.state.paymentType} >
+            paymentType = <InputGroup label='Payment Type'>
+                <select name='payment_type' id='payment-type' onChange={(e) => this.setPaymentType(e.target.value)} disabled={this.state.confidential} value={this.state.paymentType} >
                     <option value=''>-</option>
                     <option value='Hourly'>Hourly</option>
                     <option value='Fixed'>Fixed</option>
                 </select>
-            </React.Fragment>
+            </InputGroup>
         }
 
         if (this.state.paymentType === 'Fixed') {
             fixedSettings = <FixedSettings set={(val) => this.setNumberOfPayments(val)} calculate={(val) => this.setAmountType(val)} disabled={this.state.confidential} amountType={this.state.amountType} numPayments={this.state.numberOfPayments} />;
         } else if (this.state.paymentType === 'Hourly') {
-            hourlySettings = <HourlySettings set={(val) => this.setState({paymentPeriod: val})} disabled={this.state.confidential} />;
+            hourlySettings = <InputGroup label='Payment Period'><HourlySettings set={(val) => this.setState({paymentPeriod: val})} disabled={this.state.confidential} /></InputGroup>;
         }
 
         if (this.state.offerType === 'Contract Term') {
-            offerTypeSetting = <div className='w-50'>
-                <span>Term/Duration:</span>
+            offerTypeSetting = <InputGroup label='Term/Duration'>
                 <input type='text' name='term' className='form-control' placeholder='3 months, 1 year, etc.' onChange={(e) => this.setState({term: e.target.value})} disabled={this.state.confidential} />
-            </div>
+            </InputGroup>;
         } else if (this.state.offerType === 'Iteration') {
-            offerTypeSetting = <div className='w-50'>
-                <span>Must Be Completed By:</span>
-                <DatePicker dropdownMode='select' selected={this.state.date} onChange={this.selectDate} className='form-control w-100' placeholderText='Leave blank if not applicable' disabled={this.state.confidential} />
-            </div>;
+            offerTypeSetting = <InputGroup label='Must Be Completed By:'>
+                <DatePicker dropdownMode='select' selected={this.state.date} onChange={this.selectDate} placeholderText='Leave blank if not applicable' disabled={this.state.confidential} />
+            </InputGroup>;
         }
 
-        if (this.state.payments) {
-            paymentSettings = this.state.payments.map((input, i) => {
-                return <PaymentInput key={i} index={i} value={input} editable={this.state.amountType === 'Varies'} set={(val) => this.modifyPayment(i, val)} calculate={() => this.convertPayment(i)} disabled={this.state.confidential} />
-            });
+        if (this.state.payments.length > 0) {
+            paymentSettings = <InputGroup label='Payments'>
+                {this.state.payments.map((input, i) => {
+                    return <PaymentInput key={i} index={i} value={input} editable={this.state.amountType === 'Varies'} set={(val) => this.modifyPayment(i, val)} calculate={() => this.convertPayment(i)} disabled={this.state.confidential} />
+                })}
+            </InputGroup>
         }
 
         if (this.props.offer) {
@@ -354,43 +358,50 @@ class OfferSender extends Component {
         }
 
         return (
-            <div className='grey-panel rounded'>
-                <div className='d-flex-between-start mb-3'>
+            <div>
+                <div className='make-offer-field-container'>
                     <div className='w-45'>
-                        <span>Offer Type:</span>
-                        <select name='offer_type' id='offer-type' className='form-control' onChange={(e) => this.setOfferType(e.target.value)} disabled={this.state.confidential} value={this.state.offerType} >
+                        <Tooltip text={this.state.offerTypeTooltip} placement='right' hide={!this.state.offerTypeTooltip}>
+                            <InputGroup label='Offer Type'>
+                                <select name='offer_type' id='offer-type' className='form-control' onChange={(e) => this.setOfferType(e.target.value)} disabled={this.state.confidential} value={this.state.offerType} >
+                                    <option value=''>-</option>
+                                    <option value='Contract Term'>Contract Term</option>
+                                    <option value='Iteration'>Iteration</option>
+                                    <option value='Per Delivery'>Per Delivery</option>
+                                </select>
+                            </InputGroup>
+                        </Tooltip>
+                        {/* <select name='offer_type' id='offer-type' className='form-control' onChange={(e) => this.setOfferType(e.target.value)} disabled={this.state.confidential} value={this.state.offerType} >
                             <option value=''>-</option>
                             <option value='Contract Term'>Contract Term</option>
                             <option value='Iteration'>Iteration</option>
                             <option value='Per Delivery'>Per Delivery</option>
-                        </select>
-                        {this.state.offerTypeTooltip ? <UncontrolledTooltip placement='right' target='offer-type'>{this.state.offerTypeTooltip}</UncontrolledTooltip> : ''}
+                        </select> */}
                     </div>
 
                     {offerTypeSetting}
                 </div>
 
-                <div className='d-flex-between-start mb-3'>
+                <div className='make-offer-field-container'>
                     <div className='w-45'>
-                        <span>Offer Price:</span>
-                        <div className='input-group'>
-                            <div className='input-group-prepend'>
-                                <label className='input-group-text' htmlFor='price-input'>$</label>
+                        <InputGroup label='Offer Price'>
+                            <div>
+                                <span className='price-input-sign'>$</span>
+
+                                <input type='number' name='price' id='price-input' className='w-75' onChange={(e) => this.setOfferPrice(e.target.value)} disabled={this.state.confidential} value={this.state.price} min='0' />
+        
+                                <input type='text' name='currency' id='currency-input' className='w-25' list='currency-list' maxLength='5' placeholder='Currency' style={{borderTopRightRadius: '0.25rem', borderBottomRightRadius: '0.25rem'}} onChange={(e) => this.setState({currency: e.target.value})} disabled={this.state.confidential} value={this.state.currency} />
+                                <datalist id='currency-list'>
+                                    <option value='USD'>USD</option>
+                                    <option value='CAD'>CAD</option>
+                                    <option value='AUD'>AUD</option>
+                                    <option value='EUR'>EUR</option>
+                                    <option value='GBP'>GBP</option>
+                                    <option value='CNY'>CNY</option>
+                                    <option value='JPY'>JPY</option>
+                                </datalist>
                             </div>
-    
-                            <input type='number' name='price' id='price-input' className='form-control w-65' onChange={(e) => this.setOfferPrice(e.target.value)} disabled={this.state.confidential} value={this.state.price} min='0' />
-    
-                            <input type='text' name='currency' id='currency-input' className='form-control w-20' list='currency-list' maxLength='5' placeholder='Currency' style={{borderTopRightRadius: '0.25rem', borderBottomRightRadius: '0.25rem'}} onChange={(e) => this.setState({currency: e.target.value})} disabled={this.state.confidential} value={this.state.currency} />
-                            <datalist id='currency-list'>
-                                <option value='USD'>USD</option>
-                                <option value='CAD'>CAD</option>
-                                <option value='AUD'>AUD</option>
-                                <option value='EUR'>EUR</option>
-                                <option value='GBP'>GBP</option>
-                                <option value='CNY'>CNY</option>
-                                <option value='JPY'>JPY</option>
-                            </datalist>
-                        </div>
+                        </InputGroup>
                     </div>
 
                     <div className='w-25'>
@@ -402,11 +413,10 @@ class OfferSender extends Component {
                     </div>
                 </div>
 
-                <div className='d-flex-between-start mb-3'>
-                    {fixedSettings}
+                <div className='make-offer-field-container'>
+                    <div className='w-25'>{fixedSettings}</div>
 
-                    <div id='payment-input-container' className='w-60'>
-                        {this.state.payments && this.state.payments.length > 0 ? <span>Payments</span> : ''}
+                    <div id='payment-input-container' className='w-70'>
                         {paymentSettings}
                     </div>
                 </div>
@@ -434,55 +444,45 @@ class OfferSender extends Component {
 
 const FixedSettings = props => {
     return(
-        <div className='d-flex-between-start w-35'>
-            <div className='w-60'>
-                <span>Number of Payments:</span>
-                <input type='number' name='payments' id='input-payment-num' className='form-control' onChange={(e) => props.set(e.target.value)} placeholder='Maximum of 6' min='0' max='6' disabled={props.disabled} value={props.numPayments} />
-            </div>
+        <React.Fragment>
+            <div className='mb-3'><InputGroup label='Number of Payments'><input type='number' name='payments' id='input-payment-num' onChange={(e) => props.set(e.target.value)} placeholder='Maximum of 6' min='0' max='6' disabled={props.disabled} value={props.numPayments} /></InputGroup></div>
 
-            <div className='w-35'>
-                Amount Type:
-                <select name='amount_type' id='amount-type' className='form-control' onChange={(e) => props.calculate(e.target.value)} disabled={props.disabled} value={props.amountType}>
+            <InputGroup label='Calculation'>
+                <select name='amount_type' id='amount-type' onChange={(e) => props.calculate(e.target.value)} disabled={props.disabled} value={props.amountType}>
                     <option value=''>-</option>
                     <option value='Equally'>Equally</option>
                     <option value='Varies'>Varies</option>
                 </select>
-            </div>
-        </div>
+            </InputGroup>
+        </React.Fragment>
     )
 }
 
 const HourlySettings = props => {
     return(
-        <div>
-            <span>Payment Period:</span>
-            <select name='payment_period' id='payment-period' className='form-control' onChange={(e) => props.set(e.target.value)} defaultValue='Bi-weekly' disabled={props.disabled}>
+        <React.Fragment>
+            <select name='payment_period' id='payment-period' onChange={(e) => props.set(e.target.value)} defaultValue='Bi-weekly' disabled={props.disabled}>
                 <option value='Daily'>Daily</option>
                 <option value='Weekly'>Weekly</option>
                 <option value='Bi-weekly'>Bi-weekly</option>
                 <option value='Monthly'>Monthly</option>
                 <option value='Not applicable'>Not applicable</option>
             </select>
-        </div>
+        </React.Fragment>
     )
 }
 
 const PaymentInput = props => {
     return(
-        <div className='d-flex mb-1'>
-            <div className='input-group'>
-                <div className='input-group-prepend'>
-                    <span className='input-group-text'>$</span>
-                </div>
+        <div className='payment-input-container'>
+            <label className='w-25'>Payment #{props.index + 1}</label>
 
-                <input type='number' className='form-control payment-input' value={isNaN(props.value) ? 0 : props.value} onChange={(e) => props.set(e.target.value)} disabled={!props.editable || props.disabled}/>
-
-                <span className='input-group-text' style={{borderRadius: '0'}}>Format</span>
-
-                <div className='input-group-append'>
-                    <button className='btn btn-info' onClick={() => props.calculate()} disabled={props.disabled}>%</button>
-                </div>
+            <div className='payment-input'>
+                <div>$</div>
+                <input type='number' value={isNaN(props.value) ? 0 : props.value} onChange={(e) => props.set(e.target.value)} disabled={!props.editable || props.disabled}/>
             </div>
+
+            <Tooltip text='Convert value from % to $' placement='left'><button className='btn btn-info' onClick={() => props.calculate()} disabled={props.disabled}>Convert to $</button></Tooltip>
         </div>
     )
 }

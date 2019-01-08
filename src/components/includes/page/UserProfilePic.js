@@ -78,7 +78,7 @@ class UserProfilePic extends Component {
 
         if (this.props.editable) {
             dropzone = <div className='dropzone'><Dropzone ref={(node) => { dropzoneRef = node; }} onDrop={this.onDrop.bind(this)} style={{height: '100%', width: '100%'}} name='profile_pic' /></div>;
-            button = <button className='btn btn-info mr-1' id='add-profile-pic-button' onClick={() => { dropzoneRef.open() }}><FontAwesomeIcon icon={faPlus} /></button>;
+            button = <button className='btn btn-info' id='add-profile-pic-button' onClick={() => { dropzoneRef.open() }}><FontAwesomeIcon icon={faPlus} /></button>;
             deleteButton = <button className='btn btn-info' id='delete-profile-pic-button' onClick={this.confirmDelete.bind(this)}><FontAwesomeIcon icon={faTimes} /></button>;
         }
 
@@ -87,13 +87,15 @@ class UserProfilePic extends Component {
         }
 
         return(
-            <div className='profile-pic' style={{background: `url(${this.props.url}) center top / cover`}}>
-                {status}
-                {dropzone}
-
-                <div className='profile-pic-buttons'>
-                    {button}
-                    {deleteButton}
+            <div className={`profile-pic-container ${this.props.bordered ? `bordered ${this.props.borderColor ? $this.props.borderColor : 'black'}` : ''}`}>
+                <div className={`profile-pic`} style={{background: `url(${this.props.url}) center top / cover`}}>
+                    {status}
+                    {dropzone}
+    
+                    <div className='profile-pic-buttons'>
+                        {button}
+                        {deleteButton}
+                    </div>
                 </div>
             </div>
         )

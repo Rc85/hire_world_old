@@ -1,32 +1,31 @@
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
-class InputText extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            value: this.props.value
+const InputText = props => {
+    const handleKeyDown = e => {
+        if (e.keyCode === 13) {
+            props.nextInput();
+        } else {
+            return
         }
     }
 
-    render() {
-        return(
-            <div className='d-flex'>
-                <input className='form-control mr-1' type='text' name='text' value={this.state.value}
-                onChange={(e) => {
-                    this.setState({value: e.target.value});
-                }}
-                onKeyDown={(e) => {
-                    if (e.keyCode === 13) { this.props.submitCallback(this.state.value); }
-                }} />
-                <button className='btn btn-secondary' onClick={(e) => {
-                    e.stopPropagation();
+    return(
+        <div id={props.id} className={`input-container ${props.className}`}>
+            <label className={`${props.labelBgColor ? `bg-${props.labelBgColor}` : ''}`}>{props.label}</label>
 
-                    this.props.cancelCallback();
-                }}>Cancel</button>
-            </div>
-        )
-    }
+            <input type={props.type} name={props.name} id={props.inputId} onChange={(e) => props.onChange(e.target.value)} onKeyDown={(e) => handleKeyDown(e)} disabled={props.disabled} value={props.value} className='w-100' />
+        </div>
+    )
 }
+
+InputText.propTypes = {
+    onChange: PropTypes.func.isRequired,
+    onKeyDown: PropTypes.func,
+    type: PropTypes.string,
+    id: PropTypes.string,
+    name: PropTypes.string,
+    labelBgColor: PropTypes.string
+};
 
 export default InputText;

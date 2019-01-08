@@ -8,6 +8,10 @@ import MessageRow from '../includes/page/MessageRow';
 import Loading from '../utils/Loading';
 import InquiryRow from '../includes/page/InquiryRow';
 import { withRouter } from 'react-router-dom';
+import MessageDetails from '../pages/MessageDetails';
+import Response from '../pages/Response';
+import { GetUserNotificationAndMessageCount } from '../../actions/FetchActions';
+import { Alert } from '../../actions/AlertActions';
 
 class Inquiries extends Component {
     constructor(props) {
@@ -19,22 +23,32 @@ class Inquiries extends Component {
             offset: 0,
             showing: 'all',
             messages: [],
-            pinnedMessages: []
+            pinnedMessages: [],
+            idToLoad: null,
+            loadedJob: {}
         }
     }
     
     componentDidUpdate(prevProps, prevState) {
         if (prevState.showing !== this.state.showing || prevState.offset !== this.state.offset || prevProps.location.key !== this.props.location.key) {
-            this.setState({status: 'Loading'});
+            let idToLoad = this.state.idToLoad;
+            let loadedJob = {...this.state.loadedJob};
 
-            fetch.post(`/api/get/messages/${this.state.showing}`, {stage: 'Inquire', offset: this.state.offset})
+            if (prevProps.location.key !== this.props.location.key) {
+                idToLoad = null;
+                loadedJob = {};
+            }
+            
+            this.setState({status: 'Loading', idToLoad: idToLoad, loadedJob, loadedJob});
+
+            fetch.post(`/api/get/messages/${this.state.showing}`, {stage: this.props.match.params.stage, offset: this.state.offset})
             .then(resp => {
                 if (resp.data.status === 'success') {
                     // Get the total number of messages so we determine how many pages there are in Pagination component
                     let messageCount = 0;
 
                     if (resp.data.messages.length > 0) {
-                        messageCount = resp.data.messages[0].messageCount;
+                        messageCount = resp.data.messageCount;
                     }
 
                     this.setState({messages: resp.data.messages, status: '', messageCount: messageCount, pinnedMessages: resp.data.pinned});
@@ -44,6 +58,8 @@ class Inquiries extends Component {
                     this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                 } else if (resp.data.status === 'suspended') {
                     this.setState({status: 'suspended'});
+                } else if (resp.data.status === 'access error') {
+                    this.setState({status: resp.data.status});
                 }
             })
             .catch(err => LogError(err, `/api/get/messages/${this.state.showing}`));
@@ -51,14 +67,14 @@ class Inquiries extends Component {
     }
     
     componentDidMount() {
-        fetch.post(`/api/get/messages/${this.state.showing}`, {stage: 'Inquire', offset: this.state.offset})
+        fetch.post(`/api/get/messages/${this.state.showing}`, {stage: this.props.match.params.stage, offset: this.state.offset})
         .then(resp => {
             if (resp.data.status === 'success') {
                 // Get the total number of messages so we determine how many pages there are in Pagination component
                 let messageCount = 0;
 
                 if (resp.data.messages.length > 0) {
-                    messageCount = resp.data.messages[0].messageCount;
+                    messageCount = resp.data.messageCount;
                 }
 
                 this.setState({messages: resp.data.messages, status: '', messageCount: messageCount, pinnedMessages: resp.data.pinned});
@@ -68,6 +84,8 @@ class Inquiries extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             } else if (resp.data.status === 'suspended') {
                 this.setState({status: 'suspended'});
+            } else if (resp.data.status === 'access error') {
+                this.setState({status: resp.data.status});
             }
         })
         .catch(err => LogError(err, `/api/get/messages/${this.state.showing}`));
@@ -96,12 +114,99 @@ class Inquiries extends Component {
         })
         .catch(err => LogError(err, '/api/job/pin'));
     }
+
+    loadMessage(id, index) {
+        this.setState({status: 'Loading Message', idToLoad: id});
+
+        fetch.post('/api/get/offer', {job_id: id, stage: this.props.match.params.stage})
+        .then(offerResponse => {
+            if (offerResponse.data.status === 'success') {
+                fetch.post('/api/get/message', {job_id: id, offset: 0, stage: this.props.match.params.stage})
+                .then(resp => {
+                    if (resp.data.status === 'success') {
+                        let messages = [...this.state.messages];
+                        messages[index] = resp.data.job;
+
+                        let loadedJob = {};
+                        loadedJob['job'] = offerResponse.data.job;
+                        loadedJob['messages'] = resp.data.messages;
+                        loadedJob['offer'] = offerResponse.data.offer;
+
+                        this.props.dispatch(GetUserNotificationAndMessageCount());
+
+                        this.setState({status: '', messages: messages, idToLoad: null, loadedJob: loadedJob, jobIndex: index});
+                    } else if (resp.status === 'access error') {
+                        this.setState({status: ''});
+                        this.props.dispatch(Alert(resp.data.status, ''))
+                    }
+                })
+                .catch(err => LogError(err, '/api/get/message'));
+            } else if (resp.data.status === 'access error') {
+                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage})
+            }
+        })
+        .catch(err => LogError(err, '/api/get/offer'));
+    }
+
+    removeJob(decision) {
+        let message;
+
+        if (decision === 'offer accepted') {
+            message = 'Active Job created';
+        } else if (decision === 'job complete') {
+            message = 'Job moved to Completed';
+        } else if (decision === 'job close') {
+            message = 'Inquiry closed';
+        } else if (decision === 'approve abandon') {
+            message = 'Job was incomplete';
+        } else if (decision === 'decline abandon') {
+            message = 'Job moved to Abandoned';
+        }
+
+        let messages = [...this.state.messages];
+        messages.splice(this.state.jobIndex, 1);
+
+        this.setState({messages: messages, idToLoad: null, loadedJob: {}});
+        this.props.dispatch(Alert('success', message));
+    }
+
+    submit(review, message, star, index) {
+        this.setState({status: 'Loading'});
+
+        fetch.post('/api/user/review/submit', {review: review, message, star: star})
+        .then(resp => {
+            let messages = [...this.state.messages];
+            messages[index] = resp.data.job;
+
+            this.setState({status: '', messages: messages});
+            
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => LogError(err, '/api/user/review/submit'));
+    }
+
+    appealAbandon(val) {
+        this.setState({status: 'Loading'});
+
+        fetch.post('/api/jobs/appeal-abandon', {job_id: this.props.message.job_id, additional_info: val})
+        .then(resp => {
+            this.setState({status: ''});
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => LogError(err, '/api/jobs/appeal-abandon'));
+    }
     
     render() {
-        let status, body, message;
+        console.log(this.state);
+        let status, body, message, loadingMessageStatus;
 
         if (this.state.status === 'Loading') {
             status = <Loading size='5x' />;
+        } else if (this.state.status === 'access error') {
+            return <Response code={404} header='Page Not Found' message={`The page you're trying to access does not exist`} />
+        } else if (this.state.status === 'Loading Message') {
+            loadingMessageStatus = <Loading size='5x' color='black' />;
         }
 
         let messages = this.state.messages.map((message, i) => {
@@ -111,24 +216,20 @@ class Inquiries extends Component {
                 pinned = true;
             }
 
-            return <InquiryRow key={i} user={this.props.user.user} stage='Inquire' message={message} pin={() => this.pinMessage(message.job_id)} pinned={pinned} />
+            return <InquiryRow key={i} user={this.props.user.user} stage={this.props.match.params.stage} message={message} pin={() => this.pinMessage(message.job_id)} pinned={pinned} load={(id) => this.loadMessage(id, i)} loadedId={this.state.loadedJob.job ? this.state.loadedJob.job.job_id : ''} submitReview={(review, message, star) => this.submit(review, message, star, i)} />
         });
 
         if (this.state.messages.length > 0) {
             body = <React.Fragment>
                 <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
 
-                <hr />
-
-                {messages}
-
-                <hr />
+                <div className='inquiry-rows'>{messages}</div>
 
                 <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
             </React.Fragment>;
         } else {
-            body = <div className='text-center p-5'>
-                <h2 className='text-muted'>There are no inquiries at the moment</h2>
+            body = <div className='text-center'>
+                <h2 className='text-muted'>There are no messages</h2>
             </div>;
         }
 
@@ -137,17 +238,31 @@ class Inquiries extends Component {
         }
 
         return (
-            <section id='inquiries' className='blue-panel shallow three-rounded w-100'>
-                {status}
-                {message}
-                <div className='btn-group'>
-                    <button className={`btn ${this.state.showing === 'all' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'all'})}>All</button>
-                    <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received'})}>Received</button>
-                    <button className={`btn ${this.state.showing === 'sent' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'sent'})}>Sent</button>
-                    <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned'})}>Pinned</button>
+            <section id='inquiries'>
+                {this.state.status === 'Loading' ? <Loading size='5x' /> : ''}
+
+                <div id='message-list-column'>
+                    <div className='message-filter-buttons-container'>
+                        <button className={`btn ${this.state.showing === 'all' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'all'})}>All</button>
+                        <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received'})}>Received</button>
+                        <button className={`btn ${this.state.showing === 'sent' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'sent'})}>Sent</button>
+                        <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned'})}>Pinned</button>
+                    </div>
+                    
+                    {body}
                 </div>
 
-                {body}
+                <div id='message-column'>
+                    {loadingMessageStatus}
+                    {this.state.loadedJob.job ?
+                        <MessageDetails
+                        job={this.state.loadedJob}
+                        stage={this.props.match.params.stage}
+                        removeJob={(decision) => this.removeJob(decision)}
+                        refresh={(id) => this.loadMessage(id, this.state.jobIndex)}
+                        />
+                    : ''}
+                </div>
             </section>
         );
     }

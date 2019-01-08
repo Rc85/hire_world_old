@@ -6,6 +6,10 @@ import { withRouter, Redirect } from 'react-router-dom';
 import Response from './Response';
 import Loading from '../utils/Loading';
 import { Alert } from '../../actions/AlertActions';
+import TitledContainer from '../utils/TitledContainer';
+import InputText from '../utils/InputText';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 
 class Login extends Component {
     constructor() {
@@ -21,14 +25,28 @@ class Login extends Component {
         this.props.dispatch(LoginUser(this.state));
     }
 
+    handleLoginKeyDown(e) {
+        document.getElementById('login-password').focus();
+    }
+
     render() {
         if (this.props.user.user) {
             return <Redirect to='/dashboard/edit' />;
         }
 
         return(
-            <section id='login' className='main-panel w-40 mx-auto'>
-                <div className='blue-panel shallow rounded'>
+            <section id='login'>
+                <TitledContainer title='Login' icon={<FontAwesomeIcon icon={faSignInAlt} />}>
+                    <div id='login-form'>
+                        <div className='login-field'><InputText label='Username' type='text' onChange={(val) => this.setState({username: val})} nextInput={() => this.handleLoginKeyDown()} /></div>
+                        <div className='login-field'><InputText label='Password' type='password' id='login-password' onChange={(val) => this.setState({password: val})} nextInput={() => this.handleLogin()} /></div>
+
+                        <a href='/forgot-password' id='forgot-password'>Forgot Password</a>
+
+                        <div className='text-right'><SubmitButton type='submit' loading={this.props.user.status === 'login in'} value='Login' onClick={() => this.handleLogin()}/></div>
+                    </div>
+                </TitledContainer>
+                {/* <div className='blue-panel shallow rounded'>
                     <h2>Login</h2>
 
                     <form onSubmit={(e) => {
@@ -53,7 +71,7 @@ class Login extends Component {
                             </div>
                         </div>
                     </form>
-                </div>
+                </div> */}
             </section>
         )
     }

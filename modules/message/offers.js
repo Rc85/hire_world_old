@@ -9,9 +9,10 @@ app.post('/api/offer/submit', (req, resp) => {
 
             (async() => {
                 try {
-                    let authorized = await client.query(`SELECT job_client, job_user, job_listing_id FROM jobs WHERE job_id = $1`, [req.body.job_id])
+                    let authorized = await client.query(`SELECT job_client, job_user, job_listing_id FROM jobs WHERE job_id = $1 AND job_client = $2`, [req.body.job_id, req.session.user.username]);
 
                     let negotiable = await client.query(`SELECT * FROM user_listings WHERE listing_id = $1`, [authorized.rows[0].job_listing_id]);
+                    console.log(negotiable.rows);
 
                     let offerType, term, date, price, currency, paymentType, paymentPeriod, numberOfPayments, amountType, payments, confidential;
 
@@ -46,7 +47,7 @@ app.post('/api/offer/submit', (req, resp) => {
                             let offer = await client.query(`INSERT INTO offers (offer_type, offer_term, completed_by, offer_price, offer_currency, offer_payment_type, offer_payment_period, offer_number_of_payments, offer_amount_type, offer_payment_1, offer_payment_2, offer_payment_3, offer_payment_4, offer_payment_5, offer_payment_6, offer_for_job, offer_confidentiality) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING *`,
                             [offerType, term, date, price, currency, paymentType, paymentPeriod, numberOfPayments, amountType, payments[0], payments[1], payments[2], payments[3], payments[4], payments[5], req.body.job_id, confidential])
         
-                            let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, is_reply, message_recipient, message_sender) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, [req.body.job_id, `An offer has been sent to the other party.`, 'Update', true, req.session.user.username, 'System']);
+                            let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, is_reply, message_recipient, message_sender, message_status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [req.body.job_id, `An offer has been sent to the other party.`, 'Update', true, req.session.user.username, 'System', 'Read']);
 
                             await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, is_reply, message_recipient, message_sender) VALUES ($1, $2, $3, $4, $5, $6)`, [req.body.job_id, `You received an offer from the other party.`, 'Update', true, authorized.rows[0].job_user, 'System']);
         
@@ -96,7 +97,7 @@ app.post('/api/offer/edit', (req, resp) => {
 
                         let messageBody = `The offer has been updated.`;
 
-                        let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, is_reply, message_recipient, message_sender) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, [req.body.job_id, messageBody, 'Update', true, req.session.user.username, 'System']);
+                        let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, is_reply, message_recipient, message_sender, message_status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [req.body.job_id, messageBody, 'Update', true, req.session.user.username, 'System', 'Read']);
 
                         await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, is_reply, message_recipient, message_sender) VALUES ($1, $2, $3, $4, $5, $6)`, [req.body.job_id, messageBody, 'Update', true, authorized.rows[0].job_user, 'System'])
 
@@ -218,7 +219,7 @@ app.post('/api/offer/decline', (req, resp) => {
                         await client.query('BEGIN');
                         await client.query(`UPDATE offers SET offer_status = 'Declined' WHERE offer_id = $1`, [req.body.offer_id]);
 
-                        let message = await client.query(`INSERT INTO messages (message_body, belongs_to_job, message_type, is_reply, message_recipient, message_sender) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, [`You declined the offer`, req.body.job_id, 'Update', true, req.session.user.username, 'System']);
+                        let message = await client.query(`INSERT INTO messages (message_body, belongs_to_job, message_type, is_reply, message_recipient, message_sender, message_status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [`You declined the offer`, req.body.job_id, 'Update', true, req.session.user.username, 'System', 'Read']);
 
                         await client.query('INSERT INTO messages (message_body, belongs_to_job, message_type, is_reply, message_recipient, message_sender) VALUES ($1, $2, $3, $4, $5, $6)', [`The other party declined your offer`, req.body.job_id, 'Warning', true, authorized.rows[0].job_client, 'System']);
 

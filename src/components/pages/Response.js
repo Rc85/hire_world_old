@@ -27,8 +27,8 @@ import PropTypes from 'prop-types';
 class Response extends Component {
     render() {
         return(
-            <div className='response main-panel'>
-                <div className='blue-panel shallow rounded text-center'>
+            <div id='response'>
+                <div className='text-center'>
                     <h3>{this.props.code !== 200 ? this.props.code : ''} {this.props.header}</h3>
     
                     <div dangerouslySetInnerHTML={{__html: this.props.message}}></div>

@@ -2,30 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const TitledContainer = props => {
-    let divClass;
-    
-    if (props.withScroll) {
-        divClass = 'scroller-div h-300 pt-4';
-    } else {
-        divClass = 'bordered-container'
-    }
-
     return(
-        <div className={`titled-container mt-3`}>
-            <h4>{props.title}</h4>
-
-            <div className={divClass}>
-                {props.content.length > 0 ? props.content : <div className='d-flex-center-center text-muted h-100'><h5>{props.emptyMessage}</h5></div>}
-
-                {props.hasMore ? <div className='text-center'><hr/><span className='badge badge-primary' onClick={() => props.loadMore()} style={{cursor: 'pointer'}}>Load more</span></div> : ''}
+        <div id={props.id} className={`titled-container ${props.shadow ? 'with-shadow' : ''} ${props.className}`}>
+            <div className='title-wrapper'>
+                <div className='titled-container-icon'>{props.icon}</div>
+                <h3 className={`bg-${props.bgColor ? props.bgColor : 'highlight'} ${props.textColor ? `text-${props.textColor}` : ''}`}>{props.title}</h3>
             </div>
+
+            <div className={`${props.scroll ? 'with-scroll' : 'no-scroll'}`}>{props.children}</div>
         </div>
     )
 }
 
 TitledContainer.propTypes = {
     title: PropTypes.string,
-    content: PropTypes.array
+    bgColor: PropTypes.string,
+    textColor: PropTypes.string,
+    shadow: PropTypes.bool
 };
 
 export default TitledContainer;

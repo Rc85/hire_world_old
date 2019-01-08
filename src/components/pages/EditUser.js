@@ -171,7 +171,7 @@ class EditUser extends Component {
             <section id='edit-user' className='main-panel'>
                 <div id='dashboard-header'>
                     <div id='dashboard-header-wrapper'>
-                        <div className='profile-pic-wrapper'><UserProfilePic url={this.props.user.user.avatar_url} editable bordered /></div>
+                        <div className='profile-pic-wrapper'><UserProfilePic url={this.props.user.user.avatar_url} editable bordered borderColor='transparent' /></div>
 
                         {this.props.user.user.user_business_name ? <h1 className='ml-2'><FontAwesomeIcon icon={faBuilding} className='text-special mr-1' /> {this.props.user.user.user_business_name}</h1> : ''}
                     </div>

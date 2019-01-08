@@ -70,7 +70,7 @@ class UserProfilePic extends Component {
 
             this.setState({status: ''});
         })
-        .catch((err) =>  LogError(err, '/api/user/profile-pic/delete'));
+        .catch((err) => LogError(err, '/api/user/profile-pic/delete'));
     }
 
     render() {
@@ -87,7 +87,7 @@ class UserProfilePic extends Component {
         }
 
         return(
-            <div className={`profile-pic-container ${this.props.bordered ? `bordered ${this.props.borderColor ? $this.props.borderColor : 'black'}` : ''}`}>
+            <div className={`profile-pic-container ${this.props.bordered ? `bordered ${this.props.borderColor ? this.props.borderColor : 'black'}` : ''}`}>
                 <div className={`profile-pic`} style={{background: `url(${this.props.url}) center top / cover`}}>
                     {status}
                     {dropzone}

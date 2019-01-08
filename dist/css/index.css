@@ -1682,7 +1682,7 @@ button.btn.btn-sm {
   height: 100%;
 }
 #bottombar .bottombar-toggle-button {
-  margin-top: 10px;
+  margin-bottom: 10px;
   width: 100%;
   text-align: center;
 }
@@ -1785,7 +1785,7 @@ button.btn.btn-sm {
 #main-panel-bg {
   position: absolute;
   width: 100%;
-  height: 20%;
+  height: 15%;
   background-color: #7dd2ff;
   z-index: -1;
 }
@@ -2846,10 +2846,16 @@ button.btn.btn-sm {
 .profile-pic-container.bordered {
   padding: 5px;
   border: 2px solid;
-  background-color: #DFDFDF;
+  background-color: #EEE;
 }
 .profile-pic-container.bordered.black {
   border-color: black;
+}
+.profile-pic-container.bordered.alt-highlight {
+  border-color: #7dd2ff;
+}
+.profile-pic-container.bordered.transparent {
+  border-color: transparent;
 }
 
 .profile-pic {

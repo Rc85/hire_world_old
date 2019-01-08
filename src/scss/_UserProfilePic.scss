@@ -4,9 +4,11 @@
     &.bordered {
         padding: 5px;
         border: 2px solid;
-        background-color: $theme-lightgrey;
+        background-color: $theme-bg;
 
         &.black { border-color: black; }
+        &.alt-highlight { border-color: $theme-alt-highlight; }
+        &.transparent { border-color: transparent; }
     }
 }
 

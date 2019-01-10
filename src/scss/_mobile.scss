@@ -29,11 +29,17 @@
 
     #dashboard-header {
         flex-direction: column-reverse;
-
-        > div:last-child { margin: 0 0 20px auto; }
+        color: black;
+        align-items: flex-end;
 
         #dashboard-header-wrapper {
             flex-direction: column;
+            align-items: center;
+            width: 100%;
+
+            #dashboard-header-user-info {
+                margin-left: 0;
+            }
         
             .profile-pic-wrapper {
                 width: 100%;
@@ -41,6 +47,8 @@
             }
         }
     }
+
+    .col-container { width: 100vw; }
 
     .dashboard-list-button { margin-right: 10px; }
 
@@ -83,4 +91,101 @@
     }
 
     #sidebar-links {position: relative; }
+
+    #inquiries {
+        display: block;
+        position: relative;
+
+        #message-column {
+            padding: 20px 20px 75px 70px; 
+            width: 100%;
+        }
+    }
+
+    #message-list-column {
+        position: absolute;
+        z-index: 2;
+        overflow-x: hidden;
+        padding-bottom: 75px;
+        min-height: 100%;
+        width: 100%;
+        transition: width 0.25s ease-in-out;
+
+        #message-list-main-column {
+            width: 100%;
+            opacity: 1;
+            transition: opacity 0.1s ease-in 0.25s;
+        }
+
+        &.hide {
+            width: 0;
+        
+            #message-list-main-column {
+                opacity: 0;
+                transition: opacity 0s ease-out 0s;
+            }
+        }
+    }
+
+    #message-list-mini-column {
+        position: fixed;
+        background-color: $theme-blue;
+        left: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        z-index: 3;
+        width: 50px;
+        overflow-x: hidden;
+        border-right: 1px solid black;
+
+        &.hide { display: none; }
+    }
+
+    .message-filter-buttons-container {
+        button {
+            font-size: 0.8rem;
+        }
+
+        #close-message-column-button {
+            display: block;
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+    }
+
+    .message-row.owner, .message-row.sender {
+        .message-row-profile-pic { display: none; }
+    
+        .message-container {
+            width: 100%;
+        }
+    }
+
+    .message-row-username {
+        &.right { padding-right: 0; }
+    
+        &.left { padding-left: 0; }
+    }
+
+    .underline-div, .make-offer-field-container { flex-direction: column; }
+    
+    .make-offer-field-container { margin-bottom: 0; }
+
+    .make-offer-field-quarter, .make-offer-field-half, .make-offer-field-three-quarter, .input-group-container {
+        width: 100%;
+        margin-bottom: 30px;
+    }
+
+    .number-of-payments-label {
+        width: auto;
+        margin-right: 5px;
+
+        > span { display: none; }
+    }
+
+    .modal-container { max-width: 90%; }
 }

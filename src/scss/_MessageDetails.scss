@@ -25,7 +25,6 @@
 }
 
 #complete-job-button, #abandon-job-button, #message-reply-button, #message-hire-button, #message-offer-button { margin-right: 5px; }
-.payments { margin-left: 15px; }
 .message-cancel-button { margin-left: 5px; }
 .message-subject { margin-bottom: 5px; }
 
@@ -54,7 +53,19 @@
 
 #price-input { padding-left: 25px; }
 
-.payments-container { flex-grow: 1; }
+.payments-container {
+    flex-grow: 1;
+    margin-left: 15px;
+}
+
+.payment-input {
+    flex-grow: 1;
+    margin-right: 5px;
+}
+
+.make-offer-field-quarter, .number-of-payments-label { width: 25%; }
+.make-offer-field-half { width: 45%; }
+.make-offer-field-three-quarter { width: 70%; }
 
 /* .message-panel {
     background: $theme-fg;

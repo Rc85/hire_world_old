@@ -16,24 +16,6 @@ class Dashboard extends Component {
         super(props);
     }
     
-    componentDidMount() {
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 1024) {
-                this.setState({isMobile: false});
-            } else {
-                this.setState({isMobile: true});
-            }
-        });
-
-        if (window.innerWidth > 1024) {
-            this.setState({isMobile: false});
-        } else {
-            this.setState({isMobile: true});
-        }
-
-        this.props.dispatch(GetSession());
-    }
-    
     render() {
         let status;
 
@@ -76,7 +58,7 @@ class Dashboard extends Component {
 
             return(
                 <section id='dashboard'>
-                    {!this.state.isMobile ? <SideBar user={this.props.user.user} items={items} /> : <BottomBar user={this.props.user.user} items={items} />}
+                    {!this.props.config.isMobile ? <SideBar user={this.props.user.user} items={items} /> : <BottomBar user={this.props.user.user} items={items} />}
 
                     <div id='dashboard-main'>
                         {this.props.location.pathname.match(/^\/dashboard/) ? <div id='main-panel-bg'></div> : ''}
@@ -91,7 +73,13 @@ class Dashboard extends Component {
 }
 
 Dashboard.propTypes = {
-    user: PropTypes.object.isRequired
+    user: PropTypes.object.isRequired,
 }
 
-export default withRouter(connect()(Dashboard));
+const mapStateToProps = state => {
+    return {
+        config: state.Config
+    }
+}
+
+export default withRouter(connect(mapStateToProps)(Dashboard));

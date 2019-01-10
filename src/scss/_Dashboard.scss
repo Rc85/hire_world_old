@@ -1,6 +1,6 @@
 #dashboard {
-    width: 100%;
     display: flex;
+    width: 100vw;
 }
 
 #dashboard-profile-pic {
@@ -43,6 +43,12 @@
     #dashboard-header-wrapper {
         width: 90%;
         display: flex;
+
+        #dashboard-header-user-info {
+            margin-left: 15px;
+
+            #user-business-name-icon { display: none; }
+        }
 
         .profile-pic-wrapper { width: 15%; }
     }

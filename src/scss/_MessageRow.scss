@@ -1,10 +1,11 @@
 .message-row {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 30px;
 
     .message-row-profile-pic { width: 10%; }
 
-    .message-row-container {
+    .message-container {
         display: flex;
         flex-direction: column;
         width: 85%;
@@ -86,8 +87,6 @@
 }
 
 .message-row-username {
-    margin: 5px 0 30px 0;
-    
     &.right {
         text-align: right;
         padding-right: 0.5rem;

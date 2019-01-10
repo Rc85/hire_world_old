@@ -6,7 +6,8 @@ import { Alert } from './reducers/Alerts';
 import { Prompt } from './reducers/Prompts';
 import { Warning } from './reducers/Warnings';
 import { Menu } from './reducers/Menus';
+import { Config } from './reducers/Configs';
 
 export const reducers = combineReducers({
-    Login, Sectors, Confirmation, Alert, Prompt, Warning, Menu
+    Login, Sectors, Confirmation, Alert, Prompt, Warning, Menu, Config
 });

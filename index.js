@@ -319,7 +319,7 @@ app.use(require('./modules/admin/errors')); */
 
 app.use(require('./modules/webhooks'));
 
-server.listen(port, (err) => {
+server.listen(port, '0.0.0.0', (err) => {
     if (err) {
         error.log({name: err.name, message: err.message, origin: 'Server', url: req.url});
         console.log(err);

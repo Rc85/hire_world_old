@@ -41,7 +41,7 @@ class SubmitReview extends Component {
                         <Rating stars={this.state.stars} set={(stars) => this.setRating(stars)} />
                     </div>
     
-                    <TextArea submit={(review) => this.props.submit(review, this.state.stars)} cancel={() => this.props.cancel()} value={this.props.review} />
+                    <TextArea submit={(review) => this.props.submit(review, this.state.stars)} cancel={() => this.props.cancel()} value={this.props.review} status={this.props.status} />
                 </div>
             </div>
         );

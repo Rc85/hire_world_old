@@ -27,9 +27,11 @@ class MessageRow extends Component {
         console.log(this.props);
         return(
             <React.Fragment>
+                {this.props.author !== 'system' ? <div className={`message-row-username ${this.props.author === 'owner' ? 'right' : 'left'}`}>{this.props.message.message_sender}</div> : ''}
+
                 <div className={`message-row ${this.props.author}`}>
                     {this.props.message.message_sender != 'System' ? <div className='message-row-profile-pic'><UserProfilePic url={this.props.message.avatar_url} /></div> : ''}
-                    <div className='message-row-container'>
+                    <div className='message-container'>
                         <div className={`message-row-body ${this.props.type}`}>
                             {this.props.message.message_status === 'New' && this.props.message.message_recipient === this.props.user.user.username ? <span className='new-message-status mini-badge mini-badge-success'>{this.props.message.message_status}</span> : ''}
                             {this.props.message.message_body}
@@ -38,12 +40,10 @@ class MessageRow extends Component {
                         </div>
         
                         <div className={`message-row-footer ${this.props.author}`}>
-                            {this.props.message.message_sender === 'System' || this.props.message.message_sender === this.props.user.user.username ? 'Received' : 'Sent'} {moment(this.props.message.message_date).fromNow()}
+                            {this.props.message.message_sender === 'System' || this.props.message.message_sender === this.props.user.user.username ? 'Sent' : 'Received'} {moment(this.props.message.message_date).fromNow()}
                         </div>
                     </div>
                 </div>
-
-                {this.props.author !== 'system' ? <div className={`message-row-username ${this.props.author === 'owner' ? 'right' : 'left'}`}>{this.props.message.message_sender}</div> : ''}
             </React.Fragment>
         )
     }

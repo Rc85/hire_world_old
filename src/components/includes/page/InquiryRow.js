@@ -24,6 +24,11 @@ class InquiryRow extends Component {
             this.props.dispatch(PromptReset());
         }
     }
+
+    submitReview(review, star) {
+        this.props.submitReview(review, this.props.message, star);
+        this.setState({review: false});
+    }
     
     render() {
         console.log(this.props)
@@ -60,18 +65,17 @@ class InquiryRow extends Component {
         }
 
         if (this.props.message.job_status === 'Completed' && this.props.message.job_client === this.props.user.username) {
-            review = <SubmitReview submit={(review, star) => {
-                this.props.submitReview(review, this.props.message, star);
-                this.setState({review: false});
-            }} cancel={() => this.setState({review: false})} user={this.props.user} message={this.props.message} show={this.state.review} />
+            review = <SubmitReview submit={(review, star) => this.submitReview(review, star)} status={this.props.status} cancel={() => this.setState({review: false})} user={this.props.user} message={this.props.message} show={this.state.review} />
         }
 
         return (
             <div className='inquiry-row'>
                 <div className='inquiry-main-row'>
                     <div className={`inquiry-row-text-wrapper ${this.props.loadedId === this.props.message.job_id ? 'active' : ''}`} onClick={() => this.props.load(this.props.message.job_id)}>
-                        {this.props.message.job_status === 'New' && this.props.message.job_user === this.props.user.username ? <div className='mini-badge mini-badge-success'>{this.props.message.job_status}</div> : ''}
-                        <div className='inquiry-row-text'>{this.props.message.job_subject}</div>
+                        {this.props.message.job_status === 'New' && this.props.message.job_user === this.props.user.username ? <span className='mini-badge mini-badge-success'>{this.props.message.job_status}</span> : ''}
+
+                        {this.props.message.job_subject}
+
                         {this.props.message.unread_messages > 0 ? <span className='mini-badge mini-badge-danger'>{this.props.message.unread_messages}</span> : ''}
                     </div>
 
@@ -80,7 +84,7 @@ class InquiryRow extends Component {
 
                 <div className='inquiry-detail-row'>
                     <div className={`inquiry-detail-type-indicator ${this.props.user && this.props.message.job_client === this.props.user.username ? 'sent' : 'received'}`}></div>
-                    <div className='inquiry-detail-type'>{this.props.user && this.props.message.job_client === this.props.user.username ? `Sent to ${this.props.message.job_user} ${moment(this.props.message.job_created_date).fromNow()}` : `Received from ${this.props.message.job_client} ${moment(this.props.message.job_created_date).fromNow()}`}</div>
+                    <div className='inquiry-detail-type'>{this.props.user && this.props.message.job_client === this.props.user.username ? `To ${this.props.message.job_user} ${moment(this.props.message.job_created_date).fromNow()}` : `From ${this.props.message.job_client} ${moment(this.props.message.job_created_date).fromNow()}`}</div>
                 </div>
 
                 <div className={this.state.review ? 'verified-review-container' : ''}>{review}</div>

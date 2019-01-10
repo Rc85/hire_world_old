@@ -1,17 +1,29 @@
-#root { width: 100%; }
+#root {
+    overflow-x: hidden;
+    width: 100%;
+}
 
 .col-container {
     display: flex;
-    width: 100%;
     min-height: 100%;
     position: relative;
 }
 
 .main-panel {
-    padding: 20px 50px;
+    padding: 20px;
     color: black;
 
     hr { background-color: black; }
+
+    a {
+        color: $theme-blue;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: $theme-highlight;
+        text-decoration: underline;
+    }
 }
 
 button.btn {
@@ -66,7 +78,7 @@ button.btn {
 
 .underline-div {
     width: 100%;
-    padding: 5px;
+    padding-bottom: 5px;
     border-bottom: 1px solid $theme-medgrey;
     margin-bottom: 10px;
     display: flex;

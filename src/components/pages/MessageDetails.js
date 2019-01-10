@@ -11,7 +11,7 @@ import SystemMessage from '../includes/page/SystemMessage';
 import MessageRow from '../includes/page/MessageRow';
 import { withRouter, NavLink, Redirect } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown, faCaretUp, faHandHoldingUsd, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faCaretUp, faHandHoldingUsd, faInfoCircle, faCheck, faBan, faMinusCircle, faSyncAlt, faReply, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
 import { UncontrolledTooltip } from 'reactstrap';
@@ -269,6 +269,8 @@ class MessageDetails extends Component {
                 messages.unshift(resp.data.message);
             }
 
+            this.props.refresh(this.props.job.job.job_id);
+
             this.setState({status: '', makeOffer: false, messages: messages, offer: resp.data.offer});
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -518,8 +520,12 @@ class MessageDetails extends Component {
 
     render() {
         console.log(this.state);
-        let listingDetails, sendButton, sendMessage, sendStatus, messages, offerConfirmation, fetchStatus, offerButton, confirmation, closeButton, completeButton, incompleteButton, reasonInput, jobStatus, abandonedDate, refreshButton;
+        let listingDetails, sendButton, sendMessage, sendStatus, messages, offerConfirmation, fetchStatus, offerButton, confirmation, closeButton, completeButton, incompleteButton, reasonInput, jobStatus, abandonedDate, refreshButton, status;
         let now = moment();
+
+        if (this.props.status === 'Loading Message') {
+            status = <Loading size='5x' color='black' />;
+        }
 
         if (this.props.job.job && this.props.user.user) {
             abandonedDate = moment(this.props.job.job.job_abandoned_date);
@@ -562,12 +568,12 @@ class MessageDetails extends Component {
             if (this.props.job.job.job_stage === 'Active' && this.props.job.job && this.props.job.job.job_user === this.props.user.user.username) {
                 if (this.props.job.job.job_status !== 'Abandoning') {
                     completeButton = <Tooltip text='Request for job complete approval from other party' placement='bottom-right'>
-                        <button id='complete-job-button' className={`btn btn-success`} disabled={this.props.job.job.job_user_complete} onClick={() => this.props.dispatch(ShowConfirmation('Send request to complete this job?', false, {action: 'user complete job'}))}>{this.props.job.job.job_user_complete ? <span>Sent</span> : <span>Complete</span>}</button>
+                        <button id='complete-job-button' className={`btn btn-success`} disabled={this.props.job.job.job_user_complete} onClick={() => this.props.dispatch(ShowConfirmation('Send request to complete this job?', false, {action: 'user complete job'}))}>{this.props.job.job.job_user_complete ? <span>{this.props.config.isMobile ? <FontAwesomeIcon icon={faCheck} /> : 'Sent'}</span> : <span>{this.props.config.isMobile ? <FontAwesomeIcon icon={faCheck} /> : 'Complete'}</span>}</button>
                     </Tooltip>;
 
-                    incompleteButton = <Tooltip text='Abandoning a job will negatively impact your reputation' placement='bottom-right'><button id='abandon-job-button' className='btn btn-danger' onClick={() => this.props.dispatch(PromptOpen('Specify a reason to abandon this job', {id: this.props.job.job.job_id, action: 'abandon job'}))}>Abandon</button></Tooltip>;
+                    incompleteButton = <Tooltip text='Abandoning a job will negatively impact your reputation' placement='bottom-right'><button id='abandon-job-button' className='btn btn-danger' onClick={() => this.props.dispatch(PromptOpen('Specify a reason to abandon this job', {id: this.props.job.job.job_id, action: 'abandon job'}))}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faBan} /> : 'Abandon'}</button></Tooltip>;
                 } else {
-                    incompleteButton = <button id='abandon-job-button' className='btn btn-warning' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to cancel the Abandon request?`, false, {action: 'cancel abandon'}))}>Cancel Abandon</button>
+                    incompleteButton = <Tooltip text={`You can cancel the abandon request if the other party haven't make a decision yet`} ><button id='abandon-job-button' className='btn btn-warning' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to cancel the Abandon request?`, false, {action: 'cancel abandon'}))}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faMinusCircle} /> : 'Cancel Abandon'}</button></Tooltip>
                 }
             }
 
@@ -588,12 +594,12 @@ class MessageDetails extends Component {
 
             if (this.props.job.job && (this.props.job.job.job_stage === 'Active' || this.props.job.job.job_stage === 'Inquire')) {
                 if (!this.state.send) {
-                    sendButton = <button id='message-reply-button' className='btn btn-primary' onClick={() => this.setState({send: true, makeOffer: false})}>Reply</button>;
+                    sendButton = <button id='message-reply-button' className='btn btn-primary' onClick={() => this.setState({send: true, makeOffer: false})}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faReply} /> : 'Reply'}</button>;
                 } else {
                     sendMessage = <MessageSender send={(message) => this.send(message)} cancel={() => this.setState({send: !this.state.send})} status={this.state.status} statusMessage={this.state.statusMessage} subject={this.props.job.job.job_subject} autoFocus={true} />;
                 }
 
-                refreshButton = <button className='btn btn-info' onClick={() => this.props.refresh(this.props.job.job.job_id)}>Refresh</button>;
+                refreshButton = <button className='btn btn-info' onClick={() => this.props.refresh(this.props.job.job.job_id)}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faSyncAlt} /> : 'Refresh'}</button>;
             }
 
             if (this.state.status === 'Sending') {
@@ -701,7 +707,7 @@ class MessageDetails extends Component {
             }
 
             if (this.props.job.job && this.props.job.job.job_stage === 'Inquire' && this.props.job.job.job_status !== 'Closed') {
-                closeButton = <button id='close-inquiry-button' className='btn btn-danger' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to close this inquiry?', 'No more messages can be sent or received afterwards for this inquiry.', {action: 'close inquiry'}))}>Close</button>
+                closeButton = <button id='close-inquiry-button' className='btn btn-danger' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to close this inquiry?', 'No more messages can be sent or received afterwards for this inquiry.', {action: 'close inquiry'}))}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faTimes} /> : 'Close'}</button>
             }
         }
 
@@ -714,6 +720,7 @@ class MessageDetails extends Component {
         } else {
             return(
                 <div id='message-details'>
+                    {status}
                     {confirmation}
                     <div id='message-header'>
                         <div className='message-header-row'>
@@ -769,7 +776,8 @@ const mapStateToProps = state => {
     return {
         confirm: state.Confirmation,
         prompt: state.Prompt,
-        user: state.Login
+        user: state.Login,
+        config: state.Config
     }
 }
 

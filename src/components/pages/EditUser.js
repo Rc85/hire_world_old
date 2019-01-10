@@ -173,13 +173,16 @@ class EditUser extends Component {
                     <div id='dashboard-header-wrapper'>
                         <div className='profile-pic-wrapper'><UserProfilePic url={this.props.user.user.avatar_url} editable bordered borderColor='transparent' /></div>
 
-                        {this.props.user.user.user_business_name ? <h1 className='ml-2'><FontAwesomeIcon icon={faBuilding} className='text-special mr-1' /> {this.props.user.user.user_business_name}</h1> : ''}
+                        <div id='dashboard-header-user-info'>
+                            <NavLink to={`/user/${this.props.user.user.username}`}><h1>{this.props.user.user.username}</h1></NavLink>
+                            {this.props.user.user.user_business_name ? <h3><FontAwesomeIcon icon={faBuilding} id='user-business-name-icon' className='text-special mr-1' /> {this.props.user.user.user_business_name}</h3> : ''}
+                        </div>
                     </div>
 
                     <div id='dashboard-list-buttons-container'>
-                        <FontAwesomeIcon icon={faCogs} size='2x' className='dashboard-list-button' />
+                        <FontAwesomeIcon icon={faCogs} size='2x' className='dashboard-list-button' color='white' />
                         <SlideToggle />
-                        <button id='mobile-logout-button' className='btn btn-secondary' onClick={() => this.props.dispatch(LogoutUser())}>Logout</button>
+                        {/* <button id='mobile-logout-button' className='btn btn-secondary' onClick={() => this.props.dispatch(LogoutUser())}>Logout</button> */}
                     </div>
                 </div>
 

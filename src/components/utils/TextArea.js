@@ -21,7 +21,7 @@ class TextArea extends Component {
                 <textarea className='form-control w-100 mb-1' rows='6' defaultValue={this.props.value} onChange={(e) => this.setState({value: e.target.value})}></textarea>
 
                 <div className='text-right'>
-                    <button className='btn btn-primary mr-1' onClick={() => this.props.submit(this.state.value)}>Submit</button>
+                    <SubmitButton type='button' value='Send' loading={this.props.status ? true : false} onClick={() => this.props.submit(this.state.value)} />
                     <button className='btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button>
                 </div>
             </div>

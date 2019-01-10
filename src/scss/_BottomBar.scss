@@ -1,28 +1,35 @@
-#bottombar {
-    height: 55px;
+#bottombar-container {
     background: linear-gradient(45deg, $theme-lightblack, $not-black);
-    padding: 35px 20px 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
     position: fixed;
     bottom: 0;
     z-index: 99;
+    width: 100vw;
+    height: 55px;
+    overflow-y: hidden;
+    transition: height 0.15s ease-in-out;
+    padding: 45px 20px 10px 20px;
+
+    &.expand { height: 100%; }
+    &.hide { display: none; }
+
+    .bottombar-toggle-button {
+        width: 100%;
+        text-align: center;
+        position: absolute;
+        top: 0;
+    }
+}
+
+#bottombar {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    transition: height 0.15s ease-in-out;
-    overflow-y: hidden;
-
-    &.expand {
-        height: 100%;
-        //padding: 55px 20px 0 20px;
-    }
-
-    .bottombar-toggle-button {
-        margin-bottom: 10px;
-        width: 100%;
-        text-align: center;
-    }
 
     .bottombar-item-icon { margin-right: 15px; }
 

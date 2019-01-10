@@ -12,6 +12,8 @@ import MessageDetails from '../pages/MessageDetails';
 import Response from '../pages/Response';
 import { GetUserNotificationAndMessageCount } from '../../actions/FetchActions';
 import { Alert } from '../../actions/AlertActions';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faQuestionCircle, faDotCircle, faCheckCircle, faBan, faTimes, faList, faBars } from '@fortawesome/free-solid-svg-icons';
 
 class Inquiries extends Component {
     constructor(props) {
@@ -25,7 +27,8 @@ class Inquiries extends Component {
             messages: [],
             pinnedMessages: [],
             idToLoad: null,
-            loadedJob: {}
+            loadedJob: {},
+            showMessageList: true
         }
     }
     
@@ -51,7 +54,7 @@ class Inquiries extends Component {
                         messageCount = resp.data.messageCount;
                     }
 
-                    this.setState({messages: resp.data.messages, status: '', messageCount: messageCount, pinnedMessages: resp.data.pinned});
+                    this.setState({messages: resp.data.messages, status: '', messageCount: messageCount, pinnedMessages: resp.data.pinned, showMessageList: true});
                 } else if (resp.data.status === 'error') {
                     this.setState({status: ''});
 
@@ -116,7 +119,7 @@ class Inquiries extends Component {
     }
 
     loadMessage(id, index) {
-        this.setState({status: 'Loading Message', idToLoad: id});
+        this.setState({status: 'Loading Message', idToLoad: id, showMessageList: false});
 
         fetch.post('/api/get/offer', {job_id: id, stage: this.props.match.params.stage})
         .then(offerResponse => {
@@ -205,8 +208,6 @@ class Inquiries extends Component {
             status = <Loading size='5x' />;
         } else if (this.state.status === 'access error') {
             return <Response code={404} header='Page Not Found' message={`The page you're trying to access does not exist`} />
-        } else if (this.state.status === 'Loading Message') {
-            loadingMessageStatus = <Loading size='5x' color='black' />;
         }
 
         let messages = this.state.messages.map((message, i) => {
@@ -216,7 +217,7 @@ class Inquiries extends Component {
                 pinned = true;
             }
 
-            return <InquiryRow key={i} user={this.props.user.user} stage={this.props.match.params.stage} message={message} pin={() => this.pinMessage(message.job_id)} pinned={pinned} load={(id) => this.loadMessage(id, i)} loadedId={this.state.loadedJob.job ? this.state.loadedJob.job.job_id : ''} submitReview={(review, message, star) => this.submit(review, message, star, i)} />
+            return <InquiryRow key={i} user={this.props.user.user} stage={this.props.match.params.stage} message={message} pin={() => this.pinMessage(message.job_id)} pinned={pinned} load={(id) => this.loadMessage(id, i)} loadedId={this.state.loadedJob.job ? this.state.loadedJob.job.job_id : ''} submitReview={(review, message, star) => this.submit(review, message, star, i)} status={this.state.status} />
         });
 
         if (this.state.messages.length > 0) {
@@ -241,21 +242,29 @@ class Inquiries extends Component {
             <section id='inquiries'>
                 {this.state.status === 'Loading' ? <Loading size='5x' /> : ''}
 
-                <div id='message-list-column'>
-                    <div className='message-filter-buttons-container'>
-                        <button className={`btn ${this.state.showing === 'all' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'all'})}>All</button>
-                        <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received'})}>Received</button>
-                        <button className={`btn ${this.state.showing === 'sent' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'sent'})}>Sent</button>
-                        <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned'})}>Pinned</button>
+                <div id='message-list-column' className={this.state.showMessageList ? '' : 'hide'}>
+                    <div id='message-list-main-column'>
+                        <div className='message-filter-buttons-container'>
+                            <button className={`btn ${this.state.showing === 'all' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'all'})}>All</button>
+                            <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received'})}>Received</button>
+                            <button className={`btn ${this.state.showing === 'sent' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'sent'})}>Sent</button>
+                            <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned'})}>Pinned</button>
+                            <button id='close-message-column-button' className='btn btn-danger' onClick={() => this.setState({showMessageList: false})}><FontAwesomeIcon icon={faTimes} /></button>
+                        </div>
+                        
+                        {body}
                     </div>
-                    
-                    {body}
+
+                    <div id='message-list-mini-column' className={this.state.showMessageList ? 'hide' : ''}>
+                        <FontAwesomeIcon icon={faBars} size='2x' onClick={() => this.setState({showMessageList: true})} />
+                    </div>
                 </div>
 
                 <div id='message-column'>
                     {loadingMessageStatus}
                     {this.state.loadedJob.job ?
                         <MessageDetails
+                        status={this.state.status}
                         job={this.state.loadedJob}
                         stage={this.props.match.params.stage}
                         removeJob={(decision) => this.removeJob(decision)}

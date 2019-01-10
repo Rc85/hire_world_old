@@ -21,6 +21,7 @@ import fetch from 'axios';
 import { LogError } from './components/utils/LogError';
 import { Alert as Alerts } from 'reactstrap';
 import Loading from './components/utils/Loading';
+import { isMobile } from './actions/ConfigActions';
 
 class App extends Component {
 	constructor(props) {
@@ -69,6 +70,20 @@ class App extends Component {
 				this.props.dispatch(ToggleMenu('', ''));
 			}
 		});
+
+		window.addEventListener('resize', () => {
+			if (window.innerWidth > 1024) {
+				this.props.dispatch(isMobile(false));
+			} else {
+				this.props.dispatch(isMobile(true));
+			}
+		});
+
+		if (window.innerWidth > 1024) {
+			this.props.dispatch(isMobile(false));
+		} else {
+			this.props.dispatch(isMobile(true));
+		}
 
 		fetch.post('/api/get/announcements')
 		.then(resp => {

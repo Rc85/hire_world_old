@@ -75,8 +75,6 @@
 
         a:hover { color: $theme-highlight; }
 
-        &.active {
-            a { color: $theme-highlight; }
-        }
+        &.active { color: $theme-highlight; }
     }
 }

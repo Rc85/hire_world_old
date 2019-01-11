@@ -1,0 +1,17 @@
+.text-area-container {
+    position: relative;
+
+    label {
+        position: absolute;
+        margin-left: 15px;
+        background: $theme-highlight;
+        padding: 5px;
+        font-weight: bold;
+        color: white;
+        font-size: 0.8rem;
+        top: -14px;
+        border: 1px solid black;
+    }
+
+    textarea { padding: 20px 10px 10px 10px; }
+}

@@ -34,8 +34,8 @@ class SlideToggle extends Component {
 
     render() {
         return(
-            <div ref={node => {sliderContainer = node}} className='slider-container'>
-                <div ref={node => {slider = node}} className='slider' onClick={() => this.props.onClick()}>
+            <div ref={node => {sliderContainer = node}} className='slider-container' onClick={() => this.props.onClick()}>
+                <div ref={node => {slider = node}} className='slider'>
                     <input ref={node => {sliderCheckbox = node}} className='slider-checkbox' type='checkbox' id={this.props.id} defaultChecked={this.props.status} />
                 </div>
             </div>

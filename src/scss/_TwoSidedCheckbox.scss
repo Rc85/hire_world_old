@@ -1,0 +1,40 @@
+.two-sided-checkbox-container {
+    display: flex;
+    
+    .first-side-checkbox, .second-side-checkbox {
+        border: 1px solid $success;
+        font-size: 0.8rem;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .first-side-checkbox {
+        padding: 5px;
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+        
+        &.checked { background-color: $success; }
+    }
+    
+    .second-side-checkbox {
+        padding: 5px;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+        
+        &.checked { background-color: $success; }
+    }
+
+    &.disabled {
+        cursor: default;
+        
+        .first-side-checkbox, .second-side-checkbox {
+            border: 1px solid $theme-lightgrey;
+
+            &.checked {
+                border: 1px solid $theme-lightgrey;
+                background-color: $theme-lightgrey;
+                color: black;
+            }
+        }
+    }
+}

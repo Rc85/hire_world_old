@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import TextArea from '../../utils/TextArea';
 import { NavLink } from 'react-router-dom';
 import Rating from '../../utils/Rating';
+import SubmitButton from '../../utils/SubmitButton';
 
 class SubmitReview extends Component {
     constructor(props) {
@@ -41,7 +42,9 @@ class SubmitReview extends Component {
                         <Rating stars={this.state.stars} set={(stars) => this.setRating(stars)} />
                     </div>
     
-                    <TextArea submit={(review) => this.props.submit(review, this.state.stars)} cancel={() => this.props.cancel()} value={this.props.review} status={this.props.status} />
+                    <TextArea value={this.props.review} onChange={(val) => this.setState({review: val})} />
+
+                    <div className='text-right'><SubmitButton type='button' status={this.props.status} onClick={() => this.props.submit(this.state.review, this.state.stars)} /> <button className='btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button></div>
                 </div>
             </div>
         );

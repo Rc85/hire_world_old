@@ -1,38 +1,33 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { isTyping } from '../../actions/ConfigActions';
 
-/** A text area component with its own state, submit button and cancel button
- * @param {String} [value] A default value for cases where the text area needs to be edited
- * @param {Function} submit The function when submit is clicked
- * @param {Function} cancel The function when cancel is clicked
- */
 class TextArea extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            value: this.props.value || ''
-        }
-    }
-
     render() {
+        console.log(this.props);
         return(
-            <div>
-                <textarea className='form-control w-100 mb-1' rows='6' defaultValue={this.props.value} onChange={(e) => this.setState({value: e.target.value})}></textarea>
+            <div id={this.props.id} className={`text-area-container ${this.props.className ? this.props.className : ''}`}>
+                {this.props.label ? <label>{this.props.label}</label> : ''}
 
-                <div className='text-right'>
-                    <SubmitButton type='button' value='Send' loading={this.props.status ? true : false} onClick={() => this.props.submit(this.state.value)} />
-                    <button className='btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button>
-                </div>
+                <textarea
+                id={this.props.textAreaId ? this.props.textAreaId : ''}
+                className={this.props.textAreaClassName ? this.props.textAreaClassName : ''}
+                rows={this.props.rows ? this.props.rows : 6}
+                value={this.props.value}
+                onChange={(e) => this.props.onChange(e.target.value)}
+                onFocus={() => this.props.dispatch(isTyping(true))}
+                onBlur={() => this.props.dispatch(isTyping(false))}
+                disabled={this.props.disabled}
+                autoFocus={this.props.autoFocus}
+                placeholder={this.props.placeholder ? this.props.placeholder : ''}></textarea>
             </div>
         )
     }
 }
 
 TextArea.propTypes = {
-    submit: PropTypes.func.isRequired,
-    cancel: PropTypes.func.isRequired,
     value: PropTypes.string
 }
 
-export default TextArea;
+export default connect()(TextArea);

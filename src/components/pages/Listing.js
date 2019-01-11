@@ -30,13 +30,10 @@ class Listing extends Component {
         let now = new Date();
 
         return (
-            <section id='subscription-settings' className='blue-panel shallow three-rounded'>
+            <section id='listing-settings' className='main-panel'>
+                <div className='listing-settings-child'>{subscriptionEndDate > now ? <ListSettings user={this.props.user} /> : payment}</div>
 
-                {subscriptionEndDate > now ? <ListSettings user={this.props.user} /> : payment}
-
-                <hr/>
-
-                <BusinessHoursSetting user={this.props.user} />
+                <div className='listing-settings-child'><BusinessHoursSetting user={this.props.user} /></div>
             </section>
         );
     }

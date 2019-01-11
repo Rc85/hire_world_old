@@ -7,6 +7,9 @@ import { Alert } from '../../../actions/AlertActions';
 import { LogError } from '../../utils/LogError';
 import SlideToggle from '../../utils/SlideToggle';
 import { UpdateUser } from '../../../actions/LoginActions';
+import TitledContainer from '../../utils/TitledContainer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBusinessTime } from '@fortawesome/free-solid-svg-icons';
 
 class BusinessHoursSettings extends Component {
     constructor(props) {
@@ -187,29 +190,31 @@ class BusinessHoursSettings extends Component {
         delete clonedState.showSettings;
 
         return (
-            <section id='business-hours-settings'>
-                <div className='d-flex-between-center'>
-                    <div className='mr-1'><h5>Business Hours:</h5></div>
-
-                    <SlideToggle status={this.props.user.user.display_business_hours} onClick={() => this.toggle()} />
-                </div>
-
-                <span>If one or both fields are blank, it will indicate 'Closed' for that day.</span>
-
-                <hr/>
-
-                <div id='hours-settings'>
-                    <HourSetters day='Monday' startTime={(val) => this.setState({monStartTime: val})} endTime={(val) => this.setState({monEndTime: val})} startValue={this.state.monStartTime} endValue={this.state.monEndTime} />
-                    <HourSetters day='Tuesday' startTime={(val) => this.setState({tueStartTime: val})} endTime={(val) => this.setState({tueEndTime: val})} startValue={this.state.tueStartTime} endValue={this.state.tueEndTime} />
-                    <HourSetters day='Wednesday' startTime={(val) => this.setState({wedStartTime: val})} endTime={(val) => this.setState({wedEndTime: val})} startValue={this.state.wedStartTime} endValue={this.state.wedEndTime} />
-                    <HourSetters day='Thursday' startTime={(val) => this.setState({thuStartTime: val})} endTime={(val) => this.setState({thuEndTime: val})} startValue={this.state.thuStartTime} endValue={this.state.thuEndTime} />
-                    <HourSetters day='Friday' startTime={(val) => this.setState({friStartTime: val})} endTime={(val) => this.setState({friEndTime: val})} startValue={this.state.friStartTime} endValue={this.state.friEndTime} />
-                    <HourSetters day='Saturday' startTime={(val) => this.setState({satStartTime: val})} endTime={(val) => this.setState({satEndTime: val})} startValue={this.state.satStartTime} endValue={this.state.satEndTime} />
-                    <HourSetters day='Sunday' startTime={(val) => this.setState({sunStartTime: val})} endTime={(val) => this.setState({sunEndTime: val})} startValue={this.state.sunStartTime} endValue={this.state.sunEndTime} />
-
-                    <div className='text-right'><SubmitButton loading={this.state.status === 'Loading'} type='button' value='Save' onClick={() => this.save(this.state)} disabled={JSON.stringify(clonedState) == JSON.stringify(this.initialState)} /></div>
-                </div>
-            </section>
+            <TitledContainer title='Business Hours' bgColor='orange' shadow icon={<FontAwesomeIcon icon={faBusinessTime} />} >
+                <section id='business-hours-settings'>
+                    <div className='d-flex-between-center'>
+                        <div className='mr-1'><h5>Business Hours:</h5></div>
+    
+                        <SlideToggle status={this.props.user.user.display_business_hours} onClick={() => this.toggle()} />
+                    </div>
+    
+                    <span>If one or both fields are blank, it will indicate 'Closed' for that day.</span>
+    
+                    <hr/>
+    
+                    <div id='hours-settings'>
+                        <HourSetters day='Monday' startTime={(val) => this.setState({monStartTime: val})} endTime={(val) => this.setState({monEndTime: val})} startValue={this.state.monStartTime} endValue={this.state.monEndTime} />
+                        <HourSetters day='Tuesday' startTime={(val) => this.setState({tueStartTime: val})} endTime={(val) => this.setState({tueEndTime: val})} startValue={this.state.tueStartTime} endValue={this.state.tueEndTime} />
+                        <HourSetters day='Wednesday' startTime={(val) => this.setState({wedStartTime: val})} endTime={(val) => this.setState({wedEndTime: val})} startValue={this.state.wedStartTime} endValue={this.state.wedEndTime} />
+                        <HourSetters day='Thursday' startTime={(val) => this.setState({thuStartTime: val})} endTime={(val) => this.setState({thuEndTime: val})} startValue={this.state.thuStartTime} endValue={this.state.thuEndTime} />
+                        <HourSetters day='Friday' startTime={(val) => this.setState({friStartTime: val})} endTime={(val) => this.setState({friEndTime: val})} startValue={this.state.friStartTime} endValue={this.state.friEndTime} />
+                        <HourSetters day='Saturday' startTime={(val) => this.setState({satStartTime: val})} endTime={(val) => this.setState({satEndTime: val})} startValue={this.state.satStartTime} endValue={this.state.satEndTime} />
+                        <HourSetters day='Sunday' startTime={(val) => this.setState({sunStartTime: val})} endTime={(val) => this.setState({sunEndTime: val})} startValue={this.state.sunStartTime} endValue={this.state.sunEndTime} />
+    
+                        <div className='text-right'><SubmitButton loading={this.state.status === 'Loading'} type='button' value='Save' onClick={() => this.save(this.state)} disabled={JSON.stringify(clonedState) == JSON.stringify(this.initialState)} /></div>
+                    </div>
+                </section>
+            </TitledContainer>
         );
     }
 }

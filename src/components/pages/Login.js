@@ -39,7 +39,7 @@ class Login extends Component {
                 <TitledContainer title='Login' icon={<FontAwesomeIcon icon={faSignInAlt} />}>
                     <div id='login-form'>
                         <div className='login-field'><InputText label='Username' type='text' onChange={(val) => this.setState({username: val})} nextInput={() => this.handleLoginKeyDown()} /></div>
-                        <div className='login-field'><InputText label='Password' type='password' id='login-password' onChange={(val) => this.setState({password: val})} nextInput={() => this.handleLogin()} /></div>
+                        <div className='login-field'><InputText label='Password' type='password' inputId='login-password' onChange={(val) => this.setState({password: val})} nextInput={() => this.handleLogin()} /></div>
 
                         <a href='/forgot-password' id='forgot-password'>Forgot Password</a>
 

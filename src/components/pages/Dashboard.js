@@ -6,7 +6,7 @@ import Loading from '../utils/Loading';
 import PropTypes from 'prop-types';
 import SideBar from '../includes/site/SideBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faColumns, faCommentAlt, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faColumns, faCommentAlt, faCog, faThList } from '@fortawesome/free-solid-svg-icons';
 import BottomBar from '../includes/site/BottomBar';
 import { GetSession, GetUserNotificationAndMessageCount } from '../../actions/FetchActions';
 import { connect } from 'react-redux';
@@ -37,6 +37,7 @@ class Dashboard extends Component {
             let totalMessages = parseInt(this.props.user.messages.inquiries) + parseInt(this.props.user.messages.active) + parseInt(this.props.user.messages.completed) + parseInt(this.props.user.messages.abandoned);
 
             let items = [
+                {name: 'Browse Listings', link: '/browse', active: /^\/browse/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faThList} className={/^\/browse/.test(this.props.location.pathname) ? 'text-special' : ''} />},
                 {name: 'Dashboard', link: '/dashboard/edit', active: /^\/dashboard/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faColumns} className={/^\/dashboard/.test(this.props.location.pathname) ? 'text-special' : ''} />, items: [
                     {name: 'Profile', active: this.props.location.pathname === '/dashboard/edit', link: '/dashboard/edit'},
                     {name: 'Friends', active: this.props.location.pathname === '/dashboard/friends', link: '/dashboard/friends'},

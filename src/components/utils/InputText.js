@@ -12,11 +12,33 @@ const InputText = props => {
         }
     }
 
-    return(
-        <div id={props.id} className={`input-container ${props.className}`}>
-            <label className={`${props.labelBgColor ? `bg-${props.labelBgColor}` : ''}`}>{props.label}</label>
+    let input;
 
-            <input type={props.type} name={props.name} id={props.inputId} onChange={(e) => props.onChange(e.target.value)} onKeyDown={(e) => handleKeyDown(e)} disabled={props.disabled} value={props.value} className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlue={() => this.props.dispatch(isTyping(false))} />
+    if (props.type === 'select') {
+        input = <select id={props.inputId} onChange={(e) => props.onChange(e.target.value)} value={props.value} className='w-100' disabled={props.disabled} name={props.name}>
+            {props.children}
+        </select>;
+    } else {
+        input = <input type={props.type} name={props.name} id={props.inputId} onChange={(e) => props.onChange(e.target.value)} onKeyDown={(e) => handleKeyDown(e)} disabled={props.disabled} value={props.value} className='w-100' onFocus={() => props.dispatch(isTyping(true))} onBlur={() => props.dispatch(isTyping(false))} />;
+
+        if (props.dataList) {
+            input = <React.Fragment>
+                <input type={props.type} name={props.name} id={props.inputId} list={props.dataList} onChange={(e) => props.onChange(e.target.value)} onKeyDown={(e) => handleKeyDown(e)} disabled={props.disabled} value={props.value} className='w-100' onFocus={() => props.dispatch(isTyping(true))} onBlur={() => props.dispatch(isTyping(false))} />
+                <datalist id={props.dataList}>
+                    {props.children}
+                </datalist>
+            </React.Fragment>;
+        }
+    }
+
+    return(
+        <div id={props.id} className={`input-container ${props.className ? props.className : ''}`}>
+            <div className='input-container-header'>
+                <label className={`${props.labelBgColor ? `bg-${props.labelBgColor}` : ''}`}>{props.label}</label>
+                {props.altLabel ? <label className={props.altLabelClassName ? props.altLabelClassName : ''}>{props.altLabel}</label> : ''}
+            </div>
+
+            {input}
         </div>
     )
 }

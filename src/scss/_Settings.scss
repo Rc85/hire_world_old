@@ -1,0 +1,42 @@
+#listing-settings {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+
+    .listing-settings-child { width: 45%; }
+}
+
+#list-settings {
+    display: flex;
+    flex-direction: column;
+
+    .list-setting-child {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        
+        #listing-price {
+            width: 50%;
+        }
+
+        #listing-price-type, #list-price-currency {
+            width: 25%;
+        }
+    }
+}
+/* .settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.settings-col {
+    display: flex;
+    flex-direction: column;
+    width: 45%;
+    justify-content: space-between;
+}
+
+#user-address {
+    white-space: pre-line;
+} */

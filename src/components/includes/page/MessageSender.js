@@ -38,7 +38,11 @@ class MessageSender extends Component {
                     <input type='text' name='subject' className='form-control' onChange={(e) => this.setState({subject: e.target.value})} value={this.state.subject} disabled={this.props.subject ? true : false} /> */}
                 </div>
 
-                <div className='mb-1'><textarea name='message' rows='10' className='form-control w-100 mb-1' value={this.state.message} onChange={(e) => this.setState({message: e.target.value})} autoFocus={this.props.autoFocus} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))}></textarea></div>
+                <div className='mb-1'>
+                    <TextArea rows={10} className='w-100 mb-1' textAreaClassName='w-100' value={this.state.message} onChange={(val) => this.setState({message: val})} autoFocus={this.props.autoFocus} />
+                
+                    {/* <textarea name='message' rows='10' className='form-control w-100 mb-1' value={this.state.message} onChange={(e) => this.setState({message: e.target.value})} autoFocus={this.props.autoFocus} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))}></textarea> */}
+                </div>
 
                 <div className='text-right'>
                     <SubmitButton type='button' value='Send' loading={this.props.status ? true : false} onClick={() => this.send()} />

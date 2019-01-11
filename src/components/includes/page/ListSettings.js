@@ -12,6 +12,15 @@ import { LogError } from '../../utils/LogError';
 import { GetSectors, GetSession } from '../../../actions/FetchActions';
 import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 import { UpdateUser } from '../../../actions/LoginActions';
+import Tooltip from '../../utils/Tooltip';
+import TitledContainer from '../../utils/TitledContainer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCogs } from '@fortawesome/free-solid-svg-icons';
+import RadioInput from '../../utils/RadioInput';
+import InputText from '../../utils/InputText';
+import TwoSidedCheckbox from '../../utils/TwoSidedCheckbox';
+import TextArea from '../../utils/TextArea';
+import SubmitButton from '../../utils/SubmitButton';
 
 class ListSettings extends Component {
     constructor(props) {
@@ -21,18 +30,34 @@ class ListSettings extends Component {
             status: '',
             statusMessage: '',
             showDetail: false,
-            listing_negotiable: false,
-            listing_price_type: 'Hour',
-            listing_id: null,
-            listing_renewed_date: null,
-            listing_created_date: null,
-            listing_sector: 'Artists',
-            listing_price: '',
-            listing_price_currency: '',
-            listing_detail: '',
-            listing_status: '',
-            listing_title: '',
-            listing_purpose: ''
+            newSettings: {
+                listing_negotiable: false,
+                listing_price_type: 'Hour',
+                listing_id: null,
+                listing_renewed_date: null,
+                listing_created_date: null,
+                listing_sector: 'Artists',
+                listing_price: '',
+                listing_price_currency: '',
+                listing_detail: '',
+                listing_status: '',
+                listing_title: '',
+                listing_purpose: ''
+            },
+            initialSettings: {
+                listing_negotiable: false,
+                listing_price_type: 'Hour',
+                listing_id: null,
+                listing_renewed_date: null,
+                listing_created_date: null,
+                listing_sector: 'Artists',
+                listing_price: '',
+                listing_price_currency: '',
+                listing_detail: '',
+                listing_status: '',
+                listing_title: '',
+                listing_purpose: ''
+            }
         }
     }
     
@@ -43,10 +68,9 @@ class ListSettings extends Component {
         fetch.post('/api/get/listing')
         .then(resp => {
             if (resp.data.status === 'success') {
-                let newState = {...this.state, ...resp.data.listing};
-                newState.status = '';
+                let initialSettings = {...this.state.initialSettings, ...resp.data.listing};
 
-                this.setState(newState);
+                this.setState({status: '', initialSettings: initialSettings, newSettings: initialSettings});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -54,27 +78,48 @@ class ListSettings extends Component {
         })
         .catch(err => LogError(err, '/api/get/listing'));
     }
-    
-    toggleListing() {
-        this.setState({status: 'Loading'});
 
-        fetch.post('/api/listing/toggle', this.state)
+    saveSetting() {
+        this.setState({status: 'Saving'});
+
+        fetch.post('/api/listing/save', this.state.newSettings)
         .then(resp => {
             if (resp.data.status === 'success') {
-                let user = {...this.props.user.user};
-                user.listing_status = resp.data.listing.listing_status;
+                let initialSettings = {...this.state.initialSettings, ...resp.data.listing};
 
-                this.props.dispatch(UpdateUser(user));
-                this.setState({status: '', listing_status: resp.data.listing.listing_status});
+                this.setState({status: '', initialSettings: initialSettings, newSettings: initialSettings});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => LogError(err, '/api/listing/toggle'));
+        .catch(err => LogError(err, '/api/listing/save'));
+    }
+    
+    toggleListing() {
+        if (JSON.stringify(this.state.initialSettings) !== JSON.stringify(this.state.newSettings)) {
+            this.props.dispatch(Alert('error', 'You must save your settings first'));
+        } else {
+            this.setState({status: 'Loading'});
+
+            fetch.post('/api/listing/toggle', this.state.newSettings)
+            .then(resp => {
+                if (resp.data.status === 'success') {
+                    let user = {...this.props.user.user};
+                    user.listing_status = resp.data.listing.listing_status;
+
+                    this.props.dispatch(UpdateUser(user));
+                    this.setState({status: '', listing_status: resp.data.listing.listing_status});
+                } else if (resp.data.status === 'error') {
+                    this.setState({status: ''});
+                    this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+                }
+            })
+            .catch(err => LogError(err, '/api/listing/toggle'));
+        }
     }
 
-    renewListing() {
+    /* renewListing() {
         this.setState({status: 'Loading'});
 
         fetch.post('/api/listing/renew', {listing_id: this.state.listing_id})
@@ -90,9 +135,17 @@ class ListSettings extends Component {
             }
         })
         .catch(err => LogError(err, '/api/listing/renew'));
+    } */
+
+    setSetting(key, value) {
+        let settings = {...this.state.newSettings}
+        settings[key] = value;
+
+        this.setState({newSettings: settings});
     }
 
     render() {
+        console.log(this.state);
         let status, sectors, renewButton;
 
         if (this.state.status === 'Loading') {
@@ -111,87 +164,118 @@ class ListSettings extends Component {
             let now = new Date();
             let lastRenew = new Date(this.state.listing_renewed_date);
 
-            renewButton = <React.Fragment>
-                <button id='renew-button' className='btn btn-primary ml-1' onClick={() => this.renewListing()} disabled={now - lastRenew < 8.64e+7}>Renew</button>
-                <UncontrolledTooltip placement='top' target='renew-button' delay={0}>{now - lastRenew < 8.64e+7 ? <span>You must wait 24 hours from your last renew before you can renew again</span> : <span>Renewing your listing will bring it to the top of the list</span>}</UncontrolledTooltip>
-            </React.Fragment>;
+            /* renewButton = <React.Fragment>
+                <Tooltip text={now - lastRenew < 8.64e+7 ? 'You must wait 24 hours from your last renew before you can renew again' : 'Renewing your listing will bring it to the top of the list'} placement='bottom-right'><button id='renew-button' className='btn btn-primary ml-2' onClick={() => this.renewListing()} disabled={now - lastRenew < 8.64e+7}>Renew</button></Tooltip>
+            </React.Fragment>; */
         }
         
+        let disableSave = JSON.stringify(this.state.initialSettings) === JSON.stringify(this.state.newSettings);
+
         return(
-            <section id='list-settings'>
-                {this.props.user.user && this.props.user.user.account_type === 'User' ? <div className='alert alert-danger'>You need to be on a subscription plan to create a listing</div> : ''}
-                {status}
+            <TitledContainer title='List Settings' bgColor='violet' shadow icon={<FontAwesomeIcon icon={faCogs} />}>
+                <section id='list-settings'>
+                    {status}
+    
+                    <div className='list-setting-child mb-3'>
+                        <RadioInput items={[
+                            {text: 'I am looking for work', value: 'For Hire'},
+                            {text: 'I am looking to hire', value: 'Hiring'}
+                        ]} onClick={(val) => this.setSetting('listing_purpose', val)} disabled={this.props.user.user.listing_status === 'Active'} selected={this.state.newSettings.listing_purpose} rows />
+    
+                        {/* <div><input type='radio' name='looking' value='For Hire' onClick={(e) => this.setState({listing_purpose: e.target.value})} disabled={this.state.listing_status === 'Active'} checked={this.state.listing_purpose === 'For Hire'} /> Looking for work</div>
 
-                <div className='d-flex-between-center mb-3'>
-                    <div>{this.state.listing_created_date !== this.state.listing_renewed_date ? <span>Renewed on {moment(this.state.listing_renewed_date).format('MMM DD YYYY hh:mm:ss')}</span> : ''}</div>
-                    <div className='d-flex-between-center'>
-                        <SlideToggle status={this.state.listing_status === 'Active'} onClick={() => this.toggleListing()} />
-                        {renewButton}
+                        <div><input type='radio' name='looking' value='Hiring' onClick={(e) => this.setState({listing_purpose: e.target.value})} disabled={this.state.listing_status === 'Active'} checked={this.state.listing_purpose === 'Hiring'} /> Looking to hire</div> */}
                     </div>
-                </div>
-
-                <div className='d-flex mb-3'>
-                    <label className='w-5' htmlFor='looking'>I am</label>
-
-                    <div className='w-15'><input type='radio' name='looking' value='For Hire' onClick={(e) => this.setState({listing_purpose: e.target.value})} disabled={this.state.listing_status === 'Active'} checked={this.state.listing_purpose === 'For Hire'} /> Looking for work</div>
-                    <div className='w-15'><input type='radio' name='looking' value='Hiring' onClick={(e) => this.setState({listing_purpose: e.target.value})} disabled={this.state.listing_status === 'Active'} checked={this.state.listing_purpose === 'Hiring'} /> Looking to hire</div>
-                </div>
-
-                <div className='mb-3'>
-                    <label htmlFor='listing-title'>List Title: <span className='required-asterisk'>*</span></label>
-                    <input type='text' name='title' id='listing-title' className='form-control' onChange={(e) => this.setState({listing_title: e.target.value})} defaultValue={this.state.listing_title} disabled={this.state.listing_status === 'Active'} />
-                </div>
-
-                <div className='d-flex-between-start mb-3'>
-                    <div className='w-45'>
-                        <label htmlFor='listing-sector'>List Under: <span className='required-asterisk'>*</span></label>
+    
+                    <div className='mb-3'>
+                        <InputText label='List Title' type='text' name='listing_title' value={this.state.newSettings.listing_title} disabled={this.props.user.user.listing_status === 'Active'} onChange={(val) => this.setSetting('listing_title', val)} />
+                        {/* <label htmlFor='listing-title'>List Title: <span className='text-special'>*</span></label>
+                        <input type='text' name='title' id='listing-title' className='form-control' onChange={(e) => this.setState({listing_title: e.target.value})} defaultValue={this.state.listing_title} disabled={this.state.listing_status === 'Active'} /> */}
+                    </div>
+    
+                    <div className='mb-3'>
+                        <InputText label='List Under' type='select' name='sector' inputId='listing-sector' onChange={(val) => this.setSetting('listing_sector', val)} value={this.state.newSettings.listing_sector} disabled={this.props.user.user.listing_status === 'Active'} >
+                            {sectors}
+                        </InputText>
+                        {/* <label htmlFor='listing-sector'>List Under: <span className='text-special'>*</span></label>
                         <select name='sector' id='listing-sector' className='form-control' onChange={(e) => this.setState({listing_sector: e.target.value})} value={this.state.listing_sector} disabled={this.state.listing_status === 'Active'} >
                             {sectors}
-                        </select>
+                        </select> */}
                     </div>
 
-                    <div className='w-50'>
-                        <div className='d-flex-between-start mb-3'>
-                            <div className='w-30'>
-                                <label htmlFor='listing-price'>Price Rate: <span className='required-asterisk'>*</span></label>
-                                <input type='number' name='price' id='listing-price' className='form-control' onChange={(e) => this.setState({listing_price: e.target.value})} defaultValue={this.state.listing_price} disabled={this.state.listing_status === 'Active'} />
-                            </div>
+                    <div className='list-setting-child mb-3'>
+                        <InputText label='Price Rate' type='number' name='price' id='listing-price' onChange={(val) => this.setSetting('listing_price', val)} value={this.state.newSettings.listing_price} disabled={this.props.user.user.listing_status === 'Active'} />
+                        {/* <div id='list-setting-price'>
 
-                            <div className='w-30'>
-                                <label htmlFor='listing-price-type'>Per: <span className='required-asterisk'>*</span></label>
-                                <select name='listing-price-type' id='listing-price-type' className='form-control' onChange={(e) => this.setState({listing_price_type: e.target.value})} defaultValue={this.state.listing_price_type}  disabled={this.state.listing_status === 'Active'}>
-                                    <option value='Hour'>Hour</option>
-                                    <option value='Bi-weekly'>Bi-weekly</option>
-                                    <option value='Month'>Month</option>
-                                    <option value='Delivery'>Delivery</option>
-                                    <option value='One Time Payment'>One Time Payment</option>
-                                </select>
-                            </div>
+                            <label htmlFor='listing-price'>Price Rate: <span className='text-special'>*</span></label>
+                            <input type='number' name='price' id='listing-price' onChange={(e) => this.setState({listing_price: e.target.value})} defaultValue={this.state.listing_price} disabled={this.state.listing_status === 'Active'} />
+                        </div> */}
 
-                            <div className='w-30'>
-                                <label htmlFor='listing-currency'>Currency: <span className='required-asterisk'>*</span></label>
-                                <input type='text' name='listing-currency' id='listing-currency' className='form-control' list='currency-list' maxLength='5' placeholder='Currency' onChange={(e) => this.setState({listing_price_currency: e.target.value})} defaultValue={this.state.listing_price_currency} disabled={this.state.listing_status === 'Active'} />
-                                <datalist id='currency-list'>
-                                    <option value='USD'>USD</option>
-                                    <option value='CAD'>CAD</option>
-                                    <option value='AUD'>AUD</option>
-                                    <option value='EUR'>EUR</option>
-                                    <option value='GBP'>GBP</option>
-                                    <option value='CNY'>CNY</option>
-                                    <option value='JPY'>JPY</option>
-                                </datalist>
-                            </div>
+                        <InputText label='Per' type='select' name='price' id='listing-price-type' onChange={(val) => this.setSetting('listing_price_type', val)} value={this.state.newSettings.listing_price_type} disabled={this.props.user.user.listing_status === 'Active'}>
+                            <option value='Hour'>Hour</option>
+                            <option value='Bi-weekly'>Bi-weekly</option>
+                            <option value='Month'>Month</option>
+                            <option value='Delivery'>Delivery</option>
+                            <option value='One Time Payment'>One Time Payment</option>
+                        </InputText>
+
+                        <InputText label='Currency' type='text' name='price' id='listing-price-currency' onChange={(val) => this.setSetting('listing_price_currency', val)} value={this.state.newSettings.listing_price_currency} disabled={this.props.user.user.listing_status === 'Active'} dataList='currency-list'>
+                            <option value='USD'>USD</option>
+                            <option value='CAD'>CAD</option>
+                            <option value='AUD'>AUD</option>
+                            <option value='EUR'>EUR</option>
+                            <option value='GBP'>GBP</option>
+                            <option value='CNY'>CNY</option>
+                            <option value='JPY'>JPY</option>
+                        </InputText>
+
+                        {/* <div id='list-setting-price-type'>
+                            <label htmlFor='listing-price-type'>Per: <span className='text-special'>*</span></label>
+                            <select name='listing-price-type' id='listing-price-type' onChange={(e) => this.setState({listing_price_type: e.target.value})} defaultValue={this.state.listing_price_type}  disabled={this.state.listing_status === 'Active'}>
+                                <option value='Hour'>Hour</option>
+                                <option value='Bi-weekly'>Bi-weekly</option>
+                                <option value='Month'>Month</option>
+                                <option value='Delivery'>Delivery</option>
+                                <option value='One Time Payment'>One Time Payment</option>
+                            </select>
                         </div>
 
-                        <label id='listing-negotiable-label' htmlFor='listing-negotiable'><input type='checkbox' name='listing-negotiable' id='listing-negotiable' onClick={() => this.setState({listing_negotiable: !this.state.listing_negotiable})} checked={this.state.listing_negotiable} disabled={this.state.listing_status === 'Active'} /> Negotiable</label>
-                        <UncontrolledTooltip target='listing-negotiable-label' placement='top'>Enabling this will allow your clients to send you offers.</UncontrolledTooltip>
+                        <div id='list-setting-price-currency'>
+                            <label htmlFor='listing-currency'>Currency: <span className='text-special'>*</span></label>
+                            <input type='text' name='listing-currency' id='listing-currency' list='currency-list' maxLength='5' placeholder='Currency' onChange={(e) => this.setState({listing_price_currency: e.target.value})} defaultValue={this.state.listing_price_currency} disabled={this.state.listing_status === 'Active'} />
+                            <datalist id='currency-list'>
+                                <option value='USD'>USD</option>
+                                <option value='CAD'>CAD</option>
+                                <option value='AUD'>AUD</option>
+                                <option value='EUR'>EUR</option>
+                                <option value='GBP'>GBP</option>
+                                <option value='CNY'>CNY</option>
+                                <option value='JPY'>JPY</option>
+                            </datalist>
+                        </div> */}
                     </div>
-                </div>
 
-                Details:
+                    <div className='d-flex-end-center mb-3'>
+                        <TwoSidedCheckbox checkedText='Negotiable' uncheckedText='Non-negotiable' checked={this.state.newSettings.listing_negotiable} disabled={this.props.user.user.listing_status === 'Active'} check={(bool) => this.setSetting('listing_negotiable', bool)} />
+                    </div>
+                    {/* <label id='listing-negotiable-label' htmlFor='listing-negotiable'><input type='checkbox' name='listing-negotiable' id='listing-negotiable' onClick={() => this.setState({listing_negotiable: !this.state.listing_negotiable})} checked={this.state.listing_negotiable} disabled={this.state.listing_status === 'Active'} /> Negotiable</label>
+                    <UncontrolledTooltip target='listing-negotiable-label' placement='top'>Enabling this will allow your clients to send you offers.</UncontrolledTooltip> */}
 
-                <textarea name='listing-detail' id='listing-detail' rows='10' className='form-control w-100 mb-3' placeholder='Describe the type of products or service you offer' onChange={(e) => this.setState({listing_detail: e.target.value})} value={this.state.listing_detail} disabled={this.state.listing_status === 'Active'}></textarea>
-            </section>
+                    <TextArea label='Details' rows={10} className='mb-3' textAreaClassName='w-100' placeholder='Describe the type of products or service that you offer' onChange={(val) => this.setSetting('listing_detail', val)} value={this.state.newSettings.listing_detail} disabled={this.props.user.user.listing_status === 'Active'} />
+                    
+                    {/* Details:
+    
+                    <textarea name='listing-detail' id='listing-detail' rows='10' className='form-control w-100 mb-3' placeholder='Describe the type of products or service you offer' onChange={(e) => this.setState({listing_detail: e.target.value})} value={this.state.listing_detail} disabled={this.state.listing_status === 'Active'}></textarea> */}
+
+                    <div className='d-flex-end-center mb-3'>
+                        {this.state.initialSettings.listing_status ? <div className='mr-1'><SlideToggle status={this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} /></div> : ''}
+
+                        <SubmitButton type='button' loading={this.state.status === 'Saving'} onClick={() => {}} value='Save' disabled={disableSave} />
+
+                        <button className='btn btn-secondary' onClick={() => this.setState({newSettings: this.state.initialSettings})}>Reset</button>
+                    </div>
+                </section>
+            </TitledContainer>
         );
     }
 }

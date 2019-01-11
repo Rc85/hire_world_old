@@ -4,6 +4,7 @@
     background: #14FF14;
     height: 32px;
     position: relative;
+    cursor: pointer;
 }
 
 .slider {
@@ -15,7 +16,6 @@
     top: 3px;
     left: 3px;
     transition: left 0.25s ease-in-out;
-    cursor: pointer;
 }
 
 .slider-checkbox {

@@ -29,7 +29,7 @@ class Prompt extends Component {
                 <div className='modal-container w-25 rounded'>
                     <div className='modal-text'>{this.props.text}</div>
 
-                    <input type='text' name='prompt' id='prompt-input' className='form-control mb-1' onChange={(e) => this.setState({input: e.target.value})} autoFocus='on' onKeyDown={(e) => {
+                    <input type='text' name='prompt' id='prompt-input'className='mb-1' onChange={(e) => this.setState({input: e.target.value})} autoFocus='on' onKeyDown={(e) => {
                         if (e.keyCode === 13) {
                             if (this.state.input) {
                                 this.props.dispatch(PromptSubmit(this.state.input, this.props.data));

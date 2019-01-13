@@ -66,7 +66,7 @@ class UserMessage extends Component {
         if (this.state.editing) {
             editButton = '';
             messageBody = <div>
-                <textarea name='message' rows='6' className='form-control w-100 keep-format mb-3' defaultValue={this.props.message.message_body} onChange={(e) => this.setState({message: e.target.value})}></textarea>
+                <textarea name='message' rows='6'className='w-100 keep-format mb-3' defaultValue={this.props.message.message_body} onChange={(e) => this.setState({message: e.target.value})}></textarea>
                 <div className='text-right'>
                     <button className='btn btn-primary mr-1' onClick={() => this.editMessage()}>Save</button>
                     <button className='btn btn-secondary' onClick={() => this.setState({editing: false})}>Cancel</button>

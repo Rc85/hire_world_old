@@ -18,7 +18,7 @@ class Tooltip extends Component {
         }
 
         return (
-            <div className='tooltip-container'>
+            <div className={`tooltip-container ${this.props.className ? this.props.className : ''}`}>
                 {tooltip}
                 <div onMouseOver={() => this.setState({show: true})} onMouseOut={() => this.setState({show: false})}>{this.props.children}</div>
             </div>

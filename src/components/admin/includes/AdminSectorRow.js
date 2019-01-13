@@ -83,7 +83,7 @@ class AdminSectorRow extends Component {
         let sectorName, menu;
 
         if (this.state.rename) {
-            sectorName = <input type='text' name='sector' className='form-control sector-name-input w-95' defaultValue={this.state.sector.sector} onChange={(e) => this.setState({sectorName: e.target.value})} onKeyDown={(e) => this.renameSector(e)} disabled={this.state.status === 'Sending'} />;
+            sectorName = <input type='text' name='sector' className='sector-name-input w-95' defaultValue={this.state.sector.sector} onChange={(e) => this.setState({sectorName: e.target.value})} onKeyDown={(e) => this.renameSector(e)} disabled={this.state.status === 'Sending'} />;
         } else {
             sectorName = this.state.sector.sector;
         }

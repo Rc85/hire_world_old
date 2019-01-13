@@ -221,19 +221,19 @@ class AdminConfig extends Component {
                     <div className='d-flex-between-center mb-1'>
                         <div className='w-45'>
                             <label htmlFor='announcement'>Announcement:</label>
-                            <input type='text' name='announcement' id='announcement' className='form-control' onChange={(e) => this.setState({announcement: e.target.value})} value={this.state.announcement} />
+                            <input type='text' name='announcement' id='announcement' onChange={(e) => this.setState({announcement: e.target.value})} value={this.state.announcement} />
                         </div>
     
                         <div className='d-flex-between-center w-45'>
                             <div className='w-50'>
                                 <label htmlFor='start_date'>Start Date:</label>
-                                <DatePicker className='form-control' onChange={this.setAnnouncementStart.bind(this)} selected={this.state.announcementStart} />
+                                <DatePicker onChange={this.setAnnouncementStart.bind(this)} selected={this.state.announcementStart} />
                             </div>
     
                             <div className='w-50 d-flex-end-center'>
                                 <div>
                                     <label htmlFor='end_date'>End Date:</label>
-                                    <DatePicker className='form-control' onChange={this.setAnnouncementEnd.bind(this)} selected={this.state.announcementEnd} />
+                                    <DatePicker onChange={this.setAnnouncementEnd.bind(this)} selected={this.state.announcementEnd} />
                                 </div>
                             </div>
                         </div>

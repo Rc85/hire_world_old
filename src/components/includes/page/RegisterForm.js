@@ -101,19 +101,19 @@ class RegisterForm extends Component {
 
                 <div className='mb-3'>
                     <div><label htmlFor='cc-name'>Name on Card:</label></div>
-                    <input type='text' name='cc_name' id='cc-name' className='form-control' required />
+                    <input type='text' name='cc_name' id='cc-name' required />
                 </div>
 
                 <div className='mb-3'>
                     <div><label htmlFor='cc-number'>Credit Card Number:</label></div>
-                    <input type='text' name='cc_number' id='cc-number' className='form-control' minLength='16' maxLength='16' required />
+                    <input type='text' name='cc_number' id='cc-number' minLength='16' maxLength='16' required />
                 </div>
 
                 <div className='d-flex-between-start mb-3'>
                     <div className='w-45'>
                         <div><label>Expiry Date:</label></div>
                         <div className='d-flex'>
-                            <select name='cc_expire_month' id='cc-expire-month' className='form-control mr-1' required>
+                            <select name='cc_expire_month' id='cc-expire-month'className='mr-1' required>
                                 <option value='01'>01</option>
                                 <option value='02'>02</option>
                                 <option value='03'>03</option>
@@ -128,7 +128,7 @@ class RegisterForm extends Component {
                                 <option value='12'>12</option>
                             </select>
     
-                            <select name='cc_expire_year' id='cc-expire-year' className='form-control' required>
+                            <select name='cc_expire_year' id='cc-expire-year' required>
                                 {this.generateExpireYear().map((year, i) => {
                                     return <option key={i} value={year}>{year}</option>
                                 })}
@@ -138,7 +138,7 @@ class RegisterForm extends Component {
 
                     <div className='w-45'>
                         <div><label htmlFor='cvc'>CVC:</label></div>
-                        <input type='text' name='cvc' id='cvc' className='form-control' minLength='3' maxLength='3' required />
+                        <input type='text' name='cvc' id='cvc' minLength='3' maxLength='3' required />
                     </div>
                 </div>
             </div>
@@ -156,12 +156,12 @@ class RegisterForm extends Component {
 
                     <div className='mb-3'>
                         <label htmlFor='reg-username'>Username:</label>
-                        <input className='form-control' type='text' name='username' id='reg-username' required onChange={(e) => this.setState({username: e.target.value})} placeholder='5-15 alpha-numeric, dash, and underscore' minLength='3' maxLength='15' />
+                        <input type='text' name='username' id='reg-username' required onChange={(e) => this.setState({username: e.target.value})} placeholder='5-15 alpha-numeric, dash, and underscore' minLength='3' maxLength='15' />
                     </div>
 
                     <div className='mb-3'>
                         <label htmlFor='reg-title'>Profession Title:</label>
-                        <input type='text' name='title' list='user-titles' id='reg-title' className='form-control' onKeyUp={(e) => this.searchTitle(e.target.value)} onChange={(e) => this.setState({title: e.target.value})} required autoComplete='off' />
+                        <input type='text' name='title' list='user-titles' id='reg-title' onKeyUp={(e) => this.searchTitle(e.target.value)} onChange={(e) => this.setState({title: e.target.value})} required autoComplete='off' />
                         <datalist id='user-titles'>
                             {titles}
                         </datalist>
@@ -170,52 +170,52 @@ class RegisterForm extends Component {
                     <div className='d-flex-between-start mb-3'>
                         <div className='w-45'>
                             <div><label htmlFor='reg-fname'>First Name:</label></div>
-                            <input className='form-control' type='text' name='fname' id='reg-fname' onChange={(e) => this.setState({firstName: e.target.value.charAt(0).toUpperCase() + e.target.value.substr(1)})} required maxLength='15' />
+                            <input type='text' name='fname' id='reg-fname' onChange={(e) => this.setState({firstName: e.target.value.charAt(0).toUpperCase() + e.target.value.substr(1)})} required maxLength='15' />
                         </div>
 
                         <div className='w-45'>
                             <div><label htmlFor='reg-lname'>Last Name:</label></div>
-                            <input className='form-control' type='text' name='lname' id='reg-lname' onChange={(e) => this.setState({lastName: e.target.value.charAt(0).toUpperCase() + e.target.value.substr(1)})} required maxLength='15' />
+                            <input type='text' name='lname' id='reg-lname' onChange={(e) => this.setState({lastName: e.target.value.charAt(0).toUpperCase() + e.target.value.substr(1)})} required maxLength='15' />
                         </div>
                     </div>
 
                     <div className='d-flex-between-start mb-3'>
                         <div className='w-45'>
                             <div><label htmlFor='reg-password'>Password:</label></div>
-                            <input className='form-control' type='password' name='password' id='reg-password' required onChange={(e) => this.setState({password: e.target.value})} placeholder='6-20 characters' minLength='6' maxLength='20' />
+                            <input type='password' name='password' id='reg-password' required onChange={(e) => this.setState({password: e.target.value})} placeholder='6-20 characters' minLength='6' maxLength='20' />
                         </div>
 
                         <div className='w-45'>
                             <div><label htmlFor='reg-confirm-password'>Confirm Password:</label></div>
-                            <input className='form-control' type='password' name='confirm_password' id='reg-confirm-password' required onChange={(e) => this.setState({confirmPassword: e.target.value})} minLength='6' maxLength='20' autoComplete='off' />
+                            <input type='password' name='confirm_password' id='reg-confirm-password' required onChange={(e) => this.setState({confirmPassword: e.target.value})} minLength='6' maxLength='20' autoComplete='off' />
                         </div>
                     </div>
 
                     <div className='d-flex-between-start mb-3'>
                         <div className='w-45'>
                             <div><label htmlFor='reg-email'>Email:</label></div>
-                            <input className='form-control' type='email' name='email' id='reg-email' required onChange={(e) => this.setState({email: e.target.value})} />
+                            <input type='email' name='email' id='reg-email' required onChange={(e) => this.setState({email: e.target.value})} />
                         </div>
 
                         <div className='w-45'>
                             <div><label htmlFor='reg-confirm-email'>Confirm Email:</label></div>
-                            <input className='form-control' type='email' name='confirm_email' id='reg-confirm-email' required onChange={(e) => this.setState({confirmEmail: e.target.value})} autoComplete='off' />
+                            <input type='email' name='confirm_email' id='reg-confirm-email' required onChange={(e) => this.setState({confirmEmail: e.target.value})} autoComplete='off' />
                         </div>
                     </div>
 
                     <div className='mb-3'>
                         <label>Country:</label>
-                        <CountryDropdown classes='form-control' value={this.state.country} onChange={(val) => {this.setState({country: val})}} />
+                        <CountryDropdown  value={this.state.country} onChange={(val) => {this.setState({country: val})}} />
                     </div>
 
                     <div className='mb-3'>
                         <label>Region:</label>
-                        <RegionDropdown classes='form-control' value={this.state.region} country={this.state.country} onChange={(val) => this.setState({region: val})} />
+                        <RegionDropdown  value={this.state.region} country={this.state.country} onChange={(val) => this.setState({region: val})} />
                     </div>
 
                     <div className='mb-3'>
                         <label>City:</label>
-                        <input type='text' name='city' className='form-control' onChange={(e) => this.setState({city: e.target.value})} defaultValue={this.state.city} />
+                        <input type='text' name='city' onChange={(e) => this.setState({city: e.target.value})} defaultValue={this.state.city} />
                     </div>
 
                     {/* <div className='mb-3'>

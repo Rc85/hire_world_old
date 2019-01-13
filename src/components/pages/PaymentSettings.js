@@ -6,8 +6,12 @@ import fetch from 'axios';
 import { LogError } from '../utils/LogError';
 import { Alert } from '../../actions/AlertActions';
 import PaymentMethods from '../includes/page/PaymentMethods';
-import AddressInput from '../utils/AddressInput';
+import AddressInput from '../includes/page/AddressInput';
 import { connect } from 'react-redux';
+import TitledContainer from '../utils/TitledContainer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
+import InputWrapper from '../utils/InputWrapper';
 
 class PaymentSettings extends Component {
     constructor(props) {
@@ -139,45 +143,47 @@ class PaymentSettings extends Component {
         }
 
         return (
-            <section className='blue-panel shallow three-rounded' id='payment-settings'>
-                <div className='text-right'>
-                    <img src='/images/powered_by_stripe.png' className='w-10 mr-1' />
-                    <img src='/images/payment_methods.png' className='w-10' />
-                </div>
-
-                <div className='mb-3'>
-                    <label htmlFor='nameOnCard'>Name on Card:</label>
-                    <input type='text' name='name' id='nameOnCard' className='form-control' onChange={(e) => this.setState({name: e.target.value})} placeholder='Your name on your profile will be used if left blank' ref={el => this.cardName = el} />
-                </div>
-
-                <div className='d-flex-between-center mb-3'>
-                    <div className='w-45'>
-                        <label htmlFor='cardNumber'>Card Number:</label>
-                        <CardNumberElement className='form-control' onReady={el => this.CardNumberElement = el} />
+            <section id='payment-settings' className='main-panel'>
+                <TitledContainer title='Payment Settings' bgColor='green' icon={<FontAwesomeIcon icon={faCreditCard} />}>
+                    <div className='payment-icons'>
+                        <img src='/images/powered_by_stripe.png' className='payment-icon mr-1' />
+                        <img src='/images/payment_methods.png' className='payment-icon' />
                     </div>
 
-                    <div className='d-flex-between-center w-45'>
-                        <div className='w-45'>
-                            <label htmlFor='expiryDate'>Expiry Date:</label>
-                            <CardExpiryElement className='form-control' onReady={el => this.CardExpiryElement = el} />
+                    <div className='mobile-tooltip mb-3'>Your name on your profile will be used if left blank</div>
+    
+                    <div className='mb-3'>
+                        <InputWrapper label='Name on Card'>
+                            <input type='text' name='name' id='nameOnCard' onChange={(e) => this.setState({name: e.target.value})} placeholder={this.props.config.isMobile ? '' : 'Your name on your profile will be used if left blank'} ref={el => this.cardName = el} />
+                        </InputWrapper>
+                    </div>
+    
+                    <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <InputWrapper label='Card Number'><CardNumberElement onReady={el => this.CardNumberElement = el} /></InputWrapper>
                         </div>
     
-                        <div className='w-45'>
-                            <label htmlFor='cvc'>CVC:</label>
-                            <CardCVCElement className='form-control' onReady={el => this.CardCVCElement = el} />
+                        <div className='setting-field-container setting-child'>
+                            <div className='setting-child'>
+                                <InputWrapper label='Expiry Date'><CardExpiryElement onReady={el => this.CardExpiryElement = el} /></InputWrapper>
+                            </div>
+        
+                            <div className='setting-child'>
+                                <InputWrapper label='CVC'><CardCVCElement onReady={el => this.CardCVCElement = el} /></InputWrapper>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <label><input type='checkbox' name='default-address' id='useDefaultAddress' onChange={() => this.useDefaultAdress()} checked={this.state.defaultAddress} /> Use address registered with this account</label>
-
-                {address}
-
-                <div className='text-right'><SubmitButton type='button' onClick={() => this.save()} loading={this.state.status === 'Adding'} value='Add Payment' /></div>
-
-                <hr/>
-
-                {paymentMethods}
+    
+                    <div className='mb-3'><label><input type='checkbox' name='default-address' id='useDefaultAddress' onChange={() => this.useDefaultAdress()} checked={this.state.defaultAddress} /> Use address registered with this account</label></div>
+    
+                    {address}
+    
+                    <div className='text-right'><SubmitButton type='button' onClick={() => this.save()} loading={this.state.status === 'Adding'} value='Add Payment' /></div>
+    
+                    <hr/>
+    
+                    {paymentMethods}
+                </TitledContainer>
             </section>
         );
     }
@@ -187,4 +193,10 @@ PaymentSettings.propTypes = {
     user: PropTypes.object
 };
 
-export default connect()(injectStripe(PaymentSettings));
+const mapStateToProps = state => {
+    return {
+        config: state.Config
+    }
+}
+
+export default connect(mapStateToProps)(injectStripe(PaymentSettings));

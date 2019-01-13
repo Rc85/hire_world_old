@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCcVisa, faCcMastercard, faCcAmex } from '@fortawesome/free-brands-svg-icons';
-import AddressInput from '../../utils/AddressInput';
+import AddressInput from './AddressInput';
 import SubmitButton from '../../utils/SubmitButton';
 import { Alert } from '../../../actions/AlertActions';
 import { LogError } from '../../utils/LogError';
@@ -65,12 +65,12 @@ class PaymentMethods extends Component {
         }
 
         return (
-            <div id='payment-methods'>
-                <div className='d-flex-between-start mb-3'>
-                    <div className='d-flex'>
-                        <div className='mr-3'>{brand}</div>
+            <div className='payment-method'>
+                <div className='setting-field-container mb-3'>
+                    <div className='setting-field-container '>
+                        <div className='payment-brand'>{brand}</div>
         
-                        <div>
+                        <div className='payment-method-info'>
                             <div><strong>Card Number: </strong> **** **** **** {this.props.payment.last4} {this.props.defaultSource === this.props.payment.id ? <div className='badge badge-success ml-2'>Default</div> : ''}</div>
                             <div><strong>Expiry Date: </strong>{this.props.payment.exp_month} / {this.props.payment.exp_year}</div>
                         </div>
@@ -84,11 +84,10 @@ class PaymentMethods extends Component {
                 </div>
     
                 
-                    {this.state.edit ? <div className='bordered-container no-top mb-5'>
-                        <AddressInput saveable={false} info={this.state} set={(key, val) => this.set(key, val)} />
-                        <div className='text-right'><SubmitButton type='button' onClick={() => this.save()} loading={this.state.status === 'Loading' || this.props.status === 'Setting'} value='Save' /></div>
-                    </div> : ''}
-                
+                {this.state.edit ? <div className='bordered-container no-top mb-5'>
+                    <AddressInput saveable={false} info={this.state} set={(key, val) => this.set(key, val)} />
+                    <div className='text-right'><SubmitButton type='button' onClick={() => this.save()} loading={this.state.status === 'Loading' || this.props.status === 'Setting'} value='Save' /></div>
+                </div> : ''}
             </div>
         );
     }

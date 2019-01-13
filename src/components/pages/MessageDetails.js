@@ -11,7 +11,7 @@ import SystemMessage from '../includes/page/SystemMessage';
 import MessageRow from '../includes/page/MessageRow';
 import { withRouter, NavLink, Redirect } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown, faCaretUp, faHandHoldingUsd, faInfoCircle, faCheck, faBan, faMinusCircle, faSyncAlt, faReply, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faCaretUp, faHandHoldingUsd, faInfoCircle, faCheck, faBan, faMinusCircle, faSyncAlt, faReply, faTimes, faRedoAlt } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
 import { UncontrolledTooltip } from 'reactstrap';
@@ -579,7 +579,7 @@ class MessageDetails extends Component {
 
             /* if (this.state.reasonInput) {
                 reasonInput = <React.Fragment>
-                    <textarea name='reason' id='reason' rows='6' className='form-control w-100 mb-3' placeholder={`Please provide a reason as to why you are abandoning this job.`} onChange={(e) => this.setState({reason: e.target.value})}></textarea>
+                    <textarea name='reason' id='reason' rows='6'className='w-100 mb-3' placeholder={`Please provide a reason as to why you are abandoning this job.`} onChange={(e) => this.setState({reason: e.target.value})}></textarea>
 
                     <div className='text-right'>
                         <button className='btn btn-primary mr-1' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to abandon this job?', 'This can negatively impact your reputation.', {action: 'abandon job'}))}>Submit</button>
@@ -599,7 +599,7 @@ class MessageDetails extends Component {
                     sendMessage = <MessageSender send={(message) => this.send(message)} cancel={() => this.setState({send: !this.state.send})} status={this.state.status} statusMessage={this.state.statusMessage} subject={this.props.job.job.job_subject} autoFocus={true} />;
                 }
 
-                refreshButton = <button className='btn btn-info' onClick={() => this.props.refresh(this.props.job.job.job_id)}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faSyncAlt} /> : 'Refresh'}</button>;
+                refreshButton = <button className='btn btn-info' onClick={() => this.props.refresh(this.props.job.job.job_id)}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faRedoAlt} /> : 'Refresh'}</button>;
             }
 
             if (this.state.status === 'Sending') {

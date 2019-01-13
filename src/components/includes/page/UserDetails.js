@@ -27,7 +27,7 @@ class UserDetails extends Component {
         if (this.props.user.user) {
             if (this.state.editor) {
                 editor = <div id='user-bio-editor'>
-                    <textarea className='form-control w-100' name='user-bio' rows='6'
+                    <textarea className='w-100' name='user-bio' rows='6'
                     onChange={(e) => this.setState({value: e.target.value})} placeholder='Write about yourself and what you do'></textarea>
                     <div className='text-right mt-1'>
                     <button className='btn btn-primary mr-1' onClick={() => this.submitBio()}>Submit</button>

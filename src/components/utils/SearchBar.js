@@ -11,7 +11,7 @@ class SearchBar extends Component {
                         <div className='input-group-prepend'><span className='input-group-text'><FontAwesomeIcon icon={faSearch} /></span></div>
                     
                     
-                        <input className='form-control' type='text' name='search' aria-describedby='search-input' />
+                        <input type='text' name='search' aria-describedby='search-input' />
                         <div className='input-group-append'>
                             <button className='btn btn-secondary' type='submit' id='search-input' >Search</button>
                         </div>

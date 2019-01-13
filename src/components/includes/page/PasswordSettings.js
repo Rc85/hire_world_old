@@ -5,6 +5,7 @@ import { Alert } from '../../../actions/AlertActions';
 import SubmitButton from '../../utils/SubmitButton';
 import Loading from '../../utils/Loading';
 import { LogError } from '../../utils/LogError';
+import InputWrapper from '../../utils/InputWrapper';
 
 class PasswordSettings extends Component {
     constructor(props) {
@@ -55,18 +56,21 @@ class PasswordSettings extends Component {
 
                     <div className='mb-3'>
                         <div className='mb-3'>
-                            <label htmlFor='current-password'>Current Password:</label>
-                            <input type={this.state.showPassword ? 'text' : 'password'} name='current_password' id='current-password' className='form-control' onChange={(e) => this.setState({currentPassword: e.target.value})} maxLength='15' value={this.state.currentPassword} />
+                            <InputWrapper label='Current Password'>
+                                <input type={this.state.showPassword ? 'text' : 'password'} name='current_password' id='current-password' onChange={(e) => this.setState({currentPassword: e.target.value})} maxLength='15' value={this.state.currentPassword} />
+                            </InputWrapper>
                         </div>
 
                         <div className='mb-3'>
-                            <label htmlFor='new-password'>New Password:</label>
-                            <input type={this.state.showPassword ? 'text' : 'password'} name='new_password' id='new-password' className='form-control' onChange={(e) => this.setState({newPassword: e.target.value})} maxLength='15' value={this.state.newPassword} />
+                            <InputWrapper label='New Password'>
+                                <input type={this.state.showPassword ? 'text' : 'password'} name='new_password' id='new-password' onChange={(e) => this.setState({newPassword: e.target.value})} maxLength='15' value={this.state.newPassword} />
+                            </InputWrapper>
                         </div>
 
                         <div className='mb-3'>
-                            <label htmlFor='confirm-password'>Confirm Password:</label>
-                            <input type={this.state.showPassword ? 'text' : 'password'} name='confirm_password' id='confirm-password' className='form-control' onChange={(e) => this.setState({confirmPassword: e.target.value})} maxLength='15' value={this.state.confirmPassword} />
+                            <InputWrapper label='Confirm Password'>
+                                <input type={this.state.showPassword ? 'text' : 'password'} name='confirm_password' id='confirm-password' onChange={(e) => this.setState({confirmPassword: e.target.value})} maxLength='15' value={this.state.confirmPassword} />
+                            </InputWrapper>
                         </div>
                     </div>
                 </div>

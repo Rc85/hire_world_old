@@ -17,7 +17,7 @@ import TitledContainer from '../../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCogs } from '@fortawesome/free-solid-svg-icons';
 import RadioInput from '../../utils/RadioInput';
-import InputText from '../../utils/InputText';
+import InputWrapper from '../../utils/InputWrapper';
 import TwoSidedCheckbox from '../../utils/TwoSidedCheckbox';
 import TextArea from '../../utils/TextArea';
 import SubmitButton from '../../utils/SubmitButton';
@@ -176,7 +176,7 @@ class ListSettings extends Component {
                 <section id='list-settings'>
                     {status}
     
-                    <div className='list-setting-child mb-3'>
+                    <div className='mb-3'>
                         <RadioInput items={[
                             {text: 'I am looking for work', value: 'For Hire'},
                             {text: 'I am looking to hire', value: 'Hiring'}
@@ -188,46 +188,55 @@ class ListSettings extends Component {
                     </div>
     
                     <div className='mb-3'>
-                        <InputText label='List Title' type='text' name='listing_title' value={this.state.newSettings.listing_title} disabled={this.props.user.user.listing_status === 'Active'} onChange={(val) => this.setSetting('listing_title', val)} />
+                        <InputWrapper label='List Title' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''}>
+                            <input type='text' defaultValue={this.state.initialSettings.listing_title} disabled={this.props.user.user.listing_status === 'Active'} onChange={(e) => this.setSetting('listing_title', e.target.value)} />
+                        </InputWrapper>
                         {/* <label htmlFor='listing-title'>List Title: <span className='text-special'>*</span></label>
-                        <input type='text' name='title' id='listing-title' className='form-control' onChange={(e) => this.setState({listing_title: e.target.value})} defaultValue={this.state.listing_title} disabled={this.state.listing_status === 'Active'} /> */}
+                        <input type='text' name='title' id='listing-title' onChange={(e) => this.setState({listing_title: e.target.value})} defaultValue={this.state.listing_title} disabled={this.state.listing_status === 'Active'} /> */}
                     </div>
     
                     <div className='mb-3'>
-                        <InputText label='List Under' type='select' name='sector' inputId='listing-sector' onChange={(val) => this.setSetting('listing_sector', val)} value={this.state.newSettings.listing_sector} disabled={this.props.user.user.listing_status === 'Active'} >
-                            {sectors}
-                        </InputText>
+                        <InputWrapper label='List Under' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''}>
+                            <select onChange={(e) => this.setSetting('listing_sector', e.target.value)} value={this.state.newSettings.listing_sector} disabled={this.props.user.user.listing_status === 'Active'}>{sectors}</select>
+                        </InputWrapper>
                         {/* <label htmlFor='listing-sector'>List Under: <span className='text-special'>*</span></label>
-                        <select name='sector' id='listing-sector' className='form-control' onChange={(e) => this.setState({listing_sector: e.target.value})} value={this.state.listing_sector} disabled={this.state.listing_status === 'Active'} >
+                        <select name='sector' id='listing-sector' onChange={(e) => this.setState({listing_sector: e.target.value})} value={this.state.listing_sector} disabled={this.state.listing_status === 'Active'} >
                             {sectors}
                         </select> */}
                     </div>
 
-                    <div className='list-setting-child mb-3'>
-                        <InputText label='Price Rate' type='number' name='price' id='listing-price' onChange={(val) => this.setSetting('listing_price', val)} value={this.state.newSettings.listing_price} disabled={this.props.user.user.listing_status === 'Active'} />
+                    <div className='setting-field-container mb-3'>
+                        <InputWrapper label='Price Rate' id='listing-price' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''}>
+                            <input type='number' onChange={(e) => this.setSetting('listing_price', e.target.value)} value={this.state.newSettings.listing_price} disabled={this.props.user.user.listing_status === 'Active'} />
+                        </InputWrapper>
                         {/* <div id='list-setting-price'>
 
                             <label htmlFor='listing-price'>Price Rate: <span className='text-special'>*</span></label>
                             <input type='number' name='price' id='listing-price' onChange={(e) => this.setState({listing_price: e.target.value})} defaultValue={this.state.listing_price} disabled={this.state.listing_status === 'Active'} />
                         </div> */}
 
-                        <InputText label='Per' type='select' name='price' id='listing-price-type' onChange={(val) => this.setSetting('listing_price_type', val)} value={this.state.newSettings.listing_price_type} disabled={this.props.user.user.listing_status === 'Active'}>
-                            <option value='Hour'>Hour</option>
-                            <option value='Bi-weekly'>Bi-weekly</option>
-                            <option value='Month'>Month</option>
-                            <option value='Delivery'>Delivery</option>
-                            <option value='One Time Payment'>One Time Payment</option>
-                        </InputText>
+                        <InputWrapper label='Per' id='listing-price-type' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''}>
+                            <select onChange={(e) => this.setSetting('listing_price_type', e.target.value)} value={this.state.newSettings.listing_price_type} disabled={this.props.user.user.listing_status === 'Active'}>
+                                <option value='Hour'>Hour</option>
+                                <option value='Bi-weekly'>Bi-weekly</option>
+                                <option value='Month'>Month</option>
+                                <option value='Delivery'>Delivery</option>
+                                <option value='One Time Payment'>One Time Payment</option>
+                            </select>
+                        </InputWrapper>
 
-                        <InputText label='Currency' type='text' name='price' id='listing-price-currency' onChange={(val) => this.setSetting('listing_price_currency', val)} value={this.state.newSettings.listing_price_currency} disabled={this.props.user.user.listing_status === 'Active'} dataList='currency-list'>
-                            <option value='USD'>USD</option>
-                            <option value='CAD'>CAD</option>
-                            <option value='AUD'>AUD</option>
-                            <option value='EUR'>EUR</option>
-                            <option value='GBP'>GBP</option>
-                            <option value='CNY'>CNY</option>
-                            <option value='JPY'>JPY</option>
-                        </InputText>
+                        <InputWrapper label='Currency' id='listing-price-currency' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''}>
+                            <input type='text' onChange={(e) => this.setSetting('listing_price_currency', e.target.value)} value={this.state.newSettings.listing_price_currency} disabled={this.props.user.user.listing_status === 'Active'} list='currency-list'/>
+                            <datalist id='currency-list'>
+                                <option value='USD'>USD</option>
+                                <option value='CAD'>CAD</option>
+                                <option value='AUD'>AUD</option>
+                                <option value='EUR'>EUR</option>
+                                <option value='GBP'>GBP</option>
+                                <option value='CNY'>CNY</option>
+                                <option value='JPY'>JPY</option>
+                            </datalist>
+                        </InputWrapper>
 
                         {/* <div id='list-setting-price-type'>
                             <label htmlFor='listing-price-type'>Per: <span className='text-special'>*</span></label>
@@ -265,7 +274,7 @@ class ListSettings extends Component {
                     
                     {/* Details:
     
-                    <textarea name='listing-detail' id='listing-detail' rows='10' className='form-control w-100 mb-3' placeholder='Describe the type of products or service you offer' onChange={(e) => this.setState({listing_detail: e.target.value})} value={this.state.listing_detail} disabled={this.state.listing_status === 'Active'}></textarea> */}
+                    <textarea name='listing-detail' id='listing-detail' rows='10'className='w-100 mb-3' placeholder='Describe the type of products or service you offer' onChange={(e) => this.setState({listing_detail: e.target.value})} value={this.state.listing_detail} disabled={this.state.listing_status === 'Active'}></textarea> */}
 
                     <div className='d-flex-end-center mb-3'>
                         {this.state.initialSettings.listing_status ? <div className='mr-1'><SlideToggle status={this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} /></div> : ''}

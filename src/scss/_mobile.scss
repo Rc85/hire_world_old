@@ -39,6 +39,8 @@
 
             #dashboard-header-user-info {
                 margin-left: 0;
+
+                #user-business-name-icon { display: none; }
             }
         
             .profile-pic-wrapper {
@@ -72,6 +74,8 @@
     }
 
     .titled-container {
+        &:first-child { margin-top: 15px; }
+
         .titled-container-row-detail {
             display: flex;
             flex-direction: column;
@@ -103,7 +107,8 @@
     }
 
     #message-list-column {
-        position: absolute;
+        position: fixed;
+        left: 0;
         z-index: 2;
         overflow-x: hidden;
         padding-bottom: 75px;
@@ -188,4 +193,98 @@
     }
 
     .modal-container { max-width: 90%; }
+
+    .setting-panel-container {
+        flex-direction: column;
+    }
+
+    .setting-child {
+        width: 100%;
+        margin-bottom: 30px;
+
+        &.quarter, &.half, &.three-quarter { width: 100%; }
+        &.text-center, &.text-right { text-align: left; }
+    }
+
+    .payment-method {
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid $theme-highlight;
+    }
+
+    .setting-field-container {
+        flex-direction: column;
+        
+        &.center { justify-content: center; }
+    }
+
+    #listing-settings {
+        #listing-price, #listing-price-type, #listing-price-currency {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+    }
+
+    .settings-col {
+        width: 100%;
+
+        .setting-col-field {
+            flex-direction: column;
+            align-items: flex-start;
+            padding-bottom: 15px;
+            border-bottom: 1px solid $theme-highlight;
+
+            .slider-container { align-self: flex-end; }
+        }
+    }
+
+    .tooltip-icon { display: none; }
+    .mobile-tooltip {
+        display: block;
+        font-size: 0.8rem;
+    }
+
+    .payment-icon { width: 49%; }
+    .payment-icons, .payment-brand, .payment-method-info { margin-bottom: 15px; }
+
+    .checkout-buttons {
+        flex-direction: column; 
+        align-items: flex-start;
+
+        button {
+            align-self: flex-end;
+            margin-top: 15px;
+        }
+    }
+
+    .subscription-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    /* #g-recaptcha {
+        transform:scale(0.86);
+        -webkit-transform:scale(0.86);
+        transform-origin:0 0;
+        -webkit-transform-origin:0 0;
+    } */
+}
+
+@media only screen and (min-width: 321px) and (max-width: 375px) {
+    #g-recaptcha {
+        transform:scale(0.86);
+        -webkit-transform:scale(0.86);
+        transform-origin:0 0;
+        -webkit-transform-origin:0 0;
+    }
+}
+
+@media only screen and (min-width: 0px) and (max-width: 320px) {
+    #g-recaptcha {
+        transform:scale(0.75);
+        -webkit-transform:scale(0.75);
+        transform-origin:0 0;
+        -webkit-transform-origin:0 0;
+    }
 }

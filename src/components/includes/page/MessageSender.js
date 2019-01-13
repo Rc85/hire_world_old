@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Alert } from '../../../actions/AlertActions';
 import SubmitButton from '../../utils/SubmitButton';
 import { connect } from 'react-redux';
-import InputText from '../../utils/InputText';
+import InputWrapper from '../../utils/InputWrapper';
 import TextArea from '../../utils/TextArea';
 import { isTyping } from '../../../actions/ConfigActions';
 
@@ -29,19 +29,20 @@ class MessageSender extends Component {
     }
     
     render() {
-        console.log(this.state);
         return (
             <div className='mb-3'>
                 <div className='mb-1'>
-                    <InputText label='Subject' className='w-100 message-subject' disabled={this.props.subject ? true : false} value={this.state.subject} onChange={(val) => this.setState({subject: val})} />
+                    <InputWrapper label='Subject'>
+                        <input type='text' className='message-subject' disabled={this.props.subject ? true : false} value={this.state.subject} onChange={(e) => this.setState({subject: e.target.value})} />
+                    </InputWrapper>
                     {/* <div><label>Subject:</label></div>
-                    <input type='text' name='subject' className='form-control' onChange={(e) => this.setState({subject: e.target.value})} value={this.state.subject} disabled={this.props.subject ? true : false} /> */}
+                    <input type='text' name='subject' onChange={(e) => this.setState({subject: e.target.value})} value={this.state.subject} disabled={this.props.subject ? true : false} /> */}
                 </div>
 
                 <div className='mb-1'>
                     <TextArea rows={10} className='w-100 mb-1' textAreaClassName='w-100' value={this.state.message} onChange={(val) => this.setState({message: val})} autoFocus={this.props.autoFocus} />
                 
-                    {/* <textarea name='message' rows='10' className='form-control w-100 mb-1' value={this.state.message} onChange={(e) => this.setState({message: e.target.value})} autoFocus={this.props.autoFocus} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))}></textarea> */}
+                    {/* <textarea name='message' rows='10'className='w-100 mb-1' value={this.state.message} onChange={(e) => this.setState({message: e.target.value})} autoFocus={this.props.autoFocus} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))}></textarea> */}
                 </div>
 
                 <div className='text-right'>

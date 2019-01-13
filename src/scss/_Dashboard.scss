@@ -43,11 +43,7 @@
         width: 90%;
         display: flex;
 
-        #dashboard-header-user-info {
-            margin-left: 15px;
-
-            #user-business-name-icon { display: none; }
-        }
+        #dashboard-header-user-info { margin-left: 15px; }
 
         .profile-pic-wrapper { width: 15%; }
     }
@@ -64,7 +60,7 @@
     cursor: pointer;
     margin-right: 4px;
 
-    &:hover { color: $theme-special; }
+    &:hover { color: $theme-highlight; }
 }
 
 .load-more-button {

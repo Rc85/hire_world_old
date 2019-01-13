@@ -41,6 +41,8 @@
         border: 1px solid black;
     }
 
+    hr { background-color: $theme-highlight; }
+
     &.with-shadow { box-shadow: 10px 10px 10px $theme-lightblack; }
 
     &.fixed-height-300 { height: 300px; }

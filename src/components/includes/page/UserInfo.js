@@ -46,7 +46,7 @@ class UserInfo extends Component {
         if (this.state.editing) {
             button = <button className='btn btn-info btn-sm ml-auto' onClick={() => this.setState({editing: false})}><FontAwesomeIcon icon={faTimes}  /></button>;
             value = <React.Fragment>
-                <input id={`${this.props.label}-input`} className='form-control' type='text' name={this.props.type}
+                <input id={`${this.props.label}-input`} type='text' name={this.props.type}
                 onKeyDown={(e) => {
                     if (e.keyCode === 13) {
                         this.submitValue(e.target.value);

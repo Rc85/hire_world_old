@@ -3,7 +3,7 @@
     position: relative;
     background-color: white;
     color: black;
-    padding-top: 30px;
+    padding-top: 15px;
 
     .input-group-label {
         display: block;
@@ -13,6 +13,21 @@
         left: 5%;
         padding: 5px;
         border: 1px solid black;
+        color: white;
+        font-weight: bold;
+        font-size: 0.8rem;
+    }
+
+    .input-group {
+        display: flex;
+
+        &.column {
+            flex-direction: column;
+        }
+
+        &.row {
+            align-items: center;
+        }
     }
 
     > select, input {

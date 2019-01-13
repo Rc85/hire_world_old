@@ -1,5 +1,13 @@
 .input-container {
     position: relative;
+    margin-top: 15px;
+    background-color: white;
+    padding: 20px 5px 5px 5px;
+    border: 1px solid black;
+    color: black;
+    display: flex;
+
+    &.disabled { background-color: $theme-lightgrey; }
 
     .input-container-header {
         display: flex;
@@ -26,13 +34,22 @@
         }
     }
 
-    select { padding: 17px 6px 10px 6px; }
-    input { padding: 20px 6px 10px 6px; }
+    /* .InputElement, select { padding: 17px 6px 10px 6px; }
+    .InputElement, input { padding: 20px 6px 10px 6px; } */
 
-    input, select {
-        border: 1px solid $theme-medgrey;
-        color: black;
+    select {
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
+        margin-bottom: 2px;
+    }
+
+    .InputElement, input, select {
+        border: 0;
+        width: 100%;
+        /* color: black;
         background-color: white;
+        width: 100%; */
 
         &:disabled { background-color: $theme-lightgrey; }
     }

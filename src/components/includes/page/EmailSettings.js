@@ -8,6 +8,8 @@ import { LogError } from '../../utils/LogError';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UncontrolledTooltip } from 'reactstrap';
+import Tooltip from '../../utils/Tooltip';
+import InputWrapper from '../../utils/InputWrapper';
 
 class EmailSettings extends Component {
     constructor(props) {
@@ -44,21 +46,22 @@ class EmailSettings extends Component {
             <div id='email-settings' className='mb-3'>
                 <div>
                     <div className='d-flex-end-center'>
-                        <div>
-                            <FontAwesomeIcon icon={faQuestionCircle} id='change-email-tip' />
-                            <UncontrolledTooltip placement='top' target='change-email-tip'>You will not be able to log in until you verify your new email</UncontrolledTooltip>
-                        </div>
+                        <Tooltip text='You will not be able to log in until you verify your new email' placement='left' className='tooltip-icon'><FontAwesomeIcon icon={faQuestionCircle} id='change-email-tip' /></Tooltip>
                     </div>
+
+                    <div className='mobile-tooltip mb-3'>You will not be able to log in until you verify your new email</div>
 
                     <div className='mb-3'>
                         <div className='mb-3'>
-                            <label htmlFor='new-email'>New Email:</label>
-                            <input type='email' name='new_email' id='new-email' className='form-control' onChange={(e) => this.setState({newEmail: e.target.value})} value={this.state.newEmail} />
+                            <InputWrapper label='New Email'>
+                                <input type='email' name='new_email' id='new-email' onChange={(e) => this.setState({newEmail: e.target.value})} value={this.state.newEmail} />
+                            </InputWrapper>
                         </div>
 
                         <div className='mb-3'>
-                            <label htmlFor='confirm-email'>Confirm Email:</label>
-                            <input type='email' name='confirm_email' id='confirm-email' className='form-control' onChange={(e) => this.setState({confirmEmail: e.target.value})} autoComplete='off' value={this.state.confirmEmail} />
+                            <InputWrapper label='Confirm Email'>
+                                <input type='email' name='confirm_email' id='confirm-email' onChange={(e) => this.setState({confirmEmail: e.target.value})} autoComplete='off' value={this.state.confirmEmail} />
+                            </InputWrapper>
                         </div>
                     </div>
                 </div>

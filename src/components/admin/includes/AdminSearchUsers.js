@@ -20,12 +20,12 @@ class AdminSearchUsers extends Component {
                 <div className='d-flex-between-start mb-1'>
                     <div className='w-20'>
                         <label htmlFor='search-username'>Username:</label>
-                        <input type='text' name='username' id='search-username' className='form-control' onChange={(e) => this.setState({username: e.target.value})} />
+                        <input type='text' name='username' id='search-username' onChange={(e) => this.setState({username: e.target.value})} />
                     </div>
 
                     <div className='w-20'>
                         <label htmlFor='search-status'>Status:</label>
-                        <select name='status' id='search-status' className='form-control' onChange={(e) => this.setState({status: e.target.value})}>
+                        <select name='status' id='search-status' onChange={(e) => this.setState({status: e.target.value})}>
                             <option value=''></option>
                             <option value='Active'>Active</option>
                             <option value='Ban'>Ban</option>
@@ -36,7 +36,7 @@ class AdminSearchUsers extends Component {
 
                     <div className='w-20'>
                         <label htmlFor='search-level'>Level:</label>
-                        <select name='level' id='search-level' className='form-control' onChange={(e) => this.setState({level: e.target.value})}>
+                        <select name='level' id='search-level' onChange={(e) => this.setState({level: e.target.value})}>
                             <option value=''></option>
                             <option value='User'>User</option>
                             <option value='Moderator'>Moderator</option>
@@ -46,7 +46,7 @@ class AdminSearchUsers extends Component {
 
                     <div className='w-20'>
                         <label htmlFor='search-type'>Account Type:</label>
-                        <select name='type' id='search-type' className='form-control' onChange={(e) => this.setState({type: e.target.value})}>
+                        <select name='type' id='search-type' onChange={(e) => this.setState({type: e.target.value})}>
                             <option value=''></option>
                             <option value='User'>User</option>
                             <option value='Listing'>Listing</option>

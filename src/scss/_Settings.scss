@@ -1,33 +1,39 @@
-#listing-settings {
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-start;
-
-    .listing-settings-child { width: 45%; }
-}
-
 #list-settings {
     display: flex;
     flex-direction: column;
-
-    .list-setting-child {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
+    width: 100%;
         
-        #listing-price {
-            width: 50%;
-        }
+    #listing-price {
+        width: 50%;
+    }
 
-        #listing-price-type, #list-price-currency {
-            width: 25%;
-        }
+    #listing-price-type, #listing-price-currency {
+        width: 25%;
     }
 }
-/* .settings-row {
+
+.setting-panel-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+}
+
+.setting-field-container {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+
+    &.center { align-items: center; }
+}
+
+.setting-child {
+    width: 45%;
+
+    &.quarter { width: 25%; }
+    &.three-quarter { width: 70%; }
+    &.one-third { width: 30%; }
+    &.text-center { text-align: center; }
+    &.text-right { text-align: right; }
 }
 
 .settings-col {
@@ -35,6 +41,38 @@
     flex-direction: column;
     width: 45%;
     justify-content: space-between;
+
+    .setting-col-field {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+.start-time, .end-time {
+    flex-grow: 5;
+
+    input { text-align: center }
+}
+
+.hour-separator {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.payment-icon { width: 10%; }
+.payment-brand { margin-right: 30px; }
+
+.checkout-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+/* .settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 #user-address {

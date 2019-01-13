@@ -7,7 +7,7 @@ import Response from './Response';
 import Loading from '../utils/Loading';
 import { Alert } from '../../actions/AlertActions';
 import TitledContainer from '../utils/TitledContainer';
-import InputText from '../utils/InputText';
+import InputWrapper from '../utils/InputWrapper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 
@@ -25,8 +25,16 @@ class Login extends Component {
         this.props.dispatch(LoginUser(this.state));
     }
 
-    handleLoginKeyDown(e) {
-        document.getElementById('login-password').focus();
+    handleLoginKeyDown(e, input) {
+        if (e.keyCode === 13) {
+            if (input === 'username') {
+                document.getElementById('login-password').focus();
+            } else if (input === 'password') {
+                this.handleLogin();
+            }
+        } else {
+            return
+        }
     }
 
     render() {
@@ -38,12 +46,20 @@ class Login extends Component {
             <section id='login'>
                 <TitledContainer title='Login' icon={<FontAwesomeIcon icon={faSignInAlt} />}>
                     <div id='login-form'>
-                        <div className='login-field'><InputText label='Username' type='text' onChange={(val) => this.setState({username: val})} nextInput={() => this.handleLoginKeyDown()} /></div>
-                        <div className='login-field'><InputText label='Password' type='password' inputId='login-password' onChange={(val) => this.setState({password: val})} nextInput={() => this.handleLogin()} /></div>
+                        <div className='login-field'>
+                            <InputWrapper label='Username'>
+                                <input type='text' onChange={(e) => this.setState({username: e.target.value})} onKeyDown={(e) => this.handleLoginKeyDown(e, 'username')} />
+                            </InputWrapper>
+                        </div>
+                        <div className='login-field'>
+                            <InputWrapper label='Password'>
+                                <input type='password' id='login-password' onChange={(e) => this.setState({password: e.target.value})} onKeyDown={(e) => this.handleLoginKeyDown(e, 'password')} />
+                            </InputWrapper>
+                        </div>
 
                         <a href='/forgot-password' id='forgot-password'>Forgot Password</a>
 
-                        <div className='text-right'><SubmitButton type='submit' loading={this.props.user.status === 'login in'} value='Login' onClick={() => this.handleLogin()}/></div>
+                        <div className='text-right'><SubmitButton type='submit' id='login-button' loading={this.props.user.status === 'login in'} value='Login' onClick={() => this.handleLogin()}/></div>
                     </div>
                 </TitledContainer>
                 {/* <div className='blue-panel shallow rounded'>
@@ -55,12 +71,12 @@ class Login extends Component {
                     }}>
                         <div className='form-group'>
                             <label htmlFor='username'>Username: </label>
-                            <input className='form-control' type='text' name='username' id='login-username' onChange={(e) => this.setState({username: e.target.value})} />
+                            <input type='text' name='username' id='login-username' onChange={(e) => this.setState({username: e.target.value})} />
                         </div>
         
                         <div className='form-group'>
                             <label htmlFor='password'>Password: </label>
-                            <input className='form-control' type='password' name='password' id='login-password' onChange={(e) => this.setState({password: e.target.value})} />
+                            <input type='password' name='password' id='login-password' onChange={(e) => this.setState({password: e.target.value})} />
                         </div>
 
                         <div className='text-right'>

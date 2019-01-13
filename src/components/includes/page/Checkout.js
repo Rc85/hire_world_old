@@ -9,8 +9,9 @@ import { Redirect } from 'react-router-dom';
 import { CheckoutConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 import Loading from '../../utils/Loading';
 import { GetSession } from '../../../actions/FetchActions';
-import AddressInput from '../../utils/AddressInput';
+import AddressInput from './AddressInput';
 import Recaptcha from 'react-recaptcha';
+import InputWrapper from '../../utils/InputWrapper';
 
 var onloadCallback = function() {
     console.log('Recaptcha ready!');
@@ -132,16 +133,16 @@ class Checkout extends Component {
         }
 
         if (this.state.havePayments) {
-            choosePaymentMethod = <div className='d-flex-between-center mb-3'>
-                <label htmlFor='choose-payment-method' className='w-30'>Choose Payment Method:</label>
-                <select name='payment-method' id='choose-payment-method' className='form-control' onChange={(e) => this.setState({usePayment: e.target.value})}>
+            choosePaymentMethod = <InputWrapper label='Payment Method'>
+                <select name='payment-method' id='choose-payment-method' onChange={(e) => this.setState({usePayment: e.target.value})}>
                     <option value=''>Select a payment method</option>
                     {this.state.payments.map((payment, i) => {
                         return <option key={i} value={payment.id}>({payment.brand}) **** **** **** {payment.last4}</option>
                     })}
                     <option value='New'>New payment method...</option>
                 </select>
-            </div>;
+            </InputWrapper>; 
+            
         }
 
         if (this.state.status === 'Loading') {
@@ -156,8 +157,7 @@ class Checkout extends Component {
                 <div className='d-flex-between-start'>
                     <div className='w-45'>
                         <div className='w-100 mb-3'>
-                            <label htmlFor='fullname'>Name on Card:</label>
-                            <input type='text' name='fullname' id='fullname' className='form-control' onChange={(e) => this.setState({name: e.target.value})} autoComplete='ccname' />
+                            <InputWrapper label='Name on Card'><input type='text' name='fullname' id='fullname' onChange={(e) => this.setState({name: e.target.value})} autoComplete='ccname' /></InputWrapper>
                         </div>
 
                         <div className='w-100'>
@@ -167,18 +167,15 @@ class Checkout extends Component {
 
                     <div className='d-flex-between-center w-45'>
                         <div className='w-55'>
-                            <label htmlFor='card-number'>Credit Card Number:</label>
-                            <CardNumberElement className='form-control' />
+                            <InputWrapper label='Credit Card Number'><CardNumberElement /></InputWrapper>
                         </div>
 
                         <div className='w-20'>
-                            <label htmlFor='expiry-date'>Expirty Date:</label>
-                            <CardExpiryElement className='form-control' />
+                            <InputWrapper label='Expiry Date'><CardExpiryElement /></InputWrapper>
                         </div>
 
                         <div className='w-20'>
-                            <label htmlFor='cvc'>CVC:</label>
-                            <CardCVCElement className='form-control' />
+                            <InputWrapper label='CVC'><CardCVCElement /></InputWrapper>
                         </div>
                     </div>
                 </div>
@@ -190,21 +187,24 @@ class Checkout extends Component {
         return (
             <div className='checkout mt-3'>
                 {status}
-                <div className='d-flex-between-center mb-3'>
-                    <label htmlFor='choose-plan' className='w-30'>Choose a Plan:</label>
-                    <select name='plan' id='choose-plan' className='form-control mb-3' onChange={(e) => this.setState({plan: e.target.value})}>
-                        <option value=''>Select a plan</option>
-                        {!this.props.user.is_subscribed ? <option value='plan_EFVAGdrFIrpHx5'>Listing - $7/month</option> : ''}
-                    </select>
+                <div className='setting-field-container mb-3'>
+                    <div className='setting-child'>
+                        <InputWrapper label='Choose Plan'>
+                            <select name='plan' id='choose-plan' onChange={(e) => this.setState({plan: e.target.value})}>
+                                <option value=''>Select a plan</option>
+                                {!this.props.user.is_subscribed ? <option value='plan_EFVAGdrFIrpHx5'>Listing - $7/month</option> : ''}
+                            </select>
+                        </InputWrapper>
+                    </div>
+                    
+                    <div className='setting-child'>{choosePaymentMethod}</div>
                 </div>
-
-                {choosePaymentMethod}
 
                 {newPayment}
 
                 {addressInput}
 
-                <div className='d-flex-between-end'>
+                <div className='checkout-buttons'>
                     <Recaptcha sitekey='6Ld784QUAAAAAISqu_99k8_Qk7bHs2ud4cD7EBeI' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} />
     
                     <SubmitButton type='button' loading={this.state.status === 'Sending'} onClick={() => this.props.dispatch(CheckoutConfirmation(this.state, {action: 'submit payment'}))} />

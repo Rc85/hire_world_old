@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import fetch from 'axios';
 import { ShowWarning } from '../../../actions/WarningActions';
 import { RegionDropdown, CountryDropdown } from 'react-country-region-selector';
+import InputWrapper from '../../utils/InputWrapper';
 
 class ProfileSettings extends Component {
     constructor(props) {
@@ -72,50 +73,72 @@ class ProfileSettings extends Component {
         return(
             <div id='profile-settings'>
                 {status}
-                <div className='d-flex-between-start'>
-                    <div className='w-45 mb-3'>
-                        <label htmlFor='business-name'>Business Name:</label>
-                        <input type='text' name='business_name' id='business-name' className='form-control' defaultValue={this.initialSettings.businessName} onChange={(e) => this.setSettings({businessName: e.target.value})} maxLength='40' placeholder='Maximum 40 characters' />
+                <div className='setting-field-container mb-3'>
+                    <div className='setting-child three-quarter'>
+                        <InputWrapper label='Business Name'>
+                            <input type='text' onChange={(e) => this.setSettings({businessName: e.target.value})} maxLength='40' palceholder='Maximum 40 characters' defaultValue={this.state.businessName} />
+                        </InputWrapper>
                     </div>
-    
-                    <div className='w-45 mb-3'>
-                        <label htmlFor='phone'>Phone Number:</label>
-                        <input type='tel' name='phone' id='phone' className='form-control' onChange={(e) => this.setSettings({phone: e.target.value})} defaultValue={this.initialSettings.phone} />
+                        {/* <label htmlFor='business-name'>Business Name:</label>
+                        <input type='text' name='business_name' id='business-name' defaultValue={this.initialSettings.businessName} onChange={(e) => this.setSettings({businessName: e.target.value})} maxLength='40' placeholder='Maximum 40 characters' /> */}
+
+                    <div className='setting-child quarter'>
+                        <InputWrapper label='Phone Number'>
+                            <input type='tel' onChange={(e) => this.setSettings({phone: e.target.value})} defaultValue={this.state.phone} />
+                        </InputWrapper>
                     </div>
+                        {/* <label htmlFor='phone'>Phone Number:</label>
+                        <input type='tel' name='phone' id='phone' onChange={(e) => this.setSettings({phone: e.target.value})} defaultValue={this.initialSettings.phone} /> */}
                 </div>
 
-                <div className='d-flex-between-start'>
-                    <div className='w-45 mb-3'>
-                        <label htmlFor='user-address'>Address:</label>
+                <div className='setting-field-container mb-3'>
+                    <div className='setting-child three-quarter'>
+                        <InputWrapper label='Address'>
+                            <input type='text' onChange={(e) => this.setSettings({address: e.target.value})} defaultValue={this.state.address} />
+                        </InputWrapper>
+                        {/* <label htmlFor='user-address'>Address:</label>
                         
-                        <input type='text' name='address' id='user-address' className='form-control' onChange={(e) => this.setSettings({address: e.target.value})} defaultValue={this.initialSettings.address} />
+                        <input type='text' name='address' id='user-address' onChange={(e) => this.setSettings({address: e.target.value})} defaultValue={this.initialSettings.address} /> */}
                     </div>
                     
-                    <div className='w-45 mb-3'>
-                        <label htmlFor='postalzip'>Postal Code/Zip Code:</label>
-                        <input type='text' name='postalzip' id='postalzip' className='form-control' onChange={(e) => this.setSettings({code: e.target.value})} defaultValue={this.initialSettings.code} />
+                    <div className='setting-child quarter'>
+                        <InputWrapper label='Postal/Zip Code'>
+                            <input type='text'onChange={(e) => this.setSettings({code: e.target.value})} defaultValue={this.state.code} maxLength='7' />
+                        </InputWrapper>
+                        {/* <label htmlFor='postalzip'>Postal Code/Zip Code:</label>
+                        <input type='text' name='postalzip' id='postalzip' onChange={(e) => this.setSettings({code: e.target.value})} defaultValue={this.initialSettings.code} /> */}
                     </div>
                 </div>
 
-                <div className='d-flex-between-start'>
-                    <div className='w-30 mb-3'>
-                        <label htmlFor='country'>Country:</label>
-                        <select name='country' id='country' className='form-control' onChange={(e) => this.setSettings({country: e.target.value})} defaultValue={this.initialSettings.country}>
-                            <option value=''>Select Country</option>
-                            <option value='Canada'>Canada</option>
-                            <option value='Mexico'>Mexico</option>
-                            <option value='United States'>United States</option>
-                        </select>
+                <div className='setting-field-container mb-3'>
+                    <div className='setting-child three-quarter'>
+                        <InputWrapper label='Country'>
+                            <select onChange={(e) => this.setSettings({country: e.target.value})}>
+                                <option value=''>Select Country</option>
+                                <option value='Canada'>Canada</option>
+                                <option value='Mexico'>Mexico</option>
+                                <option value='United States'>United States</option>
+                            </select>
+                        </InputWrapper>
+                        {/* <label htmlFor='country'>Country:</label>
+                        <select name='country' id='country' onChange={(e) => this.setSettings({country: e.target.value})} defaultValue={this.initialSettings.country}>
+                            
+                        </select> */}
                     </div>
 
-                    <div className='w-30 mb-3'>
-                        <label htmlFor='region'>Region:</label>
-                        <RegionDropdown value={this.state.settings.region} country={this.state.settings.country} onChange={(val) => this.setSettings({region: val})} classes='form-control' />
+                    <div className='setting-child three-quarter'>
+                        <InputWrapper label='Region'>
+                            <RegionDropdown value={this.state.settings.region} country={this.state.settings.country} onChange={(e) => this.setSettings({region: e.target.value})}  />
+                        </InputWrapper>
+                        {/* <label htmlFor='region'>Region:</label> */}           
                     </div>
 
-                    <div className='w-30 mb-3'>
-                        <label htmlFor='city'>City:</label>
-                        <input type='text' name='city' id='city=input' className='form-control' onChange={(e) => this.setSettings({city: e.target.value})} defaultValue={this.state.settings.city} />
+                    <div className='setting-child three-quarter'>
+                        <InputWrapper label='City'>
+                            <input type='text' onChange={(e) => this.setSettings({city: e.target.value})} defaultValue={this.state.city} />
+                        </InputWrapper>
+                        {/* <label htmlFor='city'>City:</label>
+                        <input type='text' name='city' id='city=input' onChange={(e) => this.setSettings({city: e.target.value})} defaultValue={this.state.settings.city} /> */}
                     </div>
                 </div>
 

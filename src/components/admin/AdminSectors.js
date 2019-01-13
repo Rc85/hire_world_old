@@ -46,7 +46,7 @@ class AdminSectors extends Component {
         return(
             <div className='blue-panel shallow three-rounded'>
                 <div className='input-group mb-5'>
-                    <input type='text' id='sector-input' name='sector' className='form-control' placeholder='Sector name' aria-label='Sector name' aria-describedby='sector-name'
+                    <input type='text' id='sector-input' name='sector' placeholder='Sector name' aria-label='Sector name' aria-describedby='sector-name'
                     onChange={(e) => {
                         this.setState({
                             sector: e.target.value

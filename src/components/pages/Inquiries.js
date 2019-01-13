@@ -13,7 +13,7 @@ import Response from '../pages/Response';
 import { GetUserNotificationAndMessageCount } from '../../actions/FetchActions';
 import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle, faDotCircle, faCheckCircle, faBan, faTimes, faList, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faQuestionCircle, faDotCircle, faCheckCircle, faBan, faTimes, faList, faBars, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 
 class Inquiries extends Component {
     constructor(props) {
@@ -249,7 +249,7 @@ class Inquiries extends Component {
                             <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received'})}>Received</button>
                             <button className={`btn ${this.state.showing === 'sent' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'sent'})}>Sent</button>
                             <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned'})}>Pinned</button>
-                            <button id='close-message-column-button' className='btn btn-danger' onClick={() => this.setState({showMessageList: false})}><FontAwesomeIcon icon={faTimes} /></button>
+                            <button id='close-message-column-button' className='btn btn-light' onClick={() => this.setState({showMessageList: false})}><FontAwesomeIcon icon={faChevronLeft} /></button>
                         </div>
                         
                         {body}

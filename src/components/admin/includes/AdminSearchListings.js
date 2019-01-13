@@ -22,12 +22,12 @@ class AdminSearchListings extends Component {
                 <div className='d-flex-between-center mb-1'>
                     <div className='w-30'>
                         <label htmlFor='search-title'>Title:</label>
-                        <input type='text' name='title' id='search-title' className='form-control' onChange={(e) => this.setState({title: e.target.value})} />
+                        <input type='text' name='title' id='search-title' onChange={(e) => this.setState({title: e.target.value})} />
                     </div>
     
                     <div className='w-30'>
                         <label htmlFor='search-sectors'>Sector:</label>
-                        <select name='sector' id='search-sectors' className='form-control' onChange={(e) => this.setState({sector: e.target.value})}>\
+                        <select name='sector' id='search-sectors' onChange={(e) => this.setState({sector: e.target.value})}>\
                             <option></option>
                             {sectors}
                         </select>
@@ -35,7 +35,7 @@ class AdminSearchListings extends Component {
     
                     <div className='w-30'>
                         <label htmlFor='search-user'>User:</label>
-                        <input type='text' name='user' id='search-user' className='form-control' onChange={(e) => this.setState({user: e.target.value})} />
+                        <input type='text' name='user' id='search-user' onChange={(e) => this.setState({user: e.target.value})} />
                     </div>
                 </div>
 

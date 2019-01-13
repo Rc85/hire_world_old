@@ -99,6 +99,25 @@ class EditUser extends Component {
             this.setState({status: ''});
         });
     }
+
+    toggleListing() {
+        this.setState({status: 'Loading'});
+
+        fetch.post('/api/listing/toggle', this.state.newSettings)
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                let user = {...this.props.user.user};
+                user.listing_status = resp.data.listing.listing_status;
+
+                this.props.dispatch(UpdateUser(user));
+                this.setState({status: '', listing_status: resp.data.listing.listing_status});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+        })
+        .catch(err => LogError(err, '/api/listing/toggle'));
+    }
     
     render() {
         let notificationStatus, activityStatus;
@@ -181,7 +200,7 @@ class EditUser extends Component {
 
                     <div id='dashboard-list-buttons-container'>
                         <FontAwesomeIcon icon={faCogs} size='2x' className='dashboard-list-button' color='white' />
-                        <SlideToggle />
+                        <SlideToggle status={this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} />
                         {/* <button id='mobile-logout-button' className='btn btn-secondary' onClick={() => this.props.dispatch(LogoutUser())}>Logout</button> */}
                     </div>
                 </div>

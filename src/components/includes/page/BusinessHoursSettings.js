@@ -10,6 +10,7 @@ import { UpdateUser } from '../../../actions/LoginActions';
 import TitledContainer from '../../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBusinessTime } from '@fortawesome/free-solid-svg-icons';
+import InputGroup from '../../utils/InputGroup';
 
 class BusinessHoursSettings extends Component {
     constructor(props) {
@@ -191,7 +192,7 @@ class BusinessHoursSettings extends Component {
 
         return (
             <TitledContainer title='Business Hours' bgColor='orange' shadow icon={<FontAwesomeIcon icon={faBusinessTime} />} >
-                <section id='business-hours-settings'>
+                <section id='business-hours-settings' className='w-100'>
                     <div className='d-flex-between-center'>
                         <div className='mr-1'><h5>Business Hours:</h5></div>
     
@@ -221,14 +222,12 @@ class BusinessHoursSettings extends Component {
 
 const HourSetters = props => {
     return(
-        <div id={props.day} className='mb-3'>
-            <label>{props.day}</label>
-                                    
-            <div className='d-flex-between-center'>
-                <div className='w-45'><input type='text' className='form-control' onChange={(e) => props.startTime(e.target.value)} maxLength='15' defaultValue={props.startValue} /></div>
-                <div className='w-5 text-center'>-</div>
-                <div className='w-45'><input type='text' className='form-control' onChange={(e) => props.endTime(e.target.value)} maxLength='15' defaultValue={props.endValue} /></div>
-            </div>
+        <div id={props.day} className='mb-3'>                      
+            <InputGroup className='hour-container' label={props.day}>
+                <div className='start-time'><input type='text' onChange={(e) => props.startTime(e.target.value)} maxLength='15' defaultValue={props.startValue} /></div>
+                <div className='hour-separator'>to</div>
+                <div className='end-time'><input type='text' onChange={(e) => props.endTime(e.target.value)} maxLength='15' defaultValue={props.endValue} /></div>
+            </InputGroup>
         </div>
     )
 }

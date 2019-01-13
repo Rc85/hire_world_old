@@ -9,6 +9,9 @@ import { GetSession } from '../../actions/FetchActions';
 import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
 import { UncontrolledTooltip } from 'reactstrap';
 import { connect } from 'react-redux';
+import TitledContainer from '../utils/TitledContainer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 
 class SubscriptionSettings extends Component {
     constructor(props) {
@@ -81,9 +84,9 @@ class SubscriptionSettings extends Component {
                 let subscriptionStatus;
 
                 if (this.state.subscription.status === 'active' || this.state.subscription.status === 'trialing') {
-                    subscriptionStatus = <span className='badge badge-success'>Subscribed</span>;
+                    subscriptionStatus = <span className='med-badge mini-badge-success'>Subscribed</span>;
                 } else if (this.state.subscription.status === 'canceled') {
-                    subscriptionStatus = <span className='badge badge-danger'>Cancelled</span>
+                    subscriptionStatus = <span className='med-badge mini-badge-danger'>Cancelled</span>
                 }
 
                 subscriptionInfo = <React.Fragment>
@@ -92,18 +95,18 @@ class SubscriptionSettings extends Component {
                         {unsubscribeButton}
                     </div>
 
-                    <div className='d-flex-between-center'>
-                        <div className='w-33'>
+                    <div className='setting-field-container'>
+                        <div className='subscription-info'>
                             <label htmlFor='next-billing' className='mr-2'>{this.state.subscription.status !== 'canceled' ? 'Next Billing Date:' : 'Subscription End Date:'} </label>
                             {billingDate}
                         </div>
 
-                        <div className='w-33 text-center'>
+                        <div className='subscription-info'>
                             <label htmlFor='plan' className='mr-2'>Plan: </label>
                             {nickname}
                         </div>
 
-                        <div className='w-33 text-right'>
+                        <div className='subscription-info'>
                             <label htmlFor='price' className='mr-2'>Price: </label>
                             {price}
                         </div>
@@ -118,16 +121,18 @@ class SubscriptionSettings extends Component {
         // live key pk_live_wJ7nxOazDSHu9czRrGjUqpep
 
         return (
-            <section id='subscription-setting' className='blue-panel three-rounded shallow'>
-                {subscriptionInfo}
-
-                <span>Upgrading will have pro-rated credit applied to your next bill. See FAQ for more detail.</span>
-
-                <StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'>
-                    <Elements>
-                        <Checkout user={this.props.user.user} />
-                    </Elements>
-                </StripeProvider>
+            <section id='subscription-setting' className='main-panel'>
+                <TitledContainer title='Subscription Setting' bgColor='orange' icon={<FontAwesomeIcon icon={faSyncAlt} />}>
+                    {subscriptionInfo}
+    
+                    <span>Upgrading will have pro-rated credit applied to your next bill. See FAQ for more detail.</span>
+    
+                    <StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'>
+                        <Elements>
+                            <Checkout user={this.props.user.user} />
+                        </Elements>
+                    </StripeProvider>
+                </TitledContainer>
             </section>
         );
     }

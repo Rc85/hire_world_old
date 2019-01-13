@@ -30,12 +30,12 @@ class BottomBar extends Component {
                     <div className='bottombar-item-container'>
                         {this.props.items.map((item, i) => {
                             return <div key={i} className='bottombar-item'>
-                                <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'>{item.icon}</div> <div>{item.name}</div></div>
+                                <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'>{item.icon}</div><NavLink to={item.link}>{item.name}</NavLink></div>
     
                                 <div className='bottombar-sub-item-container'>
-                                    {item.items.map((subItem, index) => {
+                                    {item.items ? item.items.map((subItem, index) => {
                                         return <div key={index} className='bottombar-sub-item'><NavLink to={subItem.link}>{subItem.name}</NavLink></div>
-                                    })}
+                                    }) : false}
                                 </div>
                             </div>
                         })}

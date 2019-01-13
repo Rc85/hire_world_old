@@ -46,7 +46,7 @@ class SearchListing extends Component {
                 <div className='d-flex-between-start mb-3'>
                     <div className=' w-25'>
                         <label htmlFor='title-list'>Profession Title:</label>
-                        <input type='text' name='titles' id='title-list' list='list-of-titles' className='form-control' onChange={(e) => this.setState({title: e.target.value})} value={this.state.title} onKeyUp={(e) => this.getTitles(e.target.value)} />
+                        <input type='text' name='titles' id='title-list' list='list-of-titles' onChange={(e) => this.setState({title: e.target.value})} value={this.state.title} onKeyUp={(e) => this.getTitles(e.target.value)} />
                         <datalist id='list-of-titles'>
                             {this.state.searchedTitles.map((title, i) => {
                                 return <option key={i} value={title}>{title}</option>
@@ -56,7 +56,7 @@ class SearchListing extends Component {
 
                     <div className='w-10'>
                         <label htmlFor='search-rating'>Rating:</label>
-                        <select name='rating' id='search-rating' className='form-control' onChange={(e) => this.setState({rating: e.target.value})} value={this.state.rating}>
+                        <select name='rating' id='search-rating' onChange={(e) => this.setState({rating: e.target.value})} value={this.state.rating}>
                             <option value='Any'>Any</option>
                             <option value='0'>0 Star</option>
                             <option value='1'>1 Star</option>
@@ -72,7 +72,7 @@ class SearchListing extends Component {
 
                         <div className='d-flex-between-center input-group'>
                             <div className='w-15'>
-                                <select name='operator' id='price-operator' className='form-control no-border-radius-right' onChange={(e) => this.setState({priceOperator: e.target.value})} value={this.state.priceOperator}>
+                                <select name='operator' id='price-operator'className='no-border-radius-right' onChange={(e) => this.setState({priceOperator: e.target.value})} value={this.state.priceOperator}>
                                     <option value='='>&#61;</option>
                                     <option value='>='>&#62;&#61;</option>
                                     <option value='>'>&#62;</option>
@@ -84,13 +84,13 @@ class SearchListing extends Component {
                             <div className='w-10 justify-content-center input-group-text seperator'>$</div>
                             
                             <div className='w-20'>
-                                <input type='number' name='search-price' id='search-price' className='form-control no-border-radius' onChange={(e) => this.setState({price: e.target.value})} value={this.state.price} />
+                                <input type='number' name='search-price' id='search-price'className='no-border-radius' onChange={(e) => this.setState({price: e.target.value})} value={this.state.price} />
                             </div>
 
                             <div className='w-10 justify-content-center input-group-text seperator'>/</div>
 
                             <div className='w-45'>
-                                <select name='price-type' id='price-type' className='form-control no-border-radius-left' onChange={(e) => this.setState({priceType: e.target.value})} value={this.state.priceType}>
+                                <select name='price-type' id='price-type'className='no-border-radius-left' onChange={(e) => this.setState({priceType: e.target.value})} value={this.state.priceType}>
                                     <option>-</option>
                                     <option value='Hour'>Hour</option>
                                     <option value='Bi-weekly'>Bi-weekly</option>
@@ -106,14 +106,14 @@ class SearchListing extends Component {
                             <label htmlFor='completed-jobs'>Completed Jobs:</label>
                             
                             <div className='d-flex-between-center'>
-                                <select name='completed-jobs-op' id='completed-jobs-op' className='form-control no-border-radius-right' onChange={(e) => this.setState({completedJobsOp: e.target.value})} value={this.state.completedJobsOp}>
+                                <select name='completed-jobs-op' id='completed-jobs-op'className='no-border-radius-right' onChange={(e) => this.setState({completedJobsOp: e.target.value})} value={this.state.completedJobsOp}>
                                     <option value='='>&#61;</option>
                                     <option value='>='>&#62;&#61;</option>
                                     <option value='>'>&#62;</option>
                                     <option value='<='>&#60;&#61;</option>
                                     <option value='<'>&#60;</option>
                                 </select>
-                                <input type='number' name='completed-jobs' id='completed-jobs' className='form-control no-border-radius-left' onChange={(e) => this.setState({completedJobs: e.target.value})} value={this.state.completedJobs} />
+                                <input type='number' name='completed-jobs' id='completed-jobs'className='no-border-radius-left' onChange={(e) => this.setState({completedJobs: e.target.value})} value={this.state.completedJobs} />
                             </div>
                         </div>
 
@@ -124,17 +124,17 @@ class SearchListing extends Component {
                 <div className='d-flex-between-start mb-3'>
                     <div className='w-30'>
                         <label>Country:</label>
-                        <CountryDropdown value={this.state.country} onChange={(val) => this.setState({country: val})} classes='form-control' />
+                        <CountryDropdown value={this.state.country} onChange={(val) => this.setState({country: val})}  />
                     </div>
 
                     <div className='w-30'>
                         <label>Region:</label>
-                        <RegionDropdown country={this.state.country} value={this.state.region} onChange={(val) => this.setState({region: val})} classes='form-control' />
+                        <RegionDropdown country={this.state.country} value={this.state.region} onChange={(val) => this.setState({region: val})}  />
                     </div>
 
                     <div className='w-30'>
                         <label htmlFor='search-city'>City:</label>
-                        <input type='text' name='city' id='search-city' className='form-control' onChange={(e) => this.setState({city: e.target.value})} value={this.state.city} />
+                        <input type='text' name='city' id='search-city' onChange={(e) => this.setState({city: e.target.value})} value={this.state.city} />
                     </div>
                 </div>
 

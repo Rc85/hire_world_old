@@ -66,7 +66,7 @@ class UserTitle extends Component {
                 value = this.props.user.user.user_title;
             } else {
                 value = <React.Fragment>
-                    <input type='text' name='title' id='user-title' className='form-control' list='title-list' onChange={(e) => this.setState({title: e.target.value})} onKeyUp={(e) => this.searchTitle(e.target.value)} autoComplete='off' onKeyDown={(e) => this.setTitle(e)} />
+                    <input type='text' name='title' id='user-title' list='title-list' onChange={(e) => this.setState({title: e.target.value})} onKeyUp={(e) => this.searchTitle(e.target.value)} autoComplete='off' onKeyDown={(e) => this.setTitle(e)} />
                     <datalist id='title-list'>
                         {this.state.searchedTitles.map((title, i) => {
                             return <option key={i} value={title}>{title}</option>

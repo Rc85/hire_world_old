@@ -31,7 +31,7 @@ const OfferDetails = props => {
 
     if (props.offer && props.offer.offer_number_of_payments > 0) {
         for (let i = 0; i < props.offer.offer_number_of_payments; i++) {
-            let el = <div key={i} className='payments underline-div'>
+            let el = <div key={i} className='payments dotted-underline-div'>
                 <strong>#{i + 1}:</strong>
                 
                 <div>${props.offer[`offer_payment_${i + 1}`]}</div>

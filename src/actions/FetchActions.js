@@ -77,7 +77,6 @@ export const GetUserNotificationAndMessageCount = () => {
     return dispatch => {
         fetch.get('/api/get/user/notification-and-message-count')
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 dispatch(UpdateUserNotificationAndMessageCount(resp.data.notifications, resp.data.messages));
             }

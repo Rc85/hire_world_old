@@ -10,10 +10,11 @@ class SubmitReview extends Component {
         super(props);
         
         this.state = {
-            stars: this.props.stars || 0
+            stars: this.props.stars || 0,
+            review: this.props.review || ''
         }
     }
-
+    
     setRating(num) {
         if (this.state.stars === num) {
             this.setState({stars: 0});
@@ -23,6 +24,7 @@ class SubmitReview extends Component {
     }
     
     render() {
+        console.log(this.props);
         let authMessage;
 
         if (this.props.message && this.props.message.review_token) {
@@ -34,15 +36,15 @@ class SubmitReview extends Component {
         }
 
         return (
-            <div className={`review-container ${this.props.show ? 'show' : ''}`}>
-                <div className='review'>
-                    <div className='review-header'>
+            <div className={`submit-review-container ${this.props.show ? 'show' : ''} ${this.props.className ? this.props.className : ''}`}>
+                <div className='submit-review'>
+                    <div className='submit-review-header'>
                         {authMessage}
     
                         <Rating stars={this.state.stars} set={(stars) => this.setRating(stars)} />
                     </div>
     
-                    <TextArea value={this.props.review} onChange={(val) => this.setState({review: val})} />
+                    <TextArea label='Review' value={this.state.review} onChange={(val) => this.setState({review: val})} textAreaClassName='w-100 mb-2' />
 
                     <div className='text-right'><SubmitButton type='button' status={this.props.status} onClick={() => this.props.submit(this.state.review, this.state.stars)} /> <button className='btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button></div>
                 </div>

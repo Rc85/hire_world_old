@@ -11,6 +11,8 @@ import moment from 'moment';
 import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
 import { LogError } from '../../utils/LogError';
+import Tooltip from '../../utils/Tooltip';
+import Badge from '../../utils/Badge';
 
 class ViewUserReview extends Component {
     constructor(props) {
@@ -69,50 +71,48 @@ class ViewUserReview extends Component {
         }
 
         if (this.props.user && this.props.user.username === this.props.review.reviewer) {
-            buttons = <div>
-                <FontAwesomeIcon icon={faEdit} onClick={() => this.setState({editing: true})} className='review-buttons' />
-            </div>;
+            buttons = <FontAwesomeIcon icon={faEdit} onClick={() => this.setState({editing: true})} className='user-review-buttons' />;
             reviewer = true;
         } else {
             reviewer = false;
         }
 
         if (this.props.review.review_token) {
-            badge = <span className='badge badge-success'>Job Complete Verified</span>;
+            badge = <Badge items={[
+                {text: this.props.review.job_client === this.props.review.reviewer ? 'I Hired This User' : 'This User Hired Me'},
+                {text: 'Job Complete Verified'}
+            ]} className='badge-success text-black user-review-badge' />;
         }
 
         if (this.props.user && this.props.review && this.props.review.reviewer !== this.props.user.username) {
             if (!this.state.reviewReported) {
-                reportButton = <FontAwesomeIcon icon={faExclamationTriangle} size='sm' className='review-buttons' onClick={() => this.submitReport()} />;
+                reportButton = <Tooltip text='Report' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} size='sm' className='review-buttons' onClick={() => this.submitReport()} /></Tooltip>;
             } else {
-                reportButton = <span>
-                    <FontAwesomeIcon icon={faExclamationTriangle} size='sm' className='theme-darkgrey' id={`report-button-${this.props.review.review_id}`} />
-                    <UncontrolledTooltip placement='top' target={`report-button-${this.props.review.review_id}`}>Already reported</UncontrolledTooltip>
-                </span>;
+                reportButton = <Tooltip text='Already reported' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} size='sm' className='text-muted' /></Tooltip>;
             }
         }
 
         if (this.state.editing) {
-            review = <div className='w-85'>
-                <SubmitReview submit={(review, star) => this.editReview(review, this.props.review.review_id, star)} cancel={() => this.setState({editing: false})} review={this.props.review.review} stars={this.props.review.review_rating} />
-            </div>;
+            review = <SubmitReview submit={(review, star) => this.editReview(review, this.props.review.review_id, star)} cancel={() => this.setState({editing: false})} review={this.props.review.review} stars={this.props.review.review_rating} show />;
         } else {
-            review = <div className='w-85'>
-                <div className='d-flex-between-center mb-5'>
-                    <div className='d-flex-center'>
-                        <div className='d-flex mr-2'>
+            review = <div className='user-review'>
+                <div className='user-review-header'>
+                    <div className='user-review-header-info'>
+                        <div className='user-review-rating'>
                             <UserRating rating={this.props.review.review_rating} />
                         </div>
                         
-                        <span className='review-date-time'>{badge} Submitted on {moment(this.props.review.review_date).format('MMM DD YYYY')} {this.props.review.review_modified_date ? <span>(Edited)</span> : '' }</span>
+                        {badge}
+                        
+                        <small>Submitted on {moment(this.props.review.review_date).format('MMM DD YYYY')} {this.props.review.review_modified_date ? <span>(Edited)</span> : '' }</small>
                     </div>
 
                     {buttons}
                 </div>
 
-                <div className='review-body'>{this.props.review.review}</div>
+                <div className='user-review-body'>{this.props.review.review}</div>
 
-                <div className='mt-5 text-right'>
+                <div className='user-review-footer'>
                     {reportButton}
                 </div>
             </div>;
@@ -120,9 +120,9 @@ class ViewUserReview extends Component {
 
         return(
             <React.Fragment>
-                <div className={reviewer ? 'd-flex-between-start mx-auto w-75 p-2 mb-5 review-owner' : 'd-flex-between-start mx-auto w-75 p-2'}>
+                <div className={`user-review-container ${reviewer ? 'user-review-owner' : ''}`}>
                     {status}
-                    <div className='text-center w-10'>
+                    <div className='user-review-profile-pic'>
                         <div className='profile-pic' style={{background: `url(${this.props.review.avatar_url}) center top / cover`}}></div>
                         <span><NavLink to={`/user/${this.props.review.reviewer}`}>{this.props.review.reviewer}</NavLink></span>
                     </div>
@@ -130,7 +130,7 @@ class ViewUserReview extends Component {
                     {review}
                 </div>
 
-                {reviewer ? '' : <hr className='w-75 mx-auto mb-5' />}
+                <hr className='user-review-separator' />
             </React.Fragment>
         )
     }

@@ -4,46 +4,61 @@ import UserProfilePic from '../page/UserProfilePic';
 import { NavLink, withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faColumns, faCommentAlt, faCog, faSignOutAlt, faBell } from '@fortawesome/free-solid-svg-icons';
-import { LogoutUser } from '../../../actions/LoginActions';
+import { LogoutUser, LoginUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
+import InputWrapper from '../../utils/InputWrapper';
+import SubmitButton from '../../utils/SubmitButton';
+import Loading from '../../utils/Loading';
+import fetch from 'axios';
+import LoginPanel from './LoginPanel';
 
 class SideBar extends Component {
     render() {
+        let sidebarContent;
+
+        if (this.props.user.status === 'getting session') {
+            sidebarContent = <Loading size='5x' />;
+        } else if (this.props.user.status === 'get session success') {
+            sidebarContent = <div id='sidebar-links'>
+                {this.props.items.map((item, i) => {
+                    let messageCount = 0;
+
+                    if (item.messageCount && parseInt(item.messageCount) > 0) {
+                        messageCount = parseInt(item.messageCount);
+                    }
+
+                    return <div key={i} className='sidebar-link-container'>
+                        <Link
+                        text={<h5>{item.name}</h5>}
+                        link={item.link}
+                        icon={item.icon}
+                        active={item.active}
+                        items={item.items}
+                        messageCount={messageCount > 0 ? messageCount : false} />
+                    </div>
+                })}
+
+                <div className='sidebar-link-container'>
+                    <Link text={<h5>Logout</h5>} icon={<FontAwesomeIcon icon={faSignOutAlt} />} onClick={() => this.props.dispatch(LogoutUser())} />
+                </div>
+            </div>;
+        } else if (this.props.user.status === 'error') {
+            sidebarContent = <LoginPanel />;
+        }
+
         return (
             <section id='sidebar'>
                 <div className='text-center'><img src='/images/logo_sm.png' id='m-ploy-logo' onClick={() => location.href = '/'} /></div>
 
                 <div id='sidebar-buttons-container'>
                     <div className='sidebar-button'><FontAwesomeIcon icon={faQuestionCircle} size='lg' /></div>
-                    <div className='notification-button-container sidebar-button'><FontAwesomeIcon icon={faBell} size='lg' /></div>
+                    {this.props.user.user ? <div className='notification-button-container sidebar-button'><FontAwesomeIcon icon={faBell} size='lg' /></div> : ''}
                 </div>
 
                 <hr className='w-90' />
 
-                <div id='sidebar-links'>
-                    {this.props.items.map((item, i) => {
-                        let messageCount = 0;
-
-                        if (item.messageCount && parseInt(item.messageCount) > 0) {
-                            messageCount = parseInt(item.messageCount);
-                        }
-
-                        return <div key={i} className='sidebar-link-container'>
-                            <Link
-                            text={<h5>{item.name}</h5>}
-                            link={item.link}
-                            icon={item.icon}
-                            active={item.active}
-                            items={item.items}
-                            messageCount={messageCount > 0 ? messageCount : false} />
-                        </div>
-                    })}
-
-                    <div className='sidebar-link-container'>
-                        <Link text={<h5>Logout</h5>} icon={<FontAwesomeIcon icon={faSignOutAlt} />} onClick={() => this.props.dispatch(LogoutUser())} />
-                    </div>
-                </div>
+                {sidebarContent}
             </section>
         );
     }
@@ -67,7 +82,7 @@ class Link extends Component {
     render() {
         let subItems, link, messageCount;
 
-        if (this.props.active) {
+        if (this.props.active && this.props.items) {
             subItems = this.props.items.map((item, i) => {
                 return <NavLink key={i} to={item.link}><div className={`sidebar-sub-item ${item.active ? 'active' : ''}`}><div className='sidebar-sub-item-link'>{item.name}</div> {item.messageCount > 0 ? <span className='mini-badge mini-badge-danger'>{item.messageCount}</span> : ''}</div></NavLink>
             });

@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { LogoutUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
+import LoginPanel from './LoginPanel';
 
 class BottomBar extends Component {
     constructor(props) {
@@ -22,29 +23,37 @@ class BottomBar extends Component {
     }
     
     render() {
+        let bottombarContent;
+
+        if (this.props.user.user) {
+            bottombarContent = <div className='bottombar-item-container'>
+                {this.props.items.map((item, i) => {
+                    return <div key={i} className='bottombar-item'>
+                        <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'>{item.icon}</div><NavLink to={item.link}>{item.name}</NavLink></div>
+
+                        <div className='bottombar-sub-item-container'>
+                            {item.items ? item.items.map((subItem, index) => {
+                                return <div key={index} className='bottombar-sub-item'><NavLink to={subItem.link}>{subItem.name}</NavLink></div>
+                            }) : false}
+                        </div>
+                    </div>
+                })}
+
+                <div className='bottombar-item-wrapper mb-1' onClick={() => this.props.dispatch(LogoutUser())}>
+                    <div className='bottombar-item-icon'><FontAwesomeIcon icon={faSignOutAlt} /></div>
+                    <div>Logout</div>
+                </div>
+            </div>;
+        } else {
+            bottombarContent = <LoginPanel />;
+        }
+
         return (
             <div id='bottombar-container' className={`${this.state.showMenu ? 'expand' : ''} ${this.props.config.isTyping ? 'hide' : ''}`}>
                 <div className='bottombar-toggle-button' onClick={() => this.setState({showMenu: !this.state.showMenu})}><FontAwesomeIcon icon={this.state.showMenu ? faChevronDown : faChevronUp} size='3x' /></div>
 
                 <div id='bottombar'>
-                    <div className='bottombar-item-container'>
-                        {this.props.items.map((item, i) => {
-                            return <div key={i} className='bottombar-item'>
-                                <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'>{item.icon}</div><NavLink to={item.link}>{item.name}</NavLink></div>
-    
-                                <div className='bottombar-sub-item-container'>
-                                    {item.items ? item.items.map((subItem, index) => {
-                                        return <div key={index} className='bottombar-sub-item'><NavLink to={subItem.link}>{subItem.name}</NavLink></div>
-                                    }) : false}
-                                </div>
-                            </div>
-                        })}
-
-                        <div className='bottombar-item-wrapper mb-1' onClick={() => this.props.dispatch(LogoutUser())}>
-                            <div className='bottombar-item-icon'><FontAwesomeIcon icon={faSignOutAlt} /></div>
-                            <div>Logout</div>
-                        </div>
-                    </div>
+                    {bottombarContent}
                 </div>
             </div>
         );

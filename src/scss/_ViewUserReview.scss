@@ -1,5 +1,6 @@
 #user-reviews {
     color: #000;
+    position: relative;
 
     a { color: $theme-highlight }
     a:hover { text-decoration: underline }
@@ -8,13 +9,53 @@
 .user-review-star { color: $theme-darkgrey }
 .user-review-star.active { color: #ffc107 }
 
-.review-buttons {
+.user-review-buttons {
     color: $theme-highlight;
     cursor: pointer;
 }
 
-.review-owner {
+.user-review-header {
+    margin-bottom: 60px;
+}
+
+.user-review-header, .user-review-header-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-review-owner {
     border: 1px solid $theme-highlight;
     background: $theme-lightblue-faded;
     border-radius: 0.25rem;
 }
+
+.user-review-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 60px;
+}
+
+.user-review-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 0 auto 0 auto;
+    width: 75%;
+    margin-bottom: 60px;
+    padding: 15px;
+}
+
+.user-review-profile-pic {
+    width: 10%;
+    text-align: center;
+    margin-right: 15px;
+}
+
+.user-review-separator {
+    margin: 0 auto 60px auto;
+    width: 75%;
+}
+
+.user-review { width: 100%; }
+.user-review-badge, .user-review-rating { margin-right: 15px; }

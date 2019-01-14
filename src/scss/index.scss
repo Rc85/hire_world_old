@@ -103,6 +103,7 @@ hr {
 }
 
 textarea {
+    border: 0;
     background-color: white;
 
     &:disabled { background-color: $theme-lightgrey; }

@@ -10,33 +10,9 @@ import TitledContainer from '../utils/TitledContainer';
 import InputWrapper from '../utils/InputWrapper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
+import LoginPanel from '../includes/site/LoginPanel';
 
 class Login extends Component {
-    constructor() {
-        super();
-
-        this.state  = {
-            username: null,
-            password: null
-        }
-    }
-    
-    handleLogin() {
-        this.props.dispatch(LoginUser(this.state));
-    }
-
-    handleLoginKeyDown(e, input) {
-        if (e.keyCode === 13) {
-            if (input === 'username') {
-                document.getElementById('login-password').focus();
-            } else if (input === 'password') {
-                this.handleLogin();
-            }
-        } else {
-            return
-        }
-    }
-
     render() {
         if (this.props.user.user) {
             return <Redirect to='/dashboard/edit' />;
@@ -45,22 +21,7 @@ class Login extends Component {
         return(
             <section id='login'>
                 <TitledContainer title='Login' icon={<FontAwesomeIcon icon={faSignInAlt} />}>
-                    <div id='login-form'>
-                        <div className='login-field'>
-                            <InputWrapper label='Username'>
-                                <input type='text' onChange={(e) => this.setState({username: e.target.value})} onKeyDown={(e) => this.handleLoginKeyDown(e, 'username')} />
-                            </InputWrapper>
-                        </div>
-                        <div className='login-field'>
-                            <InputWrapper label='Password'>
-                                <input type='password' id='login-password' onChange={(e) => this.setState({password: e.target.value})} onKeyDown={(e) => this.handleLoginKeyDown(e, 'password')} />
-                            </InputWrapper>
-                        </div>
-
-                        <a href='/forgot-password' id='forgot-password'>Forgot Password</a>
-
-                        <div className='text-right'><SubmitButton type='submit' id='login-button' loading={this.props.user.status === 'login in'} value='Login' onClick={() => this.handleLogin()}/></div>
-                    </div>
+                    <LoginPanel />
                 </TitledContainer>
                 {/* <div className='blue-panel shallow rounded'>
                     <h2>Login</h2>
@@ -93,4 +54,4 @@ class Login extends Component {
     }
 }
 
-export default withRouter(connect()(Login));
+export default Login;

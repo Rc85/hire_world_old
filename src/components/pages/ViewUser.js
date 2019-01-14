@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ViewUserSocialMedia from '../includes/page/ViewUserSocialMedia';
 import ViewUserContacts from '../includes/page/ViewUserContacts';
 import ViewUserProfile from '../includes/page/ViewUserProfile';
 import { withRouter, Redirect } from 'react-router-dom';
@@ -10,7 +9,7 @@ import ViewUserReview from '../includes/page/ViewUserReview';
 import SubmitReview from '../includes/page/SubmitReview';
 import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserCircle, faEye, faExclamationTriangle, faHeart, faCoins } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faEye, faExclamationTriangle, faHeart, faCoins, faUserPlus, faUserMinus, faBan } from '@fortawesome/free-solid-svg-icons';
 import ViewUserBusinessHours from '../includes/page/ViewUserBusinessHours';
 import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
@@ -18,6 +17,8 @@ import { LogError } from '../utils/LogError';
 import MessageSender from '../includes/page/MessageSender';
 import { faCheckCircle, faTimesCircle } from '@fortawesome/free-regular-svg-icons';
 import moment from 'moment';
+import TitledContainer from '../utils/TitledContainer';
+import Tooltip from '../utils/Tooltip';
 
 class ViewUser extends Component {
     constructor(props) {
@@ -32,6 +33,7 @@ class ViewUser extends Component {
             hours: {},
             reportedReviews: [],
             userReported: false,
+            isFriend: false,
             stats: {
                 view_count: 0,
                 job_complete: 0,
@@ -143,8 +145,7 @@ class ViewUser extends Component {
     }
 
     render() {
-        console.log(this.state);
-        let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, reviewed, reportButton, businessName, message, friendIcon;
+        let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, reviewed, reportButton, businessName, message, friendIcon, username;
 
         if (this.state.status === 'access error') {
             return <Response header={'Error'} message={this.state.statusMessage} />;
@@ -164,8 +165,7 @@ class ViewUser extends Component {
 
         if (this.state.user) {
             contacts = <ViewUserContacts user={this.state.user} />;
-            socialMedia = <ViewUserSocialMedia user={this.state.user} listing={this.state.user ? {id: this.state.user.listing_id, status: this.state.user.listing_status} : {}} />;
-            profile = <ViewUserProfile user={this.state.user} stats={this.state.stats} />;
+            profile = <ViewUserProfile user={this.state.user} stats={this.state.stats} hours={this.state.hours} />;
 
             if (this.state.reviews.length > 0) {
                 reviews = this.state.reviews.map((review, i) => {
@@ -181,75 +181,95 @@ class ViewUser extends Component {
                 </div>
             }
 
-            if (this.state.submitReview) {
-                submitReview = <SubmitReview submit={(review, star) => this.submitReview(review, star)} cancel={() => this.setState({submitReview: false })} />;
-            } else if (!this.state.submitReview && this.props.user && this.state.user) {
+            if (!this.state.submitReview && this.props.user && this.state.user) {
                 if (this.props.user.username !== this.state.user.username && reviewed < 0) {
                     submitReviewButton = <button className='btn btn-primary' onClick={() => this.setState({submitReview: true})}>Submit Review</button>;
                 }
             }
 
             if (this.props.user && this.props.user.username !== this.state.user.username) {
-                friendIcon = <FontAwesomeIcon icon={faHeart} />;
+                if (!this.state.isFriend) {
+                    friendIcon = <Tooltip text='Add to Friend' placement='bottom-right'><FontAwesomeIcon icon={faUserPlus} className='text-alt-highlight' /></Tooltip>;
+                } else {
+                    friendIcon = <Tooltip text='Remove from Friends' placement='bottom-right'><FontAwesomeIcon icon={faUserMinus} className='text-danger' /></Tooltip>
+                }
                 
                 if (!this.state.userReported) {
-                    reportButton = <span>
-                        <FontAwesomeIcon icon={faExclamationTriangle} size='xs' className='menu-button' id='report-user-button' onClick={() => this.submitReport()} />
-                        <UncontrolledTooltip placement='top' target='report-user-button'>Report this user</UncontrolledTooltip>
-                    </span>;
-                } else {
-                    reportButton = <span>
-                        <FontAwesomeIcon icon={faExclamationTriangle} size='xs' className='theme-bg' id='report-user-button' />
-                        <UncontrolledTooltip placement='top' target='report-user-button'>Already reported</UncontrolledTooltip>    
-                    </span>;
+                    reportButton = <Tooltip text='Report this user' placement='bottom-right'><FontAwesomeIcon icon={faExclamationTriangle} onClick={() => this.submitReport()} /></Tooltip>;
                 }
 
                 if (this.state.user.username !== this.props.user.username && this.state.user.allow_messaging) {
                     message = <React.Fragment>
                         <hr/>
 
-                        <MessageSender send={(message, subject) => this.sendMessage(message, subject)} status={this.state.sendStatus} />
-                        
-                        <hr/>
-                    </React.Fragment>;
+                        <MessageSender send={(message, subject) => this.sendMessage(message, subject)} status={this.state.sendStatus} className='mt-4' />
+                    </React.Fragment>
+                    ;
                 }
+            }
+
+            if (this.state.user.user_firstname && this.state.user.user_lastname) {
+                username = this.state.user.user_firstname + ' ' +  this.state.user.user_lastname;
+            } else {
+                username = this.state.user.username;
             }
         }
         
         return(
-            <div id='view-user' className='main-panel w-100'>
+            <div id='view-user' className='main-panel'>
                 {status}
-                <div className='blue-panel shallow rounded'>
-                    <div className='row'>
-                        <div className='col-3'>
-                            {contacts}
-                            {this.state.user && this.state.user.display_business_hours ? <ViewUserBusinessHours hours={this.state.hours} /> : ''}
-                        </div>
-
-                        <div className='col-9'>
+                
+                <div id='view-user-details-container'>
+                    <div id='view-user-main'>
+                        <TitledContainer title={username} bgColor='purple' icon={<FontAwesomeIcon icon={faUserCircle} />} shadow>
                             {profile}
 
                             {message}
-                        </div>
+
+                            <hr/>
+                            
+                            <div id='view-user-footer'>
+                                <div className='d-flex-center'>
+                                    <div className='mr-5'>
+                                        <Tooltip text='Job completed' placement='bottom'>
+                                            <FontAwesomeIcon icon={faCheckCircle} className='text-success mr-2' />
+                                            <span>{this.state.stats.job_complete}</span>
+                                        </Tooltip>
+                                    </div>
+                        
+                                    <div className='mr-5'>
+                                        <Tooltip text='Job abandoned' placement='bottom'>
+                                            <FontAwesomeIcon icon={faBan} className='text-danger mr-2' />
+                                            <span>{this.state.stats.job_abandon}</span>
+                                        </Tooltip>
+                                    </div>
+        
+                                    <div className='mr-5'>
+                                        <Tooltip text='Views' placement='bottom'>
+                                            <FontAwesomeIcon icon={faEye} className='mr-2' />
+                                            <span>{this.state.stats.view_count}</span>
+                                        </Tooltip>
+                                    </div>
+                                </div>
+        
+                                <div className='view-user-buttons'>
+                                    {friendIcon}
+                                    {reportButton}
+                                </div>
+                            </div>
+                        </TitledContainer>
                     </div>
 
-                    <div className='row'>
-                        <div className='col-3'>
-                            <div>{friendIcon} {reportButton}</div>
-                        </div>
-
-                        <div className='col-9'>
-                            {socialMedia}
-                        </div>
+                    <div id='view-user-details'>
+                        {contacts}
+                        <ViewUserBusinessHours hours={this.state.hours} />
                     </div>
                 </div>
 
-                <div className='text-right mt-3'>
-                    <div className='w-75 mx-auto'>{submitReviewButton}</div>
+                <div className='mt-3'>
+                    <div className='text-right w-75 mx-auto'>{submitReviewButton}</div>
 
-                    <div className='mt-1'>
-                        {submitReview}
-                    </div>
+                    <SubmitReview submit={(review, star) => this.submitReview(review, star)} cancel={() => this.setState({submitReview: false })} className='mt-1' show={this.state.submitReview} />
                 </div>
 
                 <div id='user-reviews' className='mt-5'>

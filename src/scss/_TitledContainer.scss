@@ -11,7 +11,15 @@
     width: 100%;
     min-height: 75px;
     color: white;
-    margin-top: 50px;
+
+    &.border-highlight { border-color: $theme-highlight; }
+
+    &.mini {
+        h3 { font-size: 1rem; }
+        padding: 40px 20px 20px 20px;
+
+        .title-wrapper { top: -18px; }
+    }
 
     .title-wrapper {
         display: flex;
@@ -34,11 +42,11 @@
             color: $theme-blue;
             background-color: $theme-lightgrey;
         }
-    }
-
-    h3 {
-        padding: 4px 8px;
-        border: 1px solid black;
+        
+        h3 {
+            padding: 4px 8px;
+            border: 1px solid black;
+        }
     }
 
     hr { background-color: $theme-highlight; }
@@ -63,4 +71,7 @@
         > div:first-child { width: 25%; }
         > div:last-child { width: 75%; }
     }
+
+    a { color: $theme-alt-highlight; }
+    a:hover { color: $theme-alt-highlight; }
 }

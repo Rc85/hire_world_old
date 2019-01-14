@@ -30,7 +30,7 @@ class MessageSender extends Component {
     
     render() {
         return (
-            <div className='mb-3'>
+            <div className={`mb-3 ${this.props.className ? this.props.className : ''}`}>
                 <div className='mb-1'>
                     <InputWrapper label='Subject'>
                         <input type='text' className='message-subject' disabled={this.props.subject ? true : false} value={this.state.subject} onChange={(e) => this.setState({subject: e.target.value})} />

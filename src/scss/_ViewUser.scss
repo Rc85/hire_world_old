@@ -1,3 +1,60 @@
-.view-user-icon { color: $theme-special }
+.view-user-buttons {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    
+    .tooltip-container:not(:first-child) {
+        margin-left: 15px;
+    }
+}
 
-#view-user-title { min-width: 50%; }
+#view-user-details-container {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 50px;
+}
+
+#view-user-main {
+    flex-grow: 3;
+    margin-right: 30px;
+    margin-bottom: 50px;
+}
+
+#view-user-details {
+    flex-grow: 2;
+}
+
+#view-user-header {
+    display: flex;
+    align-items: flex-start;
+
+    #view-user-header-info {
+        display: flex;
+        align-items: flex-start;
+        flex-grow: 1;
+    }
+}
+
+#view-user-social-media {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    div { margin-left: 30px; }
+}
+
+#view-user-profile-pic {
+    width: 15%;
+    margin-right: 45px;
+}
+
+#view-user-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#view-user-listing-info {
+    display: flex;
+    align-items: flex-start;
+}

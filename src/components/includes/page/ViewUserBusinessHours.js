@@ -6,6 +6,7 @@ import { faEye } from '@fortawesome/free-solid-svg-icons';
 import { UncontrolledTooltip } from 'reactstrap';
 import moment from 'moment';
 import UserRating from './UserRating';
+import TitledContainer from '../../utils/TitledContainer';
 
 const ViewUserStats = props => {
     let businessHours;
@@ -13,27 +14,17 @@ const ViewUserStats = props => {
 
     for (let day in props.hours) {
         time.push(
-            <div key={day} className='d-flex'>
-                <div className='w-25'>{day.charAt(0).toUpperCase() + day.substring(1,3)}</div>
+            <div key={day} className='d-flex-between-center mb-1'>
+                <div className='w-25'>{day.charAt(0).toUpperCase() + day.substring(1)}</div>
                 <div>{props.hours[day]}</div>
             </div>
         )
     }
 
-    if (time.length > 0) {
-        businessHours = <React.Fragment>
-            <h5>Business Hours</h5>
-
-            <div className='mb-1'>{time}</div>
-
-            <hr/>
-        </React.Fragment>
-    }
-
     return(
-        <div id='view-user-business-hours'>
-            {businessHours}
-        </div>
+        <TitledContainer title='Business Hours' mini shadow>
+            {time}
+        </TitledContainer>
     )
 }
 

@@ -120,167 +120,122 @@ class EditUser extends Component {
     }
     
     render() {
-        let notificationStatus, activityStatus;
+        if (this.props.user.user) {
+            let notificationStatus, activityStatus;
 
-        if (this.state.notificationStatus === 'Loading') {
-            notificationStatus = <Loading size='3x' />;
-        }
-
-        if (this.state.activityStatus === 'Loading') {
-            activityStatus = <Loading size='3x' />;
-        }
-
-        let notifications = this.state.notifications.map((n, i) => {
-            let type;
-
-            if (n.notification_type === 'Update') {
-                type = 'badge-info';
-            } else if (n.notification_type === 'Warning') {
-                type = 'badge-warning';
-            } else if (n.notification_type === 'Severe') {
-                type = 'badge-danger';
+            if (this.state.notificationStatus === 'Loading') {
+                notificationStatus = <Loading size='3x' />;
             }
 
-            return <div key={i}>
-                <div className='titled-container-row'>
-                    {n.notification_message}
-                    <div className='w-25'>{n.notification_status === 'New' ? <small className='badge badge-success'>New</small> : ''}</div>
-                </div>
-
-                <div className='d-flex-between-center'>
-                    <div className='w-25'><small className={`badge ${type}`}>{n.notification_type}</small></div>
-                    <div className='w-75 text-right'><small>{moment(n.notification_date).format('MM-DD-YYYY h:mm:ss A')}</small></div>
-                </div>
-
-                {i + 1 !== this.state.notifications.length ? <hr /> : ''}
-            </div>
-        });
-
-        let activities = this.state.activities.map((a, i) => {
-            let type;
-
-            if (a.activity_type === 'Account') {
-                type = 'badge-orange';
-            } else if (a.activity_type === 'Payment') {
-                type = 'badge-lime';
-            } else if (a.activity_type === 'Subscription') {
-                type = 'badge-pink';
+            if (this.state.activityStatus === 'Loading') {
+                activityStatus = <Loading size='3x' />;
             }
 
-            return <div key={i} className='titled-container-row'>
-                <div className='titled-container-row-title'>
-                    {a.activity_action}
-                </div>
+            let notifications = this.state.notifications.map((n, i) => {
+                let type;
 
-                <div className='titled-container-row-detail'>
-                    <div>
-                        <Badge className={type}
-                        items={[
-                            {text: a.activity_type},
-                            {text: moment(a.activity_date).format('MM-DD-YYYY h:mm:ss A')}
-                        ]} />
+                if (n.notification_type === 'Update') {
+                    type = 'badge-info';
+                } else if (n.notification_type === 'Warning') {
+                    type = 'badge-warning';
+                } else if (n.notification_type === 'Severe') {
+                    type = 'badge-danger';
+                }
+
+                return <div key={i}>
+                    <div className='titled-container-row'>
+                        {n.notification_message}
+                        <div className='w-25'>{n.notification_status === 'New' ? <small className='badge badge-success'>New</small> : ''}</div>
                     </div>
+
+                    <div className='d-flex-between-center'>
+                        <div className='w-25'><small className={`badge ${type}`}>{n.notification_type}</small></div>
+                        <div className='w-75 text-right'><small>{moment(n.notification_date).format('MM-DD-YYYY h:mm:ss A')}</small></div>
+                    </div>
+
+                    {i + 1 !== this.state.notifications.length ? <hr /> : ''}
                 </div>
+            });
 
-                {i + 1 !== this.state.activities.length ? <hr /> : ''}
-            </div>
-        });
+            let activities = this.state.activities.map((a, i) => {
+                let type;
 
-        return(
-            <section id='edit-user' className='main-panel'>
-                <div id='dashboard-header'>
-                    <div id='dashboard-header-wrapper'>
-                        <div className='profile-pic-wrapper'><UserProfilePic url={this.props.user.user.avatar_url} editable bordered borderColor='transparent' /></div>
+                if (a.activity_type === 'Account') {
+                    type = 'badge-orange';
+                } else if (a.activity_type === 'Payment') {
+                    type = 'badge-lime';
+                } else if (a.activity_type === 'Subscription') {
+                    type = 'badge-pink';
+                }
 
-                        <div id='dashboard-header-user-info'>
-                            <NavLink to={`/user/${this.props.user.user.username}`}><h1>{this.props.user.user.username}</h1></NavLink>
-                            {this.props.user.user.user_business_name ? <h3><FontAwesomeIcon icon={faBuilding} id='user-business-name-icon' className='text-special mr-1' /> {this.props.user.user.user_business_name}</h3> : ''}
+                return <div key={i} className='titled-container-row'>
+                    <div className='titled-container-row-title'>
+                        {a.activity_action}
+                    </div>
+
+                    <div className='titled-container-row-detail'>
+                        <div>
+                            <Badge className={type}
+                            items={[
+                                {text: a.activity_type},
+                                {text: moment(a.activity_date).format('MM-DD-YYYY h:mm:ss A')}
+                            ]} />
                         </div>
                     </div>
 
-                    <div id='dashboard-list-buttons-container'>
-                        <FontAwesomeIcon icon={faCogs} size='2x' className='dashboard-list-button' color='white' />
-                        <SlideToggle status={this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} />
-                        {/* <button id='mobile-logout-button' className='btn btn-secondary' onClick={() => this.props.dispatch(LogoutUser())}>Logout</button> */}
-                    </div>
+                    {i + 1 !== this.state.activities.length ? <hr /> : ''}
                 </div>
+            });
 
-                <hr/>
+            return(
+                <section id='edit-user' className='main-panel'>
+                    <div id='dashboard-header'>
+                        <div id='dashboard-header-wrapper'>
+                            <div className='profile-pic-wrapper'><UserProfilePic url={this.props.user.user.avatar_url} editable bordered borderColor='transparent' /></div>
 
-                <div id='dashboard-panel-container'>
-                    <div id='notifications-panel' className='dashboard-panel-half'>
-                        <TitledContainer title='Notifications' bgColor='purple' shadow scroll={this.state.notifications.length > 0 ? true : false} icon={<FontAwesomeIcon icon={faBell} />}>
-                            {notificationStatus}
-                            {this.state.notifications.length > 0 ? notifications : <h5 className='text-muted text-center'>No notifications</h5>}
-                            {!this.state.notificationsFetched ? <div className='load-more-button'><button className='btn btn-primary btn-sm' onClick={() => this.setState({notificationOffset: this.state.notificationOffset + 5})}>Load more</button></div> : ''}
-                        </TitledContainer>
-                    </div>
+                            <div id='dashboard-header-user-info'>
+                                <NavLink to={`/user/${this.props.user.user.username}`}><h1>{this.props.user.user.username}</h1></NavLink>
+                                {this.props.user.user.user_business_name ? <h3><FontAwesomeIcon icon={faBuilding} id='user-business-name-icon' className='text-special mr-1' /> {this.props.user.user.user_business_name}</h3> : ''}
+                            </div>
+                        </div>
 
-                    <div id='activities-panel' className='dashboard-panel-half'>
-                        <TitledContainer title='Recent Activities' bgColor='orange' shadow scroll={this.state.activities.length > 0 ? true : false} icon={<FontAwesomeIcon icon={faListUl} />}>
-                            {activityStatus}
-                            {this.state.activities.length > 0 ? activities : <h5 className='text-muted text-center'>No activities</h5>}
-                            {!this.state.activitiesFetched ? <div className='load-more-button'><button className='btn btn-primary btn-sm' onClick={() => this.setState({activityOffset: this.state.activityOffset + 5})}>Load more</button></div> : ''}
-                        </TitledContainer>
-                    </div>
-
-                    <div id='upcoming-events-panel' className='dashboard-panel-full'>
-                        <TitledContainer title='Upcoming Events' bgColor='lime' shadow icon={<FontAwesomeIcon icon={faCalendarAlt} />}>
-                            <h5 className='text-muted text-center'>No upcoming events</h5>
-                        </TitledContainer>
-                    </div>
-                </div>
-
-                {/* <div className='row'>
-                    <div className='col-2'>
-                        <UserProfilePic url={this.props.user.user ? this.props.user.user.avatar_url : ''} editable={true} />
-
-                        <hr/>
-
-                        <div id='user-profile'>
-                            {fullName}
-                            {email}
-                            {phone}
-                            {address}
-                            <UserTitle user={this.props.user} />
-                            <hr/>
-                            {<UserInfo label='Education' value={this.props.user.user ? this.props.user.user.user_education : ''} type='user_education' status={userEducationStatus} />
-                            <hr/>}
-                            <UserInfo label='Github' value={this.props.user.user ? this.props.user.user.user_github : ''} />
-                            <hr/>
-                            <UserInfo label='Twitter' value={this.props.user.user ? this.props.user.user.user_twitter : ''} />
-                            <hr/>
-                            <UserInfo label='Facebook' value={this.props.user.user ? this.props.user.user.user_facebook : ''} />
-                            <hr/>
-                            <UserInfo label='Instagram' value={this.props.user.user ? this.props.user.user.user_instagram : ''} />
-                            <hr/>
-                            <UserInfo label='LinkedIn' value={this.props.user.user ? this.props.user.user.user_linkedin : ''} />
-                            <hr/>
-                            <UserInfo label='Website' value={this.props.user.user ? this.props.user.user.user_website : ''} />
+                        <div id='dashboard-list-buttons-container'>
+                            <NavLink to='/settings/listing'><FontAwesomeIcon icon={faCogs} size='2x' className='dashboard-list-button' color='white' /></NavLink>
+                            <SlideToggle status={this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} />
+                            {/* <button id='mobile-logout-button' className='btn btn-secondary' onClick={() => this.props.dispatch(LogoutUser())}>Logout</button> */}
                         </div>
                     </div>
-                    
-                    <div className='col-10'>
-                        <NavLink to={`/user/${this.props.user.user ? this.props.user.user.username : ''}`}><h1 className='m-0'>{this.props.user.user ? this.props.user.user.username : ''}</h1></NavLink>
-                        {businessName}
 
-                        <hr/>
+                    <hr/>
 
-                        <div className='d-flex-between-start'>
-                            <div className='position-relative w-45'>
-                                <TitledContainer title='Notifications' content={notifications} hasMore={this.state.notificationsFetched === false} loadMore={() => this.setState({notificationOffset: this.state.notificationOffset + 10})} emptyMessage={`You don't any have notifications`} withScroll={true} />
+                    <div id='dashboard-panel-container'>
+                        <div id='notifications-panel' className='dashboard-panel-half mb-5'>
+                            <TitledContainer title='Notifications' bgColor='purple' shadow scroll={this.state.notifications.length > 0 ? true : false} icon={<FontAwesomeIcon icon={faBell} />}>
                                 {notificationStatus}
-                            </div>
+                                {this.state.notifications.length > 0 ? notifications : <h5 className='text-muted text-center'>No notifications</h5>}
+                                {!this.state.notificationsFetched ? <div className='load-more-button'><button className='btn btn-primary btn-sm' onClick={() => this.setState({notificationOffset: this.state.notificationOffset + 5})}>Load more</button></div> : ''}
+                            </TitledContainer>
+                        </div>
 
-                            <div className='position-relative w-45'>
-                                <TitledContainer title='Recent Activities' content={activities} hasMore={this.state.activitiesFetched === false} loadMore={() => this.setState({activityOffset: this.state.activityOffset + 10})} emptyMessage={`You don't have any activities`} withScroll={true} />
+                        <div id='activities-panel' className='dashboard-panel-half mb-5'>
+                            <TitledContainer title='Recent Activities' bgColor='orange' shadow scroll={this.state.activities.length > 0 ? true : false} icon={<FontAwesomeIcon icon={faListUl} />}>
                                 {activityStatus}
-                            </div>
+                                {this.state.activities.length > 0 ? activities : <h5 className='text-muted text-center'>No activities</h5>}
+                                {!this.state.activitiesFetched ? <div className='load-more-button'><button className='btn btn-primary btn-sm' onClick={() => this.setState({activityOffset: this.state.activityOffset + 5})}>Load more</button></div> : ''}
+                            </TitledContainer>
+                        </div>
+
+                        <div id='upcoming-events-panel' className='dashboard-panel-full mb-5'>
+                            <TitledContainer title='Upcoming Events' bgColor='lime' shadow icon={<FontAwesomeIcon icon={faCalendarAlt} />}>
+                                <h5 className='text-muted text-center'>No upcoming events</h5>
+                            </TitledContainer>
                         </div>
                     </div>
-                </div> */}
-            </section>
-        )
+                </section>
+            )
+        }
+
+        return null;
     }
 }
 

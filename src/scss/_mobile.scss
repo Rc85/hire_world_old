@@ -196,6 +196,7 @@
 
     .setting-panel-container {
         flex-direction: column;
+        margin-top: 0;
     }
 
     .setting-child {
@@ -269,6 +270,101 @@
         transform-origin:0 0;
         -webkit-transform-origin:0 0;
     } */
+
+    #view-user-details-container {
+        display: flex;
+        align-items: flex-start;
+        margin-top: 20px;
+        flex-direction: column;
+    }
+
+    #view-user-main { margin-top: 15px; }
+
+    #view-user-main, #view-user-details {
+        width: 100%;
+        flex-grow: 0;
+        margin-right: 0;
+    }
+
+    #view-user-header {
+        align-items: center;
+        flex-direction: column;
+
+        #view-user-header-info {
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+
+    #view-user-social-media {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        div {
+            margin-left: 15px;
+            margin-right: 15px;
+        }
+    }
+
+    #view-user-listing-info {
+        flex-direction: column;
+    }
+    
+    #view-user-profile-pic {
+        width: 50%;
+        margin-right: 0px;
+    }
+
+    #view-user-details { margin-bottom: 30px; }
+
+    .submit-review-container {
+        .submit-review { padding: 0; }
+    }
+
+    .user-review-container {
+        flex-direction: column;
+        margin: 0 auto 0 auto;
+        width: 90%;
+        margin-bottom: 30px;
+        padding: 15px;
+    }
+    
+    .user-review-profile-pic {
+        width: 100%;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        margin-right: 0px;
+
+        .profile-pic {
+            width: 25%;
+            margin-right: 15px;
+        }
+    }
+
+    .user-review-header, .user-review-header-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .user-review-badge, .user-review-rating { margin-right: 0; }
+
+    .user-review-separator {
+        margin: 0 auto 30px auto;
+        width: 90%;
+    }
+
+    .user-review-buttons { align-self: flex-end; }
+
+    /* #view-user-title {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    } */
+
+    //#view-user-title, #view-user-listing-info { width: 100%; }
 }
 
 @media only screen and (min-width: 321px) and (max-width: 375px) {

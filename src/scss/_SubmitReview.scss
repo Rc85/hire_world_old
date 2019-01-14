@@ -2,19 +2,20 @@
     border-top: 1px solid black;
 }
 
-.review-container {
+.submit-review-container {
+    width: 100%;
     overflow: hidden;
     max-height: 0;
-    transition: max-height 0.25s ease-in-out;
+    transition: max-height 0.1s ease-in-out;
 
     &.show {
         max-height: 400px;
     }
 
-    .review {
+    .submit-review {
         padding: 15px;
 
-        .review-header {
+        .submit-review-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -32,6 +33,10 @@
 
         .review-rating {
             display: flex;
+        }
+
+        .text-area-container {
+            width: 100%;
         }
     }
 }

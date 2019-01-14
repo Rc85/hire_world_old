@@ -5,7 +5,6 @@ import { isTyping } from '../../actions/ConfigActions';
 
 class TextArea extends Component {
     render() {
-        console.log(this.props);
         return(
             <div id={this.props.id} className={`text-area-container ${this.props.className ? this.props.className : ''}`}>
                 {this.props.label ? <label>{this.props.label}</label> : ''}

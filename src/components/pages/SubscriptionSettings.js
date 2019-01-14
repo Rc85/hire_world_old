@@ -58,83 +58,86 @@ class SubscriptionSettings extends Component {
     }
     
     render() {
-        let subscriptionInfo, unsubscribeButton, billingDate, nickname, price;
+        if (this.props.user.user) {
+            let subscriptionInfo, unsubscribeButton, billingDate, nickname, price;
 
-        if (this.props.user.user && this.props.user.user.is_subscribed) {
-            unsubscribeButton = <React.Fragment><button id='unsubscribe-listing-button' className='btn btn-danger ml-1' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to unsubscribe?', false, {action: 'unsubscribe'}))}>Unsubscribe</button>
-            <UncontrolledTooltip placement='top' target='unsubscribe-listing-button' delay={0}>Cancel your listing subscription</UncontrolledTooltip></React.Fragment>;
-        }
-
-        let now = new Date().getTime() / 1000;
-
-        if (this.state.subscription && this.state.subscription.plan) {
-            if (this.state.subscription.status === 'trialing') {
-                billingDate = moment.unix(this.state.subscription.trial_end).format('MM-DD-YYYY');
-            } else {
-                billingDate = moment.unix(this.state.subscription.current_period_end).format('MM-DD-YYYY');
+            if (this.props.user.user && this.props.user.user.is_subscribed) {
+                unsubscribeButton = <React.Fragment><button id='unsubscribe-listing-button' className='btn btn-danger ml-1' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to unsubscribe?', false, {action: 'unsubscribe'}))}>Unsubscribe</button>
+                <UncontrolledTooltip placement='top' target='unsubscribe-listing-button' delay={0}>Cancel your listing subscription</UncontrolledTooltip></React.Fragment>;
             }
 
-            nickname = this.state.subscription.plan.nickname;
-            price = <React.Fragment>
-                ${this.state.subscription.plan.amount / 100} {this.state.subscription.plan.currency.toUpperCase()} / {this.state.subscription.plan.interval}
-            </React.Fragment>
+            let now = new Date().getTime() / 1000;
 
-
-            if (this.state.subscription.status !== 'canceled' || this.state.subscription.current_period_end > now) {
-                let subscriptionStatus;
-
-                if (this.state.subscription.status === 'active' || this.state.subscription.status === 'trialing') {
-                    subscriptionStatus = <span className='med-badge mini-badge-success'>Subscribed</span>;
-                } else if (this.state.subscription.status === 'canceled') {
-                    subscriptionStatus = <span className='med-badge mini-badge-danger'>Cancelled</span>
+            if (this.state.subscription && this.state.subscription.plan) {
+                if (this.state.subscription.status === 'trialing') {
+                    billingDate = moment.unix(this.state.subscription.trial_end).format('MM-DD-YYYY');
+                } else {
+                    billingDate = moment.unix(this.state.subscription.current_period_end).format('MM-DD-YYYY');
                 }
 
-                subscriptionInfo = <React.Fragment>
-                    <div className='d-flex-between-center mb-3'>
-                        <h4>{subscriptionStatus}</h4>
-                        {unsubscribeButton}
-                    </div>
-
-                    <div className='setting-field-container'>
-                        <div className='subscription-info'>
-                            <label htmlFor='next-billing' className='mr-2'>{this.state.subscription.status !== 'canceled' ? 'Next Billing Date:' : 'Subscription End Date:'} </label>
-                            {billingDate}
-                        </div>
-
-                        <div className='subscription-info'>
-                            <label htmlFor='plan' className='mr-2'>Plan: </label>
-                            {nickname}
-                        </div>
-
-                        <div className='subscription-info'>
-                            <label htmlFor='price' className='mr-2'>Price: </label>
-                            {price}
-                        </div>
-                    </div>
-
-                    <hr/>
+                nickname = this.state.subscription.plan.nickname;
+                price = <React.Fragment>
+                    ${this.state.subscription.plan.amount / 100} {this.state.subscription.plan.currency.toUpperCase()} / {this.state.subscription.plan.interval}
                 </React.Fragment>
+
+
+                if (this.state.subscription.status !== 'canceled' || this.state.subscription.current_period_end > now) {
+                    let subscriptionStatus;
+
+                    if (this.state.subscription.status === 'active' || this.state.subscription.status === 'trialing') {
+                        subscriptionStatus = <span className='med-badge mini-badge-success'>Subscribed</span>;
+                    } else if (this.state.subscription.status === 'canceled') {
+                        subscriptionStatus = <span className='med-badge mini-badge-danger'>Cancelled</span>
+                    }
+
+                    subscriptionInfo = <React.Fragment>
+                        <div className='d-flex-between-center mb-3'>
+                            <h4>{subscriptionStatus}</h4>
+                            {unsubscribeButton}
+                        </div>
+
+                        <div className='setting-field-container'>
+                            <div className='subscription-info'>
+                                <label htmlFor='next-billing' className='mr-2'>{this.state.subscription.status !== 'canceled' ? 'Next Billing Date:' : 'Subscription End Date:'} </label>
+                                {billingDate}
+                            </div>
+
+                            <div className='subscription-info'>
+                                <label htmlFor='plan' className='mr-2'>Plan: </label>
+                                {nickname}
+                            </div>
+
+                            <div className='subscription-info'>
+                                <label htmlFor='price' className='mr-2'>Price: </label>
+                                {price}
+                            </div>
+                        </div>
+
+                        <hr/>
+                    </React.Fragment>
+                }
             }
+
+            // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
+            // live key pk_live_wJ7nxOazDSHu9czRrGjUqpep
+            return (
+                <section id='subscription-setting' className='main-panel'>
+                    <TitledContainer title='Subscription Setting' bgColor='orange' icon={<FontAwesomeIcon icon={faSyncAlt} />}>
+                        {subscriptionInfo}
+        
+                        <span>Upgrading will have pro-rated credit applied to your next bill. See FAQ for more detail.</span>
+        
+                        <StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'>
+                            <Elements>
+                                <Checkout user={this.props.user.user} />
+                            </Elements>
+                        </StripeProvider>
+                    </TitledContainer>
+                </section>
+            )
         }
 
-        // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
-        // live key pk_live_wJ7nxOazDSHu9czRrGjUqpep
-
-        return (
-            <section id='subscription-setting' className='main-panel'>
-                <TitledContainer title='Subscription Setting' bgColor='orange' icon={<FontAwesomeIcon icon={faSyncAlt} />}>
-                    {subscriptionInfo}
-    
-                    <span>Upgrading will have pro-rated credit applied to your next bill. See FAQ for more detail.</span>
-    
-                    <StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'>
-                        <Elements>
-                            <Checkout user={this.props.user.user} />
-                        </Elements>
-                    </StripeProvider>
-                </TitledContainer>
-            </section>
-        );
+        return null;
     }
 }
 

@@ -20,7 +20,6 @@ app.post('/api/get/user', async(req, resp) => {
                     LEFT JOIN user_listings ON users.username = user_listings.listing_user
                     WHERE users.username = $1 AND users.user_status = 'Active' AND user_listings.listing_status = 'Active'`, [req.body.username]);
 
-
                     if (user && user.rows.length === 1) {
                         delete user.rows[0].user_profile_id;
 
@@ -73,9 +72,10 @@ app.post('/api/get/user', async(req, resp) => {
                             reviewsParam = [req.body.username];
                         }
 
-                        let reviews = await client.query(`SELECT user_reviews.*, user_profiles.avatar_url FROM user_reviews
+                        let reviews = await client.query(`SELECT user_reviews.*, user_profiles.avatar_url, jobs.job_client, jobs.job_user FROM user_reviews
                         LEFT JOIN users ON users.username = user_reviews.reviewer
                         LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+                        LEFT JOIN jobs ON user_reviews.review_job_id = jobs.job_id
                         WHERE user_reviews.reviewing = $1 AND user_reviews.review IS NOT NULL AND user_reviews.review_status = 'Active'
                         ORDER BY ${orderby}user_reviews.review_date DESC`, reviewsParam);
 
@@ -94,7 +94,6 @@ app.post('/api/get/user', async(req, resp) => {
 
                         await client.query(`INSERT INTO user_view_count (viewing_user, view_count) VALUES ($1, $2) ON CONFLICT (viewing_user) DO UPDATE SET view_count = user_view_count.view_count + 1`, [req.body.username, 1]);
 
-                        console.log(businessHours);
                         await client.query('COMMIT')
                         .then(() =>  resp.send({status: 'success', user: user.rows[0], reviews: reviews.rows, stats: stats.rows[0], hours: businessHours, reports: reportedReviews, userReported: userIsReported}));
                     }

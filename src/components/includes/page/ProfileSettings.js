@@ -13,23 +13,29 @@ class ProfileSettings extends Component {
     constructor(props) {
         super(props);
 
-        this.initialSettings = {
-            businessName: this.props.user.user ? this.props.user.user.user_business_name : '',
-            phone: this.props.user.user ? this.props.user.user.user_phone : '',
-            address: this.props.user.user ? this.props.user.user.user_address : '',
-            code: this.props.user.user ? this.props.user.user.user_city_code : '',
-            country: this.props.user.user ? this.props.user.user.user_country : '',
-            region: this.props.user.user ? this.props.user.user.user_region : '',
-            city: this.props.user.user ? this.props.user.user.user_city : ''
-        }
-
         this.state = {
-            settings: this.initialSettings,
+            settings: {},
             status: '',
             statusMessage: ''
         }
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.user.user !== this.props.user.user) {
+            this.initialSettings = {
+                businessName: this.props.user.user.user_business_name,
+                phone: this.props.user.user.user_phone,
+                address: this.props.user.user.user_address,
+                code: this.props.user.user.user_city_code,
+                country: this.props.user.user.user_country,
+                region: this.props.user.user.user_region,
+                city: this.props.user.user.user_city
+            }
+
+            this.setState({settings: this.initialSettings});
+        }
+    }
+    
     save() {
         fetch.post('/api/user/settings/profile/save', this.state.settings)
         .then(resp => {
@@ -64,6 +70,7 @@ class ProfileSettings extends Component {
     }
 
     render() {
+        console.log(this.state)
         let status;
 
         if (this.state.status === 'Loading') {
@@ -76,7 +83,7 @@ class ProfileSettings extends Component {
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child three-quarter'>
                         <InputWrapper label='Business Name'>
-                            <input type='text' onChange={(e) => this.setSettings({businessName: e.target.value})} maxLength='40' palceholder='Maximum 40 characters' defaultValue={this.state.businessName} />
+                            <input type='text' onChange={(e) => this.setSettings({businessName: e.target.value})} maxLength='40' palceholder='Maximum 40 characters' defaultValue={this.state.settings.businessName} />
                         </InputWrapper>
                     </div>
                         {/* <label htmlFor='business-name'>Business Name:</label>
@@ -84,7 +91,7 @@ class ProfileSettings extends Component {
 
                     <div className='setting-child quarter'>
                         <InputWrapper label='Phone Number'>
-                            <input type='tel' onChange={(e) => this.setSettings({phone: e.target.value})} defaultValue={this.state.phone} />
+                            <input type='tel' onChange={(e) => this.setSettings({phone: e.target.value})} defaultValue={this.state.settings.phone} />
                         </InputWrapper>
                     </div>
                         {/* <label htmlFor='phone'>Phone Number:</label>
@@ -94,7 +101,7 @@ class ProfileSettings extends Component {
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child three-quarter'>
                         <InputWrapper label='Address'>
-                            <input type='text' onChange={(e) => this.setSettings({address: e.target.value})} defaultValue={this.state.address} />
+                            <input type='text' onChange={(e) => this.setSettings({address: e.target.value})} defaultValue={this.state.settings.address} />
                         </InputWrapper>
                         {/* <label htmlFor='user-address'>Address:</label>
                         
@@ -103,7 +110,7 @@ class ProfileSettings extends Component {
                     
                     <div className='setting-child quarter'>
                         <InputWrapper label='Postal/Zip Code'>
-                            <input type='text'onChange={(e) => this.setSettings({code: e.target.value})} defaultValue={this.state.code} maxLength='7' />
+                            <input type='text'onChange={(e) => this.setSettings({code: e.target.value})} defaultValue={this.state.settings.code} maxLength='7' />
                         </InputWrapper>
                         {/* <label htmlFor='postalzip'>Postal Code/Zip Code:</label>
                         <input type='text' name='postalzip' id='postalzip' onChange={(e) => this.setSettings({code: e.target.value})} defaultValue={this.initialSettings.code} /> */}
@@ -113,7 +120,7 @@ class ProfileSettings extends Component {
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child three-quarter'>
                         <InputWrapper label='Country'>
-                            <select onChange={(e) => this.setSettings({country: e.target.value})}>
+                            <select onChange={(e) => this.setSettings({country: e.target.value})} value={this.state.settings.country}>
                                 <option value=''>Select Country</option>
                                 <option value='Canada'>Canada</option>
                                 <option value='Mexico'>Mexico</option>
@@ -135,7 +142,7 @@ class ProfileSettings extends Component {
 
                     <div className='setting-child three-quarter'>
                         <InputWrapper label='City'>
-                            <input type='text' onChange={(e) => this.setSettings({city: e.target.value})} defaultValue={this.state.city} />
+                            <input type='text' onChange={(e) => this.setSettings({city: e.target.value})} defaultValue={this.state.settings.city} />
                         </InputWrapper>
                         {/* <label htmlFor='city'>City:</label>
                         <input type='text' name='city' id='city=input' onChange={(e) => this.setSettings({city: e.target.value})} defaultValue={this.state.settings.city} /> */}

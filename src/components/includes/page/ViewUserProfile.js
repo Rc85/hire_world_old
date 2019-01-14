@@ -4,9 +4,14 @@ import moment from 'moment';
 import UserProfilePic from '../../includes/page/UserProfilePic';
 import UserRating from './UserRating';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye } from '@fortawesome/free-solid-svg-icons';
-import { faCheckCircle, faTimesCircle } from '@fortawesome/free-regular-svg-icons';
+import { faEye, faBan, faDollarSign, faCommentsDollar } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faTimesCircle, faListAlt } from '@fortawesome/free-regular-svg-icons';
 import { UncontrolledTooltip } from 'reactstrap';
+import Tooltip from '../../utils/Tooltip';
+import ViewUserBusinessHours from './ViewUserBusinessHours';
+import ViewUserContacts from './ViewUserContacts';
+import { NavLink } from 'react-router-dom';
+import ViewUserSocialMedia from './ViewUserSocialMedia';
 
 const ViewUserProfile = props => {
     let avatar, bio, name;
@@ -22,26 +27,37 @@ const ViewUserProfile = props => {
         bio = props.user.listing_detail;
     }
 
-    console.log(props);
-
     return(
         <div id='view-user-profile' className='mb-3'>
-            <div className='d-flex-between-start mb-3'>
-                <div className='d-flex w-75'>
-                    <div className='w-10 mr-3'>
+            <div id='view-user-header'>
+                <div id='view-user-header-info' className='mb-3'>
+                    <div id='view-user-profile-pic'>
                         <div className='w-100 text-center'>
                             <div>{avatar}</div>
                         </div>
                     </div>
     
                     <div id='view-user-title'>
-                        <h1 className='d-flex m-0'>{name}</h1>
-                        <h5 className='mb-0'>{props.user.user_title}</h5>
-                        <div className='w-40'><UserRating rating={props.stats.rating || 0} /> ({props.stats.job_count})</div>
+                        <h3>{props.user.user_title}</h3>
+                        <div className='mb-3'><UserRating rating={props.stats.rating || 0} /> ({props.stats.job_count})</div>
+
+                        <div id='view-user-listing-info'>
+                            <div className='d-flex-center mr-5 mb-1'>
+                                <Tooltip text='Listed Under' placement='top'><FontAwesomeIcon icon={faListAlt} className='text-special mr-2' /></Tooltip> <NavLink to={`/sector/${props.user.listing_sector}`}>{props.user.listing_sector}</NavLink>
+                            </div>
+
+                            <div className='d-flex-center mr-5 mb-1'>
+                                <Tooltip text='Asking Price' placement='top'><FontAwesomeIcon icon={faDollarSign} className='text-special mr-2' /></Tooltip> {props.user.listing_price} / {props.user.listing_price_type} {props.user.listing_price_currency}
+                            </div>
+
+                            <div className='d-flex-center mr-5 mb-1'>
+                                <Tooltip text='Negotiable' placement='top'><FontAwesomeIcon icon={faCommentsDollar} className='text-special mr-2' /></Tooltip> {props.user.listing_negotiable ? <span className='mini-badge mini-badge-success'>Yes</span> : <span className='mini-badge mini-badge-danger'>No</span>}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div>
+                <div id='view-user-login-info'>
                     {props.stats.user_last_login ?
                     <div className='d-flex-between-center'>
                         <div className='mr-2'><strong>Last Login:</strong></div>
@@ -50,29 +66,13 @@ const ViewUserProfile = props => {
                 </div>
             </div>
 
-            <div className='d-flex'>
-                <div className='mr-5'>
-                    <FontAwesomeIcon icon={faCheckCircle} className='text-success mr-2' id='job-success' />
-                    <UncontrolledTooltip placement='top' target='job-success' delay={{show: 0, hide: 0}}>Job Completed</UncontrolledTooltip>
-                    <span>{props.stats.job_complete}</span>
-                </div>
-    
-                <div className='mr-5'>
-                    <FontAwesomeIcon icon={faTimesCircle} className='text-danger mr-2' id='job-abandon' />
-                    <UncontrolledTooltip placement='top' target='job-abandon' delay={{show: 0, hide: 0}}>Job Abandoned</UncontrolledTooltip>
-                    <span>{props.stats.job_abandon}</span>
-                </div>
-
-                <div className='mr-5'>
-                    <FontAwesomeIcon icon={faEye} id='user-views' className='mr-2' />
-                    <UncontrolledTooltip placement='top' target='user-views' delay={{show: 0, hide: 0}}>Views</UncontrolledTooltip>
-                    <span>{props.stats.view_count}</span>
-                </div>
-            </div>
-
             <hr/>
+            
+            <div id='view-user-details'>{bio ? bio : ''}</div>
 
-            {bio ? <React.Fragment><div id='view-user-details' className='rounded'>{bio}</div></React.Fragment> : ''}
+            <div className='text-right'>
+                <ViewUserSocialMedia user={props.user} />
+            </div>
         </div>
     )
 }

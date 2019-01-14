@@ -129,8 +129,6 @@ class App extends Component {
 	render() {
 		let confirmation, sectors, alerts, prompt, warning;
 
-		
-
 		if (this.props.confirmation.status === true) {
 			confirmation = <Confirmation message={this.props.confirmation.message} note={this.props.confirmation.note} />;
 
@@ -206,16 +204,16 @@ class App extends Component {
 				<Switch>
 					<Route exact path='/' render={() => <Pages.Login user={this.props.user} />} />
 
-					<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user} items={userDashboardItems}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
+					<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
 
-					<Route exact path='/messages/:stage' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.Inquiries user={this.props.user} /></Pages.Dashboard>} />
+					<Route exact path='/messages/:stage' render={() => <Pages.Dashboard user={this.props.user}><Pages.Inquiries user={this.props.user} /></Pages.Dashboard>} />
 
-					<Route exact path='/settings/account' render={() =>  <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
-					<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
-					<Route exact path='/settings/listing' render={() => <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.Listing user={this.props.user} /></Pages.Dashboard>} />
-					<Route exact path='/settings/subscription' render={() => <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
+					<Route exact path='/settings/account' render={() =>  <Pages.Dashboard user={this.props.user}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
+					<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user}><StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+					<Route exact path='/settings/listing' render={() => <Pages.Dashboard user={this.props.user}><Pages.Listing user={this.props.user} /></Pages.Dashboard>} />
+					<Route exact path='/settings/subscription' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
 
-					<Route exact path='/user/:username' render={() => <Pages.ViewUser user={this.props.user} />} />
+					<Route exact path='/user/:username' render={() => <Pages.Dashboard user={this.props.user}><Pages.ViewUser user={this.props.user} /></Pages.Dashboard>} />
 
 					<Route render={() => <Pages.Response code={404} header={'Not Found'} message={`This page you're trying to access does not exist.`} />} />
 				</Switch>

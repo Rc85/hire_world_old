@@ -34,33 +34,33 @@
             }
 
             .#{$property}-#{$i} {
-                #{$prop}: $value;
+                #{$prop}: $value !important;
             }
 
             .#{$property}t-#{$i} {
-                #{$prop}-top: $value;
+                #{$prop}-top: $value !important;
             }
 
             .#{$property}r-#{$i} {
-                #{$prop}-right: $value;
+                #{$prop}-right: $value !important;
             }
 
             .#{$property}b-#{$i} {
-                #{$prop}-bottom: $value;
+                #{$prop}-bottom: $value !important;
             }
 
             .#{$property}l-#{$i} {
-                #{$prop}-left: $value;
+                #{$prop}-left: $value !important;
             }
 
             .#{$property}x-auto {
-                #{$prop}-left: auto;
-                #{$prop}-right: auto;
+                #{$prop}-left: auto !important;
+                #{$prop}-right: auto !important;
             }
 
             .#{$property}y-auto {
-                #{$prop}-top: auto;
-                #{$prop}-bottom: auto;
+                #{$prop}-top: auto !important;
+                #{$prop}-bottom: auto !important;
             }
         }
     }
@@ -114,6 +114,8 @@
     ('yellow', $theme-yellow),
     ('grey', $theme-medgrey) {
         .badge.badge-#{$colorName} {
+            color: white;
+
             .badge-header {
                 background-color: $color;
                 width: 20px;
@@ -124,7 +126,6 @@
             .badge-body {
                 border: 1px solid $color;
                 padding: 3px 5px;
-                color: white;
 
                 &:last-child { border-left: 0; }
             }

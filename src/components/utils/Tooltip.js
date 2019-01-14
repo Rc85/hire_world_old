@@ -14,7 +14,9 @@ class Tooltip extends Component {
         let tooltip;
         
         if (!this.props.hide && this.state.show) {
-            tooltip = <div className={`tooltip ${!this.props.placement ? 'top' : this.props.placement}`}>{this.props.text}</div>;
+            tooltip = <div className={`tooltip ${!this.props.placement ? 'top' : this.props.placement}`}>
+                <div className='tooltip-text'>{this.props.text}</div>
+            </div>;
         }
 
         return (

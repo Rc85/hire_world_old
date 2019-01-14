@@ -24,6 +24,10 @@
         color: $theme-highlight;
         text-decoration: underline;
     }
+
+    > .titled-container:first-child {
+        margin-top: 50px;
+    }
 }
 
 .badge {
@@ -42,14 +46,19 @@
 .bg-success { background-color: $success; }
 .bg-yellow { background-color: $theme-yellow; }
 
-.text-special { color: $theme-special; }
-.text-black { color: black; }
-.text-highlight { color: $theme-highlight; }
-.text-muted { color: $theme-darkgrey; }
-.text-blue { color: $theme-blue; }
-.text-light { color: $theme-lightgrey; }
+.text-special { color: $theme-special !important;  }
+.text-black { color: black !important; }
+.text-highlight { color: $theme-highlight !important; }
+.text-muted { color: $theme-darkgrey !important; }
+.text-blue { color: $theme-blue !important; }
+.text-light { color: $theme-lightgrey !important; }
+.text-success { color: $success !important; }
+.text-danger { color: $danger !important; }
+.text-warning { color: $warning !important; }
+.text-alt-highlight { color: $theme-alt-highlight !important; }
 
 .border-blue { border-color: $theme-blue; }
+.border-highlight { border-color: $theme-highlight; }
 
 .text-center { text-align: center; }
 .text-right { text-align: right; }
@@ -66,10 +75,22 @@
 .underline-div {
     width: 100%;
     padding-bottom: 5px;
-    border-bottom: 1px solid $theme-medgrey;
-    margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
+
+    &:not(:last-child) {
+        border-bottom: 1px solid $theme-medgrey;
+        margin-bottom: 10px;
+    }
+}
+
+.dotted-underline-div {
+    width: 100%;
+    padding-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dotted $theme-medgrey;
+    margin-bottom: 10px;
 }
 
 .mini-badge {

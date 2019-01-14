@@ -75,15 +75,13 @@ class InquiryRow extends Component {
                         {this.props.message.job_status === 'New' && this.props.message.job_user === this.props.user.username ? <span className='mini-badge mini-badge-success'>{this.props.message.job_status}</span> : ''}
 
                         {this.props.message.job_subject}
-
-                        {this.props.message.unread_messages > 0 ? <span className='mini-badge mini-badge-danger'>{this.props.message.unread_messages}</span> : ''}
                     </div>
 
                     <div className='inquiry-row-buttons'>{appealButton} {pinnedButton}</div>
                 </div>
 
                 <div className='inquiry-detail-row'>
-                    <div className={`inquiry-detail-type-indicator ${this.props.user && this.props.message.job_client === this.props.user.username ? 'sent' : 'received'}`}></div>
+                    {this.props.message.unread_messages > 0 ? <div className={`inquiry-detail-type-indicator`}>{this.props.message.unread_messages}</div> : ''}
                     <div className='inquiry-detail-type'>{this.props.user && this.props.message.job_client === this.props.user.username ? `To ${this.props.message.job_user} ${moment(this.props.message.job_created_date).fromNow()}` : `From ${this.props.message.job_client} ${moment(this.props.message.job_created_date).fromNow()}`}</div>
                 </div>
 

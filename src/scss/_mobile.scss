@@ -338,6 +338,8 @@
         margin-bottom: 30px;
         padding: 15px;
     }
+
+    .user-review { width: 100%; }
     
     .user-review-profile-pic {
         width: 100%;
@@ -354,7 +356,7 @@
 
     .user-review-header, .user-review-header-info {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: flex-end;
     }
 
     .user-review-badge, .user-review-rating { margin-right: 0; }
@@ -366,13 +368,58 @@
 
     .user-review-buttons { align-self: flex-end; }
 
-    /* #view-user-title {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    } */
+    .user-reviews-placeholder-column { display: none; }
 
-    //#view-user-title, #view-user-listing-info { width: 100%; }
+    #user-reviews-wrapper {
+        > .mt-3 { margin-top: 0 !important; }
+    }
+
+    #search-listings {
+        position: absolute;
+        z-index: 2;
+    }
+
+    #search-listings-field-container {
+        max-height: calc(100vh - 98px);
+
+        .d-flex-between-center, .d-flex-between-start { flex-direction: column; }
+
+        .w-5, .w-10, .w-15, .w-25, .w-30, .w-45 {
+            width: 100% !important;
+            margin-bottom: 30px;
+        }
+
+        #search-listings-field-wrapper {
+            max-height: calc(100vh - 98px);
+            overflow-y: scroll;
+        }
+    }
+
+    .listing-row-profile-pic { display: none; }
+
+    .listing-row-title, .listing-row-detail-child {
+        width: 100%;
+        padding: 5px 10px;
+    }
+
+    .listing-row-main, {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .listing-row-title { order: 1; }
+    .listing-row-purpose { order: 2; }
+    .listing-row-rating { order: 3; }
+
+    .listing-row-detail { flex-direction: column; }
+
+    .listing-row-detail-child {
+        border-right: 0;
+
+        &:not(:first-child) { border-top: 1px solid $theme-highlight; }
+    }
+
+    .listing-row-buttons { display: none; }
 }
 
 @media only screen and (min-width: 321px) and (max-width: 375px) {

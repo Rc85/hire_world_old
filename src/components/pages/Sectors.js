@@ -78,7 +78,7 @@ class Sectors extends Component {
                 <SearchListing filter={(data) => this.filterListings(data)} />
                 
                 <section id='listings' className='main-panel'>
-                    <TitledContainer title={this.state.sector} bgColor='primary' icon={<FontAwesomeIcon icon={faThList} />}>
+                    <TitledContainer title={this.state.sector} bgColor='primary' icon={<FontAwesomeIcon icon={faThList} />}shadow >
                         <div className='listings-container'>
                             {listings}
                         </div>

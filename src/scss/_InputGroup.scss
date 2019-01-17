@@ -22,6 +22,8 @@
     .input-group {
         display: flex;
 
+        .input-group-text-seperator { margin: 0 5px 0 5px; }
+
         &.column {
             flex-direction: column;
         }

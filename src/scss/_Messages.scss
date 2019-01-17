@@ -31,6 +31,14 @@
     width: 58%;
     min-height: 100vh;
     position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+
+    .load-message-text {
+        align-self: center;
+        text-align: center;
+    }
 }
 
 .inquiry-rows { margin: 30px 0; }

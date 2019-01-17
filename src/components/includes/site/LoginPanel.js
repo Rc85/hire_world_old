@@ -16,7 +16,9 @@ class LoginPanel extends Component {
         }
     }
     
-    handleLogin() {
+    handleLogin(e) {
+        e.preventDefault();
+
         this.setState({status: 'Logging in'});
 
         this.props.dispatch(LoginUser(this.state));
@@ -25,7 +27,7 @@ class LoginPanel extends Component {
     render() {
         return (
             <div id='login-panel'>
-                <form onSubmit={() => this.handleLogin()}>
+                <form onSubmit={(e) => this.handleLogin(e)}>
                     <InputWrapper label='Username' className='mb-3'>
                         <input type='text' onChange={(e) => this.setState({username: e.target.value})} maxLength='15' />
                     </InputWrapper>

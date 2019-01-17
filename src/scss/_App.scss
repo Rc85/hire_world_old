@@ -122,6 +122,10 @@
 
 .mobile-tooltip { display: none; }
 
+.keep-format {
+    white-space: pre-line;
+}
+
 /* .main-container {
     flex: 1;
     display: flex;
@@ -222,9 +226,7 @@
     min-width: 35px;
 }
 
-.keep-format {
-    white-space: pre-line;
-}
+
 
 .badge-dark a {
     color: #FFF;

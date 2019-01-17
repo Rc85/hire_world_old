@@ -35,7 +35,7 @@ class SideBar extends Component {
 
         let browseLink = <div className='sidebar-link-container'><Link
         className='browse-listing-link'
-        text={<h5 className='browse-listing-link'>Browse Listing</h5>}
+        text={<h5 className='browse-listing-link'>Browse Listings</h5>}
         onClick={(e) => this.toggleMenu(e)}
         icon={<FontAwesomeIcon icon={faThList} className='browse-listing-link' />}
         active={/^\/(browse|sector|user)/.test(this.props.location.pathname) || (this.props.menu.id === 'browse-menu' && this.props.menu.show)} /></div>;

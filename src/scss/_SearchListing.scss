@@ -1,22 +1,44 @@
 #search-listings {
-    background-color: $theme-blue;
+    width: 100%;
+    /* z-index: 2;
+    position: absolute; */
+    position: relative;
 }
 
 #search-listings-field-container {
-    padding: 20px 20px 0px 20px;
-    max-height: 40vh;
+    background-color: $theme-blue;
+    max-height: 75vh;
     transition: max-height 0.15s ease-in-out;
     overflow: hidden;
-
+    border-bottom: 1px solid black;
+    
+    #search-listings-field-wrapper {
+        height: 100%;
+        padding: 20px; 
+    }
+    
     &.hide { max-height: 0; }
 }
 
 #search-listings-toggler {
+    background-color: $theme-blue;
     height: 43px;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 5px 0;
-    
-    svg { cursor: pointer; }
+    cursor: pointer;
+}
+
+.input-group {
+    &.row {
+        #price-operator { flex-grow: 1; }
+        #search-price { flex-grow: 4; }
+        #price-type { flex-grow: 4; }
+
+        //#completed-jobs-ops { flex-grow: 1; }
+        #completed-jobs { flex-grow: 1; }
+    }
 }
 
 /* .input-group-text.seperator {

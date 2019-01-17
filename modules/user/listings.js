@@ -388,18 +388,18 @@ app.post('/api/filter/listings', async(req, resp) => {
         whereArray.push(`AND user_city = $${index}`);
     }
 
-    let queryString = `SELECT user_listings.*, jobs.job_complete, jobs.job_abandoned, user_profiles.user_title, user_reviews.rating FROM user_listings
+    let queryString = `SELECT user_listings.*, jobs.job_complete, jobs.job_abandoned, user_profiles.user_title, user_reviews.rating, user_reviews.review_count FROM user_listings
     LEFT JOIN users ON users.username = user_listings.listing_user
     LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
     LEFT JOIN
-        (SELECT (SUM(review_rating) / COUNT(review_id)) AS rating, reviewing FROM user_reviews
+        (SELECT (SUM(review_rating) / COUNT(review_id)) AS rating, reviewing, COUNT(review_id) AS review_count FROM user_reviews
         WHERE review_rating IS NOT NULL 
         GROUP BY reviewing) AS user_reviews ON user_reviews.reviewing = user_listings.listing_user
 	LEFT JOIN
         (SELECT job_user,
             (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Completed'),
             (SELECT COUNT(job_id) AS job_abandoned FROM jobs WHERE job_status = 'Abandoned')
-        FROM jobs) AS jobs ON jobs.job_user = user_listings.listing_user
+        FROM jobs LIMIT 1) AS jobs ON jobs.job_user = user_listings.listing_user
     WHERE listing_status = 'Active'
     ${whereArray.join(' ')}
     ORDER BY listing_renewed_date DESC, listing_id`;

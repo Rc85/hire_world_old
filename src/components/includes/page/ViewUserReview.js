@@ -79,16 +79,14 @@ class ViewUserReview extends Component {
 
         if (this.props.review.review_token) {
             badge = <Badge items={[
-                {text: this.props.review.job_client === this.props.review.reviewer ? 'I Hired This User' : 'This User Hired Me'},
-                {text: 'Job Complete Verified'}
+                {text: this.props.review.job_client === this.props.review.reviewer ? 'I Hired' : 'I Was Hired'},
+                {text: 'Job Complete Review'}
             ]} className='badge-success text-black user-review-badge' />;
         }
 
         if (this.props.user && this.props.review && this.props.review.reviewer !== this.props.user.username) {
             if (!this.state.reviewReported) {
                 reportButton = <Tooltip text='Report' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} size='sm' className='review-buttons' onClick={() => this.submitReport()} /></Tooltip>;
-            } else {
-                reportButton = <Tooltip text='Already reported' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} size='sm' className='text-muted' /></Tooltip>;
             }
         }
 

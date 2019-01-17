@@ -133,15 +133,17 @@ class Checkout extends Component {
         }
 
         if (this.state.havePayments) {
-            choosePaymentMethod = <InputWrapper label='Payment Method'>
-                <select name='payment-method' id='choose-payment-method' onChange={(e) => this.setState({usePayment: e.target.value})}>
-                    <option value=''>Select a payment method</option>
-                    {this.state.payments.map((payment, i) => {
-                        return <option key={i} value={payment.id}>({payment.brand}) **** **** **** {payment.last4}</option>
-                    })}
-                    <option value='New'>New payment method...</option>
-                </select>
-            </InputWrapper>; 
+            choosePaymentMethod = <div className='setting-child'>
+                <InputWrapper label='Payment Method'>
+                    <select name='payment-method' id='choose-payment-method' onChange={(e) => this.setState({usePayment: e.target.value})}>
+                        <option value=''>Select a payment method</option>
+                        {this.state.payments.map((payment, i) => {
+                            return <option key={i} value={payment.id}>({payment.brand}) **** **** **** {payment.last4}</option>
+                        })}
+                        <option value='New'>New payment method...</option>
+                    </select>
+                </InputWrapper>
+            </div>; 
             
         }
 
@@ -149,38 +151,32 @@ class Checkout extends Component {
             newPayment = <div className='position-relative'><Loading size='5x' /></div>;
         } else if (!this.state.havePayments || this.state.usePayment === 'New') {
             newPayment = <React.Fragment>
-                <div className='text-right mb-3'>
-                    <img src='/images/powered_by_stripe.png' className='w-10 mr-1' />
-                    <img src='/images/payment_methods.png' className='w-10' />
+                <div className='setting-child payment-icons'>
+                    <img src='/images/powered_by_stripe.png' className='payment-icon mr-1' />
+                    <img src='/images/payment_methods.png' className='payment-icon' />
                 </div>
 
-                <div className='d-flex-between-start'>
-                    <div className='w-45'>
-                        <div className='w-100 mb-3'>
-                            <InputWrapper label='Name on Card'><input type='text' name='fullname' id='fullname' onChange={(e) => this.setState({name: e.target.value})} autoComplete='ccname' /></InputWrapper>
-                        </div>
+                <div className='setting-child mb-3'>
+                    <InputWrapper label='Name on Card'><input type='text' name='fullname' id='fullname' onChange={(e) => this.setState({name: e.target.value})} autoComplete='ccname' /></InputWrapper>
 
-                        <div className='w-100'>
-                            <label htmlFor='use-default-address'><input type='checkbox' name='use-default-address' id='use-default-address' checked={this.state.defaultAddress} onChange={() => this.useDefaultAddress()} /> Use address registered with this account</label>
-                        </div>
-                    </div>
+                    <label htmlFor='use-default-address'><input type='checkbox' name='use-default-address' id='use-default-address' checked={this.state.defaultAddress} onChange={() => this.useDefaultAddress()} /> Use address registered with this account</label>
+                </div>
 
-                    <div className='d-flex-between-center w-45'>
-                        <div className='w-55'>
-                            <InputWrapper label='Credit Card Number'><CardNumberElement /></InputWrapper>
-                        </div>
-
-                        <div className='w-20'>
-                            <InputWrapper label='Expiry Date'><CardExpiryElement /></InputWrapper>
-                        </div>
-
-                        <div className='w-20'>
-                            <InputWrapper label='CVC'><CardCVCElement /></InputWrapper>
-                        </div>
+                <div className='setting-field-container mb-3'>
+                    <div className='setting-child'>
+                        <InputWrapper label='Credit Card Number'><CardNumberElement className='w-100' /></InputWrapper>
                     </div>
                 </div>
 
-                <div className='text-right mb-3'>Note: This will become your default payment</div>
+                <div className='setting-field-container mb-3'>
+                    <div className='setting-child'>
+                        <InputWrapper label='Expiry Date'><CardExpiryElement className='w-100' /></InputWrapper>
+                    </div>
+
+                    <div className='setting-child'>
+                        <InputWrapper label='CVC'><CardCVCElement className='w-100' /></InputWrapper>
+                    </div>
+                </div>
             </React.Fragment>;
         }
 
@@ -197,12 +193,14 @@ class Checkout extends Component {
                         </InputWrapper>
                     </div>
                     
-                    <div className='setting-child'>{choosePaymentMethod}</div>
+                    {choosePaymentMethod}
                 </div>
 
                 {newPayment}
 
                 {addressInput}
+
+                <div className='text-right mb-3'>Note: This will become your default payment</div>
 
                 <div className='checkout-buttons'>
                     <Recaptcha sitekey='6Ld784QUAAAAAISqu_99k8_Qk7bHs2ud4cD7EBeI' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} />

@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import { reducers } from './reducers';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
+import { ToggleMenu } from './actions/MenuActions';
 
 const store = createStore(reducers, applyMiddleware(thunk));
 store.subscribe(() => { console.log(store.getState()) });

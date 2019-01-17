@@ -27,16 +27,22 @@ class PaymentSettings extends Component {
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.user.user !== this.props.user.user) {
             this.setState({
-                defaultAddress: this.props.user.user.user_address + this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code ? true : false
+                defaultAddress: this.props.user.user.user_address && this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code ? true : false
             });
         }
     }
     
     componentDidMount() {
+        let defaultAddress = false;
+
+        if (this.props.user.user && this.props.user.user.user_address && this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code) {
+            defaultAddress = true;
+        }
+
         fetch.post('/api/get/payments')
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', payments: resp.data.payments, defaultSource: resp.data.defaultSource});
+                this.setState({status: '', payments: resp.data.payments, defaultSource: resp.data.defaultSource, defaultAddress: defaultAddress});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -153,36 +159,34 @@ class PaymentSettings extends Component {
         return (
             <section id='payment-settings' className='main-panel'>
                 <TitledContainer title='Payment Settings' bgColor='green' icon={<FontAwesomeIcon icon={faCreditCard} />}>
-                    <div className='payment-icons'>
+                    <div className='setting-child payment-icons'>
                         <img src='/images/powered_by_stripe.png' className='payment-icon mr-1' />
                         <img src='/images/payment_methods.png' className='payment-icon' />
                     </div>
 
                     <div className='mobile-tooltip mb-3'>Your name on your profile will be used if left blank</div>
     
-                    <div className='mb-3'>
+                    <div className='setting-child mb-3'>
                         <InputWrapper label='Name on Card'>
                             <input type='text' name='name' id='nameOnCard' onChange={(e) => this.setState({name: e.target.value})} placeholder={this.props.config.isMobile ? '' : 'Your name on your profile will be used if left blank'} ref={el => this.cardName = el} />
                         </InputWrapper>
                     </div>
     
                     <div className='setting-field-container mb-3'>
-                        <div className='setting-child'>
-                            <InputWrapper label='Card Number'><CardNumberElement onReady={el => this.CardNumberElement = el} /></InputWrapper>
+                        <div className='setting-child three-quarter'>
+                            <InputWrapper label='Card Number'><CardNumberElement onReady={el => this.CardNumberElement = el} className='w-100' /></InputWrapper>
+                        </div>
+
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='Expiry Date'><CardExpiryElement onReady={el => this.CardExpiryElement = el} className='w-100' /></InputWrapper>
                         </div>
     
-                        <div className='setting-field-container setting-child'>
-                            <div className='setting-child'>
-                                <InputWrapper label='Expiry Date'><CardExpiryElement onReady={el => this.CardExpiryElement = el} /></InputWrapper>
-                            </div>
-        
-                            <div className='setting-child'>
-                                <InputWrapper label='CVC'><CardCVCElement onReady={el => this.CardCVCElement = el} /></InputWrapper>
-                            </div>
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='CVC'><CardCVCElement onReady={el => this.CardCVCElement = el} className='w-100' /></InputWrapper>
                         </div>
                     </div>
     
-                    <div className='mb-3'><label><input type='checkbox' name='default-address' id='useDefaultAddress' onClick={() => this.useDefaultAdress()} defaultChecked={this.state.defaultAddress} /> Use address registered with this account</label></div>
+                    <div className='setting-child mb-3'><label><input type='checkbox' name='default-address' id='useDefaultAddress' onClick={() => this.useDefaultAdress()} defaultChecked={this.state.defaultAddress} /> Use address registered with this account</label></div>
     
                     {address}
     

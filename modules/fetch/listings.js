@@ -22,19 +22,17 @@ app.post('/api/get/listing', async(req, resp) => {
 });
 
 app.post('/api/get/listings', async(req, resp) => {
-    await db.query(`SELECT users.subscription_end_date, user_listings.*, user_profiles.user_title, user_reviews.rating, jobs.job_complete, user_profiles.avatar_url FROM user_listings
+    await db.query(`SELECT users.subscription_end_date, user_listings.*, user_profiles.user_title, user_reviews.rating, user_reviews.review_count, jobs.job_complete, user_profiles.avatar_url FROM user_listings
     LEFT JOIN users ON users.username = user_listings.listing_user
     LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
     LEFT JOIN
-        (SELECT reviewing, SUM(review_rating) / COUNT(review_id) AS rating
+        (SELECT reviewing, SUM(review_rating) / COUNT(review_id) AS rating, COUNT(review_id) AS review_count
         FROM user_reviews
         WHERE review_rating IS NOT NULL
         GROUP BY reviewing) AS user_reviews ON user_reviews.reviewing = user_listings.listing_user
     LEFT JOIN
-        (SELECT job_user,
-            (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Completed')
-        FROM jobs) AS jobs ON jobs.job_user = user_listings.listing_user
-    WHERE listing_sector = $1 AND users.subscription_end_date > current_timestamp
+        (SELECT job_user, COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Completed' GROUP BY job_user LIMIT 1) AS jobs ON jobs.job_user = user_listings.listing_user
+    WHERE listing_sector = $1 AND users.subscription_end_date > current_timestamp AND listing_status = 'Active'
     ORDER BY listing_renewed_date DESC, listing_id`, [req.body.sector])
     .then(result => {
         if (result) {

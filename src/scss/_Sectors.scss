@@ -1,14 +1,44 @@
-.list-form {
-    background: $theme-fg;
-    color: #000;
-    padding: 20px;
+.listing-row { border: 1px solid $theme-highlight; }
+.listing-row-rating { padding: 10px; }
+.listing-row-detail-child { padding: 5px 10px; }
+
+.listing-row-detail { position: relative; }
+
+.listing-row-buttons {
+    position: absolute;
+    right: 0;
+    padding: 5px;
+    cursor: pointer;
 }
 
-.listings-header, .listing-row {
+.listing-row-main, .listing-row-detail, .listing-row-title {
     display: flex;
-    justify-content: space-between;
+    align-items: center;
 }
 
-.listings-header {
-    font-weight: bold;
+.listing-row-main { border-bottom: 1px solid $theme-highlight; }
+
+.listing-row-profile-pic {
+    border-right: 1px solid $theme-highlight;
+    width: 3%;
+}
+
+.listing-row-title {
+    flex-grow: 1;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    white-space: nowrap;
+    padding: 11px 10px 12px 10px;
+
+    &:hover {
+        background-color: $theme-highlight;
+        color: white;
+
+        a { color: white; }
+    }
+}
+
+.listing-row-detail-child {
+    font-size: 0.75rem;
+    border-right: 1px solid $theme-highlight;
 }

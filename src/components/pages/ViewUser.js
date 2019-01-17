@@ -145,7 +145,7 @@ class ViewUser extends Component {
     }
 
     render() {
-        let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, reviewed, reportButton, businessName, message, friendIcon, username;
+        let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, reviewed, reportButton, businessName, message, friendIcon, username, businessHours;
 
         if (this.state.status === 'access error') {
             return <Response header={'Error'} message={this.state.statusMessage} />;
@@ -166,6 +166,10 @@ class ViewUser extends Component {
         if (this.state.user) {
             contacts = <ViewUserContacts user={this.state.user} />;
             profile = <ViewUserProfile user={this.state.user} stats={this.state.stats} hours={this.state.hours} />;
+
+            if (this.state.user.display_business_hours) {
+                businessHours = <ViewUserBusinessHours hours={this.state.hours} />;
+            }
 
             if (this.state.reviews.length > 0) {
                 reviews = this.state.reviews.map((review, i) => {
@@ -189,13 +193,13 @@ class ViewUser extends Component {
 
             if (this.props.user && this.props.user.username !== this.state.user.username) {
                 if (!this.state.isFriend) {
-                    friendIcon = <Tooltip text='Add to Friend' placement='bottom-right'><FontAwesomeIcon icon={faUserPlus} className='text-alt-highlight' /></Tooltip>;
+                    friendIcon = <Tooltip text='Add to Friend' placement='bottom-right'><FontAwesomeIcon icon={faUserPlus} className='text-highlight' /></Tooltip>;
                 } else {
-                    friendIcon = <Tooltip text='Remove from Friends' placement='bottom-right'><FontAwesomeIcon icon={faUserMinus} className='text-danger' /></Tooltip>
+                    friendIcon = <Tooltip text='Remove from Friends' placement='bottom-right'><FontAwesomeIcon icon={faUserMinus} className='text-secondary' /></Tooltip>
                 }
                 
                 if (!this.state.userReported) {
-                    reportButton = <Tooltip text='Report this user' placement='bottom-right'><FontAwesomeIcon icon={faExclamationTriangle} onClick={() => this.submitReport()} /></Tooltip>;
+                    reportButton = <Tooltip text='Report this user' placement='bottom-right'><FontAwesomeIcon icon={faExclamationTriangle} onClick={() => this.submitReport()} className='text-highlight' /></Tooltip>;
                 }
 
                 if (this.state.user.username !== this.props.user.username && this.state.user.allow_messaging) {
@@ -214,6 +218,7 @@ class ViewUser extends Component {
                 username = this.state.user.username;
             }
         }
+        console.log(this.state);
         
         return(
             <div id='view-user' className='main-panel'>
@@ -262,18 +267,24 @@ class ViewUser extends Component {
 
                     <div id='view-user-details'>
                         {contacts}
-                        <ViewUserBusinessHours hours={this.state.hours} />
+                        {businessHours}
                     </div>
                 </div>
 
-                <div className='mt-3'>
-                    <div className='text-right w-75 mx-auto'>{submitReviewButton}</div>
+                <div id='user-reviews-container'>
+                    <div id='user-reviews-wrapper'>
+                        <div className='mt-3'>
+                            <div className='text-right'>{submitReviewButton}</div>
+        
+                            <SubmitReview submit={(review, star) => this.submitReview(review, star)} cancel={() => this.setState({submitReview: false })} className='mt-1' show={this.state.submitReview} />
+                        </div>
+        
+                        <div id='user-reviews' className='mt-5'>
+                            {reviews}
+                        </div>
+                    </div>
 
-                    <SubmitReview submit={(review, star) => this.submitReview(review, star)} cancel={() => this.setState({submitReview: false })} className='mt-1' show={this.state.submitReview} />
-                </div>
-
-                <div id='user-reviews' className='mt-5'>
-                    {reviews}
+                    <div className='user-reviews-placeholder-column'></div>
                 </div>
             </div>
         )

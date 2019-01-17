@@ -201,10 +201,14 @@
 
     .setting-child {
         width: 100%;
+        flex-basis: auto;
         margin-bottom: 30px;
+        padding: 0;
 
-        &.quarter, &.half, &.three-quarter { width: 100%; }
-        &.text-center, &.text-right { text-align: left; }
+        &.quarter, &.half, &.three-quarter {
+            flex-basis: auto;
+            width: 100%;
+        }
     }
 
     .payment-method {
@@ -225,6 +229,10 @@
             margin-bottom: 30px;
         }
     }
+
+    /* .business-hour-container {
+        width: 100%;
+    } */
 
     .settings-col {
         width: 100%;

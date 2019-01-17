@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Route, withRouter, Switch, NavLink, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { GetSession, GetUserNotificationAndMessageCount } from './actions/FetchActions';
+import { GetSession, GetUserNotificationAndMessageCount, GetSectors } from './actions/FetchActions';
 import { RemoveAlert } from './actions/AlertActions';
 import * as Pages from './components/pages';
 import * as Admin from './components/admin';
@@ -12,7 +12,6 @@ import Confirmation from './components/utils/Confirmation';
 import Alert from './components/utils/Alert';
 import Prompt from './components/utils/Prompt';
 import Warning from './components/utils/Warning';
-import { ToggleMenu } from './actions/MenuActions';
 import Footer from './components/includes/site/Footer';
 import ReviewMploy from './components/includes/page/ReviewMploy';
 import { StripeProvider, Elements } from 'react-stripe-elements';
@@ -22,6 +21,7 @@ import { LogError } from './components/utils/LogError';
 import { Alert as Alerts } from 'reactstrap';
 import Loading from './components/utils/Loading';
 import { isMobile } from './actions/ConfigActions';
+import { ToggleMenu } from './actions/MenuActions';
 
 class App extends Component {
 	constructor(props) {
@@ -60,16 +60,17 @@ class App extends Component {
 	}
 		
 	componentDidMount() {
+		this.props.dispatch(GetSectors());
 		this.props.dispatch(GetSession());
 		this.props.dispatch(GetUserNotificationAndMessageCount());
 
-		document.body.addEventListener('click', (e) => {
+		/* document.body.addEventListener('click', (e) => {
 			if (typeof e.target.className === 'object' || e.target.classList.contains('admin-menu-button') || e.target.classList.contains('menu-item') || e.target.classList.contains('menu') || e.target.id === 'browse-menu-button') {
 				return;
 			} else if (this.props.menu.open) {
 				this.props.dispatch(ToggleMenu('', ''));
 			}
-		});
+		}); */
 
 		window.addEventListener('resize', () => {
 			if (window.innerWidth > 1024) {
@@ -124,6 +125,14 @@ class App extends Component {
 		.catch(err => LogError(err, '/api/user/dismiss/announcement'));
 
 		this.setState({announcementIds: ids});
+	}
+	
+	toggleMenu(e) {
+		if (e.target.className === 'browse-menu-item' || e.target.id === 'browse-menu') {
+			return;
+		} else {
+			this.props.dispatch(ToggleMenu(false, '1'));
+		}
 	}
 
 	render() {
@@ -196,7 +205,7 @@ class App extends Component {
 		});
 
 		return (
-			<div className='col-container'>
+			<div className='col-container' onClick={(e) => this.toggleMenu(e)}>
 				{warning}
 				{prompt}
 				{confirmation}
@@ -214,6 +223,10 @@ class App extends Component {
 					<Route exact path='/settings/subscription' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
 
 					<Route exact path='/user/:username' render={() => <Pages.Dashboard user={this.props.user}><Pages.ViewUser user={this.props.user} /></Pages.Dashboard>} />
+
+					<Route exact path='/browse' render={() => <Pages.Dashboard user={this.props.user}><Pages.Browse user={this.props.uer} /></Pages.Dashboard>} />
+
+					<Route exact path='/sectors/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
 
 					<Route render={() => <Pages.Response code={404} header={'Not Found'} message={`This page you're trying to access does not exist.`} />} />
 				</Switch>

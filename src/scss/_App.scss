@@ -45,6 +45,7 @@
 .bg-lime { background-color: $theme-lime; }
 .bg-success { background-color: $success; }
 .bg-yellow { background-color: $theme-yellow; }
+.bg-primary { background-color: $primary; }
 
 .text-special { color: $theme-special !important;  }
 .text-black { color: black !important; }
@@ -56,12 +57,14 @@
 .text-danger { color: $danger !important; }
 .text-warning { color: $warning !important; }
 .text-alt-highlight { color: $theme-alt-highlight !important; }
+.text-secondary { color: $secondary !important; }
 
 .border-blue { border-color: $theme-blue; }
 .border-highlight { border-color: $theme-highlight; }
 
-.text-center { text-align: center; }
-.text-right { text-align: right; }
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+.text-left { text-align: left !important; }
 
 .bordered-container {
     padding: 20px;

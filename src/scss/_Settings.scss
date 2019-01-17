@@ -28,13 +28,13 @@
 }
 
 .setting-child {
-    width: 45%;
+    flex-grow: 1;
+    flex-basis: 45%;
+    padding: 0 30px;
 
-    &.quarter { width: 25%; }
-    &.three-quarter { width: 70%; }
-    &.one-third { width: 30%; }
-    &.text-center { text-align: center; }
-    &.text-right { text-align: right; }
+    &.quarter { flex-basis: 25%; }
+    &.three-quarter { flex-basis: 70%; }
+    &.one-third { flex-basis: 30%; }
 }
 
 .settings-col {
@@ -56,12 +56,19 @@
     input { text-align: center }
 }
 
+.business-hour-container {
+    margin: 0 auto 30px auto;
+    //width: 50%;
+}
+
 .hour-separator {
     flex-grow: 1;
     text-align: center;
 }
 
-.payment-icon { width: 10%; }
+.payment-icons { text-align: right; }
+
+.payment-icon { width: 15%; }
 .payment-brand { margin-right: 30px; }
 
 .checkout-buttons {

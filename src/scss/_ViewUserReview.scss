@@ -38,10 +38,8 @@
 
 .user-review-container {
     display: flex;
-    justify-content: space-between;
     align-items: flex-start;
     margin: 0 auto 0 auto;
-    width: 75%;
     margin-bottom: 60px;
     padding: 15px;
 }
@@ -57,5 +55,14 @@
     width: 75%;
 }
 
-.user-review { width: 100%; }
 .user-review-badge, .user-review-rating { margin-right: 15px; }
+
+.user-review { flex-grow: 1; }
+#user-reviews-container { display: flex; }
+
+#user-reviews-wrapper {
+    flex-grow: 2;
+    margin-right: 30px;
+}
+
+.user-reviews-placeholder-column { flex-grow: 3; }

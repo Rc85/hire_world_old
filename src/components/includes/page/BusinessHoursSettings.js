@@ -222,7 +222,7 @@ class BusinessHoursSettings extends Component {
 
 const HourSetters = props => {
     return(
-        <div id={props.day} className='mb-3'>                      
+        <div id={props.day} className='business-hour-container'>                      
             <InputGroup className='hour-container' label={props.day}>
                 <div className='start-time'><input type='text' onChange={(e) => props.startTime(e.target.value)} maxLength='15' defaultValue={props.startValue} /></div>
                 <div className='hour-separator'>to</div>

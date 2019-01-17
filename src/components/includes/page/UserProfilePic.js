@@ -88,7 +88,7 @@ class UserProfilePic extends Component {
 
         return(
             <div className={`profile-pic-container ${this.props.bordered ? `bordered ${this.props.borderColor ? this.props.borderColor : 'black'}` : ''}`}>
-                <div className={`profile-pic`} style={{background: `url(${this.props.url}) center top / cover`}}>
+                <div className={`profile-pic ${this.props.square ? 'square' : ''}`} style={{background: `url(${this.props.url}) center top / cover`}}>
                     {status}
                     {dropzone}
     

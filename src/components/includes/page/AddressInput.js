@@ -7,10 +7,8 @@ const AddressInput = props => {
     let saveable;
     
     if (props.saveable) {
-        saveable = <div className='w-45'>
-            <div>
-                <label htmlFor='save-address' className='mb-0'><input type='checkbox' name='save-address' id='save-address' onClick={(e) => props.set('saveAddress', !props.info.saveAddress)} /> Save this address to your account</label>
-            </div>
+        saveable = <div className='setting-child'>
+            <label htmlFor='save-address'><input type='checkbox' name='save-address' id='save-address' onClick={(e) => props.set('saveAddress', !props.info.saveAddress)} /> Save this address to your account</label>
         </div>;
     }
 

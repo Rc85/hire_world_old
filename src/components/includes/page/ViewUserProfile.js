@@ -51,7 +51,7 @@ const ViewUserProfile = props => {
                             </div>
 
                             <div className='d-flex-center mr-5 mb-1'>
-                                <Tooltip text='Negotiable' placement='top'><FontAwesomeIcon icon={faCommentsDollar} className='text-special mr-2' /></Tooltip> {props.user.listing_negotiable ? <span className='mini-badge mini-badge-success'>Yes</span> : <span className='mini-badge mini-badge-danger'>No</span>}
+                                <Tooltip text='Negotiable' placement='top'><FontAwesomeIcon icon={faCommentsDollar} className='text-special mr-2' /></Tooltip> {props.user.listing_negotiable ? <span className='mini-badge mini-badge-success'>Negotiable</span> : <span className='mini-badge mini-badge-secondary'>Non-negotiable</span>}
                             </div>
                         </div>
                     </div>

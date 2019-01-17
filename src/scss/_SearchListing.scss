@@ -1,4 +1,25 @@
-.input-group-text.seperator {
+#search-listings {
+    background-color: $theme-blue;
+}
+
+#search-listings-field-container {
+    padding: 20px 20px 0px 20px;
+    max-height: 40vh;
+    transition: max-height 0.15s ease-in-out;
+    overflow: hidden;
+
+    &.hide { max-height: 0; }
+}
+
+#search-listings-toggler {
+    height: 43px;
+    text-align: center;
+    padding: 5px 0;
+    
+    svg { cursor: pointer; }
+}
+
+/* .input-group-text.seperator {
     border-radius: 0 !important;
 }
 
@@ -14,4 +35,4 @@
 .no-border-radius-left {
     border-top-left-radius: 0 !important;
     border-bottom-left-radius: 0 !important;
-}
+} */

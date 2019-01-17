@@ -8,6 +8,9 @@ import ListingRow from '../includes/page/ListingRow';
 import SearchListing from '../includes/page/SearchListing';
 import { LogError } from '../utils/LogError';
 import Response from '../pages/Response';
+import TitledContainer from '../utils/TitledContainer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faThList } from '@fortawesome/free-solid-svg-icons';
 
 class Sectors extends Component {
     constructor(props) {
@@ -62,14 +65,6 @@ class Sectors extends Component {
     }
 
     render() {
-        let loading, button, error;
-
-        if (this.state.status === 'loading') {
-            loading = <Loading size='5x' />
-        } else if (this.state.status === 'error') {
-            error = <Alert status={this.state.status} message={this.state.statusMessage} unmount={() => this.setState({status: '', statusMessage: ''})} />
-        }
-
         let listings = this.state.listings.map((listing, i) => {
             return <ListingRow key={i} listing={listing} />
         });
@@ -79,36 +74,17 @@ class Sectors extends Component {
         }
 
         return(
-            <section id='listings' className='main-panel w-100'>
+            <React.Fragment>
                 <SearchListing filter={(data) => this.filterListings(data)} />
-
-                <div className='blue-panel shallow rounded'>
-                    <h2 className='d-flex justify-content-between'>
-                        {this.state.sector}
-
-                        {button}
-                    </h2>
-
-                    {error}
-
-                    <div className='listings-container'>
-                        {loading}
-
-                        {/* <div className='listings-header mb-3'>
-                            <div className='w-30'>Title</div>
-                            <div className='w-20'>User</div>
-                            <div className='w-20'>Price</div>
-                            <div className='w-10'>Completed Jobs</div>
-                            <div className='w-10'>Posted Date</div>
-                            <div className='w-10 text-right'>Rating</div>
-                        </div> */}
-
-                        <hr/>
-
-                        {listings}
-                    </div>
-                </div>
-            </section>
+                
+                <section id='listings' className='main-panel'>
+                    <TitledContainer title={this.state.sector} bgColor='primary' icon={<FontAwesomeIcon icon={faThList} />}>
+                        <div className='listings-container'>
+                            {listings}
+                        </div>
+                    </TitledContainer>
+                </section>
+            </React.Fragment>
         )
     }
 }

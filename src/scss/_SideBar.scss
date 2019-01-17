@@ -41,7 +41,12 @@
     }
 
     .sidebar-link-item-wrapper { display: inline-block; }
-    .sidebar-link-icon { margin-right: 20px; }
+
+    .sidebar-link-icon {
+        margin-right: 20px;
+
+        &.active { color: $theme-special; }
+    }
 }
 
 .sidebar-link-item {

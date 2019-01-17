@@ -36,6 +36,22 @@ class ProfileSettings extends Component {
         }
     }
     
+    componentDidMount() {
+        if (this.props.user.user) {
+            this.initialSettings = {
+                businessName: this.props.user.user.user_business_name,
+                phone: this.props.user.user.user_phone,
+                address: this.props.user.user.user_address,
+                code: this.props.user.user.user_city_code,
+                country: this.props.user.user.user_country,
+                region: this.props.user.user.user_region,
+                city: this.props.user.user.user_city
+            }
+
+            this.setState({settings: this.initialSettings});
+        }
+    }
+    
     save() {
         fetch.post('/api/user/settings/profile/save', this.state.settings)
         .then(resp => {

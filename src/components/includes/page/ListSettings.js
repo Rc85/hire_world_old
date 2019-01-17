@@ -85,13 +85,14 @@ class ListSettings extends Component {
         fetch.post('/api/listing/save', this.state.newSettings)
         .then(resp => {
             if (resp.data.status === 'success') {
-                let initialSettings = {...this.state.initialSettings, ...resp.data.listing};
+                let initialSettings = {...this.state.newSettings, ...resp.data.listing};
 
                 this.setState({status: '', initialSettings: initialSettings, newSettings: initialSettings});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
-                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => LogError(err, '/api/listing/save'));
     }
@@ -180,7 +181,7 @@ class ListSettings extends Component {
                         <RadioInput items={[
                             {text: 'I am looking for work', value: 'For Hire'},
                             {text: 'I am looking to hire', value: 'Hiring'}
-                        ]} onClick={(val) => this.setSetting('listing_purpose', val)} disabled={this.props.user.user.listing_status === 'Active'} selected={this.state.newSettings.listing_purpose} rows />
+                        ]} onClick={(val) => this.setSetting('listing_purpose', val)} disabled={this.props.user.user.listing_status === 'Active'} selected={this.state.initialSettings.listing_purpose} rows />
     
                         {/* <div><input type='radio' name='looking' value='For Hire' onClick={(e) => this.setState({listing_purpose: e.target.value})} disabled={this.state.listing_status === 'Active'} checked={this.state.listing_purpose === 'For Hire'} /> Looking for work</div>
 
@@ -279,7 +280,7 @@ class ListSettings extends Component {
                     <div className='d-flex-end-center mb-3'>
                         {this.state.initialSettings.listing_status ? <div className='mr-1'><SlideToggle status={this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} /></div> : ''}
 
-                        <SubmitButton type='button' loading={this.state.status === 'Saving'} onClick={() => {}} value='Save' disabled={disableSave} />
+                        <SubmitButton type='button' loading={this.state.status === 'Saving'} onClick={() => this.saveSetting()} value='Save' disabled={disableSave} />
 
                         <button className='btn btn-secondary' onClick={() => this.setState({newSettings: this.state.initialSettings})}>Reset</button>
                     </div>

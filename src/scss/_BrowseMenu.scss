@@ -1,22 +1,29 @@
 #browse-menu {
     position: absolute;
-    right: -15%;
-    width: 15%;
-    transition: all 0.25s ease-in-out;
+    left: 100%;
+    top: 0;
+    height: 100vh;
     z-index: 3;
+    background-color: $theme-blue;
+    overflow: auto;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.15s ease-in-out;
+    padding-bottom: 10px;
+
+    &.show { transform: scaleX(1); }
 }
 
 #browse-menu a {
     display: block;
     background: #2F496E;
-    padding: 10px 20px;
-    border: 1px solid #000;
-}
-
-#browse-menu a:hover {
-    background: $theme-highlight;
-}
-
-#browse-menu a:not(:last-child) {
-    border-bottom: 0;
+    padding: 20px;
+    border: 1px solid $theme-highlight;
+    
+    &:hover, &.active {
+        background: $theme-highlight;
+    }
+    &:not(:last-child) {
+        border-bottom: 0;
+    }
 }

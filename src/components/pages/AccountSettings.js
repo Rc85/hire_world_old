@@ -68,8 +68,8 @@ class AccountSettings extends Component {
                     <hr/>
     
                     <div className='setting-field-container mb-3'>
-                        <div className='setting-child'><PasswordSettings /></div>
-                        <div className='setting-child'><EmailSettings /></div>
+                        <div className='settings-col'><PasswordSettings /></div>
+                        <div className='settings-col'><EmailSettings /></div>
                     </div>
     
                     <div className='setting-field-container mb-3'>

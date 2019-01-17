@@ -2,7 +2,7 @@
     position: relative;
     margin-top: 15px;
     background-color: white;
-    padding: 20px 5px 5px 5px;
+    padding: 20px 0px 0px 0px;
     border: 1px solid black;
     color: black;
     display: flex;
@@ -37,14 +37,7 @@
     /* .InputElement, select { padding: 17px 6px 10px 6px; }
     .InputElement, input { padding: 20px 6px 10px 6px; } */
 
-    select {
-        -moz-appearance: none;
-        -webkit-appearance: none;
-        appearance: none;
-        margin-bottom: 2px;
-    }
-
-    .InputElement, input, select {
+    input, select {
         border: 0;
         width: 100%;
         /* color: black;

@@ -249,7 +249,24 @@ app.post('/api/listing/renew', (req, resp) => {
     }
 });
 
-app.post('/api/listing/save', (req, resp) => {
+app.post('/api/listing/save', async(req, resp) => {
+    if (req.session.user) {
+        await db.query(`UPDATE user_listings SET listing_title = $1, listing_sector = $2, listing_price = $3, listing_price_type = $4, listing_price_currency = $5, listing_negotiable = $6, listing_purpose = $7, listing_detail = $8 WHERE listing_user = $9`, [req.body.listing_title, req.body.listing_sector, req.body.listing_price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_purpose, req.body.listing_detail, req.session.user.username])
+        .then(result => {
+            if (result && result.rowCount === 1) {
+                resp.send({status: 'success', statusMessage: 'List settings saved', listing: result.rows[0]});
+            } else {
+                resp.send({status: 'error', statusMessage: 'Failed to save'});
+            }
+        })
+        .catch(err => {
+            error.log({name: err.name, message: err.message, origin: 'Saving list settings', url: req.url});
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
+        });
+    }
+});
+
+/* app.post('/api/listing/save', (req, resp) => {
     if (req.session.user) {
         db.query(`INSERT INTO saved_listings (saved_listing_id, saved_listing_title, saved_by) VALUES ($1, $2, $3)`, [req.body.listing_id, req.body.listing_title, req.session.user.username])
         .then(result => {
@@ -290,7 +307,7 @@ app.post('/api/saved_listings/unsave', (req, resp) => {
             });
         });
     }
-});
+}); */
 
 app.post('/api/filter/listings', async(req, resp) => {
     let whereArray = [`AND listing_sector = $1`];

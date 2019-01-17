@@ -1131,6 +1131,10 @@
   background-color: #fffb00;
 }
 
+.bg-primary {
+  background-color: #006eff;
+}
+
 .text-special {
   color: #ED463D !important;
 }
@@ -1171,6 +1175,10 @@
   color: #7dd2ff !important;
 }
 
+.text-secondary {
+  color: #686868 !important;
+}
+
 .border-blue {
   border-color: #2F496E;
 }
@@ -1180,11 +1188,15 @@
 }
 
 .text-center {
-  text-align: center;
+  text-align: center !important;
 }
 
 .text-right {
-  text-align: right;
+  text-align: right !important;
+}
+
+.text-left {
+  text-align: left !important;
 }
 
 .bordered-container {
@@ -1776,28 +1788,72 @@
 }
 
 #browse {
-  margin-top: 50px;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  height: 100%;
+}
+
+#browse-list-container {
+  height: 100%;
+  min-width: 1%;
+  position: relative;
+  background-color: #2F496E;
+  overflow: hidden;
+}
+#browse-list-container #browse-list {
+  position: absolute;
+  height: 100vh;
+  width: 100%;
+  overflow-y: scroll;
+  padding: 20px;
+  scrollbar-track-color: transparent;
+  scrollbar-face-color: #2988BC;
+}
+scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
+  display: none;
+}
+
+.sector-container {
+  border: 1px solid #2988BC;
+  padding: 20px;
+  cursor: pointer;
+}
+.sector-container:hover, .sector-container.active {
+  background-color: #2988BC;
+}
+.sector-container:not(:first-child) {
+  border-top: 0;
 }
 
 #browse-menu {
   position: absolute;
-  right: -15%;
-  width: 15%;
-  transition: all 0.25s ease-in-out;
+  left: 100%;
+  top: 0;
+  height: 100vh;
   z-index: 3;
+  background-color: #2F496E;
+  overflow: auto;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.15s ease-in-out;
+  padding-bottom: 10px;
+}
+#browse-menu.show {
+  transform: scaleX(1);
 }
 
 #browse-menu a {
   display: block;
   background: #2F496E;
-  padding: 10px 20px;
-  border: 1px solid #000;
+  padding: 20px;
+  border: 1px solid #2988BC;
 }
-
-#browse-menu a:hover {
+#browse-menu a:hover, #browse-menu a.active {
   background: #2988BC;
 }
-
 #browse-menu a:not(:last-child) {
   border-bottom: 0;
 }
@@ -1929,7 +1985,8 @@
   position: relative;
   background-color: white;
   color: black;
-  padding-top: 15px;
+  padding: 20px 0px 0px 0px;
+  margin-top: 15px;
 }
 .input-group-container .input-group-label {
   display: block;
@@ -1954,9 +2011,14 @@
 }
 .input-group-container > select, .input-group-container input {
   height: 100%;
-  padding: 5px;
   border: 0;
   width: 100%;
+}
+.input-group-container select {
+  border: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 .input-group-container > div.payment-input-container {
   display: flex;
@@ -1984,7 +2046,7 @@
   position: relative;
   margin-top: 15px;
   background-color: white;
-  padding: 20px 5px 5px 5px;
+  padding: 20px 0px 0px 0px;
   border: 1px solid black;
   color: black;
   display: flex;
@@ -2015,20 +2077,14 @@
   border-left: 0;
   background-color: #9b9b9b;
 }
-.input-container select {
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  appearance: none;
-  margin-bottom: 2px;
-}
-.input-container .InputElement, .input-container input, .input-container select {
+.input-container input, .input-container select {
   border: 0;
   width: 100%;
   /* color: black;
   background-color: white;
   width: 100%; */
 }
-.input-container .InputElement:disabled, .input-container input:disabled, .input-container select:disabled {
+.input-container input:disabled, .input-container select:disabled {
   background-color: #DFDFDF;
 }
 
@@ -2678,37 +2734,101 @@
   margin-right: 5px;
 }
 
-.input-group-text.seperator {
-  border-radius: 0 !important;
+#search-listings {
+  background-color: #2F496E;
+}
+
+#search-listings-field-container {
+  padding: 20px 20px 0px 20px;
+  max-height: 40vh;
+  transition: max-height 0.15s ease-in-out;
+  overflow: hidden;
+}
+#search-listings-field-container.hide {
+  max-height: 0;
+}
+
+#search-listings-toggler {
+  height: 43px;
+  text-align: center;
+  padding: 5px 0;
+}
+#search-listings-toggler svg {
+  cursor: pointer;
+}
+
+/* .input-group-text.seperator {
+    border-radius: 0 !important;
 }
 
 .no-border-radius-right {
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
 }
 
 .no-border-radius {
-  border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 .no-border-radius-left {
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+} */
+.listing-row {
+  border: 1px solid #2988BC;
 }
 
-.list-form {
-  background: #F9F6F4;
-  color: #000;
-  padding: 20px;
+.listing-row-rating {
+  padding: 10px;
 }
 
-.listings-header, .listing-row {
+.listing-row-detail-child {
+  padding: 5px 10px;
+}
+
+.listing-row-detail {
+  position: relative;
+}
+
+.listing-row-buttons {
+  position: absolute;
+  right: 0;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.listing-row-main, .listing-row-detail, .listing-row-title {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
 }
 
-.listings-header {
-  font-weight: bold;
+.listing-row-main {
+  border-bottom: 1px solid #2988BC;
+}
+
+.listing-row-profile-pic {
+  border-right: 1px solid #2988BC;
+  width: 3%;
+}
+
+.listing-row-title {
+  flex-grow: 1;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  white-space: nowrap;
+  padding: 11px 10px 12px 10px;
+}
+.listing-row-title:hover {
+  background-color: #2988BC;
+  color: white;
+}
+.listing-row-title:hover a {
+  color: white;
+}
+
+.listing-row-detail-child {
+  font-size: 0.75rem;
+  border-right: 1px solid #2988BC;
 }
 
 .service-details-header {
@@ -2768,6 +2888,9 @@
 }
 .sidebar-link-item-container .sidebar-link-icon {
   margin-right: 20px;
+}
+.sidebar-link-item-container .sidebar-link-icon.active {
+  color: #ED463D;
 }
 
 .sidebar-link-item {
@@ -3153,6 +3276,9 @@
   border-radius: 100%;
   position: relative;
 }
+.profile-pic.square {
+  border-radius: 0;
+}
 
 .profile-pic:after {
   content: "";
@@ -3209,22 +3335,18 @@
 }
 
 .setting-child {
-  width: 45%;
+  flex-grow: 1;
+  flex-basis: 45%;
+  padding: 0 30px;
 }
 .setting-child.quarter {
-  width: 25%;
+  flex-basis: 25%;
 }
 .setting-child.three-quarter {
-  width: 70%;
+  flex-basis: 70%;
 }
 .setting-child.one-third {
-  width: 30%;
-}
-.setting-child.text-center {
-  text-align: center;
-}
-.setting-child.text-right {
-  text-align: right;
+  flex-basis: 30%;
 }
 
 .settings-col {
@@ -3246,13 +3368,21 @@
   text-align: center;
 }
 
+.business-hour-container {
+  margin: 0 auto 30px auto;
+}
+
 .hour-separator {
   flex-grow: 1;
   text-align: center;
 }
 
+.payment-icons {
+  text-align: right;
+}
+
 .payment-icon {
-  width: 10%;
+  width: 15%;
 }
 
 .payment-brand {
@@ -3382,10 +3512,8 @@
 
 .user-review-container {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
   margin: 0 auto 0 auto;
-  width: 75%;
   margin-bottom: 60px;
   padding: 15px;
 }
@@ -3401,12 +3529,25 @@
   width: 75%;
 }
 
-.user-review {
-  width: 100%;
-}
-
 .user-review-badge, .user-review-rating {
   margin-right: 15px;
+}
+
+.user-review {
+  flex-grow: 1;
+}
+
+#user-reviews-container {
+  display: flex;
+}
+
+#user-reviews-wrapper {
+  flex-grow: 2;
+  margin-right: 30px;
+}
+
+.user-reviews-placeholder-column {
+  flex-grow: 3;
 }
 
 @media only screen and (max-width: 414px) {
@@ -3625,13 +3766,13 @@
 
   .setting-child {
     width: 100%;
+    flex-basis: auto;
     margin-bottom: 30px;
+    padding: 0;
   }
   .setting-child.quarter, .setting-child.half, .setting-child.three-quarter {
+    flex-basis: auto;
     width: 100%;
-  }
-  .setting-child.text-center, .setting-child.text-right {
-    text-align: left;
   }
 
   .payment-method {
@@ -3652,6 +3793,9 @@
     margin-bottom: 30px;
   }
 
+  /* .business-hour-container {
+      width: 100%;
+  } */
   .settings-col {
     width: 100%;
   }
@@ -3917,6 +4061,18 @@ button:disabled {
   filter: brightness(75%);
   color: #DFDFDF;
   cursor: default;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 0;
+  padding: 5px 25px 5px 5px;
+}
+
+input {
+  padding: 5px;
 }
 
 *, *::before, *::after {

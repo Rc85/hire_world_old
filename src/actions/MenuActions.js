@@ -1,8 +1,7 @@
-export const ToggleMenu = (open, close, id) => {
+export const ToggleMenu = (show, id) => {
     return {
         type: 'TOGGLE_MENU',
-        open: open,
-        close: close,
-        id: id
+        show,
+        id
     }
 }

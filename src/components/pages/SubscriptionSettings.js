@@ -127,7 +127,7 @@ class SubscriptionSettings extends Component {
         
                         <span>Upgrading will have pro-rated credit applied to your next bill. See FAQ for more detail.</span>
         
-                        <StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'>
+                        <StripeProvider apiKey='pk_test_KgwS8DEnH46HAFvrCaoXPY6R'>
                             <Elements>
                                 <Checkout user={this.props.user.user} />
                             </Elements>

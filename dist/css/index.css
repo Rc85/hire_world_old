@@ -1081,7 +1081,7 @@
   background-color: black;
 }
 .main-panel a {
-  color: #2F496E;
+  color: #2988BC;
   text-decoration: none;
 }
 .main-panel a:hover {
@@ -1725,36 +1725,39 @@
   align-items: center;
   justify-content: flex-end;
   position: fixed;
+  max-height: 100%;
   bottom: 0;
   z-index: 99;
   width: 100vw;
-  height: 55px;
-  overflow-y: hidden;
-  transition: height 0.15s ease-in-out;
-  padding: 45px 20px 10px 20px;
+}
+#bottombar-container .bottombar-toggle-buttons {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  background: linear-gradient(45deg, #2A2A2A, #1F1F1F);
+  padding: 10px 20px;
+}
+#bottombar-container .bottombar-toggle-buttons #bottombar-toggle-button {
+  margin-left: auto;
 }
 #bottombar-container.expand {
   height: 100%;
 }
-#bottombar-container.hide {
-  display: none;
-}
-#bottombar-container .bottombar-toggle-button {
-  width: 100%;
-  text-align: center;
-  position: absolute;
-  top: 0;
-}
 
 #bottombar {
   width: 100%;
-  height: 100%;
+  position: absolute;
+  height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
   position: relative;
+  overflow-y: scroll;
+  transition: height 0.15s ease-in-out;
+}
+#bottombar.expand {
+  height: calc(100vh - 68px);
 }
 #bottombar .bottombar-item-icon {
   margin-right: 15px;
@@ -1765,13 +1768,19 @@
   width: 100%;
 }
 #bottombar .bottombar-item-container {
-  height: calc(100% + 55px);
-  overflow-y: auto;
+  overflow-y: scroll;
   width: 100%;
-  transition: opacity 0.15s ease-in-out;
+  /* top: 0;
+  left: 0;
+  position: absolute; */
+  transition: all 0.15s ease-in-out;
+  padding: 10px 20px 0px 20px;
 }
 #bottombar .bottombar-item-container.hide {
   opacity: 0;
+}
+#bottombar .bottombar-item-container.expand {
+  height: 100%;
 }
 #bottombar .bottombar-item-wrapper {
   display: flex;
@@ -1793,14 +1802,17 @@
 }
 #bottombar #bottombar-sectors-container {
   position: absolute;
+  top: 0;
   left: 100%;
   z-index: 1;
   background: linear-gradient(45deg, #2A2A2A, #1F1F1F);
-  width: 100%;
+  background-color: black;
+  width: 100vw;
   height: 100%;
   transition: left 0.15s ease-in-out;
   overflow-y: scroll;
   font-size: 2rem;
+  padding: 10px 20px 0px 20px;
 }
 #bottombar #bottombar-sectors-container.show {
   left: 0;
@@ -2732,7 +2744,7 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
 
 #response {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   color: black;
   display: flex;
   flex-direction: column;
@@ -3701,26 +3713,26 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
     margin-left: 10px;
   }
 
-  .titled-container:first-child {
+  .main-panel .titled-container:first-child {
     margin-top: 15px;
   }
-  .titled-container .titled-container-row-detail {
+  .main-panel .titled-container .titled-container-row-detail {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
   }
-  .titled-container .titled-container-row-detail > div:first-child {
+  .main-panel .titled-container .titled-container-row-detail > div:first-child {
     width: 100%;
   }
-  .titled-container .titled-container-row-detail > div:last-child {
+  .main-panel .titled-container .titled-container-row-detail > div:last-child {
     width: 100%;
   }
-  .titled-container .title-wrapper {
+  .main-panel .titled-container .title-wrapper {
     top: -18px;
     margin-left: 5px;
   }
-  .titled-container .title-wrapper .titled-container-icon {
+  .main-panel .titled-container .title-wrapper .titled-container-icon {
     display: none;
   }
 

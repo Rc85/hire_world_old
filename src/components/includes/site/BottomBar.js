@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink, withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown, faSignOutAlt, faThList, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp, faChevronDown, faSignOutAlt, faThList, faTimes, faBars } from '@fortawesome/free-solid-svg-icons';
 import { LogoutUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
 import LoginPanel from './LoginPanel';
@@ -19,32 +19,28 @@ class BottomBar extends Component {
     }
     
     componentDidUpdate(prevProps, prevState) {
-        if (prevProps.location.key !== this.props.location.key) {
-            this.toggleMenu(true);
-        }
-    }
-    
-    toggleMenu(forceClose) {
-        let showBottomBar = !this.state.showBottomBar;
-
-        if (forceClose) {
-            showBottomBar = false;
-        } else {
-            if (!this.state.showBottomBar) {
+        if (prevState.showBottomBar !== this.state.showBottomBar) {
+            if (this.state.showBottomBar) {
                 document.body.style.overflow = 'hidden';
             } else {
                 document.body.style.overflow = 'auto';
             }
         }
-        
-        this.setState({showBottomBar: showBottomBar, showMenu: true, showSectors: false});
+
+        if (prevProps.location.key !== this.props.location.key) {
+            this.setState({showBottomBar: false, showMenu: false, showSectors: false});
+        }
+    }
+    
+    toggleMenu() {
+        this.setState({showBottomBar: !this.state.showBottomBar, showMenu: !this.state.showMenu, showSectors: false});
     }
     
     render() {
         let bottombarContent;
 
         let browseLink = <div className='bottombar-item'>
-            <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'><FontAwesomeIcon icon={faThList} /></div><strong onClick={() => this.setState({showSectors: true, showMenu: false})}>Browse Listings</strong></div>
+            <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'><FontAwesomeIcon icon={faThList} /></div><strong onClick={() => this.setState({showSectors: true})}>Browse Listings</strong></div>
         </div>;
 
         if (this.props.user.user) {
@@ -71,25 +67,25 @@ class BottomBar extends Component {
         }
 
         return (
-            <div id='bottombar-container' className={`${this.state.showBottomBar ? 'expand' : ''} ${this.props.config.isTyping ? 'hide' : ''}`}>
-                <div className='bottombar-toggle-button'><FontAwesomeIcon icon={this.state.showBottomBar ? faChevronDown : faChevronUp} size='3x' onClick={() => this.toggleMenu()} /></div>
-
-                <div id='bottombar'>
-                    <div className={`bottombar-item-container ${!this.state.showMenu ? 'hide' : ''}`}>
+            <div id='bottombar-container' className={`${this.props.config.isTyping ? 'hide' : ''}`}>
+                <div id='bottombar' className={!this.state.showMenu ? '' : 'expand'}>
+                    <div className={`bottombar-item-container`}>
                         {browseLink}
                         {bottombarContent}
                     </div>
 
                     <div id='bottombar-sectors-container' className={this.state.showSectors ? 'show' : ''}>
-                        <div className='text-right'><FontAwesomeIcon icon={faTimes} id='bottombar-sectors-close-button' size='lg' onClick={() => this.setState({showSectors: false, showMenu: true})} /></div>
-
                         <div id='bottombar-sectors'>
+                            <div className='text-right'><FontAwesomeIcon icon={faTimes} id='bottombar-sectors-close-button' size='lg' onClick={() => this.setState({showSectors: false, showMenu: true})} /></div>
+
                             {this.props.sectors.map((sector, i) => {
                                 return <div key={i}><NavLink to={`/sectors/${sector.sector}`}>{sector.sector}</NavLink></div>
                             })}
                         </div>
                     </div>
                 </div>
+                
+                <div className='bottombar-toggle-buttons'><FontAwesomeIcon icon={this.state.showBottomBar ? faTimes : faBars} size='3x' onClick={() => this.toggleMenu()} id='bottombar-toggle-button' /></div>
             </div>
         );
     }

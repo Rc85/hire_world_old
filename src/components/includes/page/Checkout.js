@@ -12,6 +12,7 @@ import { GetSession } from '../../../actions/FetchActions';
 import AddressInput from './AddressInput';
 import Recaptcha from 'react-recaptcha';
 import InputWrapper from '../../utils/InputWrapper';
+import { isTyping } from '../../../actions/ConfigActions';
 
 var onloadCallback = function() {
     console.log('Recaptcha ready!');
@@ -21,10 +22,12 @@ class Checkout extends Component {
     constructor(props) {
         super(props);
 
+        // live plan id plan_EFVAGdrFIrpHx5
+        // test plan id plan_EAIyF94Yhy1BLB
         this.state = {
             type: 'checkout',
             status: 'Loading',
-            plan: 'plan_EFVAGdrFIrpHx5',
+            plan: 'plan_EAIyF94Yhy1BLB',
             name: '',
             defaultAddress: this.props.user.user_address && this.props.user.user_city && this.props.user.user_region && this.props.user.user_country && this.props.user.user_city_code ? true : false,
             saveAddress: false,
@@ -157,29 +160,31 @@ class Checkout extends Component {
                 </div>
 
                 <div className='setting-child mb-3'>
-                    <InputWrapper label='Name on Card'><input type='text' name='fullname' id='fullname' onChange={(e) => this.setState({name: e.target.value})} autoComplete='ccname' /></InputWrapper>
+                    <InputWrapper label='Name on Card'><input type='text' name='fullname' id='fullname' onChange={(e) => this.setState({name: e.target.value})} autoComplete='ccname' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
 
                     <label htmlFor='use-default-address'><input type='checkbox' name='use-default-address' id='use-default-address' checked={this.state.defaultAddress} onChange={() => this.useDefaultAddress()} /> Use address registered with this account</label>
                 </div>
 
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child'>
-                        <InputWrapper label='Credit Card Number'><CardNumberElement className='w-100' /></InputWrapper>
+                        <InputWrapper label='Credit Card Number'><CardNumberElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
                     </div>
                 </div>
 
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child'>
-                        <InputWrapper label='Expiry Date'><CardExpiryElement className='w-100' /></InputWrapper>
+                        <InputWrapper label='Expiry Date'><CardExpiryElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
                     </div>
 
                     <div className='setting-child'>
-                        <InputWrapper label='CVC'><CardCVCElement className='w-100' /></InputWrapper>
+                        <InputWrapper label='CVC'><CardCVCElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
                     </div>
                 </div>
             </React.Fragment>;
         }
 
+        // live plan id plan_EFVAGdrFIrpHx5
+        // test plan id plan_EAIyF94Yhy1BLB
         return (
             <div className='checkout mt-3'>
                 {status}
@@ -188,7 +193,7 @@ class Checkout extends Component {
                         <InputWrapper label='Choose Plan'>
                             <select name='plan' id='choose-plan' onChange={(e) => this.setState({plan: e.target.value})}>
                                 <option value=''>Select a plan</option>
-                                {!this.props.user.is_subscribed ? <option value='plan_EFVAGdrFIrpHx5'>Listing - $7/month</option> : ''}
+                                {!this.props.user.is_subscribed ? <option value='plan_EAIyF94Yhy1BLB'>Listing - $7/month</option> : ''}
                             </select>
                         </InputWrapper>
                     </div>

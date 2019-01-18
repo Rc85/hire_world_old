@@ -27,7 +27,7 @@ import PropTypes from 'prop-types';
 class Response extends Component {
     render() {
         return(
-            <div id='response'>
+            <div id='response' className='main-panel'>
                 <div className='text-center'>
                     <h3>{this.props.code !== 200 ? this.props.code : ''} {this.props.header}</h3>
     

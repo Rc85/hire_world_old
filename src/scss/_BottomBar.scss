@@ -5,34 +5,38 @@
     align-items: center;
     justify-content: flex-end;
     position: fixed;
+    max-height: 100%;
+    //overflow: hidden;
     bottom: 0;
     z-index: 99;
     width: 100vw;
-    height: 55px;
-    overflow-y: hidden;
-    transition: height 0.15s ease-in-out;
-    padding: 45px 20px 10px 20px;
+
+    .bottombar-toggle-buttons {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        background: linear-gradient(45deg, $theme-lightblack, $not-black);
+        padding: 10px 20px;
+
+        #bottombar-toggle-button { margin-left: auto; }
+    }
 
     &.expand { height: 100%; }
-    &.hide { display: none; }
-
-    .bottombar-toggle-button {
-        width: 100%;
-        text-align: center;
-        position: absolute;
-        top: 0;
-    }
 }
 
 #bottombar {
     width: 100%;
-    height: 100%;
+    position: absolute;
+    height: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
     position: relative;
+    overflow-y: scroll;
+    transition: height 0.15s ease-in-out;
+
+    &.expand { height: calc(100vh - 68px); }
 
     .bottombar-item-icon { margin-right: 15px; }
 
@@ -43,12 +47,16 @@
     }
 
     .bottombar-item-container {
-        height: calc(100% + 55px);
-        overflow-y: auto;
+        overflow-y: scroll;
         width: 100%;
-        transition: opacity 0.15s ease-in-out;
+        /* top: 0;
+        left: 0;
+        position: absolute; */
+        transition: all 0.15s ease-in-out;
+        padding: 10px 20px 0px 20px;
 
         &.hide { opacity: 0; }
+        &.expand { height: 100%; }
     }
 
     .bottombar-item-wrapper {
@@ -73,14 +81,17 @@
 
     #bottombar-sectors-container {
         position: absolute;
+        top: 0;
         left: 100%;
         z-index: 1;
         background: linear-gradient(45deg, $theme-lightblack, $not-black);
-        width: 100%;
+        background-color: black;
+        width: 100vw;
         height: 100%;
         transition: left 0.15s ease-in-out;
         overflow-y: scroll;
         font-size: 2rem;
+        padding: 10px 20px 0px 20px;
 
         &.show { left: 0; }
 

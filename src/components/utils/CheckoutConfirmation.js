@@ -18,13 +18,15 @@ class CheckoutConfirmation extends Component {
     render() {
         let planName, price, calcStripeFee, stripeFee, offsetStripeFee;
 
-        if (this.props.info.plan === 'plan_EAIyF94Yhy1BLB') {
+        // live plan id plan_EFVAGdrFIrpHx5
+        // test plan id plan_EAIyF94Yhy1BLB
+        //if (this.props.info.plan === 'plan_EAIyF94Yhy1BLB') {
             planName = 'Listing Account';
             price = 7.00;
             calcStripeFee = Math.round((price * 0.029) * 100);
             stripeFee = calcStripeFee / 100;
             offsetStripeFee = 0.02;
-        }
+        //}
 
         return (
             <div id='confirmation-modal' className='full-black-overlay'>

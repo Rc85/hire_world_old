@@ -7,7 +7,7 @@ import Pagination from '../utils/Pagination';
 import MessageRow from '../includes/page/MessageRow';
 import Loading from '../utils/Loading';
 import InquiryRow from '../includes/page/InquiryRow';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Redirect } from 'react-router-dom';
 import MessageDetails from '../pages/MessageDetails';
 import Response from '../pages/Response';
 import { GetUserNotificationAndMessageCount } from '../../actions/FetchActions';
@@ -201,79 +201,86 @@ class Inquiries extends Component {
     }
     
     render() {
-        console.log(this.state);
-        let status, body, message, loadingMessageStatus;
+        if (this.props.user.status === 'getting session') {
+            return <Loading size='7x' />
+        } else if (this.props.user.status === 'error') {
+            return <Redirect to='/' />;
+        } else if (this.props.user.status === 'get session success' && this.props.user.user) {
+            let status, body, message, loadingMessageStatus;
 
-        if (this.state.status === 'Loading') {
-            status = <Loading size='5x' />;
-        } else if (this.state.status === 'access error') {
-            return <Response code={404} header='Page Not Found' message={`The page you're trying to access does not exist`} />
-        }
-
-        let messages = this.state.messages.map((message, i) => {
-            let pinned = false;
-
-            if (this.state.pinnedMessages.indexOf(message.job_id) >= 0) {
-                pinned = true;
+            if (this.state.status === 'Loading') {
+                status = <Loading size='5x' />;
+            } else if (this.state.status === 'access error') {
+                return <Response code={404} header='Page Not Found' message={`The page you're trying to access does not exist`} />
             }
 
-            return <InquiryRow key={i} user={this.props.user.user} stage={this.props.match.params.stage} message={message} pin={() => this.pinMessage(message.job_id)} pinned={pinned} load={(id) => this.loadMessage(id, i)} loadedId={this.state.loadedJob.job ? this.state.loadedJob.job.job_id : ''} submitReview={(review, message, star) => this.submit(review, message, star, i)} status={this.state.status} />
-        });
+            let messages = this.state.messages.map((message, i) => {
+                let pinned = false;
 
-        if (this.state.messages.length > 0) {
-            body = <React.Fragment>
-                <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
+                if (this.state.pinnedMessages.indexOf(message.job_id) >= 0) {
+                    pinned = true;
+                }
 
-                <div className='inquiry-rows'>{messages}</div>
+                return <InquiryRow key={i} user={this.props.user.user} stage={this.props.match.params.stage} message={message} pin={() => this.pinMessage(message.job_id)} pinned={pinned} load={(id) => this.loadMessage(id, i)} loadedId={this.state.loadedJob.job ? this.state.loadedJob.job.job_id : ''} submitReview={(review, message, star) => this.submit(review, message, star, i)} status={this.state.status} />
+            });
 
-                <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
-            </React.Fragment>;
-        } else {
-            body = <div className='text-center'>
-                <h2 className='text-muted'>There are no messages</h2>
-            </div>;
-        }
+            if (this.state.messages.length > 0) {
+                body = <React.Fragment>
+                    <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
 
-        if (this.state.status === 'suspended') {
-            message = <div className='alert alert-danger'>You cannot retrieve your messages during a temporary ban.</div>
-        }
+                    <div className='inquiry-rows'>{messages}</div>
 
-        return (
-            <section id='inquiries'>
-                {this.state.status === 'Loading' ? <Loading size='5x' /> : ''}
+                    <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
+                </React.Fragment>;
+            } else {
+                body = <div className='text-center'>
+                    <h2 className='text-muted'>There are no messages</h2>
+                </div>;
+            }
 
-                <div id='message-list-column' className={this.state.showMessageList ? '' : 'hide'}>
-                    <div id='message-list-main-column'>
-                        <div className='message-filter-buttons-container'>
-                            <button className={`btn ${this.state.showing === 'all' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'all'})}>All</button>
-                            <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received'})}>Received</button>
-                            <button className={`btn ${this.state.showing === 'sent' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'sent'})}>Sent</button>
-                            <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned'})}>Pinned</button>
-                            <button id='close-message-column-button' className='btn btn-light' onClick={() => this.setState({showMessageList: false})}><FontAwesomeIcon icon={faChevronLeft} /></button>
+            if (this.state.status === 'suspended') {
+                message = <div className='alert alert-danger'>You cannot retrieve your messages during a temporary ban.</div>
+            }
+
+            return (
+                <section id='inquiries'>
+                    {status}
+
+                    <div id='message-list-column' className={this.state.showMessageList ? '' : 'hide'}>
+                        <div id='message-list-main-column'>
+                            <div className='message-filter-buttons-container'>
+                                <button className={`btn ${this.state.showing === 'all' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'all'})}>All</button>
+                                <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received'})}>Received</button>
+                                <button className={`btn ${this.state.showing === 'sent' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'sent'})}>Sent</button>
+                                <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned'})}>Pinned</button>
+                                <button id='close-message-column-button' className='btn btn-light' onClick={() => this.setState({showMessageList: false})}><FontAwesomeIcon icon={faChevronLeft} /></button>
+                            </div>
+                            
+                            {body}
                         </div>
-                        
-                        {body}
+
+                        <div id='message-list-mini-column' className={this.state.showMessageList ? 'hide' : ''}>
+                            <FontAwesomeIcon icon={faBars} size='2x' onClick={() => this.setState({showMessageList: true})} />
+                        </div>
                     </div>
 
-                    <div id='message-list-mini-column' className={this.state.showMessageList ? 'hide' : ''}>
-                        <FontAwesomeIcon icon={faBars} size='2x' onClick={() => this.setState({showMessageList: true})} />
+                    <div id='message-column'>
+                        {loadingMessageStatus}
+                        {this.state.loadedJob.job ?
+                            <MessageDetails
+                            status={this.state.status}
+                            job={this.state.loadedJob}
+                            stage={this.props.match.params.stage}
+                            removeJob={(decision) => this.removeJob(decision)}
+                            refresh={(id) => this.loadMessage(id, this.state.jobIndex)}
+                            />
+                        : <h1 className='load-message-text text-muted'>Select a message to display here</h1>}
                     </div>
-                </div>
+                </section>
+            )
+        }
 
-                <div id='message-column'>
-                    {loadingMessageStatus}
-                    {this.state.loadedJob.job ?
-                        <MessageDetails
-                        status={this.state.status}
-                        job={this.state.loadedJob}
-                        stage={this.props.match.params.stage}
-                        removeJob={(decision) => this.removeJob(decision)}
-                        refresh={(id) => this.loadMessage(id, this.state.jobIndex)}
-                        />
-                    : <h1 className='load-message-text text-muted'>Select a message to display here</h1>}
-                </div>
-            </section>
-        );
+        return <Redirect to='/' />
     }
 }
 

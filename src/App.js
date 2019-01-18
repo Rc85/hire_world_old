@@ -218,7 +218,9 @@ class App extends Component {
 					<Route exact path='/messages/:stage' render={() => <Pages.Dashboard user={this.props.user}><Pages.Inquiries user={this.props.user} /></Pages.Dashboard>} />
 
 					<Route exact path='/settings/account' render={() =>  <Pages.Dashboard user={this.props.user}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
-					<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user}><StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+					{/* // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
+            		// live key pk_live_wJ7nxOazDSHu9czRrGjUqpep */}
+					<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user}><StripeProvider apiKey='pk_test_KgwS8DEnH46HAFvrCaoXPY6R'><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
 					<Route exact path='/settings/listing' render={() => <Pages.Dashboard user={this.props.user}><Pages.Listing user={this.props.user} /></Pages.Dashboard>} />
 					<Route exact path='/settings/subscription' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
 
@@ -228,7 +230,7 @@ class App extends Component {
 
 					<Route exact path='/sectors/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
 
-					<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Subscribed!'} message={`Thank you for subscribing to M-ploy. We hope you'll enjoy our services.`}><div><NavLink to='/settings/listing'>Start listing now</NavLink></div></Pages.Response>} />
+					<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Subscribed!'} message={`Thank you for subscribing to M-ploy. We hope you'll enjoy our service.`}><div><NavLink to='/settings/listing'>Start listing now</NavLink></div></Pages.Response>} />
 
 					<Route exact path='/subscription/cancelled' render={() => <Pages.Response code={200} header={'Unsubscribed!'} message={'We hate to see you go. Please take a moment and give M-ploy a rating.'}><div className='d-flex-center-center'><ReviewMploy /></div></Pages.Response>} />
 

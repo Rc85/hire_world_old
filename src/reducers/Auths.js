@@ -1,5 +1,5 @@
 const loginInitialState = {
-    status: '',
+    status: 'getting session',
     statusMessage: '',
     user: null,
     notifications: 0,

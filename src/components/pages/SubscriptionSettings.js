@@ -12,6 +12,8 @@ import { connect } from 'react-redux';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSyncAlt } from '@fortawesome/free-solid-svg-icons';
+import { Redirect } from 'react-router-dom';
+import Loading from '../utils/Loading';
 
 class SubscriptionSettings extends Component {
     constructor(props) {
@@ -58,7 +60,11 @@ class SubscriptionSettings extends Component {
     }
     
     render() {
-        if (this.props.user.user) {
+        if (this.props.user.status === 'getting session') {
+            return <Loading size='7x' />
+        } else if (this.props.user.status === 'error') {
+            return <Redirect to='/' />;
+        } else if (this.props.user.status === 'get session success' && this.props.user.user) {
             let subscriptionInfo, unsubscribeButton, billingDate, nickname, price;
 
             if (this.props.user.user && this.props.user.user.is_subscribed) {
@@ -137,7 +143,7 @@ class SubscriptionSettings extends Component {
             )
         }
 
-        return null;
+        return <Redirect to='/' />;
     }
 }
 

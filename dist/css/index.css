@@ -1261,6 +1261,12 @@
   white-space: pre-line;
 }
 
+#review-mploy {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
 /* .main-container {
     flex: 1;
     display: flex;
@@ -3057,18 +3063,20 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
   align-items: center;
   margin-bottom: 30px;
 }
-.submit-review-container .submit-review .submit-review-header .review-star {
+.submit-review-container .submit-review .text-area-container {
+  width: 100%;
+}
+
+.review-star {
   color: #6F6F6F;
   cursor: pointer;
 }
-.submit-review-container .submit-review .submit-review-header .review-star:hover, .submit-review-container .submit-review .submit-review-header .review-star.active {
+.review-star:hover, .review-star.active {
   color: #ffc107;
 }
-.submit-review-container .submit-review .review-rating {
+
+.review-rating {
   display: flex;
-}
-.submit-review-container .submit-review .text-area-container {
-  width: 100%;
 }
 
 .tab-bar {

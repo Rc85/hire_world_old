@@ -9,7 +9,6 @@ export const LoginUser = (data) => {
 
         return fetch.post('/api/auth/login', data)
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'get session success') {
                 dispatch(GetSession());
             } else if (resp.data.status === 'error') {

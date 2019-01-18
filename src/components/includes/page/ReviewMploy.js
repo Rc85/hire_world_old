@@ -34,7 +34,7 @@ class ReviewMploy extends Component {
     
     render() {
         if (this.state.status === 'Sending') {
-            return <div className='position-relative pt-5'><Loading size='2x' /></div>;
+            return <div className='position-relative'><Loading size='2x' /></div>;
         } else if (this.state.status === 'Rated') {
             return <div>
                 <FontAwesomeIcon icon={faCheckCircle} size='2x' color='limegreen' />

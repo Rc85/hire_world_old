@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import UserInfo from '../includes/page/UserInfo';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Redirect } from 'react-router-dom';
 import UserProfilePic from '../includes/page/UserProfilePic';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -120,7 +120,11 @@ class EditUser extends Component {
     }
     
     render() {
-        if (this.props.user.user) {
+        if (this.props.user.status === 'getting session') {
+            return <Loading size='7x' />
+        } else if (this.props.user.status === 'error') {
+            return <Redirect to='/' />;
+        } else if (this.props.user.status === 'get session success' && this.props.user.user) {
             let notificationStatus, activityStatus;
 
             if (this.state.notificationStatus === 'Loading') {
@@ -235,7 +239,7 @@ class EditUser extends Component {
             )
         }
 
-        return null;
+        return <Redirect to='/' />;
     }
 }
 
@@ -244,10 +248,4 @@ EditUser.propTypes = {
     status: PropTypes.string
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.Login
-    }
-}
-
-export default connect(mapStateToProps)(EditUser);
+export default connect()(EditUser);

@@ -2,15 +2,22 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ListSettings from '../includes/page/ListSettings';
 import { Elements, StripeProvider } from 'react-stripe-elements';
+import { Redirect } from 'react-router-dom';
 import Checkout from '../includes/page/Checkout';
 import BusinessHoursSetting from '../includes/page/BusinessHoursSettings';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusSquare } from '@fortawesome/free-solid-svg-icons';
+import Loading from '../utils/Loading';
 
 class Listing extends Component {
     render() {
-        if (this.props.user.user) {
+        console.log(this.props.user.status)
+        if (this.props.user.status === 'getting session') {
+            return <Loading size='7x' />
+        } else if (this.props.user.status === 'error') {
+            return <Redirect to='/' />;
+        } else if (this.props.user.status === 'get session success' && this.props.user.user) {
             // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
             // live key pk_live_wJ7nxOazDSHu9czRrGjUqpep
             let payment = <TitledContainer title='Subscribe' bgColor='success' icon={<FontAwesomeIcon icon={faPlusSquare} />}>
@@ -35,7 +42,7 @@ class Listing extends Component {
             );
         }
 
-        return null;
+        return <Redirect to='/' />;
     }
 }
 

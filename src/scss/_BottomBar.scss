@@ -19,6 +19,7 @@
         padding: 10px 20px;
 
         #bottombar-toggle-button { margin-left: auto; }
+        #bottombar-button-container { position: relative; }
     }
 
     &.expand { height: 100%; }

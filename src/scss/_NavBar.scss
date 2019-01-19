@@ -17,18 +17,3 @@
 .icon-counter {
     top: 100%;
 }
-
-#notification-panel {
-    position: absolute;
-    top: 100%;
-    max-height: 500px;
-    background: $theme-blue;
-    color: $theme-fg;
-    padding: 20px;
-    border: 1px solid $theme-fg;
-    width: 100%;
-    z-index: 3;
-    overflow-y: scroll;
-
-    hr { background: $theme-fg }
-}

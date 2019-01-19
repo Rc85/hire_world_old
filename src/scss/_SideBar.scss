@@ -11,9 +11,11 @@
     margin-right: 30px;
     display: flex;
     justify-content: flex-end;
+    position: relative;
 
     .sidebar-button:first-child { margin-right: 5px; }
-    .sidebar-button:hover {
+
+    a:hover, #notification-icon:hover {
         color: $theme-highlight;
         cursor: pointer;
     }
@@ -83,4 +85,27 @@
 
         &.active { color: $theme-highlight; }
     }
+}
+
+#notification-panel-container {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 30px);
+    z-index: 3;
+    width: 100%;
+    transform: scaleX(0);
+    transition: transform 0.15s ease-in-out;
+    transform-origin: left;
+    padding: 20px;
+    background: $theme-blue;
+    border: 1px solid black;
+    box-shadow: 10px 10px 10px $theme-lightblack;
+
+    &.show { transform: scaleX(1); }
+}
+
+#notification-panel {
+    color: $theme-fg;
+    max-height: 500px;
+    overflow-y: auto;
 }

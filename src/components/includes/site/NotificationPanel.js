@@ -20,7 +20,7 @@ class NotificationPanel extends Component {
     }
     
     componentDidMount() {
-        document.body.addEventListener('click', this.closeNotification = (e) => {
+        /* document.body.addEventListener('click', this.closeNotification = (e) => {
             function composedPath (el) {
                 var path = [];
             
@@ -41,7 +41,7 @@ class NotificationPanel extends Component {
             if (!composedPath(e.target).find(obj => obj.id === 'notification-panel')) {
                 this.props.close();
             }
-        });
+        }); */
 
         fetch.post('/api/get/user/notifications', {new: true})
         .then(resp => {
@@ -91,8 +91,10 @@ class NotificationPanel extends Component {
         }
 
         return (
-            <div id='notification-panel'>
-                {notifications}
+            <div id='notification-panel-container' className={this.props.show ? 'show' : ''}>
+                <div id='notification-panel'>
+                    {notifications}
+                </div>
             </div>
         );
     }

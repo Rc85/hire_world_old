@@ -422,6 +422,19 @@
     }
 
     .listing-row-buttons { display: none; }
+
+    
+    #notification-panel-container {
+        position: absolute;
+        top: auto;
+        bottom: calc(100% + 10px);
+        left: -20px;
+        width: 75vw;
+        transform: scaleY(0);
+        transform-origin: bottom;
+
+        &.show { transform: scaleY(1); }
+    }
 }
 
 @media only screen and (min-width: 321px) and (max-width: 375px) {

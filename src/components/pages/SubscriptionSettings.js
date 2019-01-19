@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import { Redirect } from 'react-router-dom';
 import Loading from '../utils/Loading';
+import Tooltip from '../utils/Tooltip';
 
 class SubscriptionSettings extends Component {
     constructor(props) {
@@ -68,8 +69,7 @@ class SubscriptionSettings extends Component {
             let subscriptionInfo, unsubscribeButton, billingDate, nickname, price;
 
             if (this.props.user.user && this.props.user.user.is_subscribed) {
-                unsubscribeButton = <React.Fragment><button id='unsubscribe-listing-button' className='btn btn-danger ml-1' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to unsubscribe?', false, {action: 'unsubscribe'}))}>Unsubscribe</button>
-                <UncontrolledTooltip placement='top' target='unsubscribe-listing-button' delay={0}>Cancel your listing subscription</UncontrolledTooltip></React.Fragment>;
+                unsubscribeButton = <Tooltip text='Cancel your listing subscription' placement='left'><button id='unsubscribe-listing-button' className='btn btn-danger ml-1' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to unsubscribe?', false, {action: 'unsubscribe'}))}>Unsubscribe</button></Tooltip>;
             }
 
             let now = new Date().getTime() / 1000;

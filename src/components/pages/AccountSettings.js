@@ -67,7 +67,7 @@ class AccountSettings extends Component {
                 <section id='user-settings' className='main-panel'>
                     {status}
 
-                    <TitledContainer title='Account Settings' bgColor='yellow' textColor='black' icon={<FontAwesomeIcon icon={faUserCircle} />}>
+                    <TitledContainer title='Account Settings' bgColor='yellow' textColor='black' icon={<FontAwesomeIcon icon={faUserCircle} />} shadow>
                         <ProfileSettings user={this.props.user} />
         
                         <hr/>
@@ -94,7 +94,7 @@ class AccountSettings extends Component {
         
                             <div className='settings-col'>
                                 <div className='setting-col-field mb-3'>
-                                    <Tooltip text='You will receive email when you have new messages and when there are changes to your account.' placement='top'><label htmlFor='emailNotifications'>Email notifications: <FontAwesomeIcon icon={faQuestionCircle} id='email-notification-tips'  className='tooltip-icon' /></label></Tooltip>
+                                    <Tooltip text='You will receive email when you have new messages and when changes are made to your account.' placement='top'><label htmlFor='emailNotifications'>Email notifications: <FontAwesomeIcon icon={faQuestionCircle} id='email-notification-tips'  className='tooltip-icon' /></label></Tooltip>
         
                                     <SlideToggle status={this.props.user.user && this.props.user.user.email_notifications ? this.props.user.user.email_notifications : false} id='emailNotifications' onClick={() => this.saveSetting('email_notifications')} />
                                 </div>

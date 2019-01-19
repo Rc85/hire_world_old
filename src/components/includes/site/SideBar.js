@@ -14,6 +14,7 @@ import fetch from 'axios';
 import LoginPanel from './LoginPanel';
 import BrowseMenu from '../site/BrowseMenu';
 import { ToggleMenu } from '../../../actions/MenuActions';
+import NotificationPanel from '../site/NotificationPanel';
 
 class SideBar extends Component {
     constructor(props) {
@@ -29,9 +30,19 @@ class SideBar extends Component {
             this.props.dispatch(ToggleMenu(true, 'browse-menu'));
         }
     }
+
+    showNotificationPanel(e) {
+        e.stopPropagation();
+
+        if (this.props.menu.id = 'notification-panel' && this.props.menu.show) {
+            this.props.dispatch(ToggleMenu(false, 'notification-panel'));
+        } else {
+            this.props.dispatch(ToggleMenu(true, 'notification-panel'));
+        }
+    }
     
     render() {
-        let sidebarContent;
+        let sidebarContent, notificationPanel;
 
         let browseLink = <div className='sidebar-link-container'><Link
         className='browse-listing-link'
@@ -83,8 +94,9 @@ class SideBar extends Component {
                 <div className='text-center'><img src='/images/logo_sm.png' id='m-ploy-logo' onClick={() => location.href = '/'} /></div>
 
                 <div id='sidebar-buttons-container'>
-                    <div className='sidebar-button'><FontAwesomeIcon icon={faQuestionCircle} size='lg' /></div>
-                    {this.props.user.user ? <div className='notification-button-container sidebar-button'><FontAwesomeIcon icon={faBell} size='lg' /></div> : ''}
+                    <div className='sidebar-button'><a href='/faq'><FontAwesomeIcon icon={faQuestionCircle} size='lg' /></a></div>
+                    {this.props.user.user ? <div className='notification-button-container sidebar-button'><FontAwesomeIcon icon={faBell} size='lg' id='notification-icon' onClick={(e) => this.showNotificationPanel(e)}/>
+                    <NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} /></div> : ''}
                 </div>
 
                 <hr className='w-90' />
@@ -124,9 +136,9 @@ class Link extends Component {
         }
 
         if (this.props.onClick) {
-            link = <div className={`sidebar-link-item-container ${this.props.active ? 'active' : ''} ${this.props.className ? this.props.className : ''}`} onMouseOver={() => this.handleMouseOver()} onMouseOut={() => this.setState({hover: false})}>
+            link = <div className={`sidebar-link-item-container ${this.props.active ? 'active' : ''} ${this.props.className ? this.props.className : ''}`} onMouseOver={() => this.handleMouseOver()} onMouseOut={() => this.setState({hover: false})} onClick={(e) => this.props.onClick(e)}>
                 <div className={`sidebar-link-item-wrapper ${this.props.className ? this.props.className : ''}`}>
-                    <div className={`sidebar-link-item ${this.props.className ? this.props.className : ''}`} onClick={(e) => this.props.onClick(e)}>
+                    <div className={`sidebar-link-item ${this.props.className ? this.props.className : ''}`}>
                         {this.props.icon ? <div className={`sidebar-link-icon ${this.props.active ? 'active' : ''} ${this.props.className ? this.props.className : ''}`}>{this.props.icon}</div> : ''}
                         <div className={`sidebar-link-text ${this.props.className ? this.props.className : ''}`}>{this.props.text}</div>
                     </div>

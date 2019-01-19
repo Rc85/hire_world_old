@@ -2,10 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink, withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown, faSignOutAlt, faThList, faTimes, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp, faChevronDown, faSignOutAlt, faThList, faTimes, faBars, faBell } from '@fortawesome/free-solid-svg-icons';
 import { LogoutUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
 import LoginPanel from './LoginPanel';
+import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
+import NotificationPanel from './NotificationPanel';
+import { ToggleMenu } from '../../../actions/MenuActions';
 
 class BottomBar extends Component {
     constructor(props) {
@@ -34,6 +37,16 @@ class BottomBar extends Component {
     
     toggleMenu() {
         this.setState({showBottomBar: !this.state.showBottomBar, showMenu: !this.state.showMenu, showSectors: false});
+    }
+
+    showNotificationPanel(e) {
+        e.stopPropagation();
+
+        if (this.props.menu.id === 'notification-panel' && this.props.menu.show) {
+            this.props.dispatch(ToggleMenu(false, 'notification-panel'));
+        } else {
+            this.props.dispatch(ToggleMenu(true, 'notification-panel'));
+        }
     }
     
     render() {
@@ -85,7 +98,15 @@ class BottomBar extends Component {
                     </div>
                 </div>
                 
-                <div className='bottombar-toggle-buttons'><FontAwesomeIcon icon={this.state.showBottomBar ? faTimes : faBars} size='3x' onClick={() => this.toggleMenu()} id='bottombar-toggle-button' /></div>
+                <div className='bottombar-toggle-buttons'>
+                    <div id='bottombar-button-container'>
+                        <FontAwesomeIcon icon={faBell} size='2x' className='mr-2' onClick={(e) => this.showNotificationPanel(e)} />
+                        <a href='/faq'><FontAwesomeIcon icon={faQuestionCircle} size='2x' /></a>
+                        <NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} />
+                    </div>
+
+                    <FontAwesomeIcon icon={this.state.showBottomBar ? faTimes : faBars} size='2x' onClick={() => this.toggleMenu()} id='bottombar-toggle-button' />
+                </div>
             </div>
         );
     }
@@ -99,7 +120,8 @@ BottomBar.propTypes = {
 const mapStateToProps = state => {
     return {
         config: state.Config,
-        sectors: state.Sectors.sectors
+        sectors: state.Sectors.sectors,
+        menu: state.Menu
     }
 }
 

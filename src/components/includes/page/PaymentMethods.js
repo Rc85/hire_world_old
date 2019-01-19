@@ -54,6 +54,7 @@ class PaymentMethods extends Component {
     }
 
     render() {
+        console.log(this.props.status);
         let brand;
 
         if (this.props.payment.brand === 'Visa') {

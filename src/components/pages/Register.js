@@ -23,7 +23,7 @@ class Register extends Component {
         let component = <RegisterForm callback={(status, message) => this.setState({status: status, statusMessage: message})}/>;
 
         if (this.state.status === 'success') {
-            component = <Response code={200} header='Success!' message='You are registered. Please check your email to confirm your registration.' />;
+            component = <Redirect to='/registration/success' />;
         }
 
         if (this.props.user.user) {

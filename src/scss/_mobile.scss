@@ -432,6 +432,7 @@
         width: 75vw;
         transform: scaleY(0);
         transform-origin: bottom;
+        box-shadow: none;
 
         &.show { transform: scaleY(1); }
     }

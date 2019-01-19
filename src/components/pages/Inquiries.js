@@ -211,7 +211,7 @@ class Inquiries extends Component {
             if (this.state.status === 'Loading') {
                 status = <Loading size='5x' />;
             } else if (this.state.status === 'access error') {
-                return <Response code={404} header='Page Not Found' message={`The page you're trying to access does not exist`} />
+                return <Redirect to='/error/404' />
             }
 
             let messages = this.state.messages.map((message, i) => {

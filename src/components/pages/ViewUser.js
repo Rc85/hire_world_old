@@ -148,11 +148,11 @@ class ViewUser extends Component {
         let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, reviewed, reportButton, businessName, message, friendIcon, username, businessHours;
 
         if (this.state.status === 'access error') {
-            return <Response header={'Error'} message={this.state.statusMessage} />;
+            return <Redirect to='/error/500' />
         } else if (this.state.status === 'Loading') {
             return <Loading size='7x' />;
         } else if (this.state.status === 'redirect') {
-            return <Redirect to='/account/login' />;
+            return <Redirect to='/' />;
         }
 
         if (this.state.reviews && this.props.user) {

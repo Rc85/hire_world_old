@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
@@ -70,7 +70,7 @@ class Sectors extends Component {
         });
 
         if (this.state.status === 'access error') {
-            return(<Response code={500} header='Internal Server Error' message={this.state.statusMessage} />)
+            return <Redirect to='/error/500' />
         }
 
         return(

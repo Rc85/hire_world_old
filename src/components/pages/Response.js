@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 
 /* Response component is the component to direct to after a success form submission or going to a link that is not found */
 
@@ -26,12 +27,25 @@ import PropTypes from 'prop-types';
  */
 class Response extends Component {
     render() {
+        console.log(this.props);
+        let code, header, message;
+
+        if (this.props.match.params.code === '404') {
+            code = 404;
+            header = 'Not Found';
+            message = `The page you're trying to access does not exist`;
+        } else if (this.props.match.params.code === '500') {
+            code = 500;
+            header = 'Internal Server Error';
+            message = `An error occurred while trying to process your request`;
+        }
+
         return(
             <div id='response' className='main-panel'>
                 <div className='text-center'>
-                    <h3>{this.props.code !== 200 ? this.props.code : ''} {this.props.header}</h3>
+                    <h3>{code} {header}</h3>
     
-                    <div dangerouslySetInnerHTML={{__html: this.props.message}}></div>
+                    {this.props.code ? <div dangerouslySetInnerHTML={{__html: this.props.message}}></div> : message}
 
                     {this.props.children ? this.props.children : ''}
                 </div>
@@ -54,4 +68,4 @@ Response.propTypes = {
     ])
 }
 
-export default Response;
+export default withRouter(Response);

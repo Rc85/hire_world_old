@@ -142,13 +142,9 @@ class ListingDetails extends Component {
         }
 
         if (this.state.status === 'access error') {
-            return(
-                <Response code={500} header='Internal Server Error' message={this.state.statusMessage} />
-            )
+            return <Redirect to='/error/500' />
         } else if (this.state.status === 'Loading') {
-            return(
-                <Loading size='7x' />
-            )
+            return <Loading size='7x' />
         } else {
             return(
                 <section id='listing-details' className='main-panel w-100'>

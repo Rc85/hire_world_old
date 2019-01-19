@@ -712,7 +712,7 @@ class MessageDetails extends Component {
         }
 
         if (this.state.status === 'fetch error' || this.state.status === 'access error') {
-            return <Response code={404} header='Not Found' message={this.state.statusMessage} />
+            return <Redirect to='/error/404' />
         } else if (this.state.status === 'offer accepted') {
             return <Response header='Good Job!' message={`The offer was accepted and a job has been created. Keep up the good work!`} />
         } else if (this.state.status === 'job complete') {

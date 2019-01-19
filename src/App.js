@@ -231,10 +231,12 @@ class App extends Component {
 					<Route exact path='/sectors/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
 
 					<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Subscribed!'} message={`Thank you for subscribing to M-ploy. We hope you'll enjoy our service.`}><div><NavLink to='/settings/listing'>Start listing now</NavLink></div></Pages.Response>} />
-
+					<Route exact path='/registration/success' render={() => <Pages.Response code={200} header={'Registration Success!'} message='An confirmation email has been sent. Please click the link provided to activate your account' />} />
 					<Route exact path='/subscription/cancelled' render={() => <Pages.Response code={200} header={'Unsubscribed!'} message={'We hate to see you go. Please take a moment and give M-ploy a rating.'}><div className='d-flex-center-center'><ReviewMploy /></div></Pages.Response>} />
 
-					<Route render={() => <Pages.Response code={404} header={'Not Found'} message={`This page you're trying to access does not exist.`} />} />
+					<Route exact path='/error/:code' render={() => <Pages.Response />} />
+
+					<Route render={() => <Redirect to='/error/404' />} />
 				</Switch>
 
 				<div className='alert-container'>{alerts}</div>

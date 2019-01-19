@@ -4118,6 +4118,7 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
     width: 75vw;
     transform: scaleY(0);
     transform-origin: bottom;
+    box-shadow: none;
   }
   #notification-panel-container.show {
     transform: scaleY(1);

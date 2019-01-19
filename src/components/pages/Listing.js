@@ -20,7 +20,7 @@ class Listing extends Component {
         } else if (this.props.user.status === 'get session success' && this.props.user.user) {
             // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
             // live key pk_live_wJ7nxOazDSHu9czRrGjUqpep
-            let payment = <TitledContainer title='Subscribe' bgColor='success' icon={<FontAwesomeIcon icon={faPlusSquare} />}>
+            let payment = <TitledContainer title='Subscribe' bgColor='success' icon={<FontAwesomeIcon icon={faPlusSquare} />} shadow>
                 <StripeProvider apiKey='pk_test_KgwS8DEnH46HAFvrCaoXPY6R'>
                     <div id='payment-input'>To begin listing, you need to subscribe to a monthly plan.
                         <Elements>

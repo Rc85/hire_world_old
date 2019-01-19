@@ -128,7 +128,7 @@ class SubscriptionSettings extends Component {
             // live key pk_live_wJ7nxOazDSHu9czRrGjUqpep
             return (
                 <section id='subscription-setting' className='main-panel'>
-                    <TitledContainer title='Subscription Setting' bgColor='orange' icon={<FontAwesomeIcon icon={faSyncAlt} />}>
+                    <TitledContainer title='Subscription Setting' bgColor='orange' icon={<FontAwesomeIcon icon={faSyncAlt} />} shadow>
                         {subscriptionInfo}
         
                         <span>Upgrading will have pro-rated credit applied to your next bill. See FAQ for more detail.</span>

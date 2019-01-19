@@ -10,7 +10,8 @@ import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';
 import { unsaveListing } from '../utils/Utils';
 import { LogError } from '../utils/LogError';
-import Response from './Response'
+import Response from './Response';
+import { Redirect } from 'react-router-dom';
 
 class FriendsList extends Component {
     constructor(props) {
@@ -139,9 +140,7 @@ class FriendsList extends Component {
         })
         
         if (this.state.status === 'access error') {
-            return(
-                <div className='blue-panel three-rounded'><Response code={500} header='Internal Server Error' message={this.state.statusMessage} /></div>
-            )
+            return <Redirect to='/error/500' />;
         }
 
         return(

@@ -166,7 +166,7 @@ class PaymentSettings extends Component {
         } else if (this.props.user.status === 'get session success' && this.props.user.user) {
             return (
                 <section id='payment-settings' className='main-panel'>
-                    <TitledContainer title='Payment Settings' bgColor='green' icon={<FontAwesomeIcon icon={faCreditCard} />}>
+                    <TitledContainer title='Payment Settings' bgColor='green' icon={<FontAwesomeIcon icon={faCreditCard} />} shadow>
                         <div className='setting-child payment-icons'>
                             <img src='/images/powered_by_stripe.png' className='payment-icon mr-1' />
                             <img src='/images/payment_methods.png' className='payment-icon' />

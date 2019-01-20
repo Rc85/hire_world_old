@@ -1,5 +1,6 @@
 import fetch from 'axios';
 import { LogError } from '../components/utils/LogError';
+import { Alert } from './AlertActions';
 
 export const GetSession = () => {
     return dispatch => {
@@ -69,10 +70,6 @@ const UpdateSectorsError = (status) => {
     }
 }
 
-export const UpdateUserNotifications = () => {
-    fetch.get
-}
-
 export const GetUserNotificationAndMessageCount = () => {
     return dispatch => {
         fetch.get('/api/get/user/notification-and-message-count')
@@ -95,5 +92,27 @@ const UpdateUserNotificationAndMessageCount = (notifications, messages) => {
             completed: messages.unread_completed,
             abandoned: messages.unread_abandoned
         }
+    }
+}
+
+export const UpdateUserNotifications = () => {
+    return dispatch => {
+        fetch.post('/api/user/notifications/read')
+        .then(resp => {
+            console.log(resp);
+            if (resp.data.status === 'success') {
+                dispatch(UpdateUserNotificationsToRead());
+            } else {
+                dispatch(Alert('error', 'Failed to update notifications count'));
+            }
+        })
+        .catch(err => LogError(err, '/api/user/notifications/read'));
+    }
+}
+
+const UpdateUserNotificationsToRead = () => {
+    return {
+        type: 'UPDATE_NOTIFICATIONS',
+        notifications: '0'
     }
 }

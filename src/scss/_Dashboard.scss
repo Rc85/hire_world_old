@@ -12,12 +12,22 @@
 #dashboard-main {
     position: relative;
     width: 80%;
+
+    a {
+        color: $theme-highlight;
+        text-decoration: none;
+
+        &:hover {
+            color: $theme-alt-highlight;
+            text-decoration: underline;
+        }
+    }
 }
 
 #main-panel-bg {
     position: absolute;
     width: 100%;
-    height: 15%;
+    height: 150px;
     background-color: $theme-alt-highlight;
     z-index: -1;
 }
@@ -43,7 +53,15 @@
         width: 90%;
         display: flex;
 
-        #dashboard-header-user-info { margin-left: 15px; }
+        #dashboard-header-user-info {
+            flex-grow: 1;
+            margin-left: 15px;
+            
+            a:hover {
+                color: $theme-blue;
+                text-decoration: underline;
+            }
+        }
 
         .profile-pic-wrapper { width: 15%; }
     }
@@ -66,4 +84,43 @@
 .load-more-button {
     text-align: center;
     margin-top: 30px;
+}
+
+.activity-badge { flex-grow: 1; }
+.activity-timestamp { font-size: 0.8rem; }
+
+.edit-user-header-field {
+    margin-bottom: 5px;
+
+    h3 { display: flex; }
+}
+
+.edit-user-field-text {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.edit-user-field-text, .edit-user-field-icon { margin-right: 5px; }
+
+.edit-user-field-form {
+    display: flex;
+    width: 100%;
+}
+
+.edit-user-social-media-button {
+    margin-right: 15px;
+    cursor: pointer;
+    color: $theme-highlight;
+
+    &:hover { color: $theme-blue; }
+}
+
+#edit-user-social-media {
+    position: relative;
+
+    .edit-user-field-container {
+        position: absolute;
+        z-index: 4;
+    }
 }

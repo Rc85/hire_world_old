@@ -218,7 +218,6 @@ class ViewUser extends Component {
                 username = this.state.user.username;
             }
         }
-        console.log(this.state);
         
         return(
             <div id='view-user' className='main-panel'>

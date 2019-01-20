@@ -12,7 +12,6 @@ import Loading from '../utils/Loading';
 
 class Listing extends Component {
     render() {
-        console.log(this.props.user.status)
         if (this.props.user.status === 'getting session') {
             return <Loading size='7x' />
         } else if (this.props.user.status === 'error') {

@@ -94,9 +94,9 @@ class SideBar extends Component {
                 <div className='text-center'><img src='/images/logo_sm.png' id='m-ploy-logo' onClick={() => location.href = '/'} /></div>
 
                 <div id='sidebar-buttons-container'>
-                    <div className='sidebar-button'><a href='/faq'><FontAwesomeIcon icon={faQuestionCircle} size='lg' /></a></div>
-                    {this.props.user.user ? <div className='notification-button-container sidebar-button'><FontAwesomeIcon icon={faBell} size='lg' id='notification-icon' onClick={(e) => this.showNotificationPanel(e)}/>
-                    <NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} /></div> : ''}
+                    <div className='sidebar-button'><a href='/faq'>
+                        <FontAwesomeIcon icon={faQuestionCircle} size='lg' /></a></div>
+                    {this.props.user.user ? <React.Fragment><div className='notification-button-container sidebar-button' onClick={(e) => this.showNotificationPanel(e)}>{parseInt(this.props.user.notifications) > 0 ? <span className='notification-counter mini-badge mini-badge-danger'>{this.props.user.notifications}</span> : ''}<FontAwesomeIcon icon={faBell} size='lg' id='notification-icon'/></div><NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} user={this.props.user} /></React.Fragment> : ''}
                 </div>
 
                 <hr className='w-90' />

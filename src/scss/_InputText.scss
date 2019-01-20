@@ -38,7 +38,6 @@
     .InputElement, input { padding: 20px 6px 10px 6px; } */
 
     input, select {
-        border: 0;
         width: 100%;
         /* color: black;
         background-color: white;
@@ -46,4 +45,13 @@
 
         &:disabled { background-color: $theme-lightgrey; }
     }
+    
+    input {
+        border-left: 0;
+        border-bottom: 1px solid $theme-lightgrey;
+        border-top: 0;
+        border-right: 0;
+    }
+
+    select { border: 0; }
 }

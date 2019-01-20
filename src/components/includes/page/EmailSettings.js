@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UncontrolledTooltip } from 'reactstrap';
 import Tooltip from '../../utils/Tooltip';
 import InputWrapper from '../../utils/InputWrapper';
+import { isTyping } from '../../../actions/ConfigActions';
 
 class EmailSettings extends Component {
     constructor(props) {
@@ -45,7 +46,9 @@ class EmailSettings extends Component {
         return(
             <div id='email-settings' className='mb-3'>
                 <div>
-                    <div className='d-flex-end-center'>
+                    <div className='d-flex-between-center mb-3'>
+                        <div>Current Email: {this.props.user.user_email}</div>
+
                         <Tooltip text='You will not be able to log in until you verify your new email' placement='left' className='tooltip-icon'><FontAwesomeIcon icon={faQuestionCircle} id='change-email-tip' /></Tooltip>
                     </div>
 
@@ -54,13 +57,13 @@ class EmailSettings extends Component {
                     <div className='mb-3'>
                         <div className='mb-3'>
                             <InputWrapper label='New Email'>
-                                <input type='email' name='new_email' id='new-email' onChange={(e) => this.setState({newEmail: e.target.value})} value={this.state.newEmail} />
+                                <input type='email' name='new_email' id='new-email' onChange={(e) => this.setState({newEmail: e.target.value})} value={this.state.newEmail} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                             </InputWrapper>
                         </div>
 
                         <div className='mb-3'>
                             <InputWrapper label='Confirm Email'>
-                                <input type='email' name='confirm_email' id='confirm-email' onChange={(e) => this.setState({confirmEmail: e.target.value})} autoComplete='off' value={this.state.confirmEmail} />
+                                <input type='email' name='confirm_email' id='confirm-email' onChange={(e) => this.setState({confirmEmail: e.target.value})} autoComplete='off' value={this.state.confirmEmail} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                             </InputWrapper>
                         </div>
                     </div>

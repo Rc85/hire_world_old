@@ -33,7 +33,7 @@ class MessageSender extends Component {
             <div className={`mb-3 ${this.props.className ? this.props.className : ''}`}>
                 <div className='mb-1'>
                     <InputWrapper label='Subject'>
-                        <input type='text' className='message-subject' disabled={this.props.subject ? true : false} value={this.state.subject} onChange={(e) => this.setState({subject: e.target.value})} />
+                        <input type='text' className='message-subject' disabled={this.props.subject ? true : false} value={this.state.subject} onChange={(e) => this.setState({subject: e.target.value})} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                     </InputWrapper>
                     {/* <div><label>Subject:</label></div>
                     <input type='text' name='subject' onChange={(e) => this.setState({subject: e.target.value})} value={this.state.subject} disabled={this.props.subject ? true : false} /> */}

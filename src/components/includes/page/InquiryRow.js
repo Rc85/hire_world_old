@@ -31,7 +31,6 @@ class InquiryRow extends Component {
     }
     
     render() {
-        console.log(this.props)
         let statusButton, pinnedButton, appealButton, review;
         
         if (this.props.message.job_stage !== 'Appealing') {
@@ -43,8 +42,12 @@ class InquiryRow extends Component {
         }
         
         if (this.props.user) {
-            if (this.props.message.job_status === 'New' && this.props.user.username === this.props.message.job_user) {
-                statusButton = <span className='badge badge-primary'>{this.props.message.job_status}</span>;
+            if (this.props.user.username === this.props.message.job_user) {
+                if (this.props.message.job_status === 'New') {
+                    statusButton = <span className='mini-badge mini-badge-success mr-1'>{this.props.message.job_status}</span>;
+                } else if (this.props.message.job_status === 'Abandoning') {
+                    statusButton = <span className = 'mini-badge mini-badge-warning mr-1'>{this.props.message.job_status}</span>;
+                }
             }
             
             if (this.props.message.job_stage === 'Abandoned' && this.props.user.username === this.props.message.job_user) {
@@ -57,9 +60,9 @@ class InquiryRow extends Component {
                 }
             } else if (this.props.message.job_stage === 'Appealing' && this.props.user.username === this.props.message.job_user) {
                 if (this.props.message.job_status === 'Appealing') {
-                    appealButton = <div className='badge badge-warning p-2' title='Pending'><FontAwesomeIcon icon={faEllipsisH} color='white' /></div>;
+                    appealButton = <div className='mini-badge mini-badge-warning' title='Pending'><FontAwesomeIcon icon={faEllipsisH} color='white' /></div>;
                 } else if (this.props.message.job_status === 'Appealed') {
-                    appealButton = <div className='badge badge-success p-2' title='Appealed'><FontAwesomeIcon icon={faCheck} color='white' /></div>
+                    appealButton = <div className='mini-badge mini-badge-success' title='Appealed'><FontAwesomeIcon icon={faCheck} color='white' /></div>
                 }
             }
         }
@@ -70,9 +73,9 @@ class InquiryRow extends Component {
 
         return (
             <div className='inquiry-row'>
-                <div className='inquiry-main-row'>
+                <div className='inquiry-main-row' title={this.props.message.job_subject}>
                     <div className={`inquiry-row-text-wrapper ${this.props.loadedId === this.props.message.job_id ? 'active' : ''}`} onClick={() => this.props.load(this.props.message.job_id)}>
-                        {this.props.message.job_status === 'New' && this.props.message.job_user === this.props.user.username ? <span className='mini-badge mini-badge-success'>{this.props.message.job_status}</span> : ''}
+                        {statusButton}
 
                         {this.props.message.job_subject}
                     </div>
@@ -81,34 +84,18 @@ class InquiryRow extends Component {
                 </div>
 
                 <div className='inquiry-detail-row'>
-                    {this.props.message.unread_messages > 0 ? <div className={`inquiry-detail-type-indicator`}>{this.props.message.unread_messages}</div> : ''}
-                    <div className='inquiry-detail-type'>{this.props.user && this.props.message.job_client === this.props.user.username ? `To ${this.props.message.job_user} ${moment(this.props.message.job_created_date).fromNow()}` : `From ${this.props.message.job_client} ${moment(this.props.message.job_created_date).fromNow()}`}</div>
+                    <div className='d-flex'>
+                        {this.props.message.unread_messages > 0 ? <div className={`inquiry-detail-type-indicator`}>{this.props.message.unread_messages}</div> : ''}
+    
+                        <div className='inquiry-detail-type'>{this.props.user && this.props.message.job_client === this.props.user.username ? <span>To <NavLink to={`/user/${this.props.message.job_user}`}>{this.props.message.job_user}</NavLink> {moment(this.props.message.job_created_date).fromNow()}</span> : <span>From <NavLink to={`/user/${this.props.message.job_client}`}>{this.props.message.job_client}</NavLink> {moment(this.props.message.job_created_date).fromNow()}</span>}</div>
+                    </div>
+
+                    <div className='inquiry-row-id'>Job ID: {this.props.message.job_id}</div>
                 </div>
 
                 <div className={this.state.review ? 'verified-review-container' : ''}>{review}</div>
 
                 {this.props.loadedId === this.props.message.job_id ? <FontAwesomeIcon icon={faCaretRight} size='3x' className='message-active-arrow' /> : ''}
-
-            {/* <React.Fragment>
-                <div className='d-flex-between-start mb-3'>
-                    <div className='w-5'>{this.props.message.job_id}</div>
-                    <div className='w-75'>
-                        <NavLink to={`/message/${this.props.stage}/${this.props.message.job_id}/details`}>{this.props.message.job_subject}</NavLink>
-                        {this.props.message.unread_messages > 0 ? <span className='badge badge-danger ml-2'>{this.props.message.unread_messages}</span> : ''}
-    
-                        <div>
-                            <small>{this.props.user && this.props.message.job_client === this.props.user.username ? <span>Sent {moment(this.props.message.job_created_date).fromNow()} to <NavLink to={`/user/${this.props.message.job_user}`}>{this.props.message.job_user}</NavLink></span> : <span>Received {moment(this.props.message.job_created_date).fromNow()} from <NavLink to={`/user/${this.props.message.job_client}`}>{this.props.message.job_client}</NavLink></span>}</small>
-                        </div>
-                    </div>
-                    <div className='w-10'>{statusButton}</div>
-                    <div className='w-10 d-flex-end-center'>
-                        {appealButton}
-                        {pinnedButton}
-                    </div>
-                </div>
-
-                {review}
-            </React.Fragment> */}
             </div>
         );
     }

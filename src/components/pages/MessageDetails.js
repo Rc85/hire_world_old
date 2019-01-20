@@ -29,7 +29,6 @@ class MessageDetails extends Component {
         this.state = {
             status: '',
             statusMessage: '',
-            job: null,
             messages: this.props.job.messages,
             messageCount: parseInt(this.props.job.messages[0].message_count),
             listingDetails: false,
@@ -37,7 +36,6 @@ class MessageDetails extends Component {
             makeOffer: false,
             offset: 0,
             fetchStatus: '',
-            offer: null,
             confirmAccept: false,
             reason: '',
             showOfferDetail: this.props.job.job && this.props.job.job.job_stage === 'Inquire' ? true : false
@@ -116,40 +114,30 @@ class MessageDetails extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevProps.location.key !== this.props.location.key || prevState.offset !== this.state.offset) {
+        if (prevProps.job.messages[0].message_date !== this.props.job.messages[0].message_date) {
+            this.setState({messages: this.props.job.messages});
+        }
+
+        if (prevState.offset !== this.state.offset) {
             let offset = 0;
 
             if (prevState.offset !== this.state.offset) {
                 offset = this.state.offset;
             }
 
-            fetch.post('/api/get/offer', {job_id: this.props.job.job.job_id, stage: this.props.job.job.job_stage})
+            fetch.post('/api/get/message', {job_id: this.props.job.job.job_id, offset: offset, stage: this.props.job.job.job_stage})
             .then(resp => {
                 if (resp.data.status === 'success') {
-                    this.setState({
-                        status: '',
-                        offer: resp.data.offer,
-                        job: resp.data.job
-                    });
+                    let messages = [...this.state.messages];
 
-                    fetch.post('/api/get/message', {job_id: this.props.job.job.job_id, offset: offset, stage: this.props.job.job.job_stage})
-                    .then(resp => {
-                        if (resp.data.status === 'success') {
-                            let messages = [...this.state.messages];
+                    messages.push(...resp.data.messages);
 
-                            messages.push(...resp.data.messages);
-
-                            this.setState({status: '', messages: messages, fetchStatus: ''});
-                        } else if (resp.status === 'access error') {
-                            this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage})
-                        }
-                    })
-                    .catch(err => LogError(err, '/api/get/message'));
-                } else if (resp.data.status === 'access error') {
+                    this.setState({status: '', messages: messages, fetchStatus: ''});
+                } else if (resp.status === 'access error') {
                     this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage})
                 }
             })
-            .catch(err => LogError(err, '/api/get/offer'));
+            .catch(err => LogError(err, '/api/get/message'));
         }
     }
     
@@ -323,6 +311,7 @@ class MessageDetails extends Component {
 
                 messages.unshift(resp.data.message);
 
+                this.props.refresh(this.props.job.job.job_id);
                 this.setState({status: 'offer declined', offer: null});
             } else {
                 this.setState({status: ''})
@@ -465,6 +454,8 @@ class MessageDetails extends Component {
                     messages.unshift(resp.data.message);
                 }
 
+                this.props.refresh(resp.data.job.job_id);
+
                 this.setState({status: '', messages: messages, job: resp.data.job});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
@@ -483,6 +474,8 @@ class MessageDetails extends Component {
             if (resp.data.status === 'success') {
                 let messages = [...this.state.messages];
                 messages.unshift(resp.data.message);
+
+                this.props.refresh(resp.data.job.job_id);
 
                 this.setState({status: '', messages: messages, job: resp.data.job});
             } else if (resp.data.status === 'error') {
@@ -519,7 +512,7 @@ class MessageDetails extends Component {
     } */
 
     render() {
-        console.log(this.state);
+        console.log(this.props.job);
         let listingDetails, sendButton, sendMessage, sendStatus, messages, offerConfirmation, fetchStatus, offerButton, confirmation, closeButton, completeButton, incompleteButton, reasonInput, jobStatus, abandonedDate, refreshButton, status;
         let now = moment();
 
@@ -711,6 +704,9 @@ class MessageDetails extends Component {
             }
         }
 
+        console.log(this.state.messages.length)
+        console.log(parseInt(this.props.job.messages[0].message_count))
+
         if (this.state.status === 'fetch error' || this.state.status === 'access error') {
             return <Redirect to='/error/404' />
         } else if (this.state.status === 'offer accepted') {
@@ -762,7 +758,7 @@ class MessageDetails extends Component {
 
                         <div className='messages'>
                             {messages}
-                            {this.state.messages.length < this.state.messageCount ? <div className='text-center'><button className='btn btn-primary btn-sm' onClick={() => this.setState({offset: this.state.offset + 10})}>Load more</button></div> : <div className='text-center'><em className='text-muted'>No more messages</em></div>}
+                            {this.state.messages.length < parseInt(this.props.job.messages[0].message_count) ? <div className='text-center'><button className='btn btn-primary btn-sm' onClick={() => this.setState({offset: this.state.offset + 10})}>Load more</button></div> : <div className='text-center'><em className='text-muted'>No more messages</em></div>}
                             {fetchStatus}
                         </div>
                     </div>

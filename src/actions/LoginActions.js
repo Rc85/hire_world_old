@@ -57,6 +57,7 @@ const Logout = () => {
 }
 
 export const UpdateUser = user => {
+    console.log(user);
     return {
         type: 'USER_UPDATE',
         user

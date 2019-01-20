@@ -87,7 +87,7 @@
     }
 }
 
-#notification-panel-container {
+#notification-panel {
     position: absolute;
     top: 0;
     left: calc(100% + 30px);
@@ -100,12 +100,20 @@
     background: $theme-blue;
     border: 1px solid black;
     box-shadow: 10px 10px 10px $theme-lightblack;
+    max-height: 500px;
+    overflow-y: auto;
+    color: $theme-fg;
 
     &.show { transform: scaleX(1); }
 }
 
-#notification-panel {
-    color: $theme-fg;
-    max-height: 500px;
-    overflow-y: auto;
+.notification-button-container {
+    position: relative;
+
+    .notification-counter {
+        position: absolute;
+        bottom: -8px;
+        right: -8px;
+        cursor: pointer;
+    }
 }

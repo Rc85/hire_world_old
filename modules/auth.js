@@ -79,8 +79,7 @@ app.post('/api/auth/register', (req, resp) => {
                                             }
                                         }
 
-                                        sgMail.send(message)
-                                        .catch(err => console.log(err.response.body.errors));
+                                        sgMail.send(message);
 
                                         await client.query(`COMMIT`)
                                         .then(async() => {
@@ -222,10 +221,14 @@ app.post('/api/auth/login', async(req, resp, next) => {
 },
 async(req, resp) => {
     if (req.session.user) {
-        let user = await controller.session.retrieve(req.session.user.user_id);
+        let user = await db.query(`SELECT users.username, users.user_email, users.account_type, users.user_status, users.is_subscribed, users.plan_id, users.user_last_login, users.user_level, users.subscription_end_date, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
+        LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
+        LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
+        LEFT JOIN user_listings ON users.username = user_listings.listing_user
+        WHERE users.user_id = $1`, [req.session.user.user_id]);
 
         if (user) {    
-            resp.send({status: 'get session success', user: user});
+            resp.send({status: 'get session success', user: user.rows[0]});
         } else {
             resp.send({status: 'get session fail', statusMessage: `The user does not exist`});
         }

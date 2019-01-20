@@ -104,6 +104,8 @@ app.post('/api/job/complete', (req, resp) => {
                             let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, message_recipient, is_reply, message_sender, message_status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [req.body.job_id, `An approval to complete this job has been sent.`, 'Update', req.session.user.username, true, 'System', 'Read']);
                             
                             await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, message_recipient, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (belongs_to_job, message_body, message_type) WHERE message_type = 'Confirmation' AND message_body = 'The other party has requested approval to complete this job.' DO UPDATE SET message_modified_date = current_timestamp`, [req.body.job_id, `The other party is requesting approval to complete this job.`, 'Confirmation', authorized.rows[0].job_client, true, 'System']);
+
+                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `You received a request to complete job ID ${req.body.job_id}`, 'Update']);
                             
                             await client.query('COMMIT')
                             .then(() => {
@@ -321,7 +323,7 @@ app.post('/api/job/abandon', (req, resp) => {
 
                         await client.query(`COMMIT`)
                         .then(() => {
-                            resp.send({status: 'success', message: message.rows[0], job: job.rows[0]});
+                            resp.send({status: 'success', statusMessage: 'Abandon request sent', message: message.rows[0], job: job.rows[0]});
                         });
                     } else {
                         throw new Error(`You're not authorized`);
@@ -359,10 +361,10 @@ app.post('/api/job/cancel-abandon', (req, resp) => {
 
                         let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender, message_status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [req.body.job_id, `Your request to abandon this job has been cancelled.`, req.session.user.username, 'Update', true, 'System', 'Read']);
 
-                        let job = await client.query(`UPDATE jobs SET job_status = $1, abandon_reason = $2 WHERE job_id = $# RETURNING *`, ['Viewed', null, req.body.job_id]);
+                        let job = await client.query(`UPDATE jobs SET job_status = $1, abandon_reason = $2 WHERE job_id = $3 RETURNING *`, ['Viewed', null, req.body.job_id]);
 
                         await client.query('COMMIT')
-                        .then(() => resp.send({status: 'success', message: message.rows[0], job: job.rows[0]}));
+                        .then(() => resp.send({status: 'success', statusMessage: 'Abandon request cancelled', message: message.rows[0], job: job.rows[0]}));
                     } else {
                         let error = new Error(`You're not authorized`);
                         error.type = 'user_defined';

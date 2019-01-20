@@ -19,9 +19,9 @@ class Warning extends Component {
     render() {
         return (
             <div id='warning-modal' className='full-black-overlay'>
-                <div className='modal-container rounded'>
-                    <div className='modal-text d-flex mb-3'>
-                        <div><FontAwesomeIcon icon={faExclamationTriangle} color='#ffc107' size='3x' /></div>
+                <div className='modal-container'>
+                    <div className='modal-text d-flex-center mb-3'>
+                        <div><FontAwesomeIcon icon={faExclamationTriangle} className='text-warning mr-2' size='3x' /></div>
                         <div>{this.props.message}</div>
                     </div>
 

@@ -74,6 +74,7 @@ app.post('/api/get/messages/:type', async(req, resp) => {
                                 messageCount = pinnedIds.length;
                             }
 
+                            await client.query(`UPDATE jobs SET job_status = 'Viewed' WHERE job_user = $1 AND job_stage = 'Inquire'`, [req.session.user.username]);
                             await client.query('COMMIT')
                             .then(() => resp.send({status: 'success', messages: messages.rows, messageCount: messageCount, pinned: pinnedIds}));
                         } else if (user && user.rows[0].user_status === 'Suspend') {

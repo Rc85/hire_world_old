@@ -114,14 +114,21 @@ class SubscriptionSettings extends Component {
                             </div>
 
                             <div className='subscription-info'>
-                                <label htmlFor='price' className='mr-2'>Price: </label>
-                                {price}
+                                <div>
+                                    <label htmlFor='price' className='mr-2'>Price: </label>
+                                    {price}
+                                    <div><small className='text-muted'>Not including Stripe Fees</small></div>
+                                </div>
                             </div>
                         </div>
 
                         <hr/>
                     </React.Fragment>
                 }
+            }
+
+            if (this.state.status === 'Unsubscribed') {
+                return <Redirect to='/subscription/cancelled' />
             }
 
             // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R

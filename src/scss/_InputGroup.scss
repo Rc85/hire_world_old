@@ -35,8 +35,14 @@
 
     > select, input {
         height: 100%;
-        border: 0;
         width: 100%;
+    }
+
+    input {
+        border-left: 1px solid $theme-lightgrey;
+        border-bottom: 1px solid $theme-lightgrey;
+        border-top: 0;
+        border-right: 0;
     }
 
     select {

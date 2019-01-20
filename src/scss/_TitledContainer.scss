@@ -1,6 +1,6 @@
 .titled-container-parent {
     max-height: 300px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .titled-container {
@@ -63,13 +63,15 @@
 
     .with-scroll, .no-scroll { position: relative; }
 
+    .titled-container-row-title {
+        display: flex;
+        align-items: center;
+    }
+
     .titled-container-row-detail {
         display: flex;
         align-items: center;
         justify-content: space-between;
-
-        > div:first-child { width: 25%; }
-        > div:last-child { width: 75%; }
     }
 
     a { color: $theme-alt-highlight; }

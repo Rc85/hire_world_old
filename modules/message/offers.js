@@ -12,7 +12,6 @@ app.post('/api/offer/submit', (req, resp) => {
                     let authorized = await client.query(`SELECT job_client, job_user, job_listing_id FROM jobs WHERE job_id = $1 AND job_client = $2`, [req.body.job_id, req.session.user.username]);
 
                     let negotiable = await client.query(`SELECT * FROM user_listings WHERE listing_id = $1`, [authorized.rows[0].job_listing_id]);
-                    console.log(negotiable.rows);
 
                     let offerType, term, date, price, currency, paymentType, paymentPeriod, numberOfPayments, amountType, payments, confidential;
 
@@ -50,6 +49,8 @@ app.post('/api/offer/submit', (req, resp) => {
                             let message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, is_reply, message_recipient, message_sender, message_status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [req.body.job_id, `An offer has been sent to the other party.`, 'Update', true, req.session.user.username, 'System', 'Read']);
 
                             await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_type, is_reply, message_recipient, message_sender) VALUES ($1, $2, $3, $4, $5, $6)`, [req.body.job_id, `You received an offer from the other party.`, 'Update', true, authorized.rows[0].job_user, 'System']);
+
+                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, `You received an offer from <strong><u>${authorized.rows[0].job_client}</u></strong>`, 'Update']);
         
                             await client.query('COMMIT')
                             .then(() => {

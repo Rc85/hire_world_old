@@ -40,7 +40,7 @@
             #dashboard-header-user-info {
                 margin-left: 0;
 
-                #user-business-name-icon { display: none; }
+                .edit-user-field-icon { display: none; }
             }
         
             .profile-pic-wrapper {
@@ -49,6 +49,25 @@
             }
         }
     }
+
+    .edit-user-field-form {
+        flex-direction: column;
+
+        input { margin-bottom: 5px; }
+    }
+
+    .edit-user-header-field {
+        margin-bottom: 5px;
+        width: 100%;
+    
+        h3 { justify-content: space-between; }
+    }
+
+    #edit-user-social-media {
+        .edit-user-field-container { width: 100%; }
+    }
+
+    #main-panel-bg { height: 275px; }
 
     .col-container { width: 100vw; }
 
@@ -92,6 +111,14 @@
                 margin-left: 5px;
 
                 .titled-container-icon { display: none; }
+            }
+
+            .titled-container-row {
+                .titled-container-row-title {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    margin-bottom: 15px;
+                }
             }
         }
     }
@@ -397,6 +424,8 @@
         }
     }
 
+    #listings { margin-top: 50px; }
+
     .listing-row-profile-pic { display: none; }
 
     .listing-row-title, .listing-row-detail-child {
@@ -424,7 +453,7 @@
     .listing-row-buttons { display: none; }
 
     
-    #notification-panel-container {
+    #notification-panel {
         position: absolute;
         top: auto;
         bottom: calc(100% + 10px);
@@ -435,6 +464,10 @@
         box-shadow: none;
 
         &.show { transform: scaleY(1); }
+    }
+    .activity-timestamp {
+        text-align: right;
+        margin-top: 5px;
     }
 }
 

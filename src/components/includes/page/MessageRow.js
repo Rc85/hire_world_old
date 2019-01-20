@@ -24,10 +24,9 @@ class MessageRow extends Component {
     }
 
     render() {
-        console.log(this.props);
         return(
             <React.Fragment>
-                {this.props.author !== 'system' ? <div className={`message-row-username ${this.props.author === 'owner' ? 'right' : 'left'}`}>{this.props.message.message_sender}</div> : ''}
+                {this.props.author !== 'system' ? <div className={`message-row-username ${this.props.author === 'owner' ? 'right' : 'left'}`}><NavLink to={`/user/${this.props.message.message_sender}`}>{this.props.message.message_sender}</NavLink></div> : ''}
 
                 <div className={`message-row ${this.props.author}`}>
                     {this.props.message.message_sender != 'System' ? <div className='message-row-profile-pic'><UserProfilePic url={this.props.message.avatar_url} /></div> : ''}

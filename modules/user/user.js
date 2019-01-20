@@ -51,7 +51,6 @@ const upload = multer({
                     if (err) error.log({name: err.name, message: err.message, origin: 'fs Reading Directory', url: req.url});
 
                     for (let file of files) {
-                        console.log(file);
                         if (file.match(filenameCheck)) {
                             fs.unlinkSync(`${dir}/${file}`);
                         }
@@ -95,10 +94,14 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
 
                             await client.query(`UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2`, [filePath, req.session.user.user_id]);
 
-                            let user = await controller.session.retrieve(req.session.user.user_id);
+                            let user = await client.query(`SELECT users.username, users.user_email, users.account_type, users.user_status, users.is_subscribed, users.plan_id, users.user_last_login, users.user_level, users.subscription_end_date, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
+                        LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
+                        LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
+                        LEFT JOIN user_listings ON users.username = user_listings.listing_user
+                        WHERE users.user_id = $1`, [req.session.user.user_id]);
 
                             await client.query('COMMIT')
-                            .then(() => resp.send({status: 'success', user: user}));
+                            .then(() => resp.send({status: 'success', user: user.rows[0]}));
                         }
                     });
                 } catch (e) {
@@ -126,10 +129,14 @@ app.post('/api/user/profile-pic/delete', async(req, resp) => {
                 try {
                     await client.query('UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2', ['/images/profile.png', req.session.user.user_id]);
 
-                    let user = await controller.session.retrieve(req.session.user.user_id);
+                    let user = await client.query(`SELECT users.username, users.user_email, users.account_type, users.user_status, users.is_subscribed, users.plan_id, users.user_last_login, users.user_level, users.subscription_end_date, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
+                        LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
+                        LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
+                        LEFT JOIN user_listings ON users.username = user_listings.listing_user
+                        WHERE users.user_id = $1`, [req.session.user.user_id]);
 
                     await client.query('COMMIT')
-                    .then(() => resp.send({status: 'success', user: user}));
+                    .then(() => resp.send({status: 'success', user: user.rows[0]}));
                 } catch (e) {
                     await client.query('ROLLBACK');
                     throw e;
@@ -174,10 +181,14 @@ app.post('/api/user/edit', (req, resp) => {
                         await client.query(`BEGIN`);
                         await client.query(`UPDATE user_profiles SET ${type} = $1 WHERE user_profile_id = $2`, [req.body.value, req.session.user.user_id]);
 
-                        let user = await controller.session.retrieve(req.session.user.user_id);
+                        let user = await client.query(`SELECT users.username, users.user_email, users.account_type, users.user_status, users.is_subscribed, users.plan_id, users.user_last_login, users.user_level, users.subscription_end_date, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
+                        LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
+                        LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
+                        LEFT JOIN user_listings ON users.username = user_listings.listing_user
+                        WHERE users.user_id = $1`, [req.session.user.user_id]);
 
                         await client.query(`COMMIT`)
-                        .then(() => resp.send({status: 'success', user: user}));
+                        .then(() => resp.send({status: 'success', user: user.rows[0]}));
                     } catch (e) {
                         await client.query(`ROLLBACK`);
                         throw e;
@@ -228,7 +239,7 @@ app.post('/api/user/business_hours/save', (req, resp) => {
             delete req.body.status;
             delete req.body.showSettings;
 
-            let timeCheck = /^([0-9]|[1-2][0-4]):[0-5][0-9](\s?(AM|am|PM|pm))?(\s[A-Za-z]{3,5})?$/;
+            let timeCheck = /^([0-9]|[1-2][0-4]):?([0-5][0-9])?(\s?(AM|am|PM|pm))?(\s[A-Za-z]{3,5})?$/;
             let invalidFormat = false;
 
             for (let key in req.body) {
@@ -367,14 +378,22 @@ app.post('/api/user/subscription/add', (req, resp) => {
                                     // If user still have days left on their subscription
                                     if (user.rows[0].subscription_end_date > now) {
                                         // Get the different of subscription end date and today
-                                        let dayDiff = Math.ceil(moment.duration(user.rows[0].subscription_end_date - now).asDays());
+                                        let dayDiff = moment(user.rows[0].subscription_end_date).unix();
                                         // Apply the difference to the trial days so user gets billed at the end of their remaining subscription days
-                                        subscriptionParams['trial_period_days'] = dayDiff;
+                                        subscriptionParams['trial_end'] = dayDiff;
                                     }
 
                                     subscription = await stripe.subscriptions.create(subscriptionParams);
 
                                     await client.query(`UPDATE users SET is_subscribed = true, subscription_id = $1, plan_id = $2, account_type = $4 WHERE username = $3`, [subscription.id, subscription.plan.id, req.session.user.username, accountType]);
+                                } else {
+                                    if (user.rows[0].plan_id === 'plan_EFVAGdrFIrpHx5' || user.rows[0].plan_id === 'plan_EAIyF94Yhy1BLB') {
+                                        let error = new Error(`You're already subscribed to that plan`);
+                                        error.type = 'CUSTOM';
+                                        throw error;
+                                    } else {
+                                        // upgrade or downgrade plan
+                                    }
                                 }
                             } else {
                                 customer = await stripe.customers.create({
@@ -505,7 +524,7 @@ app.post('/api/user/payment/add', (req, resp) => {
                         await client.query('COMMIT')
                         .then(async() => {
                             await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a card ending in ${customer.sources.data.last4}`, req.session.user.username, 'Payment']);
-                            resp.send({status: 'success', defaultSource: customer.default_source, card: customer.sources.data[0]});
+                            resp.send({status: 'success', statusMessage: 'Card added', defaultSource: customer.default_source, card: customer.sources.data[0]});
                         });
                     }
                 } catch (e) {
@@ -589,10 +608,10 @@ app.post('/api/user/payment/default', (req, resp) => {
                         await client.query('COMMIT')
                         .then(async() => {
                             await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Set card ending in ${defaultPayment} as default`, req.session.user.username, 'Payment']);
-                            resp.send({status: 'success', statusMessage: 'Default payment has been set', defaultSource: customer.default_source});
+                            resp.send({status: 'success', statusMessage: 'Default card has been set', defaultSource: customer.default_source});
                         });
                     } else if (user && !user.rows[0].stripe_cust_id) {
-                        let error = new Error(`You need to add a payment`);
+                        let error = new Error(`You need to add a card`);
                         error.type = 'CUSTOM';
                         throw error;
                     }
@@ -632,7 +651,7 @@ app.post('/api/user/payment/delete', (req, resp) => {
                         let customer = await stripe.customers.retrieve(user.rows[0].stripe_cust_id);
 
                         if (user.rows[0].is_subscribed && customer.sources.data.length === 1) {
-                            let error = new Error(`You're subscribed and cannot delete payment`);
+                            let error = new Error(`This card cannot be deleted`);
                             error.type = 'CUSTOM';
                             throw error;
                         } else if (customer.sources.data.length > 1) {
@@ -644,10 +663,10 @@ app.post('/api/user/payment/delete', (req, resp) => {
                                 await client.query('COMMIT')
                                 .then(async() => {
                                     await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Deleted a card`, req.session.user.username, 'Payment']);
-                                    resp.send({status: 'success', statusMessage: 'Payment method deleted', defaultSource: customer.default_source});
+                                    resp.send({status: 'success', statusMessage: 'Card deleted', defaultSource: customer.default_source});
                                 });
                             } else {
-                                let error = new Error('Cannot delete payment method');
+                                let error = new Error('Failed to delete card');
                                 error.type = 'CUSTOM';
                                 throw error;
                             }
@@ -685,6 +704,20 @@ app.post('/api/user/dismiss/announcement', async(req, resp) => {
         .catch(err => {
             error.log({name: err.name, message: err.message, origin: 'Adding to dismiss announcement table', url: req.url});
             resp.send({status: 'error', statusMessage: 'An error occurred'});
+        });
+    }
+});
+
+app.post('/api/user/notifications/read', async(req, resp) => {
+    if (req.session.user) {
+        await db.query(`UPDATE notifications SET notification_status = 'Viewed' WHERE notification_recipient = $1`, [req.session.user.username])
+        .then(result => {
+            if (result && result.rowCount > 0) {
+                resp.send({status: 'success'});
+            }
+        })
+        .catch(err => {
+            error.log({name: err.name, message: err.message, origni: 'Updating user notifications to viewed', url: req.url});
         });
     }
 });

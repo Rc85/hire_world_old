@@ -58,75 +58,28 @@ app.post('/api/listing/create', (req, resp) => {
     }
 });
 
-app.post('/api/listing/toggle', (req, resp) => {
+app.post('/api/listing/toggle', async(req, resp) => {
     if (req.session.user) {
-        let price = 0;
+        let user = await db.query(`SELECT users.user_status, user_listings.listing_id, users.subscription_end_date FROM users LEFT JOIN user_listings ON users.username = user_listings.listing_user WHERE users.username = $1`, [req.session.user.username]);
 
-        if (req.body.listing_price) {
-            price = req.body.listing_price;
-        }
-
-        if (req.body.listing_purpose !== 'Hiring' && req.body.listing_purpose !== 'For Hire') {
-            resp.send({status: 'error', statusMessage: 'Are you looking to hire or for work?'});
-        } else if (validate.blankCheck.test(req.body.listing_title)) {
-            resp.send({status: 'error', statusMessage: 'Title required'});
-        } else if (validate.blankCheck.test(req.body.listing_sector)) {
-            resp.send({status: 'error', statusMessage: 'Sector is required'});
-        } else if (validate.blankCheck.test(req.body.listing_price_currency)) {
-            resp.send({status: 'error', statusMessage: 'Please set a currency for your price'});
+        if (user.rows[0].subscription_end_date < new Date()) {
+            resp.send({status: 'error', statusMessage: `Your subscription ended`});
+        } else if (!user.rows[0].listing_id) {
+            resp.send({status: 'error', statusMessage: `Listing settings not configured`});
+        } else if (user.rows[0].user_status === 'Suspend') {
+            resp.send({status: 'error', statusMessage: `You're temporary banned`});
         } else {
-            db.connect((err, client, done) => {
-                if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
-
-                (async() => {
-                    try {
-                        await client.query('BEGIN');
-
-                        let user = await client.query(`SELECT user_status FROM users WHERE user_id = $1`, [req.session.user.user_id]);
-
-                        if (user && user.rows[0].user_status === 'Active') {
-                            let listed = await client.query(`SELECT * FROM user_listings WHERE listing_user = $1`, [req.session.user.username]);
-
-                            let newValue, listing;
-
-                            if (listed && listed.rows.length === 1) {
-                                if (listed.rows[0].listing_status === 'Active') {
-                                    newValue = 'Inactive';
-                                } else if (listed.rows[0].listing_status === 'Inactive') {
-                                    newValue = 'Active';
-                                }
-
-                                listing = await client.query(`UPDATE user_listings SET listing_title = $9, listing_sector = $3, listing_price = $4, listing_price_type = $5, listing_price_currency = $6, listing_negotiable = $7, listing_detail = $8, listing_status = $1, listing_purpose = $10 WHERE listing_id = $2 RETURNING *`, [newValue, listed.rows[0].listing_id, req.body.listing_sector, price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_detail, req.body.listing_title, req.body.listing_purpose]);
-                            } else if (listed && listed.rows.length === 0) {
-                                let listingEndDate = await client.query(`SELECT subscription_end_date FROM users WHERE username = $1`, [req.session.user.username]);
-
-                                listing = await client.query(`INSERT INTO user_listings (listing_title, listing_user, listing_sector, listing_price, listing_price_type, listing_price_currency, listing_negotiable, listing_detail, listing_end_date, listing_purpose) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`, [req.body.listing_title, req.session.user.username, req.body.listing_sector, price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_detail, listingEndDate.rows[0].subscription_end_date, req.body.listing_purpose]);
-                            }
-
-                            await client.query('COMMIT')
-                            .then(() => resp.send({status: 'success', listing: listing.rows[0]}));
-                        } else if (user && user.rows[0].user_status === 'Suspend') {
-                            let error = new Error(`You're temporarily banned`);
-                            error.type = 'CUSTOM';
-                            throw error;
-                        }
-                    } catch (e) {
-                        await client.query('ROLLBACK');
-                    throw e;
-                    } finally {
-                        done();
-                    }
-                })()
-                .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
-                    let message = 'An error occurred';
-
-                    if (err.type === 'CUSTOM') {
-                        message = err.message;
-                    }
-
-                    resp.send({status: 'error', statusMessage: message});
-                });
+            await db.query(`UPDATE user_listings SET listing_status = $1 WHERE listing_user = $2 RETURNING listing_status`, [req.body.status, req.session.user.username])
+            .then(result => {
+                if (result && result.rowCount === 1) {
+                    resp.send({status: 'success', listing_status: result.rows[0].listing_status});
+                } else {
+                    resp.send({status: 'error', statusMessage: 'Failed to update'});
+                }
+            })
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: 'Toggling listing status', url: req.url});
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         }
     } else {
@@ -251,17 +204,50 @@ app.post('/api/listing/renew', (req, resp) => {
 
 app.post('/api/listing/save', async(req, resp) => {
     if (req.session.user) {
-        await db.query(`UPDATE user_listings SET listing_title = $1, listing_sector = $2, listing_price = $3, listing_price_type = $4, listing_price_currency = $5, listing_negotiable = $6, listing_purpose = $7, listing_detail = $8 WHERE listing_user = $9`, [req.body.listing_title, req.body.listing_sector, req.body.listing_price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_purpose, req.body.listing_detail, req.session.user.username])
-        .then(result => {
-            if (result && result.rowCount === 1) {
-                resp.send({status: 'success', statusMessage: 'List settings saved', listing: result.rows[0]});
-            } else {
-                resp.send({status: 'error', statusMessage: 'Failed to save'});
-            }
-        })
-        .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Saving list settings', url: req.url});
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
+        db.connect((err, client, done) => {
+            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let userListing = await client.query(`SELECT listing_id FROM user_listings WHERE listing_user = $1`, [req.session.user.username]);
+                    let queryString;
+
+                    if (userListing.rows.length === 1) {
+                        queryString = `UPDATE user_listings SET listing_title = $1, listing_sector = $2, listing_price = $3, listing_price_type = $4, listing_price_currency = $5, listing_negotiable = $6, listing_purpose = $7, listing_detail = $8 WHERE listing_user = $9 RETURNING *`;
+                    } else if (userListing.rows.length === 0) {
+                        queryString = 'INSERT INTO user_listings (listing_title, listing_sector, listing_price, listing_price_type, listing_price_currency, listing_negotiable, listing_purpose, listing_detail, listing_user) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *';
+                    }
+
+                    let listing = await client.query(queryString, [req.body.listing_title, req.body.listing_sector, req.body.listing_price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_purpose, req.body.listing_detail, req.session.user.username]);
+
+                    if (listing.rows.length === 1) {
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success', statusMessage: 'List settings saved', listing: listing.rows[0]}));
+                    } else if (listing.rows.length === 0) {
+                        let error = new Error('Failed to save');
+                        error.type = 'CUSTOM';
+                        throw error;
+                    }
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                error.log({name: err.name, message: err.message, origin: 'Saving list settings', url: req.url});
+                
+                let message = 'An error occurred';
+
+                if (err.type === 'CUSTOM') {
+                    message = err.message;
+                }
+
+                resp.send({status: 'error', statusMessage: message});
+            });
         });
     }
 });
@@ -332,7 +318,6 @@ app.post('/api/filter/listings', async(req, resp) => {
         whereArray.push(`AND listing_price_type = '${req.body.priceType}'`);
     }
 
-    console.log(req.body);
     if (req.body.completedJobs) {
         let operator;
 
@@ -412,8 +397,6 @@ app.post('/api/filter/listings', async(req, resp) => {
                     row.job_complete = 0;
                 }
             }
-
-            console.log(result.rows);
 
             resp.send({status: 'success', listings: result.rows});
         }

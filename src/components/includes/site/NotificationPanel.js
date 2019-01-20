@@ -2,12 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import fetch from 'axios'
-import { GetUserNotificationAndMessageCount } from '../../../actions/FetchActions';
+import { GetUserNotificationAndMessageCount, UpdateUserNotifications } from '../../../actions/FetchActions';
 import { Alert } from '../../../actions/AlertActions';
 import { connect } from 'react-redux';
 import { LogError } from '../../utils/LogError';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faExclamationTriangle, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { withRouter } from 'react-router-dom';
+import { UpdateUser } from '../../../actions/LoginActions';
 
 class NotificationPanel extends Component {
     constructor(props) {
@@ -16,6 +18,26 @@ class NotificationPanel extends Component {
         this.state = {
             status: 'Loading',
             notifications: []
+        }
+    }
+    
+    componentDidUpdate(prevProps, prevState) {
+        if (!prevProps.show && this.props.show) {
+            fetch.post('/api/get/user/notifications', {new: true})
+            .then(resp => {
+                if (resp.data.status === 'success') {
+                    this.props.dispatch(GetUserNotificationAndMessageCount());
+                    this.setState({status: '', notifications: resp.data.notifications});
+                } else if (resp.data.status === 'error') {
+                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                }
+            })
+            .catch(err => LogError(err, '/api/user/get/notifications'));
+        }
+
+        if (prevProps.show && !this.props.show && this.state.notifications.length > 0) {
+            this.props.dispatch(UpdateUserNotifications());
+            this.setState({notifications: []});
         }
     }
     
@@ -52,7 +74,7 @@ class NotificationPanel extends Component {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
         })
-        .catch(err => LogError(err, '/api/user/get/notifications'))
+        .catch(err => LogError(err, '/api/user/get/notifications'));
     }
         
     render() {
@@ -68,20 +90,20 @@ class NotificationPanel extends Component {
                 let notification_icon;
 
                 if (n.notification_type === 'Update') {
-                    notification_icon = <FontAwesomeIcon icon={faInfoCircle} className='text-info' />;
+                    notification_icon = <span className='mini-badge mini-badge-info'>{n.notification_type}</span>;
                 } else if (n.notification_type === 'Warning') {
-                    notification_icon = <FontAwesomeIcon icon={faExclamationCircle} className='text-warning' />;
+                    notification_icon = <span className='mini-badge mini-badge-warning'>{n.notification_type}</span>;
                 } else if (n.notification_type === 'Severe') {
-                    notification_icon = <FontAwesomeIcon icon={faExclamationTriangle} className='text-danger' />;
+                    notification_icon = <span className='mini-badge mini-badge-danger'>{n.notification_type}</span>;
                 }
 
                 return <div key={i} className={`${i !== this.state.notifications.length - 1 ? 'mb-3' : ''} keep-format`}>
-                    <div className='d-flex'>
-                        <div className='mr-2'>{notification_icon}</div>
-                        <span>{n.notification_message}</span>
-                    </div>
+                    <div className='mb-1' dangerouslySetInnerHTML={{__html: n.notification_message}}></div>
 
-                    <div className='text-right'><small>{moment(n.notification_date).format('MMM DD YYYY h:mm:ss A')}</small></div>
+                    <div className='d-flex-between-center'>
+                        {notification_icon}
+                        <small>{moment(n.notification_date).format('MMM DD YYYY h:mm:ss A')}</small>
+                    </div>
 
                     {i !== this.state.notifications.length - 1 ? <hr /> : ''}
                 </div>
@@ -91,10 +113,8 @@ class NotificationPanel extends Component {
         }
 
         return (
-            <div id='notification-panel-container' className={this.props.show ? 'show' : ''}>
-                <div id='notification-panel'>
-                    {notifications}
-                </div>
+            <div id='notification-panel' className={this.props.show ? 'show' : ''}>
+                {notifications}
             </div>
         );
     }
@@ -104,4 +124,4 @@ NotificationPanel.propTypes = {
     close: PropTypes.func
 };
 
-export default connect()(NotificationPanel);
+export default withRouter(connect()(NotificationPanel));

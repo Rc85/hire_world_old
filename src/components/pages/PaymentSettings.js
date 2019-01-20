@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
 import InputWrapper from '../utils/InputWrapper';
 import Loading from '../utils/Loading';
+import { isTyping } from '../../actions/ConfigActions';
 
 class PaymentSettings extends Component {
     constructor(props) {

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { RegionDropdown } from 'react-country-region-selector';
 import InputWrapper from '../../utils/InputWrapper';
+import { isTyping } from '../../../actions/ConfigActions';
 
 const AddressInput = props => {
     let saveable;
@@ -17,7 +18,7 @@ const AddressInput = props => {
             <div className='setting-field-container mb-3'>
                 <div className='setting-child'>
                     <InputWrapper label='Address'>
-                        <input type='text' name='address' id='address' onChange={(e) => props.set('address_line1', e.target.value)} value={props.info ? props.info.address_line1 : ''} />
+                        <input type='text' name='address' id='address' onChange={(e) => props.set('address_line1', e.target.value)} defaultValue={props.info ? props.info.address_line1 : ''} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                     </InputWrapper>
                 </div>
 
@@ -39,13 +40,13 @@ const AddressInput = props => {
                 </div>
 
                 <div className='setting-child'>
-                    <InputWrapper label='City'><input type='text' name='city' id='city' onChange={(e) => props.set('address_city', e.target.value)} value={props.info ? props.info.address_city : ''} /></InputWrapper>
+                    <InputWrapper label='City'><input type='text' name='city' id='city' onChange={(e) => props.set('address_city', e.target.value)} defaultValue={props.info ? props.info.address_city : ''} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
                 </div>
             </div>
 
             <div className='setting-field-container center'>
                 <div className='setting-child'>
-                    <InputWrapper label='Postal/Zip Code'><input type='text' name='city_code' id='city_code' onChange={(e) => props.set('address_zip', e.target.value)} value={props.info ? props.info.address_zip : ''} /></InputWrapper>
+                    <InputWrapper label='Postal/Zip Code'><input type='text' name='city_code' id='city_code' onChange={(e) => props.set('address_zip', e.target.value)} defaultValue={props.info ? props.info.address_zip : ''} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
                 </div>
 
                 {saveable}

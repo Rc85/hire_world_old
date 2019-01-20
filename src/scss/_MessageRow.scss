@@ -87,13 +87,6 @@
 }
 
 .message-row-username {
-    &.right {
-        text-align: right;
-        padding-right: 0.5rem;
-    }
-
-    &.left {
-        text-align: left;
-        padding-left: 0.5rem;
-    }
+    &.right { text-align: right; }
+    &.left { text-align: left; }
 }

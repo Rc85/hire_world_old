@@ -80,7 +80,9 @@ class CheckoutConfirmation extends Component {
                             </div>
                         </div>
 
-                        <small>Note: The Offset Fee is to offset the Stripe charges on the total amount. See FAQ for more details.</small>
+                        <div><small className='mb-2'>Reminder: The amount indicated above will not be charged until your subscription end date is reached.</small></div>
+
+                        <div><small>Note: The Offset Fee is to offset the Stripe charges on the total amount. See FAQ for more details.</small></div>
                     </div>
 
                     <div className='text-right'>

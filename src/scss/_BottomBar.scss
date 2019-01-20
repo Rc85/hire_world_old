@@ -19,10 +19,25 @@
         padding: 10px 20px;
 
         #bottombar-toggle-button { margin-left: auto; }
-        #bottombar-button-container { position: relative; }
+
+        #bottombar-button-container {
+            position: relative;
+            display: flex;
+        }
+
+        #bottombar-notification-button {
+            position: relative;
+    
+            #bottombar-notification-counter {
+                position: absolute;
+                top: -8px;
+                left: 0;
+            }
+        }
     }
 
     &.expand { height: 100%; }
+    &.hide { display: none; }
 }
 
 #bottombar {
@@ -37,7 +52,7 @@
     overflow-y: scroll;
     transition: height 0.15s ease-in-out;
 
-    &.expand { height: calc(100vh - 68px); }
+    &.expand { height: calc(100vh - 55px); }
 
     .bottombar-item-icon { margin-right: 15px; }
 

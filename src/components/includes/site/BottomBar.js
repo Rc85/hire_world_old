@@ -100,8 +100,13 @@ class BottomBar extends Component {
                 
                 <div className='bottombar-toggle-buttons'>
                     <div id='bottombar-button-container'>
-                        <FontAwesomeIcon icon={faBell} size='2x' onClick={(e) => this.showNotificationPanel(e)} className={`mr-2 ${this.props.menu.id === 'notification-panel' && this.props.menu.show ? 'text-highlight' : ''}`} />
+                        <div id='bottombar-notification-button'>
+                            <FontAwesomeIcon icon={faBell} size='2x' onClick={(e) => this.showNotificationPanel(e)} className={`mr-2 ${this.props.menu.id === 'notification-panel' && this.props.menu.show ? 'text-highlight' : ''}`} />
+                            {parseInt(this.props.user.notifications) > 0 ? <span id='bottombar-notification-counter' className='mini-badge mini-badge-danger'>{this.props.user.notifications}</span> : ''}
+                        </div>
+                        
                         <a href='/faq'><FontAwesomeIcon icon={faQuestionCircle} size='2x' /></a>
+
                         <NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} />
                     </div>
 

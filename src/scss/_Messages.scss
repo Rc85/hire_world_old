@@ -45,15 +45,25 @@
 
 .inquiry-row-text-wrapper {
     width: 100%;
-    //max-width: calc(100% - 44.5px);
-    //min-width: calc(100% - 86.5px);
-    height: 100%;
-    padding: 8px 5px;
     font-weight: bold;
     color: $theme-highlight;
     text-overflow: ellipsis;
-    overflow-x: hidden;
+    overflow: hidden;
     white-space: nowrap;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+
+    &:hover, &.active {
+        color: white;
+        background-color: $theme-highlight;
+        cursor: pointer;
+
+        /* .inquiry-row-text-wrapper {
+            color: white;
+            background-color: $theme-highlight;
+        } */
+    }
     
     .inquiry-row-text {
         width: 100%;
@@ -63,17 +73,13 @@
         overflow-x: hidden;
         white-space: nowrap;
     }
+}
 
-    &:hover, &.active {
-        color: white;
-        background-color: $theme-highlight;
-        cursor: pointer;
-    }
+.inquiry-row-id {
+    padding: 5px;
 }
 
 .inquiry-row-buttons {
-    //max-width: 86.5px;
-    //min-width: 44.5px;
     border-left: 1px solid black;
     display: flex;
     align-items: center;
@@ -89,8 +95,13 @@
     position: relative;
 
     a {
-        color: black;
+        color: $theme-highlight;
         text-decoration: none;
+
+        &:hover {
+            color: $theme-alt-highlight;
+            text-decoration: underline;
+        }
     }
 }
 
@@ -98,12 +109,25 @@
     width: 100%;
     border-bottom: 1px solid black;
     display: inline-flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: space-between;
+
+    /* &:hover, &.active {
+        color: white;
+        background-color: $theme-highlight;
+        cursor: pointer;
+
+        .inquiry-row-text-wrapper {
+            color: white;
+            background-color: $theme-highlight;
+        }
+    } */
 }
 
 .inquiry-detail-row {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-size: 0.8rem;
 }
 

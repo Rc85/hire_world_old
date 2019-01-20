@@ -7,6 +7,7 @@ import InputWrapper from '../../utils/InputWrapper';
 import InputGroup from '../../utils/InputGroup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { isTyping } from '../../../actions/ConfigActions';
 
 const initialState = {
     title: '',
@@ -63,7 +64,7 @@ class SearchListing extends Component {
                             <div className='d-flex-between-start mb-3'>
                                 <div className='w-25'>
                                     <InputWrapper label='Profession Title'>
-                                        <input type='text' name='titles' id='title-list' list='list-of-titles' onChange={(e) => this.setState({title: e.target.value})} value={this.state.title} onKeyUp={(e) => this.getTitles(e.target.value)} placeholder='Enter a title to search' />
+                                        <input type='text' name='titles' id='title-list' list='list-of-titles' onChange={(e) => this.setState({title: e.target.value})} value={this.state.title} onKeyUp={(e) => this.getTitles(e.target.value)} placeholder='Enter a title to search' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                                         <datalist id='list-of-titles'>
                                             {this.state.searchedTitles.map((title, i) => {
                                                 return <option key={i} value={title}>{title}</option>
@@ -88,27 +89,27 @@ class SearchListing extends Component {
             
                                 <div className='w-30'>
                                     <InputGroup label='Price'>
-                                            <select name='operator' id='price-operator'className='no-border-radius-right' onChange={(e) => this.setState({priceOperator: e.target.value})} value={this.state.priceOperator}>
-                                                <option value='='>&#61;</option>
-                                                <option value='>='>&#62;&#61;</option>
-                                                <option value='>'>&#62;</option>
-                                                <option value='<='>&#60;&#61;</option>
-                                                <option value='<'>&#60;</option>
-                                            </select>
+                                        <select name='operator' id='price-operator'className='no-border-radius-right' onChange={(e) => this.setState({priceOperator: e.target.value})} value={this.state.priceOperator}>
+                                            <option value='='>&#61;</option>
+                                            <option value='>='>&#62;&#61;</option>
+                                            <option value='>'>&#62;</option>
+                                            <option value='<='>&#60;&#61;</option>
+                                            <option value='<'>&#60;</option>
+                                        </select>
             
                                         <div className='justify-content-center input-group-text-seperator'>$</div>
                                         
-                                            <input type='number' name='search-price' id='search-price'className='no-border-radius' onChange={(e) => this.setState({price: e.target.value})} value={this.state.price} placeholder='Price' />
+                                        <input type='number' name='search-price' id='search-price'className='no-border-radius' onChange={(e) => this.setState({price: e.target.value})} value={this.state.price} placeholder='Price' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
             
                                         <div className='justify-content-center input-group-text-seperator'>/</div>
             
-                                            <select name='price-type' id='price-type'className='no-border-radius-left' onChange={(e) => this.setState({priceType: e.target.value})} value={this.state.priceType}>
-                                                <option value=''>Choose...</option>
-                                                <option value='Hour'>Hour</option>
-                                                <option value='Bi-weekly'>Bi-weekly</option>
-                                                <option value='Delivery'>Delivery</option>
-                                                <option value='One Time Payment'>One Time Payment</option>
-                                            </select>
+                                        <select name='price-type' id='price-type'className='no-border-radius-left' onChange={(e) => this.setState({priceType: e.target.value})} value={this.state.priceType}>
+                                            <option value=''>Choose...</option>
+                                            <option value='Hour'>Hour</option>
+                                            <option value='Bi-weekly'>Bi-weekly</option>
+                                            <option value='Delivery'>Delivery</option>
+                                            <option value='One Time Payment'>One Time Payment</option>
+                                        </select>
                                     </InputGroup>
                                 </div>
             
@@ -123,7 +124,7 @@ class SearchListing extends Component {
                                                 <option value='<'>&#60;</option>
                                             </select>
                                         
-                                            <input type='number' name='completed-jobs' id='completed-jobs'className='no-border-radius-left' onChange={(e) => this.setState({completedJobs: e.target.value})} value={this.state.completedJobs} />
+                                            <input type='number' name='completed-jobs' id='completed-jobs'className='no-border-radius-left' onChange={(e) => this.setState({completedJobs: e.target.value})} value={this.state.completedJobs} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                                         </InputGroup>
                                     </div>
             
@@ -141,7 +142,7 @@ class SearchListing extends Component {
                                 </div>
             
                                 <div className='w-30'>
-                                    <InputWrapper label='City'><input type='text' name='city' id='search-city' onChange={(e) => this.setState({city: e.target.value})} value={this.state.city} placeholder='Your city'/></InputWrapper>
+                                    <InputWrapper label='City'><input type='text' name='city' id='search-city' onChange={(e) => this.setState({city: e.target.value})} value={this.state.city} placeholder='Your city' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
                                 </div>
                             </div>
             

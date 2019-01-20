@@ -8,6 +8,8 @@ import fetch from 'axios';
 import { ShowWarning } from '../../../actions/WarningActions';
 import { RegionDropdown, CountryDropdown } from 'react-country-region-selector';
 import InputWrapper from '../../utils/InputWrapper';
+import { LogError } from '../../utils/LogError';
+import { isTyping } from '../../../actions/ConfigActions';
 
 class ProfileSettings extends Component {
     constructor(props) {
@@ -56,6 +58,7 @@ class ProfileSettings extends Component {
         fetch.post('/api/user/settings/profile/save', this.state.settings)
         .then(resp => {
             if (resp.data.status === 'success') {
+                console.log(resp);
                 if (resp.data.user.hide_email && !resp.data.user.allow_messaging && !resp.data.user.user_phone) {
                     this.props.dispatch(ShowWarning(`You've hidden and disabled all forms of contact`));
                 }
@@ -86,7 +89,6 @@ class ProfileSettings extends Component {
     }
 
     render() {
-        console.log(this.state)
         let status;
 
         if (this.state.status === 'Loading') {
@@ -99,7 +101,7 @@ class ProfileSettings extends Component {
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child three-quarter'>
                         <InputWrapper label='Business Name'>
-                            <input type='text' onChange={(e) => this.setSettings({businessName: e.target.value})} maxLength='40' palceholder='Maximum 40 characters' defaultValue={this.state.settings.businessName} />
+                            <input type='text' onChange={(e) => this.setSettings({businessName: e.target.value})} maxLength='40' palceholder='Maximum 40 characters' defaultValue={this.state.settings.businessName} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                         </InputWrapper>
                     </div>
                         {/* <label htmlFor='business-name'>Business Name:</label>
@@ -107,7 +109,7 @@ class ProfileSettings extends Component {
 
                     <div className='setting-child quarter'>
                         <InputWrapper label='Phone Number'>
-                            <input type='tel' onChange={(e) => this.setSettings({phone: e.target.value})} defaultValue={this.state.settings.phone} />
+                            <input type='tel' onChange={(e) => this.setSettings({phone: e.target.value})} defaultValue={this.state.settings.phone} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                         </InputWrapper>
                     </div>
                         {/* <label htmlFor='phone'>Phone Number:</label>
@@ -117,7 +119,7 @@ class ProfileSettings extends Component {
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child three-quarter'>
                         <InputWrapper label='Address'>
-                            <input type='text' onChange={(e) => this.setSettings({address: e.target.value})} defaultValue={this.state.settings.address} />
+                            <input type='text' onChange={(e) => this.setSettings({address: e.target.value})} defaultValue={this.state.settings.address} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                         </InputWrapper>
                         {/* <label htmlFor='user-address'>Address:</label>
                         
@@ -126,7 +128,7 @@ class ProfileSettings extends Component {
                     
                     <div className='setting-child quarter'>
                         <InputWrapper label='Postal/Zip Code'>
-                            <input type='text'onChange={(e) => this.setSettings({code: e.target.value})} defaultValue={this.state.settings.code} maxLength='7' />
+                            <input type='text'onChange={(e) => this.setSettings({code: e.target.value})} defaultValue={this.state.settings.code} maxLength='7' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                         </InputWrapper>
                         {/* <label htmlFor='postalzip'>Postal Code/Zip Code:</label>
                         <input type='text' name='postalzip' id='postalzip' onChange={(e) => this.setSettings({code: e.target.value})} defaultValue={this.initialSettings.code} /> */}
@@ -158,7 +160,7 @@ class ProfileSettings extends Component {
 
                     <div className='setting-child three-quarter'>
                         <InputWrapper label='City'>
-                            <input type='text' onChange={(e) => this.setSettings({city: e.target.value})} defaultValue={this.state.settings.city} />
+                            <input type='text' onChange={(e) => this.setSettings({city: e.target.value})} defaultValue={this.state.settings.city} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                         </InputWrapper>
                         {/* <label htmlFor='city'>City:</label>
                         <input type='text' name='city' id='city=input' onChange={(e) => this.setSettings({city: e.target.value})} defaultValue={this.state.settings.city} /> */}

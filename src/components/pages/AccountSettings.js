@@ -39,10 +39,10 @@ class AccountSettings extends Component {
             this.setState({status: ''});
 
             if (resp.data.status === 'success') {
-                this.props.dispatch(UpdateUser(resp.data.user));
+                this.props.dispatch(UpdateUser(setting));
 
-                if (resp.data.user.hide_email && !resp.data.user.allow_messaging) {
-                    this.props.dispatch(ShowWarning(`Consider either have email displayed or allow messaging so users can contact you.`));
+                if (setting.hide_email && !setting.allow_messaging) {
+                    this.props.dispatch(ShowWarning(`Consider either having email displayed or messaging allowed so users can contact you.`));
                 }
             } else {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -62,7 +62,7 @@ class AccountSettings extends Component {
             return <Loading size='7x' />
         } else if (this.props.user.status === 'error') {
             return <Redirect to='/' />;
-        } else if (this.props.user.status === 'get session success' && this.props.user.user) {
+        } else if (this.props.user.status === 'get session success' && this.props.user.user) {   
             return(
                 <section id='user-settings' className='main-panel'>
                     {status}
@@ -74,7 +74,7 @@ class AccountSettings extends Component {
         
                         <div className='setting-field-container mb-3'>
                             <div className='settings-col'><PasswordSettings /></div>
-                            <div className='settings-col'><EmailSettings /></div>
+                            <div className='settings-col'><EmailSettings user={this.props.user.user} /></div>
                         </div>
         
                         <div className='setting-field-container mb-3'>

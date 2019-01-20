@@ -11,11 +11,15 @@ import Loading from '../utils/Loading';
 import moment from 'moment';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBuilding, faCalendarAlt } from '@fortawesome/free-regular-svg-icons';
+import { faBuilding, faCalendarAlt, faIdCard } from '@fortawesome/free-regular-svg-icons';
 import SlideToggle from '../utils/SlideToggle';
 import Badge from '../utils/Badge';
-import { faCog, faBell, faListUl, faSlidersH, faCogs } from '@fortawesome/free-solid-svg-icons';
-import { LogoutUser } from '../../actions/LoginActions';
+import { faCog, faBell, faListUl, faSlidersH, faCogs, faIdCardAlt, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { LogoutUser, UpdateUser } from '../../actions/LoginActions';
+import InputWrapper from '../utils/InputWrapper';
+import { Alert } from '../../actions/AlertActions';
+import { faGithub, faFacebook, faTwitter, faInstagram, faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import { isTyping } from '../../actions/ConfigActions';
 
 class EditUser extends Component {
     constructor(props) {
@@ -103,20 +107,43 @@ class EditUser extends Component {
     toggleListing() {
         this.setState({status: 'Loading'});
 
-        fetch.post('/api/listing/toggle', this.state.newSettings)
+        let status;
+
+        if (this.props.user.user.listing_status === 'Active') {
+            status = 'Inactive';
+        } else if (this.props.user.user.listing_status === 'Inactive') {
+            status = 'Active';
+        }
+
+        fetch.post('/api/listing/toggle', {status: status})
         .then(resp => {
             if (resp.data.status === 'success') {
                 let user = {...this.props.user.user};
-                user.listing_status = resp.data.listing.listing_status;
+                user.listing_status = resp.data.listing_status;
 
                 this.props.dispatch(UpdateUser(user));
-                this.setState({status: '', listing_status: resp.data.listing.listing_status});
+                this.setState({status: '', listing_status: resp.data.listing_status});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
         .catch(err => LogError(err, '/api/listing/toggle'));
+    }
+
+    saveField(field, val) {
+        this.setState({status: 'Saving'});
+
+        fetch.post('/api/user/profile/update', {field: field, value: val})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.props.dispatch(UpdateUser(resp.data.user));
+            }
+            
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            this.setState({status: ''});
+        })
+        .catch(err => LogError(err, '/api/user/profile/update'));
     }
     
     render() {
@@ -148,14 +175,16 @@ class EditUser extends Component {
 
                 return <div key={i}>
                     <div className='titled-container-row'>
-                        {n.notification_message}
-                        <div className='w-25'>{n.notification_status === 'New' ? <small className='badge badge-success'>New</small> : ''}</div>
+                        <div className='titled-container-row-title'>
+                            <div className='d-flex-start'>
+                                {n.notification_status === 'New' ? <small className='mini-badge mini-badge-success mr-1'>New</small> : ''}
+                                <small className={`mini-badge mini-${type} mr-1`}>{n.notification_type}</small>
+                            </div>
+                            <div dangerouslySetInnerHTML={{__html: n.notification_message}}></div>
+                        </div>
                     </div>
 
-                    <div className='d-flex-between-center'>
-                        <div className='w-25'><small className={`badge ${type}`}>{n.notification_type}</small></div>
-                        <div className='w-75 text-right'><small>{moment(n.notification_date).format('MM-DD-YYYY h:mm:ss A')}</small></div>
-                    </div>
+                    <div className='text-right'><small>{moment(n.notification_date).format('MM-DD-YYYY h:mm:ss A')}</small></div>
 
                     {i + 1 !== this.state.notifications.length ? <hr /> : ''}
                 </div>
@@ -173,18 +202,16 @@ class EditUser extends Component {
                 }
 
                 return <div key={i} className='titled-container-row'>
-                    <div className='titled-container-row-title'>
+                    <div className='titled-container-row-title mb-1'>
                         {a.activity_action}
                     </div>
 
                     <div className='titled-container-row-detail'>
-                        <div>
-                            <Badge className={type}
-                            items={[
-                                {text: a.activity_type},
-                                {text: moment(a.activity_date).format('MM-DD-YYYY h:mm:ss A')}
-                            ]} />
+                        <div className='activity-badge'>
+                            <span className={`mini-badge mini-${type}`}>{a.activity_type}</span>
                         </div>
+
+                        <div className='activity-timestamp'>{moment(a.activity_date).format('MM-DD-YYYY h:mm:ss A')}</div>
                     </div>
 
                     {i + 1 !== this.state.activities.length ? <hr /> : ''}
@@ -199,13 +226,18 @@ class EditUser extends Component {
 
                             <div id='dashboard-header-user-info'>
                                 <NavLink to={`/user/${this.props.user.user.username}`}><h1>{this.props.user.user.username}</h1></NavLink>
-                                {this.props.user.user.user_business_name ? <h3><FontAwesomeIcon icon={faBuilding} id='user-business-name-icon' className='text-special mr-1' /> {this.props.user.user.user_business_name}</h3> : ''}
+
+                                <EditUserField field={this.props.user.user.user_business_name} save={(val) => this.saveField('business name', val)} placeholder='3 - 40 characters' maxLength='40' emptyString='Your business name here' label='Business Name' icon={<FontAwesomeIcon icon={faBuilding} className='text-special edit-user-field-icon' />} />
+
+                                <EditUserField field={this.props.user.user.user_title} save={(val) => this.saveField('user title', val)} placeholder='3 - 30 characters' maxLength='30' emptyString='Your profession title here' label='Profession Title' icon={<FontAwesomeIcon icon={faIdCard} className='text-special edit-user-field-icon' />} />
+
+                                <EditUserSocialMedia user={this.props.user.user} save={(field, val) => this.saveField(field, val)} />
                             </div>
                         </div>
 
                         <div id='dashboard-list-buttons-container'>
                             <NavLink to='/settings/listing'><FontAwesomeIcon icon={faCogs} size='2x' className='dashboard-list-button' color='white' /></NavLink>
-                            <SlideToggle status={this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} />
+                            <SlideToggle status={this.props.user.user.subscription_end_date > new Date() && this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} />
                             {/* <button id='mobile-logout-button' className='btn btn-secondary' onClick={() => this.props.dispatch(LogoutUser())}>Logout</button> */}
                         </div>
                     </div>
@@ -240,6 +272,118 @@ class EditUser extends Component {
         }
 
         return <Redirect to='/' />;
+    }
+}
+
+class EditUserField extends Component {
+    constructor(props) {
+        super(props);
+        
+        this.state = {
+            status: '',
+            value: '',
+            edit: false
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.edit !== this.state.edit) {
+            this.setState({value: this.props.field});
+        }
+    }
+    
+    componentDidMount() {
+        this.setState({value: this.props.field});
+    }
+
+    save(e) {
+        e.preventDefault();
+
+        this.setState({edit: ''});
+        this.props.save(this.state.value);
+    }
+    
+    render() {
+        let value;
+        let input = <InputWrapper label={this.props.label}>
+            <form onClick={(e) => e.stopPropagation()} onSubmit={(e) => this.save(e)} className='edit-user-field-form'>
+                <input type='text' onChange={(e) => this.setState({value: e.target.value})} placeholder={this.props.placeholder} maxLength={this.props.maxLength} value={this.state.value} placeholder='Enter URL' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                <div className='d-flex-end-center'>
+                    <button type='submit' className='btn btn-primary btn-sm mr-1'>Save</button>
+                    <button type='button' className='btn btn-secondary btn-sm mr-1' onClick={() => this.setState({edit: false})}>Cancel</button>
+                    <button type='button' className='btn btn-light btn-sm' onClick={() => this.setState({value: ''})}>Clear</button>
+                </div>
+            </form>
+        </InputWrapper>;
+
+
+        if (this.state.edit) {
+            value = input;
+        } else {
+            if (this.props.field) {
+                value = <h3>{this.props.icon} <span className='edit-user-field-text'>{this.props.field}</span> <button type='button' className='btn btn-info btn-sm'onClick={() => this.setState({edit: true})}>Edit</button></h3>;
+            } else {
+                value = <h3 className='text-muted'><span className='edit-user-field-text'>{this.props.emptyString}</span> <button type='button' className='btn btn-info btn-sm' onClick={() => this.setState({edit: true})}>Edit</button></h3>;
+            }
+        }
+
+        return(
+            <div className={`edit-user-header-field ${this.state.edit ? 'edit' : ''}`}>{value}</div>
+        )
+    }
+}
+
+class EditUserSocialMedia extends Component {
+    constructor(props) {
+        super(props);
+        
+        this.state = {
+            edit: false,
+            label: '',
+            field: '',
+            value: ''
+        }
+    }
+
+    save(e) {
+        e.preventDefault();
+
+        this.setState({edit: false});
+        this.props.save(this.state.field, this.state.value);
+    }
+    
+    render() {
+        let input;
+
+        if (this.state.edit) {
+            input = <div className='edit-user-field-container'>
+                <InputWrapper label={this.state.label}>
+                    <form onSubmit={(e) => this.save(e)} className='edit-user-field-form'>
+                        <input type='text' value={this.state.value} onChange={(e) => this.setState({value: e.target.value})} value={this.state.value} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                        <div className='d-flex-end-center'>
+                            <button type='submit' className='btn btn-primary btn-sm mr-1'>Save</button>
+                            <button type='button' className='btn btn-secondary btn-sm mr-1' onClick={() => this.setState({edit: false})}>Cancel</button>
+                            <button type='button' className='btn btn-light btn-sm' onClick={() => this.setState({value: ''})}>Clear</button>
+                        </div>
+                    </form>
+                </InputWrapper>
+            </div>
+        }
+        
+        return(
+            <div id='edit-user-social-media' className='mt-3'>
+                <div id='edit-user-social-media-buttons'>
+                    <FontAwesomeIcon icon={faFacebook} id='edit-user-facebook' className='edit-user-social-media-button' size='2x' onClick={() => this.setState({edit: true, label: 'Facebook', field: 'user facebook', value: this.props.user.user_facebook})} />
+                    <FontAwesomeIcon icon={faGithub} id='edit-user-github' className='edit-user-social-media-button' size='2x' onClick={() => this.setState({edit: true, label: 'GitHub', field: 'user github', value: this.props.user.user_github})} />
+                    <FontAwesomeIcon icon={faTwitter} id='edit-user-twitter' className='edit-user-social-media-button' size='2x' onClick={() => this.setState({edit: true, label: 'Twitter', field: 'user twitter', value: this.props.user.user_twitter})} />
+                    <FontAwesomeIcon icon={faInstagram} id='edit-user-instagram' className='edit-user-social-media-button' size='2x' onClick={() => this.setState({edit: true, label: 'Instagram', field: 'user instagram', value: this.props.user.user_instagram})} />
+                    <FontAwesomeIcon icon={faLinkedin} id='edit-user-linkedin' className='edit-user-social-media-button' size='2x' onClick={() => this.setState({edit: true, label: 'Linkedin', field: 'user linkedin', value: this.props.user.user_linkedin})} />
+                    <FontAwesomeIcon icon={faGlobe} id='edit-user-website' className='edit-user-social-media-button' size='2x' onClick={() => this.setState({edit: true, label: 'Website', field: 'user website', value: this.props.user.user_website})} />
+                </div>
+
+                {input}
+            </div>
+        )
     }
 }
 

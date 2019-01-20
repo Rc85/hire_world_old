@@ -8,14 +8,15 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
 
     try {
         let event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.NODE_ENV === 'development' ? process.env.DEV_STRIPE_RENEW_WEBHOOK_KEY : process.env.STRIPE_RENEW_WEBHOOK_KEY);
+        console.log(event);
 
         let user = await db.query(`SELECT username FROM users WHERE stripe_cust_id = $1`, [event.data.object.customer]);
 
         if (event.data.object.paid) {
-            await db.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Subscription renewed', event.data.object.customer, 'Subscription']);
+            await db.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Subscription renewed', user.rows[0].username, 'Subscription']);
             await db.query(`UPDATE users SET subscription_end_date = subscription_end_date + interval '1 month' WHERE stripe_cust_id = $1`, [event.data.object.customer]);
         } else {
-            await db.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Failed to renew subscription', event.data.object.customer, 'Subscription']);
+            await db.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Failed to renew subscription', user.rows[0].username, 'Subscription']);
         }
 
         resp.json({received: true});

@@ -24,7 +24,6 @@ class SubmitReview extends Component {
     }
     
     render() {
-        console.log(this.props);
         let authMessage;
 
         if (this.props.message && this.props.message.review_token) {

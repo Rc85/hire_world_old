@@ -21,6 +21,7 @@ import InputWrapper from '../../utils/InputWrapper';
 import TwoSidedCheckbox from '../../utils/TwoSidedCheckbox';
 import TextArea from '../../utils/TextArea';
 import SubmitButton from '../../utils/SubmitButton';
+import { isTyping } from '../../../actions/ConfigActions';
 
 class ListSettings extends Component {
     constructor(props) {
@@ -84,6 +85,7 @@ class ListSettings extends Component {
 
         fetch.post('/api/listing/save', this.state.newSettings)
         .then(resp => {
+            console.log(resp);
             if (resp.data.status === 'success') {
                 let initialSettings = {...this.state.newSettings, ...resp.data.listing};
 
@@ -146,7 +148,6 @@ class ListSettings extends Component {
     }
 
     render() {
-        console.log(this.state);
         let status, sectors, renewButton;
 
         if (this.state.status === 'Loading') {
@@ -190,7 +191,7 @@ class ListSettings extends Component {
     
                     <div className='mb-3'>
                         <InputWrapper label='List Title' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''}>
-                            <input type='text' defaultValue={this.state.initialSettings.listing_title} disabled={this.props.user.user.listing_status === 'Active'} onChange={(e) => this.setSetting('listing_title', e.target.value)} />
+                            <input type='text' defaultValue={this.state.initialSettings.listing_title} disabled={this.props.user.user.listing_status === 'Active'} onChange={(e) => this.setSetting('listing_title', e.target.value)} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                         </InputWrapper>
                         {/* <label htmlFor='listing-title'>List Title: <span className='text-special'>*</span></label>
                         <input type='text' name='title' id='listing-title' onChange={(e) => this.setState({listing_title: e.target.value})} defaultValue={this.state.listing_title} disabled={this.state.listing_status === 'Active'} /> */}
@@ -208,7 +209,7 @@ class ListSettings extends Component {
 
                     <div className='setting-field-container mb-3'>
                         <InputWrapper label='Price Rate' id='listing-price' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''}>
-                            <input type='number' onChange={(e) => this.setSetting('listing_price', e.target.value)} value={this.state.newSettings.listing_price} disabled={this.props.user.user.listing_status === 'Active'} />
+                            <input type='number' onChange={(e) => this.setSetting('listing_price', e.target.value)} value={this.state.newSettings.listing_price} disabled={this.props.user.user.listing_status === 'Active'} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                         </InputWrapper>
                         {/* <div id='list-setting-price'>
 
@@ -227,7 +228,7 @@ class ListSettings extends Component {
                         </InputWrapper>
 
                         <InputWrapper label='Currency' id='listing-price-currency' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''}>
-                            <input type='text' onChange={(e) => this.setSetting('listing_price_currency', e.target.value)} value={this.state.newSettings.listing_price_currency} disabled={this.props.user.user.listing_status === 'Active'} list='currency-list'/>
+                            <input type='text' onChange={(e) => this.setSetting('listing_price_currency', e.target.value)} value={this.state.newSettings.listing_price_currency} disabled={this.props.user.user.listing_status === 'Active'} list='currency-list' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                             <datalist id='currency-list'>
                                 <option value='USD'>USD</option>
                                 <option value='CAD'>CAD</option>

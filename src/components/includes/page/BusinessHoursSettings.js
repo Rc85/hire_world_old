@@ -11,6 +11,7 @@ import TitledContainer from '../../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBusinessTime } from '@fortawesome/free-solid-svg-icons';
 import InputGroup from '../../utils/InputGroup';
+import { isTyping } from '../../../actions/ConfigActions';
 
 class BusinessHoursSettings extends Component {
     constructor(props) {
@@ -80,6 +81,7 @@ class BusinessHoursSettings extends Component {
         }
 
         let initialState = {
+            status: '',
             monStartTime: monStart,    
             tueStartTime: tueStart,
             wedStartTime: wedStart,
@@ -149,18 +151,11 @@ class BusinessHoursSettings extends Component {
         fetch.post('/api/user/business_hours/save', days)
         .then(resp => {
             if (resp.data.status === 'success') {
-                let clonedState = Object.assign({}, state);
-
-                this.setState(clonedState);
-
-                delete clonedState.status;
-                delete clonedState.showSettings;
-
-                this.initialState = clonedState;
-            } else if (resp.data.status === 'error') {
-                this.setState({status: ''});
+                this.initialState = {...this.state};
+                this.initialState.status = '';
             }
 
+            this.setState(this.initialState);
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => LogError(err, '/api/user/business_hours/save'));
@@ -186,10 +181,6 @@ class BusinessHoursSettings extends Component {
     }
     
     render() {
-        let clonedState = Object.assign({}, this.state);
-        delete clonedState.status;
-        delete clonedState.showSettings;
-
         return (
             <TitledContainer title='Business Hours' bgColor='orange' shadow icon={<FontAwesomeIcon icon={faBusinessTime} />} >
                 <section id='business-hours-settings' className='w-100'>
@@ -212,7 +203,7 @@ class BusinessHoursSettings extends Component {
                         <HourSetters day='Saturday' startTime={(val) => this.setState({satStartTime: val})} endTime={(val) => this.setState({satEndTime: val})} startValue={this.state.satStartTime} endValue={this.state.satEndTime} />
                         <HourSetters day='Sunday' startTime={(val) => this.setState({sunStartTime: val})} endTime={(val) => this.setState({sunEndTime: val})} startValue={this.state.sunStartTime} endValue={this.state.sunEndTime} />
     
-                        <div className='text-right'><SubmitButton loading={this.state.status === 'Loading'} type='button' value='Save' onClick={() => this.save(this.state)} disabled={JSON.stringify(clonedState) == JSON.stringify(this.initialState)} /></div>
+                        <div className='text-right'><SubmitButton loading={this.state.status === 'Loading'} type='button' value='Save' onClick={() => this.save(this.state)} disabled={JSON.stringify(this.state) == JSON.stringify(this.initialState)} /></div>
                     </div>
                 </section>
             </TitledContainer>
@@ -224,9 +215,9 @@ const HourSetters = props => {
     return(
         <div id={props.day} className='business-hour-container'>                      
             <InputGroup className='hour-container' label={props.day}>
-                <div className='start-time'><input type='text' onChange={(e) => props.startTime(e.target.value)} maxLength='15' defaultValue={props.startValue} /></div>
+                <div className='start-time'><input type='text' onChange={(e) => props.startTime(e.target.value)} maxLength='15' defaultValue={props.startValue} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></div>
                 <div className='hour-separator'>to</div>
-                <div className='end-time'><input type='text' onChange={(e) => props.endTime(e.target.value)} maxLength='15' defaultValue={props.endValue} /></div>
+                <div className='end-time'><input type='text' onChange={(e) => props.endTime(e.target.value)} maxLength='15' defaultValue={props.endValue} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></div>
             </InputGroup>
         </div>
     )

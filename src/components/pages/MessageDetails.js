@@ -512,7 +512,6 @@ class MessageDetails extends Component {
     } */
 
     render() {
-        console.log(this.props.job);
         let listingDetails, sendButton, sendMessage, sendStatus, messages, offerConfirmation, fetchStatus, offerButton, confirmation, closeButton, completeButton, incompleteButton, reasonInput, jobStatus, abandonedDate, refreshButton, status;
         let now = moment();
 
@@ -703,9 +702,6 @@ class MessageDetails extends Component {
                 closeButton = <button id='close-inquiry-button' className='btn btn-danger' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to close this inquiry?', 'No more messages can be sent or received afterwards for this inquiry.', {action: 'close inquiry'}))}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faTimes} /> : 'Close'}</button>
             }
         }
-
-        console.log(this.state.messages.length)
-        console.log(parseInt(this.props.job.messages[0].message_count))
 
         if (this.state.status === 'fetch error' || this.state.status === 'access error') {
             return <Redirect to='/error/404' />

@@ -195,13 +195,13 @@ class BusinessHoursSettings extends Component {
                     <hr/>
     
                     <div id='hours-settings'>
-                        <HourSetters day='Monday' startTime={(val) => this.setState({monStartTime: val})} endTime={(val) => this.setState({monEndTime: val})} startValue={this.state.monStartTime} endValue={this.state.monEndTime} />
-                        <HourSetters day='Tuesday' startTime={(val) => this.setState({tueStartTime: val})} endTime={(val) => this.setState({tueEndTime: val})} startValue={this.state.tueStartTime} endValue={this.state.tueEndTime} />
-                        <HourSetters day='Wednesday' startTime={(val) => this.setState({wedStartTime: val})} endTime={(val) => this.setState({wedEndTime: val})} startValue={this.state.wedStartTime} endValue={this.state.wedEndTime} />
-                        <HourSetters day='Thursday' startTime={(val) => this.setState({thuStartTime: val})} endTime={(val) => this.setState({thuEndTime: val})} startValue={this.state.thuStartTime} endValue={this.state.thuEndTime} />
-                        <HourSetters day='Friday' startTime={(val) => this.setState({friStartTime: val})} endTime={(val) => this.setState({friEndTime: val})} startValue={this.state.friStartTime} endValue={this.state.friEndTime} />
-                        <HourSetters day='Saturday' startTime={(val) => this.setState({satStartTime: val})} endTime={(val) => this.setState({satEndTime: val})} startValue={this.state.satStartTime} endValue={this.state.satEndTime} />
-                        <HourSetters day='Sunday' startTime={(val) => this.setState({sunStartTime: val})} endTime={(val) => this.setState({sunEndTime: val})} startValue={this.state.sunStartTime} endValue={this.state.sunEndTime} />
+                        <HourSetters day='Monday' startTime={(val) => this.setState({monStartTime: val})} endTime={(val) => this.setState({monEndTime: val})} startValue={this.state.monStartTime} endValue={this.state.monEndTime} dispatch={this.props.dispatch} />
+                        <HourSetters day='Tuesday' startTime={(val) => this.setState({tueStartTime: val})} endTime={(val) => this.setState({tueEndTime: val})} startValue={this.state.tueStartTime} endValue={this.state.tueEndTime} dispatch={this.props.dispatch} />
+                        <HourSetters day='Wednesday' startTime={(val) => this.setState({wedStartTime: val})} endTime={(val) => this.setState({wedEndTime: val})} startValue={this.state.wedStartTime} endValue={this.state.wedEndTime} dispatch={this.props.dispatch} />
+                        <HourSetters day='Thursday' startTime={(val) => this.setState({thuStartTime: val})} endTime={(val) => this.setState({thuEndTime: val})} startValue={this.state.thuStartTime} endValue={this.state.thuEndTime} dispatch={this.props.dispatch} />
+                        <HourSetters day='Friday' startTime={(val) => this.setState({friStartTime: val})} endTime={(val) => this.setState({friEndTime: val})} startValue={this.state.friStartTime} endValue={this.state.friEndTime} dispatch={this.props.dispatch} />
+                        <HourSetters day='Saturday' startTime={(val) => this.setState({satStartTime: val})} endTime={(val) => this.setState({satEndTime: val})} startValue={this.state.satStartTime} endValue={this.state.satEndTime} dispatch={this.props.dispatch} />
+                        <HourSetters day='Sunday' startTime={(val) => this.setState({sunStartTime: val})} endTime={(val) => this.setState({sunEndTime: val})} startValue={this.state.sunStartTime} endValue={this.state.sunEndTime} dispatch={this.props.dispatch} />
     
                         <div className='text-right'><SubmitButton loading={this.state.status === 'Loading'} type='button' value='Save' onClick={() => this.save(this.state)} disabled={JSON.stringify(this.state) == JSON.stringify(this.initialState)} /></div>
                     </div>
@@ -215,9 +215,9 @@ const HourSetters = props => {
     return(
         <div id={props.day} className='business-hour-container'>                      
             <InputGroup className='hour-container' label={props.day}>
-                <div className='start-time'><input type='text' onChange={(e) => props.startTime(e.target.value)} maxLength='15' defaultValue={props.startValue} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></div>
+                <div className='start-time'><input type='text' onChange={(e) => props.startTime(e.target.value)} maxLength='15' defaultValue={props.startValue} onFocus={() => props.dispatch(isTyping(true))} onBlur={() => props.dispatch(isTyping(false))} /></div>
                 <div className='hour-separator'>to</div>
-                <div className='end-time'><input type='text' onChange={(e) => props.endTime(e.target.value)} maxLength='15' defaultValue={props.endValue} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></div>
+                <div className='end-time'><input type='text' onChange={(e) => props.endTime(e.target.value)} maxLength='15' defaultValue={props.endValue} onFocus={() => props.dispatch(isTyping(true))} onBlur={() => props.dispatch(isTyping(false))} /></div>
             </InputGroup>
         </div>
     )

@@ -20,7 +20,7 @@ class Listing extends Component {
             // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
             // live key pk_live_wJ7nxOazDSHu9czRrGjUqpep
             let payment = <TitledContainer title='Subscribe' bgColor='success' icon={<FontAwesomeIcon icon={faPlusSquare} />} shadow>
-                <StripeProvider apiKey='pk_test_KgwS8DEnH46HAFvrCaoXPY6R'>
+                <StripeProvider apiKey={process.env.REACT_ENV === 'development' ? 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R' : 'pk_live_wJ7nxOazDSHu9czRrGjUqpep'}>
                     <div id='payment-input'>To begin listing, you need to subscribe to a monthly plan.
                         <Elements>
                             <Checkout user={this.props.user.user} />

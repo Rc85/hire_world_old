@@ -99,7 +99,6 @@ export const UpdateUserNotifications = () => {
     return dispatch => {
         fetch.post('/api/user/notifications/read')
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 dispatch(UpdateUserNotificationsToRead());
             } else {

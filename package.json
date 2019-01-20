@@ -53,8 +53,8 @@
     "stripe": "^6.19.0"
   },
   "scripts": {
-    "start:dev": "webpack-dev-server --config ./webpack.config.js --mode development",
-    "build": "webpack -p --config ./webpack.config.js",
+    "start:dev": "webpack-dev-server --env.REACT_ENV=development --config ./webpack.config.js --mode development",
+    "build": "webpack -p --env.REACT_ENV=production --config ./webpack.config.js",
     "test": "jest"
   },
   "devDependencies": {

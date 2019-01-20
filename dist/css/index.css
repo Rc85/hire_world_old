@@ -2143,7 +2143,7 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
   width: 100%;
 }
 .input-group-container input {
-  border-left: 1px solid #DFDFDF;
+  border-left: 0;
   border-bottom: 1px solid #DFDFDF;
   border-top: 0;
   border-right: 0;

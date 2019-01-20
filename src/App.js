@@ -220,7 +220,7 @@ class App extends Component {
 					<Route exact path='/settings/account' render={() =>  <Pages.Dashboard user={this.props.user}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
 					{/* // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
             		// live key pk_live_wJ7nxOazDSHu9czRrGjUqpep */}
-					<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user}><StripeProvider apiKey='pk_test_KgwS8DEnH46HAFvrCaoXPY6R'><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+					<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'development' ? 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R' : 'pk_live_wJ7nxOazDSHu9czRrGjUqpep'}><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
 					<Route exact path='/settings/listing' render={() => <Pages.Dashboard user={this.props.user}><Pages.Listing user={this.props.user} /></Pages.Dashboard>} />
 					<Route exact path='/settings/subscription' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
 

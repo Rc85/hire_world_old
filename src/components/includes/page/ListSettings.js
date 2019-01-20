@@ -85,7 +85,6 @@ class ListSettings extends Component {
 
         fetch.post('/api/listing/save', this.state.newSettings)
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 let initialSettings = {...this.state.newSettings, ...resp.data.listing};
 

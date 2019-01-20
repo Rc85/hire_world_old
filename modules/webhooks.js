@@ -8,7 +8,6 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
 
     try {
         let event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.NODE_ENV === 'development' ? process.env.DEV_STRIPE_RENEW_WEBHOOK_KEY : process.env.STRIPE_RENEW_WEBHOOK_KEY);
-        console.log(event);
 
         let user = await db.query(`SELECT username FROM users WHERE stripe_cust_id = $1`, [event.data.object.customer]);
 

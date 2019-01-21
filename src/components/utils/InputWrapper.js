@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isTyping } from '../../actions/ConfigActions';
 import { connect } from 'react-redux';
 
 const InputWrapper = props => {
@@ -10,6 +9,8 @@ const InputWrapper = props => {
                 <label className={`${props.labelBgColor ? `bg-${props.labelBgColor}` : ''}`}>{props.label}</label>
                 {props.altLabel ? <label className={props.altLabelClassName ? props.altLabelClassName : ''}>{props.altLabel}</label> : ''}
             </div>
+
+            {props.required ? <div className='input-required'><span className='text-special'>*</span> <small className='text-muted'><em>Required</em></small></div> : ''}
 
             {props.children}
         </div>

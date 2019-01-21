@@ -34,6 +34,13 @@
         }
     }
 
+    .input-required {
+        position: absolute;
+        top: 0;
+        right: 5px;
+        font-size: 0.8rem;
+    }
+
     /* .InputElement, select { padding: 17px 6px 10px 6px; }
     .InputElement, input { padding: 20px 6px 10px 6px; } */
 
@@ -43,7 +50,13 @@
         background-color: white;
         width: 100%; */
 
-        &:disabled { background-color: $theme-lightgrey; }
+        &:disabled {
+            background-color: $theme-lightgrey;
+            
+            .input-required {
+                small { color: black; }
+            }
+        }
     }
     
     input {

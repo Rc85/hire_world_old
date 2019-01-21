@@ -23,7 +23,6 @@
 @import 'MessageDetails';
 @import 'MessageRow';
 @import 'Messages';
-@import 'NavBar';
 @import 'Pagination';
 @import 'RadioInput';
 @import 'RegisterForm';
@@ -39,7 +38,6 @@
 @import 'TextArea';
 @import 'TitledContainer';
 @import 'Tooltip';
-@import 'TopBar';
 @import 'TwoSidedCheckbox';
 @import 'UserDetails';
 @import 'UserInfo';
@@ -75,6 +73,7 @@ body {
 
 a {
     font-weight: bold;
+    text-decoration: none;
     color: $theme-fg;
 }
 

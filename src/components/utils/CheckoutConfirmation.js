@@ -96,7 +96,7 @@ class CheckoutConfirmation extends Component {
 }
 
 CheckoutConfirmation.propTypes = {
-
+    info: PropTypes.object
 };
 
 const mapStateToProps = state => {

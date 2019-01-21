@@ -1,16 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import UserProfilePic from '../page/UserProfilePic';
 import { NavLink, withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faColumns, faCommentAlt, faCog, faSignOutAlt, faBell, faThList } from '@fortawesome/free-solid-svg-icons';
-import { LogoutUser, LoginUser } from '../../../actions/LoginActions';
+import { faSignOutAlt, faBell, faThList } from '@fortawesome/free-solid-svg-icons';
+import { LogoutUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
-import InputWrapper from '../../utils/InputWrapper';
-import SubmitButton from '../../utils/SubmitButton';
 import Loading from '../../utils/Loading';
-import fetch from 'axios';
 import LoginPanel from './LoginPanel';
 import BrowseMenu from '../site/BrowseMenu';
 import { ToggleMenu } from '../../../actions/MenuActions';
@@ -171,7 +167,8 @@ class Link extends Component {
 }
 
 SideBar.propTypes = {
-
+    user: PropTypes.object,
+    items: PropTypes.array
 };
 
 const mapStateToProps = state => {

@@ -6,13 +6,9 @@ import Loading from '../../utils/Loading';
 import { Alert } from '../../../actions/AlertActions';
 import { connect } from 'react-redux';
 import { withRouter, Redirect } from 'react-router-dom';
-import { UncontrolledTooltip } from 'reactstrap';
-import moment from 'moment';
 import { LogError } from '../../utils/LogError';
-import { GetSectors, GetSession } from '../../../actions/FetchActions';
-import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
+import { GetSectors } from '../../../actions/FetchActions';
 import { UpdateUser } from '../../../actions/LoginActions';
-import Tooltip from '../../utils/Tooltip';
 import TitledContainer from '../../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCogs } from '@fortawesome/free-solid-svg-icons';
@@ -22,6 +18,7 @@ import TwoSidedCheckbox from '../../utils/TwoSidedCheckbox';
 import TextArea from '../../utils/TextArea';
 import SubmitButton from '../../utils/SubmitButton';
 import { isTyping } from '../../../actions/ConfigActions';
+import Tooltip from '../../utils/Tooltip';
 
 class ListSettings extends Component {
     constructor(props) {
@@ -99,19 +96,27 @@ class ListSettings extends Component {
     }
     
     toggleListing() {
+        let status;
+
+        if (this.props.user.user.listing_status === 'Active') {
+            status = 'Inactive';
+        } else if (this.props.user.user.listing_status === 'Inactive') {
+            status = 'Active';
+        }
+
         if (JSON.stringify(this.state.initialSettings) !== JSON.stringify(this.state.newSettings)) {
             this.props.dispatch(Alert('error', 'You must save your settings first'));
         } else {
             this.setState({status: 'Loading'});
 
-            fetch.post('/api/listing/toggle', this.state.newSettings)
+            fetch.post('/api/listing/toggle', {status: status})
             .then(resp => {
                 if (resp.data.status === 'success') {
                     let user = {...this.props.user.user};
-                    user.listing_status = resp.data.listing.listing_status;
+                    user.listing_status = resp.data.listing_status;
 
                     this.props.dispatch(UpdateUser(user));
-                    this.setState({status: '', listing_status: resp.data.listing.listing_status});
+                    this.setState({status: '', listing_status: resp.data.listing_status});
                 } else if (resp.data.status === 'error') {
                     this.setState({status: ''});
                     this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -121,23 +126,25 @@ class ListSettings extends Component {
         }
     }
 
-    /* renewListing() {
+    renewListing() {
         this.setState({status: 'Loading'});
 
-        fetch.post('/api/listing/renew', {listing_id: this.state.listing_id})
+        fetch.post('/api/listing/renew', {listing_id: this.state.initialSettings.listing_id})
         .then(resp => {
             if (resp.data.status === 'success') {
-                let newState = {...this.state}
-                newState.listing_renewed_date = resp.data.renewedDate;
-                this.setState(newState);
+                let initialSettings = {...this.state.initialSettings};
+
+                initialSettings.listing_renewed_date = resp.data.renewedDate;
+
+                this.setState({status: '', initialSettings: initialSettings});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
-
-                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => LogError(err, '/api/listing/renew'));
-    } */
+    }
 
     setSetting(key, value) {
         let settings = {...this.state.newSettings}
@@ -161,13 +168,13 @@ class ListSettings extends Component {
             });
         }
 
-        if (this.state.listing_created_date) {
+        if (this.state.initialSettings.listing_created_date) {
             let now = new Date();
-            let lastRenew = new Date(this.state.listing_renewed_date);
+            let lastRenew = new Date(this.state.initialSettings.listing_renewed_date);
 
-            /* renewButton = <React.Fragment>
+            renewButton = <React.Fragment>
                 <Tooltip text={now - lastRenew < 8.64e+7 ? 'You must wait 24 hours from your last renew before you can renew again' : 'Renewing your listing will bring it to the top of the list'} placement='bottom-right'><button id='renew-button' className='btn btn-primary ml-2' onClick={() => this.renewListing()} disabled={now - lastRenew < 8.64e+7}>Renew</button></Tooltip>
-            </React.Fragment>; */
+            </React.Fragment>;
         }
         
         let disableSave = JSON.stringify(this.state.initialSettings) === JSON.stringify(this.state.newSettings);
@@ -177,7 +184,10 @@ class ListSettings extends Component {
                 <section id='list-settings'>
                     {status}
     
+                    <div className='text-right mb-3'>{renewButton}</div>
+
                     <div className='mb-3'>
+                        <div className='text-right'><small><span className='text-special'>*</span> <span className='text-light'><small><em>Required</em></small></span></small></div>
                         <RadioInput items={[
                             {text: 'I am looking for work', value: 'For Hire'},
                             {text: 'I am looking to hire', value: 'Hiring'}
@@ -189,15 +199,15 @@ class ListSettings extends Component {
                     </div>
     
                     <div className='mb-3'>
-                        <InputWrapper label='List Title' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''}>
-                            <input type='text' defaultValue={this.state.initialSettings.listing_title} disabled={this.props.user.user.listing_status === 'Active'} onChange={(e) => this.setSetting('listing_title', e.target.value)} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                        <InputWrapper label='List Title' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''} required>
+                            <input type='text' value={this.state.newSettings.listing_title} disabled={this.props.user.user.listing_status === 'Active'} onChange={(e) => this.setSetting('listing_title', e.target.value)} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                         </InputWrapper>
                         {/* <label htmlFor='listing-title'>List Title: <span className='text-special'>*</span></label>
                         <input type='text' name='title' id='listing-title' onChange={(e) => this.setState({listing_title: e.target.value})} defaultValue={this.state.listing_title} disabled={this.state.listing_status === 'Active'} /> */}
                     </div>
     
                     <div className='mb-3'>
-                        <InputWrapper label='List Under' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''}>
+                        <InputWrapper label='List Under' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''} required>
                             <select onChange={(e) => this.setSetting('listing_sector', e.target.value)} value={this.state.newSettings.listing_sector} disabled={this.props.user.user.listing_status === 'Active'}>{sectors}</select>
                         </InputWrapper>
                         {/* <label htmlFor='listing-sector'>List Under: <span className='text-special'>*</span></label>
@@ -216,7 +226,7 @@ class ListSettings extends Component {
                             <input type='number' name='price' id='listing-price' onChange={(e) => this.setState({listing_price: e.target.value})} defaultValue={this.state.listing_price} disabled={this.state.listing_status === 'Active'} />
                         </div> */}
 
-                        <InputWrapper label='Per' id='listing-price-type' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''}>
+                        <InputWrapper label='Per' id='listing-price-type' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''} required>
                             <select onChange={(e) => this.setSetting('listing_price_type', e.target.value)} value={this.state.newSettings.listing_price_type} disabled={this.props.user.user.listing_status === 'Active'}>
                                 <option value='Hour'>Hour</option>
                                 <option value='Bi-weekly'>Bi-weekly</option>
@@ -226,7 +236,7 @@ class ListSettings extends Component {
                             </select>
                         </InputWrapper>
 
-                        <InputWrapper label='Currency' id='listing-price-currency' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''}>
+                        <InputWrapper label='Currency' id='listing-price-currency' className={this.props.user.user.listing_status === 'Active' ? 'disabled' : ''} required>
                             <input type='text' onChange={(e) => this.setSetting('listing_price_currency', e.target.value)} value={this.state.newSettings.listing_price_currency} disabled={this.props.user.user.listing_status === 'Active'} list='currency-list' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                             <datalist id='currency-list'>
                                 <option value='USD'>USD</option>
@@ -278,7 +288,7 @@ class ListSettings extends Component {
                     <textarea name='listing-detail' id='listing-detail' rows='10'className='w-100 mb-3' placeholder='Describe the type of products or service you offer' onChange={(e) => this.setState({listing_detail: e.target.value})} value={this.state.listing_detail} disabled={this.state.listing_status === 'Active'}></textarea> */}
 
                     <div className='d-flex-end-center mb-3'>
-                        {this.state.initialSettings.listing_status ? <div className='mr-1'><SlideToggle status={this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} /></div> : ''}
+                        {this.state.initialSettings.listing_status ? <div className='mr-1'><SlideToggle status={new Date(this.props.user.user.subscription_end_date) > new Date() && this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} /></div> : ''}
 
                         <SubmitButton type='button' loading={this.state.status === 'Saving'} onClick={() => this.saveSetting()} value='Save' disabled={disableSave} />
 

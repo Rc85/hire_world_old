@@ -24,7 +24,8 @@ class PaymentSettings extends Component {
             status: 'Loading',
             defaultAddress: null,
             saveAddress: false,
-            payments: []
+            payments: [],
+            name: ''
         }
     }
 
@@ -76,17 +77,23 @@ class PaymentSettings extends Component {
                 let payments = [...this.state.payments];
                 payments.push(resp.data.card);
 
-                this.setState({status: '', name: '', address_line1: '', address_country: '', address_city: '', address_state: '', address_zip: '', payments: payments, defaultSource: resp.data.defaultSource});
-                this.cardName.clear();
                 this.CardExpiryElement.clear();
                 this.CardNumberElement.clear();
                 this.CardCVCElement.clear();
+                this.setState({status: '', name: '', address_line1: '', address_country: '', address_city: '', address_state: '', address_zip: '', payments: payments, defaultSource: resp.data.defaultSource});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
         .catch(err => LogError(err, '/api/user/payment/add'));
+    }
+
+    clear() {
+        this.CardExpiryElement.clear();
+        this.CardNumberElement.clear();
+        this.CardCVCElement.clear(); 
+        this.setState({status: '', name: '', address_line1: '', address_country: '', address_city: '', address_state: '', address_zip: ''});
     }
 
     set(key, val) {
@@ -177,21 +184,21 @@ class PaymentSettings extends Component {
         
                         <div className='setting-child mb-3'>
                             <InputWrapper label='Name on Card'>
-                                <input type='text' name='name' id='nameOnCard' onChange={(e) => this.setState({name: e.target.value})} placeholder={this.props.config.isTyping ? '' : 'Your name on your profile will be used if left blank'} ref={el => this.cardName = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                <input type='text' name='name' id='nameOnCard' onChange={(e) => this.setState({name: e.target.value})} placeholder={this.props.config.isTyping ? '' : 'Your name on your profile will be used if left blank'} value={this.state.name} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                             </InputWrapper>
                         </div>
         
                         <div className='setting-field-container mb-3'>
                             <div className='setting-child three-quarter'>
-                                <InputWrapper label='Card Number'><CardNumberElement onReady={el => this.CardNumberElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
+                                <InputWrapper label='Card Number' required><CardNumberElement onReady={el => this.CardNumberElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
                             </div>
 
                             <div className='setting-child quarter'>
-                                <InputWrapper label='Expiry Date'><CardExpiryElement onReady={el => this.CardExpiryElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
+                                <InputWrapper label='Expiry Date' required><CardExpiryElement onReady={el => this.CardExpiryElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
                             </div>
         
                             <div className='setting-child quarter'>
-                                <InputWrapper label='CVC'><CardCVCElement onReady={el => this.CardCVCElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
+                                <InputWrapper label='CVC' required><CardCVCElement onReady={el => this.CardCVCElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
                             </div>
                         </div>
         
@@ -199,7 +206,10 @@ class PaymentSettings extends Component {
         
                         {address}
         
-                        <div className='text-right'><SubmitButton type='button' onClick={() => this.save()} loading={this.state.status === 'Adding'} value='Add Payment' /></div>
+                        <div className='text-right'>
+                            <SubmitButton type='button' onClick={() => this.save()} loading={this.state.status === 'Adding'} value='Add Payment' />
+                            <button type='button' className='btn btn-secondary' onClick={() => this.clear()}>Clear</button>
+                        </div>
         
                         <hr/>
         

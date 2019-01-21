@@ -25,6 +25,8 @@
         .sidebar-link-item.active { border-right: 0; }
     } */
 
+    #footer { padding-bottom: 75px; }
+
     #dashboard-main { width: 100%; }
 
     #dashboard-header {
@@ -138,10 +140,10 @@
     #message-list-column {
         position: fixed;
         left: 0;
-        z-index: 2;
+        z-index: 5;
         overflow-x: hidden;
         padding-bottom: 75px;
-        min-height: 100%;
+        height: 100%;
         width: 100%;
         transition: width 0.25s ease-in-out;
 
@@ -153,6 +155,7 @@
 
         &.hide {
             width: 0;
+            z-index: 3;
         
             #message-list-main-column {
                 opacity: 0;

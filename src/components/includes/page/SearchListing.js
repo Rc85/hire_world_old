@@ -160,7 +160,7 @@ class SearchListing extends Component {
 }
 
 SearchListing.propTypes = {
-
+    filter: PropTypes.func
 };
 
 export default SearchListing;

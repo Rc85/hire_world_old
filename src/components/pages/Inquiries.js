@@ -4,16 +4,14 @@ import { LogError } from '../utils/LogError';
 import { connect } from 'react-redux';
 import fetch from 'axios';
 import Pagination from '../utils/Pagination';
-import MessageRow from '../includes/page/MessageRow';
 import Loading from '../utils/Loading';
 import InquiryRow from '../includes/page/InquiryRow';
 import { withRouter, Redirect } from 'react-router-dom';
 import MessageDetails from '../pages/MessageDetails';
-import Response from '../pages/Response';
 import { GetUserNotificationAndMessageCount } from '../../actions/FetchActions';
 import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle, faDotCircle, faCheckCircle, faBan, faTimes, faList, faBars, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 
 class Inquiries extends Component {
     constructor(props) {
@@ -70,6 +68,10 @@ class Inquiries extends Component {
     }
     
     componentDidMount() {
+        if (this.props.config.isMobile && this.state.showMessageList) {
+            document.body.style.overflowY = 'hidden';
+        }
+
         fetch.post(`/api/get/messages/${this.state.showing}`, {stage: this.props.match.params.stage, offset: this.state.offset})
         .then(resp => {
             if (resp.data.status === 'success') {
@@ -119,6 +121,8 @@ class Inquiries extends Component {
     }
 
     loadMessage(id, index) {
+        document.body.style.overflowY = '';
+        
         this.setState({status: 'Loading Message', idToLoad: id, showMessageList: false});
 
         fetch.post('/api/get/offer', {job_id: id, stage: this.props.match.params.stage})
@@ -188,7 +192,7 @@ class Inquiries extends Component {
         .catch(err => LogError(err, '/api/user/review/submit'));
     }
 
-    appealAbandon(val) {
+    /* appealAbandon(val) {
         this.setState({status: 'Loading'});
 
         fetch.post('/api/jobs/appeal-abandon', {job_id: this.props.message.job_id, additional_info: val})
@@ -198,6 +202,16 @@ class Inquiries extends Component {
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => LogError(err, '/api/jobs/appeal-abandon'));
+    } */
+
+    toggleMessageList(bool) {
+        if (bool) {
+            document.body.style.overflowY = 'hidden';
+        } else {
+            document.body.style.overflowY = '';
+        }
+
+        this.setState({showMessageList: bool})
     }
     
     render() {
@@ -253,14 +267,18 @@ class Inquiries extends Component {
                                 <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received'})}>Received</button>
                                 <button className={`btn ${this.state.showing === 'sent' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'sent'})}>Sent</button>
                                 <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned'})}>Pinned</button>
-                                <button id='close-message-column-button' className='btn btn-light' onClick={() => this.setState({showMessageList: false})}><FontAwesomeIcon icon={faChevronLeft} /></button>
+                                <button id='close-message-column-button' className='btn btn-light' onClick={() => this.toggleMessageList(false)}><FontAwesomeIcon icon={faChevronLeft} /></button>
                             </div>
                             
                             {body}
+
+                            <div className='message-filter-buttons-container mt-3'>
+                                <button id='close-message-column-button' className='btn btn-light' onClick={() => this.toggleMessageList(false)}><FontAwesomeIcon icon={faChevronLeft} /></button>
+                            </div>
                         </div>
 
                         <div id='message-list-mini-column' className={this.state.showMessageList ? 'hide' : ''}>
-                            <FontAwesomeIcon icon={faBars} size='2x' onClick={() => this.setState({showMessageList: true})} />
+                            <FontAwesomeIcon icon={faBars} size='2x' onClick={() => this.toggleMessageList(true)} />
                         </div>
                     </div>
 
@@ -288,4 +306,10 @@ Inquiries.propTypes = {
 
 };
 
-export default withRouter(connect()(Inquiries));
+const mapStateToProps = state => {
+    return {
+        config: state.Config
+    }
+}
+
+export default withRouter(connect(mapStateToProps)(Inquiries));

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { withRouter, NavLink } from 'react-router-dom';
 import Loading from '../utils/Loading';
 import fetch from 'axios';
-import Response from '../pages/Response';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle, faHeart, faUserCircle, faDollarSign, faHandHoldingUsd, faAt, faPhone, faMapMarkerAlt, faMapMarkedAlt } from '@fortawesome/free-solid-svg-icons';
 import MessageSender from '../includes/page/MessageSender';

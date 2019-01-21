@@ -53,7 +53,14 @@ class SubmitReview extends Component {
 }
 
 SubmitReview.propTypes = {
-
+    submit: PropTypes.func,
+    cancel: PropTypes.func,
+    review: PropTypes.object,
+    stars: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
+    show: PropTypes.bool
 }
 
 export default SubmitReview;

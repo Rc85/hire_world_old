@@ -1066,13 +1066,9 @@
   background: #ED463D;
 }
 
-#root {
-  overflow-x: hidden;
-  width: 100%;
-}
-
 .col-container {
   display: flex;
+  width: 100vw;
   min-height: 100%;
   position: relative;
 }
@@ -1966,14 +1962,6 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
   position: relative;
   width: 80%;
 }
-#dashboard-main a {
-  color: #2988BC;
-  text-decoration: none;
-}
-#dashboard-main a:hover {
-  color: #7dd2ff;
-  text-decoration: underline;
-}
 
 #main-panel-bg {
   position: absolute;
@@ -2106,6 +2094,17 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
   margin: 0;
 }
 
+footer {
+  position: relative;
+}
+
+#footer {
+  position: absolute;
+  width: 100%;
+  border-top: 1px solid black;
+  z-index: 4;
+}
+
 .input-group-container {
   border: 1px solid black;
   position: relative;
@@ -2211,6 +2210,12 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
   border-left: 0;
   background-color: #9b9b9b;
 }
+.input-container .input-required {
+  position: absolute;
+  top: 0;
+  right: 5px;
+  font-size: 0.8rem;
+}
 .input-container input, .input-container select {
   width: 100%;
   /* color: black;
@@ -2219,6 +2224,9 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
 }
 .input-container input:disabled, .input-container select:disabled {
   background-color: #DFDFDF;
+}
+.input-container input:disabled .input-required small, .input-container select:disabled .input-required small {
+  color: black;
 }
 .input-container input {
   border-left: 0;
@@ -2723,26 +2731,6 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
         color: #ffc107;
     }
 } */
-#navbar-container {
-  width: 20%;
-}
-
-#navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-}
-
-.nav-item {
-  width: 15%;
-  cursor: pointer;
-}
-
-.icon-counter {
-  top: 100%;
-}
-
 .pagination-container {
   display: flex;
   justify-content: flex-end;
@@ -2986,8 +2974,9 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
   background-color: #2988BC;
   color: white;
 }
-.listing-row-main:hover a {
+.listing-row-main:hover .listing-row-title a {
   color: white;
+  text-decoration: underline;
 }
 
 .listing-row-profile-pic {
@@ -3030,6 +3019,7 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
   background: linear-gradient(45deg, #2A2A2A, #1F1F1F);
   min-height: 100%;
   position: relative;
+  padding-bottom: 50px;
 }
 #sidebar a, #sidebar a:hover {
   text-decoration: none;
@@ -3397,31 +3387,6 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
 .tooltip.right-bottom {
   left: 105%;
   bottom: 0;
-}
-
-#topbar {
-  background: #2F496E;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  width: 100%;
-}
-
-#topbar #logo a:hover {
-  text-decoration: none;
-}
-
-.listing-indicator {
-  border-radius: 50%;
-  width: 10px;
-  height: 10px;
-}
-.listing-indicator.listed {
-  background-color: #00c900;
-}
-.listing-indicator.not-listed {
-  background-color: #9b9b9b;
 }
 
 .two-sided-checkbox-container {
@@ -3799,6 +3764,10 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
   
           .sidebar-link-item.active { border-right: 0; }
       } */
+  #footer {
+    padding-bottom: 75px;
+  }
+
   #dashboard-main {
     width: 100%;
   }
@@ -3923,10 +3892,10 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
   #message-list-column {
     position: fixed;
     left: 0;
-    z-index: 2;
+    z-index: 5;
     overflow-x: hidden;
     padding-bottom: 75px;
-    min-height: 100%;
+    height: 100%;
     width: 100%;
     transition: width 0.25s ease-in-out;
   }
@@ -3937,6 +3906,7 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
   }
   #message-list-column.hide {
     width: 0;
+    z-index: 3;
   }
   #message-list-column.hide #message-list-main-column {
     opacity: 0;
@@ -4328,6 +4298,7 @@ body {
 
 a {
   font-weight: bold;
+  text-decoration: none;
   color: #F9F6F4;
 }
 

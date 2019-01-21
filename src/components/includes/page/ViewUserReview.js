@@ -9,7 +9,6 @@ import Loading from '../../utils/Loading';
 import fetch from 'axios';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { UncontrolledTooltip } from 'reactstrap';
 import { LogError } from '../../utils/LogError';
 import Tooltip from '../../utils/Tooltip';
 import Badge from '../../utils/Badge';

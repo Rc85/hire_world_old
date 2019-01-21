@@ -4,17 +4,14 @@ import moment from 'moment';
 import UserProfilePic from '../../includes/page/UserProfilePic';
 import UserRating from './UserRating';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faBan, faDollarSign, faCommentsDollar } from '@fortawesome/free-solid-svg-icons';
-import { faCheckCircle, faTimesCircle, faListAlt } from '@fortawesome/free-regular-svg-icons';
-import { UncontrolledTooltip } from 'reactstrap';
+import { faDollarSign, faCommentsDollar } from '@fortawesome/free-solid-svg-icons';
+import { faListAlt } from '@fortawesome/free-regular-svg-icons';
 import Tooltip from '../../utils/Tooltip';
-import ViewUserBusinessHours from './ViewUserBusinessHours';
-import ViewUserContacts from './ViewUserContacts';
 import { NavLink } from 'react-router-dom';
 import ViewUserSocialMedia from './ViewUserSocialMedia';
 
 const ViewUserProfile = props => {
-    let avatar, bio, name;
+    let avatar, bio;
 
     if (props.user) {
         avatar = <UserProfilePic url={props.user.avatar_url} editable={false}/>;

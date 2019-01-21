@@ -12,16 +12,6 @@
 #dashboard-main {
     position: relative;
     width: 80%;
-
-    a {
-        color: $theme-highlight;
-        text-decoration: none;
-
-        &:hover {
-            color: $theme-alt-highlight;
-            text-decoration: underline;
-        }
-    }
 }
 
 #main-panel-bg {

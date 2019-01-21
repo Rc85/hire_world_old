@@ -1,20 +1,16 @@
 import React, { Component } from 'react';
 import Loading from '../utils/Loading';
-import UserMessage from '../includes/page/UserMessage';
 import MessageSender from '../includes/page/MessageSender';
 import { Alert } from '../../actions/AlertActions';
 import OfferSender from '../includes/page/OfferSender';
 import Response from '../pages/Response';
 import OfferDetails from '../includes/page/OfferDetails';
-import ConfirmMessage from '../includes/page/ConfirmMessage';
-import SystemMessage from '../includes/page/SystemMessage';
 import MessageRow from '../includes/page/MessageRow';
-import { withRouter, NavLink, Redirect } from 'react-router-dom';
+import { withRouter, Redirect } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown, faCaretUp, faHandHoldingUsd, faInfoCircle, faCheck, faBan, faMinusCircle, faSyncAlt, faReply, faTimes, faRedoAlt } from '@fortawesome/free-solid-svg-icons';
+import { faHandHoldingUsd, faInfoCircle, faCheck, faBan, faMinusCircle, faReply, faTimes, faRedoAlt } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
-import { UncontrolledTooltip } from 'reactstrap';
 import fetch from 'axios';
 import moment from 'moment';
 import { PromptOpen, PromptReset } from '../../actions/PromptActions';
@@ -140,66 +136,6 @@ class MessageDetails extends Component {
             .catch(err => LogError(err, '/api/get/message'));
         }
     }
-    
-    /* componentDidMount() {
-        setTimeout(() => {
-            window.addEventListener('scroll', this.scrollFetch = () => {
-                if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-                    if (this.state.fetchStatus !== 'Complete' && this.state.messages.length % 10 === 0) {
-                        this.setState({fetchStatus: 'Fetching'});
-
-                        fetch.post('/api/get/message', {job_id: this.props.job.job.job_id, offset: this.state.offset, stage: this.props.job.job.job_stage})
-                        .then(resp => {
-                            let messages = [...this.state.messages];
-
-                            if (resp.data.status !== 'fetch error') {
-                                messages.push(...resp.data.messages);
-
-                                if (resp.data.messages.length < 10) {
-                                    this.setState({messages: messages, offset: this.state.offset + 10, fetchStatus: 'Complete'});
-                                } else {
-                                    this.setState({messages: messages, offset: this.state.offset + 10, fetchStatus: ''});
-                                }
-                            } else {
-                                this.setState({fetchStatus: 'Complete'});
-                            }
-                        })
-                        .catch(err => LogError(err, '/api/get/message'));
-                    }
-                }
-            });
-        }, 1000); */
-
-        /* fetch.post('/api/get/offer', {job_id: this.props.job.job.job_id, stage: this.props.job.job.job_stage})
-        .then(resp => {
-            if (resp.data.status === 'success') {
-                this.setState({
-                    status: '',
-                    offer: resp.data.offer,
-                    job: resp.data.job
-                });
-
-                fetch.post('/api/get/message', {job_id: this.props.job.job.job_id, offset: 0, stage: this.props.job.job.job_stage})
-                .then(resp => {
-                    if (resp.data.status === 'success') {
-                        this.setState({status: '', messages: resp.data.messages, fetchStatus: '', offset: 10});
-                        this.props.loaded()
-                    } else if (resp.status === 'access error') {
-                        this.setState({status: ''});
-                        this.props.dispatch(Alert(resp.data.status, ''))
-                    }
-                })
-                .catch(err => LogError(err, '/api/get/message'));
-            } else if (resp.data.status === 'access error') {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage})
-            }
-        })
-        .catch(err => LogError(err, '/api/get/offer'));
-    } */
-
-    /* componentWillUnmount() {
-        window.removeEventListener('scroll', this.scrollFetch);
-    } */
 
     send(message) {
         let recipient;
@@ -339,54 +275,6 @@ class MessageDetails extends Component {
         .catch(err => LogError(err, '/api/job/close'));
     }
 
-    /* deleteMessage(id, index) {
-        this.setState({status: 'Sending'});
-
-        fetch.post('/api/message/delete', {message_id: id})
-        .then(resp => {
-            if (resp.data.status === 'success') {
-                let messages = [...this.state.messages];
-
-                if (messages.length > 0) {
-                    messages.splice(index, 1);
-                }
-
-                this.setState({status: '', messages: messages});
-            } else if (resp.data.status === 'error') {
-                this.setState({status: ''});
-            }
-
-            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-        })
-        .catch(err => LogError(err, '/api/message/delete'));
-    }
-
-    editMessage(id, message, index) {
-        this.setState({status: 'Sending'});
-
-        fetch.post('/api/message/edit', {message_id: id, message: message})
-        .then(resp => {
-            if (resp.data.status === 'success') {
-                let messages = [];
-                
-                if (this.props.job) {
-                    messages = [...this.state.messages];
-                }
-
-                if (resp.data.message) {
-                    messages[index] = resp.data.message;
-                }
-
-                this.setState({status: '', messages: messages});
-            } else if (resp.data.status === 'error') {
-                this.setState({status: ''});
-            }  
-
-            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-        })
-        .catch(err => LogError(err, '/api/message/edit'));
-    } */
-
     completeJob() {
         this.setState({status: 'Sending'});
 
@@ -504,15 +392,8 @@ class MessageDetails extends Component {
         .catch(err => LogError(err, `/api/job/abandon/${decision}`));
     }
 
-    /* goBack() {
-        let pathChunks = this.props.location.pathname.split('/');
-        let path = `/${pathChunks[1]}s/${pathChunks[2]}`;
-
-        return path;
-    } */
-
     render() {
-        let listingDetails, sendButton, sendMessage, sendStatus, messages, offerConfirmation, fetchStatus, offerButton, confirmation, closeButton, completeButton, incompleteButton, reasonInput, jobStatus, abandonedDate, refreshButton, status;
+        let sendButton, sendMessage, sendStatus, messages, offerConfirmation, fetchStatus, offerButton, confirmation, closeButton, completeButton, incompleteButton, reasonInput, jobStatus, abandonedDate, refreshButton, status;
         let now = moment();
 
         if (this.props.status === 'Loading Message') {
@@ -568,17 +449,6 @@ class MessageDetails extends Component {
                     incompleteButton = <Tooltip text={`You can cancel the abandon request if the other party haven't make a decision yet`} ><button id='abandon-job-button' className='btn btn-warning' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to cancel the Abandon request?`, false, {action: 'cancel abandon'}))}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faMinusCircle} /> : 'Cancel Abandon'}</button></Tooltip>
                 }
             }
-
-            /* if (this.state.reasonInput) {
-                reasonInput = <React.Fragment>
-                    <textarea name='reason' id='reason' rows='6'className='w-100 mb-3' placeholder={`Please provide a reason as to why you are abandoning this job.`} onChange={(e) => this.setState({reason: e.target.value})}></textarea>
-
-                    <div className='text-right'>
-                        <button className='btn btn-primary mr-1' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to abandon this job?', 'This can negatively impact your reputation.', {action: 'abandon job'}))}>Submit</button>
-                        <button className='btn btn-secondary' onClick={() => this.setState({reasonInput: false})}>Cancel</button>
-                    </div>
-                </React.Fragment>
-            } */
             
             if (this.state.fetchStatus === 'Fetching') {
                 fetchStatus = <div className='fetch-status'><Loading size='5x' /></div>;
@@ -639,46 +509,6 @@ class MessageDetails extends Component {
                     }
 
                     return <MessageRow key={i} author={messageAuthor} message={message} type={messageType} approve={approve} decline={decline} />;
-
-                    /* let messageRowClass, messagePanelClass, text;
-                    let profilePicAlignment = 'mr-auto';
-
-                    if (message.message_sender === this.props.user.user.username) {
-                        messageRowClass = 'message-row';
-                        messagePanelClass = 'message-panel three-rounded';
-                        text = 'Sent';
-                    } else {
-                        messageRowClass = 'message-row-reverse';
-                        messagePanelClass = 'message-panel-reverse three-rounded-reverse';
-                        profilePicAlignment = 'ml-auto';
-                        text = 'Received';
-                    }
-
-                    if (message.message_type === 'User') {
-                        return <UserMessage key={i} rowClass={messageRowClass} panelClass={messagePanelClass} text={text} profilePicAlignment={profilePicAlignment} message={message} user={this.props.user.user} delete={() => this.deleteMessage(message.message_id, i)} edit={(msg) => this.editMessage(message.message_id, msg, i)} job={this.props.job.job} />
-                    }
-                    
-                    if (message.message_type === 'Update' && this.props.user.user.username === message.message_recipient) {
-                        return <SystemMessage key={i} message={message} user={this.props.user.user} type='info' />
-                    }
-
-                    if (message.message_type === 'Update' && this.props.user.user.username === message.message_sender) {
-                        return <SystemMessage key={i} message={message} user={this.props.user.user} type='info' />
-                    }
-                    
-                    if (message.message_type === 'Warning' && this.props.user.user.username === message.message_recipient) {
-                        return <SystemMessage key={i} message={message} user={this.props.user.user} type='warning' />
-                    }
-
-                    if (message.message_type === 'Confirmation' && this.props.user.user.username === message.message_recipient) {
-                        return <ConfirmMessage key={i} prompt={true} message={message} job={this.props.job.job} type='info' approve={() => this.props.dispatch(ShowConfirmation('Proceed to complete this job?', false, {action: 'client complete job'}))} decline={(message) => this.props.dispatch(ShowConfirmation('Are you sure you want to decline the request?', false, {action: 'decline job complete', message: message}))} user={this.props.user.user} />
-                    }
-
-                    if (message.message_type === 'Abandonment' && this.props.user.user.username === message.message_recipient) {
-                        if (this.props.job.job.job_stage !== 'Abandoned' && this.props.job.job.job_stage !== 'Incomplete') {
-                            return <ConfirmMessage key={i} prompt={false} message={message} job={this.props.job.job} type='info' approve={() => this.props.dispatch(ShowConfirmation('Agree to abandon this job?', false, {action: 'client agree abandon'}))} decline={() => this.props.dispatch(ShowConfirmation('Are you sure you want to decline the request to abandon this job?', `This will negatively impact the other party's reputation`, {action: 'client disagree abandon'}))} user={this.props.user.user} />;
-                        }
-                    } */
                 });
             }
 
@@ -719,14 +549,9 @@ class MessageDetails extends Component {
                             <small className='text-muted'>Job ID: {this.props.job.job ? this.props.job.job.job_id : ''}</small>
     
                             <div className='message-header-buttons'>
-                                {/* <NavLink to={this.goBack()}><button  className='btn btn-secondary'>Back</button></NavLink> */}
                                 {closeButton}
-    
                                 {completeButton}
-                                {/* completeButton ? <UncontrolledTooltip placement='bottom' target='complete-job-button' delay={{show: 0, hide: 0}}>{!this.props.job.job.job_user_complete ? <span>Complete Job<br />This will send an approval for completion to the other party</span> : <span>Sent</span>}</UncontrolledTooltip> : '' */}
-    
                                 {incompleteButton}
-                                {/* incompleteButton ? <UncontrolledTooltip place='bottom' target='abandon-job-button' delay={{show: 0, hide: 0}}>Abandon Job<br />NOTE: Abandoning a job may negatively impact your reputation. Refer to the FAQs for more details.</UncontrolledTooltip> : '' */}
                             </div>
                         </div>
 

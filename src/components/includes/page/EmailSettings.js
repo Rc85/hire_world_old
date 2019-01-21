@@ -7,7 +7,6 @@ import fetch from 'axios';
 import { LogError } from '../../utils/LogError';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { UncontrolledTooltip } from 'reactstrap';
 import Tooltip from '../../utils/Tooltip';
 import InputWrapper from '../../utils/InputWrapper';
 import { isTyping } from '../../../actions/ConfigActions';

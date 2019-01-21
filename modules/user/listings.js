@@ -207,47 +207,65 @@ app.post('/api/listing/save', async(req, resp) => {
         db.connect((err, client, done) => {
             if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
 
-            (async() => {
-                try {
-                    await client.query('BEGIN');
+            if (validate.blankCheck.test(req.body.listing_purpose)) {
+                resp.send({status: 'error', statusMessage: 'Are you looking for work or to hire?'});
+            } else if (validate.blankCheck.test(req.body.listing_title)) {
+                resp.send({status: 'error', statusMessage: 'Title cannot be blank'});
+            } else if (!validate.titleCheck.test(req.body.listing_title)) {
+                resp.send({status: 'error', statusMessage: 'Invalid characters in title'});
+            } else if (!validate.priceCheck.test(req.body.listing_price)) {
+                resp.send({status: 'error', statusMessage: 'Invalid price format'});
+            } else if (validate.blankCheck.test(req.body.listing_price_currency)) {
+                resp.send({status: 'error', statusMessage: 'Enter a currency'});
+            } else {
+                let price = 0;
 
-                    let userListing = await client.query(`SELECT listing_id FROM user_listings WHERE listing_user = $1`, [req.session.user.username]);
-                    let queryString;
-
-                    if (userListing.rows.length === 1) {
-                        queryString = `UPDATE user_listings SET listing_title = $1, listing_sector = $2, listing_price = $3, listing_price_type = $4, listing_price_currency = $5, listing_negotiable = $6, listing_purpose = $7, listing_detail = $8 WHERE listing_user = $9 RETURNING *`;
-                    } else if (userListing.rows.length === 0) {
-                        queryString = 'INSERT INTO user_listings (listing_title, listing_sector, listing_price, listing_price_type, listing_price_currency, listing_negotiable, listing_purpose, listing_detail, listing_user) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *';
-                    }
-
-                    let listing = await client.query(queryString, [req.body.listing_title, req.body.listing_sector, req.body.listing_price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_purpose, req.body.listing_detail, req.session.user.username]);
-
-                    if (listing.rows.length === 1) {
-                        await client.query('COMMIT')
-                        .then(() => resp.send({status: 'success', statusMessage: 'List settings saved', listing: listing.rows[0]}));
-                    } else if (listing.rows.length === 0) {
-                        let error = new Error('Failed to save');
-                        error.type = 'CUSTOM';
-                        throw error;
-                    }
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                    throw e;
-                } finally {
-                    done();
-                }
-            })()
-            .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Saving list settings', url: req.url});
-                
-                let message = 'An error occurred';
-
-                if (err.type === 'CUSTOM') {
-                    message = err.message;
+                if (req.body.listing_price) {
+                    price = req.body.listing_price;
                 }
 
-                resp.send({status: 'error', statusMessage: message});
-            });
+                (async() => {
+                    try {
+                        await client.query('BEGIN');
+
+                        let userListing = await client.query(`SELECT listing_id FROM user_listings WHERE listing_user = $1`, [req.session.user.username]);
+                        let queryString;
+
+                        if (userListing.rows.length === 1) {
+                            queryString = `UPDATE user_listings SET listing_title = $1, listing_sector = $2, listing_price = $3, listing_price_type = $4, listing_price_currency = $5, listing_negotiable = $6, listing_purpose = $7, listing_detail = $8 WHERE listing_user = $9 RETURNING *`;
+                        } else if (userListing.rows.length === 0) {
+                            queryString = 'INSERT INTO user_listings (listing_title, listing_sector, listing_price, listing_price_type, listing_price_currency, listing_negotiable, listing_purpose, listing_detail, listing_user) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *';
+                        }
+
+                        let listing = await client.query(queryString, [req.body.listing_title, req.body.listing_sector, price, req.body.listing_price_type, req.body.listing_price_currency, req.body.listing_negotiable, req.body.listing_purpose, req.body.listing_detail, req.session.user.username]);
+
+                        if (listing.rows.length === 1) {
+                            await client.query('COMMIT')
+                            .then(() => resp.send({status: 'success', statusMessage: 'List settings saved', listing: listing.rows[0]}));
+                        } else if (listing.rows.length === 0) {
+                            let error = new Error('Failed to save');
+                            error.type = 'CUSTOM';
+                            throw error;
+                        }
+                    } catch (e) {
+                        await client.query('ROLLBACK');
+                        throw e;
+                    } finally {
+                        done();
+                    }
+                })()
+                .catch(err => {
+                    error.log({name: err.name, message: err.message, origin: 'Saving list settings', url: req.url});
+                    
+                    let message = 'An error occurred';
+
+                    if (err.type === 'CUSTOM') {
+                        message = err.message;
+                    }
+
+                    resp.send({status: 'error', statusMessage: message});
+                });
+            }
         });
     }
 });

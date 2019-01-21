@@ -2,16 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
-import { faPhone, faGraduationCap, faMapMarkedAlt, faMapMarkerAlt, faDollarSign, faCommentsDollar } from '@fortawesome/free-solid-svg-icons';
-import { faListAlt, faBuilding } from '@fortawesome/free-regular-svg-icons';
-import { UncontrolledTooltip } from 'reactstrap';
-import { NavLink } from 'react-router-dom';
+import { faPhone, faMapMarkedAlt, faMapMarkerAlt, faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faBuilding } from '@fortawesome/free-regular-svg-icons';
 import TitledContainer from '../../utils/TitledContainer';
 
 const ViewUserContacts = props => {
-    let email, phone, address, education, location, city, region, country, businessName;
+    let name, email, phone, address, education, location, city, region, country, businessName;
 
     if (props.user) {
+        if (props.user.user_firstname && props.user.user_lastname) {
+            name = <div className='d-flex-center mb-2'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faUserCircle} className='text-special' /></div>{props.user.user_firstname + ' ' + props.user.user_lastname}</div>;
+        }
+        
         if (props.user.user_email) {
             email = <div className='d-flex-center mb-2'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faEnvelope} className='text-special' /></div><a href={`mailto: ${props.user.user_email}`}>{props.user.user_email}</a></div>
         }
@@ -51,15 +53,11 @@ const ViewUserContacts = props => {
         }
     }
 
-    /* if (props.user.user_education) {
-        education = <div className='d-flex-center mb-2'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faGraduationCap} className='text-special' /></div> {props.user.user_education}</div>
-    } */
-
     if (email || phone || address || education) {
         return(
             <TitledContainer title='Contact' mini shadow className='mb-5'>
                 <div id='view-user-contacts'>
-                    {/* education */}
+                    {name}
                     {businessName}
                     {email}
                     {phone}

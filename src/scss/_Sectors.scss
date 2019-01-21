@@ -23,7 +23,12 @@
         background-color: $theme-highlight;
         color: white;
     
-        a { color: white; }
+        .listing-row-title {
+            a {
+                color: white;
+                text-decoration: underline;
+            }
+        }
     }
 }
 
@@ -45,7 +50,6 @@
     overflow-x: hidden;
     white-space: nowrap;
     padding: 10px;
-
 }
 
 .listing-row-rating { order: 4; }

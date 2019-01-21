@@ -13,7 +13,6 @@ import { ShowWarning } from '../../actions/WarningActions';
 import { LogError } from '../utils/LogError';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
-import { UncontrolledTooltip } from 'reactstrap';
 import Loading from '../utils/Loading';
 import TitledContainer from '../utils/TitledContainer';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
@@ -86,7 +85,7 @@ class AccountSettings extends Component {
                                 </div>
         
                                 <div className='setting-col-field mb-3'>
-                                    <label htmlFor='displayFullName'>Display full name instead of username in your listing:</label>
+                                    <label htmlFor='displayFullName'>Show full name:</label>
         
                                     <SlideToggle status={this.props.user.user && this.props.user.user.display_fullname ? this.props.user.user.display_fullname : false} id='displayFullName' onClick={() => this.saveSetting('display_fullname')} />
                                 </div>

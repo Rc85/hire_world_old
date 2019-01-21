@@ -66,28 +66,6 @@ const OfferDetails = props => {
             {paymentPeriod}
 
             {paymentContainer}
-
-            {/* <div className='d-flex-between-start mb-3'>
-                <div className='w-30'>
-                    <strong>Offer Type:</strong> {props.offer.offer_type}
-                </div>
-
-                {offerTerm}
-
-                {completedBy}
-            </div>
-
-            <hr/>
-
-            <div className='d-flex-between-start mb-3'>
-                <div className='w-45'>
-                    <strong>Offer Price:</strong> ${props.offer.offer_price} {props.offer.offer_currency} / {props.offer.offer_payment_type}
-                </div>
-
-                {paymentPeriod}
-            </div>
-
-            {paymentContainer} */}
         </div>
     }
 

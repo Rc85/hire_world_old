@@ -1,1 +1,10 @@
 @import '../../scss/footer';
+
+footer { position: relative; }
+
+#footer {
+    position: absolute;
+    width: 100%;
+    border-top: 1px solid black;
+    z-index: 4;
+}

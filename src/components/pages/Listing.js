@@ -17,8 +17,6 @@ class Listing extends Component {
         } else if (this.props.user.status === 'error') {
             return <Redirect to='/' />;
         } else if (this.props.user.status === 'get session success' && this.props.user.user) {
-            // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
-            // live key pk_live_wJ7nxOazDSHu9czRrGjUqpep
             let payment = <TitledContainer title='Subscribe' bgColor='success' icon={<FontAwesomeIcon icon={faPlusSquare} />} shadow>
                 <StripeProvider apiKey={process.env.REACT_ENV === 'development' ? 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R' : 'pk_live_wJ7nxOazDSHu9czRrGjUqpep'}>
                     <div id='payment-input'>To begin listing, you need to subscribe to a monthly plan.

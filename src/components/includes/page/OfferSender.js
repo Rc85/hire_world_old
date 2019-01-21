@@ -3,7 +3,6 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Alert } from '../../../actions/AlertActions';
 import SubmitButton from '../../utils/SubmitButton';
-import { UncontrolledTooltip } from 'reactstrap';
 import moment from 'moment';
 import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 import { connect } from 'react-redux';
@@ -372,12 +371,6 @@ class OfferSender extends Component {
                                 </select>
                             </InputWrapper>
                         </Tooltip>
-                        {/* <select name='offer_type' id='offer-type' onChange={(e) => this.setOfferType(e.target.value)} disabled={this.state.confidential} value={this.state.offerType} >
-                            <option value=''>-</option>
-                            <option value='Contract Term'>Contract Term</option>
-                            <option value='Iteration'>Iteration</option>
-                            <option value='Per Delivery'>Per Delivery</option>
-                        </select> */}
                     </div>
 
                     {offerTypeSetting}

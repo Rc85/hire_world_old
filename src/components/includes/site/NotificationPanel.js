@@ -3,13 +3,9 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import fetch from 'axios'
 import { GetUserNotificationAndMessageCount, UpdateUserNotifications } from '../../../actions/FetchActions';
-import { Alert } from '../../../actions/AlertActions';
 import { connect } from 'react-redux';
 import { LogError } from '../../utils/LogError';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationCircle, faExclamationTriangle, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { withRouter } from 'react-router-dom';
-import { UpdateUser } from '../../../actions/LoginActions';
 
 class NotificationPanel extends Component {
     constructor(props) {
@@ -42,29 +38,6 @@ class NotificationPanel extends Component {
     }
     
     componentDidMount() {
-        /* document.body.addEventListener('click', this.closeNotification = (e) => {
-            function composedPath (el) {
-                var path = [];
-            
-                while (el) {
-                    path.push(el);
-            
-                    if (el.tagName === 'HTML') {
-                        path.push(document);
-                        path.push(window);
-            
-                        return path;
-                   }
-            
-                   el = el.parentElement;
-                }
-            }
-
-            if (!composedPath(e.target).find(obj => obj.id === 'notification-panel')) {
-                this.props.close();
-            }
-        }); */
-
         fetch.post('/api/get/user/notifications', {new: true})
         .then(resp => {
             if (resp.data.status === 'success') {
@@ -121,7 +94,8 @@ class NotificationPanel extends Component {
 }
 
 NotificationPanel.propTypes = {
-    close: PropTypes.func
+    close: PropTypes.func,
+    user: PropTypes.object
 };
 
 export default withRouter(connect()(NotificationPanel));

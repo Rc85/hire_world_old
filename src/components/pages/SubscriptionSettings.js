@@ -7,7 +7,6 @@ import { LogError } from '../utils/LogError';
 import moment from 'moment';
 import { GetSession } from '../../actions/FetchActions';
 import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
-import { UncontrolledTooltip } from 'reactstrap';
 import { connect } from 'react-redux';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -131,8 +130,6 @@ class SubscriptionSettings extends Component {
                 return <Redirect to='/subscription/cancelled' />
             }
 
-            // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
-            // live key pk_live_wJ7nxOazDSHu9czRrGjUqpep
             return (
                 <section id='subscription-setting' className='main-panel'>
                     <TitledContainer title='Subscription Setting' bgColor='orange' icon={<FontAwesomeIcon icon={faSyncAlt} />} shadow>
@@ -155,7 +152,7 @@ class SubscriptionSettings extends Component {
 }
 
 SubscriptionSettings.propTypes = {
-
+    user: PropTypes.object
 };
 
 const mapStateToProps = state => {

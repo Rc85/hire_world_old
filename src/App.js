@@ -5,8 +5,6 @@ import { GetSession, GetUserNotificationAndMessageCount, GetSectors } from './ac
 import { RemoveAlert } from './actions/AlertActions';
 import * as Pages from './components/pages';
 import * as Admin from './components/admin';
-import TopBar from './components/includes/site/TopBar';
-import SideBar from './components/includes/site/SideBar';
 import BrowseMenu from './components/includes/site/BrowseMenu';
 import Confirmation from './components/utils/Confirmation';
 import Alert from './components/utils/Alert';
@@ -19,7 +17,6 @@ import CheckoutConfirmation from './components/utils/CheckoutConfirmation';
 import fetch from 'axios';
 import { LogError } from './components/utils/LogError';
 import { Alert as Alerts } from 'reactstrap';
-import Loading from './components/utils/Loading';
 import { isMobile } from './actions/ConfigActions';
 import { ToggleMenu } from './actions/MenuActions';
 
@@ -205,89 +202,91 @@ class App extends Component {
 		});
 
 		return (
-			<div className='col-container' onClick={(e) => this.toggleMenu(e)}>
-				{warning}
-				{prompt}
-				{confirmation}
-
-				<Switch>
-					<Route exact path='/' render={() => <Pages.Login user={this.props.user} />} />
-
-					<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
-
-					<Route exact path='/messages/:stage' render={() => <Pages.Dashboard user={this.props.user}><Pages.Inquiries user={this.props.user} /></Pages.Dashboard>} />
-
-					<Route exact path='/settings/account' render={() =>  <Pages.Dashboard user={this.props.user}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
-					{/* // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
-            		// live key pk_live_wJ7nxOazDSHu9czRrGjUqpep */}
-					<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'development' ? 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R' : 'pk_live_wJ7nxOazDSHu9czRrGjUqpep'}><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
-					<Route exact path='/settings/listing' render={() => <Pages.Dashboard user={this.props.user}><Pages.Listing user={this.props.user} /></Pages.Dashboard>} />
-					<Route exact path='/settings/subscription' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
-
-					<Route exact path='/user/:username' render={() => <Pages.Dashboard user={this.props.user}><Pages.ViewUser user={this.props.user} /></Pages.Dashboard>} />
-
-					<Route exact path='/browse' render={() => <Pages.Dashboard user={this.props.user}><Pages.Browse user={this.props.uer} /></Pages.Dashboard>} />
-
-					<Route exact path='/sectors/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
-
-					<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Subscribed!'} message={`Thank you for subscribing to M-ploy. We hope you'll enjoy our service.`}><div><NavLink to='/settings/listing'>Start listing now</NavLink></div></Pages.Response>} />
-					<Route exact path='/registration/success' render={() => <Pages.Response code={200} header={'Registration Success!'} message='An confirmation email has been sent. Please click the link provided to activate your account' />} />
-					<Route exact path='/subscription/cancelled' render={() => <Pages.Response code={200} header={'Unsubscribed!'} message={'We hate to see you go. Please take a moment and give M-ploy a rating.'}><div className='d-flex-center-center'><ReviewMploy /></div></Pages.Response>} />
-
-					<Route exact path='/error/:code' render={() => <Pages.Response />} />
-
-					<Route render={() => <Redirect to='/error/404' />} />
-				</Switch>
-
-				<div className='alert-container'>{alerts}</div>
-
-				{/* <TopBar />
-
-				<div className='position-relative'>{this.menu}</div>
-
-				<section className='main-container'>
-					{this.state.announcements.length > 0 ? <div className='mx-auto mt-5 w-50'>{announcements}</div> : ''}
-
+			<React.Fragment>
+				<div className='col-container' onClick={(e) => this.toggleMenu(e)}>
+					{warning}
+					{prompt}
+					{confirmation}
+	
 					<Switch>
 						<Route exact path='/' render={() => <Pages.Login user={this.props.user} />} />
-						<Route exact path='/view' component={Pages.ViewUser} />
-
-						<Route exact path='/dashboard/friends' render={() => <Pages.Dashboard user={this.props.user} items={userDashboardItems}><Pages.FriendsList user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user} items={userDashboardItems}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
-
-						<Route exact path='/settings/account' render={() =>  <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
-						<Route exact path='/settings/listing' render={() => <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.Listing user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/settings/subscription' render={() => <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
-
-						<Route exact path='/messages/Inquiries' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.Inquiries user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/message/:stage/:id/details' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.MessageDetails user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/jobs/:stage' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.Jobs user={this.props.user} /></Pages.Dashboard>} />
-
-						<Route exact path='/listing/:id' render={() => <Pages.ListingDetails user={this.props.user} />} />
-						
-						<Route exact path='/account/register' render={() => <Pages.Register user={this.props.user} />} />
-
-						<Route exact path='/sectors/:sector' component={Pages.Sectors} />
-
-						<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Subscribed!'} message={`Thank you for subscribing to M-ploy. We hope you'll enjoy our services.`}><div><NavLink to='/settings/listing'>Start listing now</NavLink></div></Pages.Response>} />
+	
+						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
+	
+						<Route exact path='/messages/:stage' render={() => <Pages.Dashboard user={this.props.user}><Pages.Inquiries user={this.props.user} /></Pages.Dashboard>} />
+	
+						<Route exact path='/settings/account' render={() =>  <Pages.Dashboard user={this.props.user}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
+						{/* // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
+	            		// live key pk_live_wJ7nxOazDSHu9czRrGjUqpep */}
+						<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'development' ? 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R' : 'pk_live_wJ7nxOazDSHu9czRrGjUqpep'}><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+						<Route exact path='/settings/listing' render={() => <Pages.Dashboard user={this.props.user}><Pages.Listing user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/settings/subscription' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
+	
+						<Route exact path='/user/:username' render={() => <Pages.Dashboard user={this.props.user}><Pages.ViewUser user={this.props.user} /></Pages.Dashboard>} />
+		
+						<Route exact path='/sectors/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
+	
+						<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Subscribed!'} message={`Thank you for subscribing to M-ploy. We hope you'll enjoy our service.`}><div><NavLink to='/settings/listing'>Start listing now</NavLink></div></Pages.Response>} />
+						<Route exact path='/registration/success' render={() => <Pages.Response code={200} header={'Registration Success!'} message='An confirmation email has been sent. Please click the link provided to activate your account' />} />
 						<Route exact path='/subscription/cancelled' render={() => <Pages.Response code={200} header={'Unsubscribed!'} message={'We hate to see you go. Please take a moment and give M-ploy a rating.'}><div className='d-flex-center-center'><ReviewMploy /></div></Pages.Response>} />
-
-						<Route exact path='/admin-panel' render={() => <Admin.Admin><Admin.AdminOverview user={this.props.user} /></Admin.Admin>} />
-						<Route exact path='/admin-panel/sectors' render={() => <Admin.Admin><Admin.AdminSectors user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />
-						<Route exact path='/admin-panel/users' render={() => <Admin.Admin><Admin.AdminUsers user={this.props.user} /></Admin.Admin>} />
-						<Route exact path='/admin-panel/listings' render={() => <Admin.Admin><Admin.AdminListings user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />
-						<Route exact path='/admin-panel/reports' render={() => <Admin.Admin><Admin.AdminReports user={this.props.user} /></Admin.Admin>} />
-						<Route exact path='/admin-panel/config' render={() => <Admin.Admin><Admin.AdminConfig user={this.props.user} /></Admin.Admin>} />
-
-						<Route render={() => <Pages.Response code={404} header={'Not Found'} message={`This page you're trying to access does not exist.`} />} />
+	
+						<Route exact path='/error/:code' render={() => <Pages.Response />} />
+	
+						<Route render={() => <Redirect to='/error/404' />} />
 					</Switch>
-				</section>
+	
+					<div className='alert-container'>{alerts}</div>
+	
+					{/* <TopBar />
+	
+					<div className='position-relative'>{this.menu}</div>
+	
+					<section className='main-container'>
+						{this.state.announcements.length > 0 ? <div className='mx-auto mt-5 w-50'>{announcements}</div> : ''}
+	
+						<Switch>
+							<Route exact path='/' render={() => <Pages.Login user={this.props.user} />} />
+							<Route exact path='/view' component={Pages.ViewUser} />
+	
+							<Route exact path='/dashboard/friends' render={() => <Pages.Dashboard user={this.props.user} items={userDashboardItems}><Pages.FriendsList user={this.props.user} /></Pages.Dashboard>} />
+							<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user} items={userDashboardItems}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
+	
+							<Route exact path='/settings/account' render={() =>  <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
+							<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><StripeProvider apiKey='pk_live_wJ7nxOazDSHu9czRrGjUqpep'><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+							<Route exact path='/settings/listing' render={() => <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.Listing user={this.props.user} /></Pages.Dashboard>} />
+							<Route exact path='/settings/subscription' render={() => <Pages.Dashboard user={this.props.user} items={settingsDashboardItems}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
+	
+							<Route exact path='/messages/Inquiries' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.Inquiries user={this.props.user} /></Pages.Dashboard>} />
+							<Route exact path='/message/:stage/:id/details' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.MessageDetails user={this.props.user} /></Pages.Dashboard>} />
+							<Route exact path='/jobs/:stage' render={() => <Pages.Dashboard user={this.props.user} items={messageDashboardItems}><Pages.Jobs user={this.props.user} /></Pages.Dashboard>} />
+	
+							<Route exact path='/listing/:id' render={() => <Pages.ListingDetails user={this.props.user} />} />
+							
+							<Route exact path='/account/register' render={() => <Pages.Register user={this.props.user} />} />
+	
+							<Route exact path='/sectors/:sector' component={Pages.Sectors} />
+	
+							<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Subscribed!'} message={`Thank you for subscribing to M-ploy. We hope you'll enjoy our services.`}><div><NavLink to='/settings/listing'>Start listing now</NavLink></div></Pages.Response>} />
+							<Route exact path='/subscription/cancelled' render={() => <Pages.Response code={200} header={'Unsubscribed!'} message={'We hate to see you go. Please take a moment and give M-ploy a rating.'}><div className='d-flex-center-center'><ReviewMploy /></div></Pages.Response>} />
+	
+							<Route exact path='/admin-panel' render={() => <Admin.Admin><Admin.AdminOverview user={this.props.user} /></Admin.Admin>} />
+							<Route exact path='/admin-panel/sectors' render={() => <Admin.Admin><Admin.AdminSectors user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />
+							<Route exact path='/admin-panel/users' render={() => <Admin.Admin><Admin.AdminUsers user={this.props.user} /></Admin.Admin>} />
+							<Route exact path='/admin-panel/listings' render={() => <Admin.Admin><Admin.AdminListings user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />
+							<Route exact path='/admin-panel/reports' render={() => <Admin.Admin><Admin.AdminReports user={this.props.user} /></Admin.Admin>} />
+							<Route exact path='/admin-panel/config' render={() => <Admin.Admin><Admin.AdminConfig user={this.props.user} /></Admin.Admin>} />
+	
+							<Route render={() => <Pages.Response code={404} header={'Not Found'} message={`This page you're trying to access does not exist.`} />} />
+						</Switch>
+					</section>
+	
+					<div className='alert-container'>{alerts}</div>
+	
+					<Footer /> */}
+				</div>
 
-				<div className='alert-container'>{alerts}</div>
-
-				<Footer /> */}
-			</div>
+				<Footer />
+			</React.Fragment>
 		);
 	}
 }

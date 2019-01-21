@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import ViewUserContacts from '../includes/page/ViewUserContacts';
 import ViewUserProfile from '../includes/page/ViewUserProfile';
 import { withRouter, Redirect } from 'react-router-dom';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
-import Response from './Response';
 import ViewUserReview from '../includes/page/ViewUserReview';
 import SubmitReview from '../includes/page/SubmitReview';
 import { Alert } from '../../actions/AlertActions';
@@ -12,11 +12,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle, faEye, faExclamationTriangle, faHeart, faCoins, faUserPlus, faUserMinus, faBan } from '@fortawesome/free-solid-svg-icons';
 import ViewUserBusinessHours from '../includes/page/ViewUserBusinessHours';
 import { connect } from 'react-redux';
-import { UncontrolledTooltip } from 'reactstrap';
 import { LogError } from '../utils/LogError';
 import MessageSender from '../includes/page/MessageSender';
-import { faCheckCircle, faTimesCircle } from '@fortawesome/free-regular-svg-icons';
-import moment from 'moment';
+import { faCheckCircle } from '@fortawesome/free-regular-svg-icons';
 import TitledContainer from '../utils/TitledContainer';
 import Tooltip from '../utils/Tooltip';
 
@@ -145,10 +143,10 @@ class ViewUser extends Component {
     }
 
     render() {
-        let status, contacts, socialMedia, profile, reviews, submitReview, submitReviewButton, reviewed, reportButton, businessName, message, friendIcon, username, businessHours;
+        let status, contacts, profile, reviews, submitReviewButton, reviewed, reportButton, message, friendIcon, businessHours;
 
         if (this.state.status === 'access error') {
-            return <Redirect to='/error/500' />
+            return <Redirect to={`/error/404`} />
         } else if (this.state.status === 'Loading') {
             return <Loading size='7x' />;
         } else if (this.state.status === 'redirect') {
@@ -211,12 +209,6 @@ class ViewUser extends Component {
                     ;
                 }
             }
-
-            if (this.state.user.user_firstname && this.state.user.user_lastname) {
-                username = this.state.user.user_firstname + ' ' +  this.state.user.user_lastname;
-            } else {
-                username = this.state.user.username;
-            }
         }
         
         return(
@@ -225,7 +217,7 @@ class ViewUser extends Component {
                 
                 <div id='view-user-details-container'>
                     <div id='view-user-main'>
-                        <TitledContainer title={username} bgColor='purple' icon={<FontAwesomeIcon icon={faUserCircle} />} shadow>
+                        <TitledContainer title={this.state.user ? this.state.user.username : ''} bgColor='purple' icon={<FontAwesomeIcon icon={faUserCircle} />} shadow>
                             {profile}
 
                             {message}
@@ -288,6 +280,10 @@ class ViewUser extends Component {
             </div>
         )
     }
+}
+
+ViewUser.propTypes = {
+    user: PropTypes.object
 }
 
 const mapStateToProps = state => {

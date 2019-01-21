@@ -137,7 +137,7 @@ class Checkout extends Component {
 
         if (this.state.havePayments) {
             choosePaymentMethod = <div className='setting-child'>
-                <InputWrapper label='Payment Method'>
+                <InputWrapper label='Payment Method' required>
                     <select name='payment-method' id='choose-payment-method' onChange={(e) => this.setState({usePayment: e.target.value})}>
                         <option value=''>Select a payment method</option>
                         {this.state.payments.map((payment, i) => {
@@ -167,17 +167,17 @@ class Checkout extends Component {
 
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child'>
-                        <InputWrapper label='Credit Card Number'><CardNumberElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
+                        <InputWrapper label='Credit Card Number' required><CardNumberElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
                     </div>
                 </div>
 
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child'>
-                        <InputWrapper label='Expiry Date'><CardExpiryElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
+                        <InputWrapper label='Expiry Date' required><CardExpiryElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
                     </div>
 
                     <div className='setting-child'>
-                        <InputWrapper label='CVC'><CardCVCElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
+                        <InputWrapper label='CVC' required><CardCVCElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
                     </div>
                 </div>
             </React.Fragment>;
@@ -190,7 +190,7 @@ class Checkout extends Component {
                 {status}
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child'>
-                        <InputWrapper label='Choose Plan'>
+                        <InputWrapper label='Choose Plan' required>
                             <select name='plan' id='choose-plan' onChange={(e) => this.setState({plan: e.target.value})}>
                                 <option value=''>Select a plan</option>
                                 {!this.props.user.is_subscribed ? <option value={process.env.REACT_ENV === 'development' ? 'plan_EAIyF94Yhy1BLB' : 'plan_EFVAGdrFIrpHx5'}>Listing - $7/month</option> : ''}

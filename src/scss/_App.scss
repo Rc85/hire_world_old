@@ -1,10 +1,6 @@
-#root {
-    overflow-x: hidden;
-    width: 100%;
-}
-
 .col-container {
     display: flex;
+    width: 100vw;
     min-height: 100%;
     position: relative;
 }

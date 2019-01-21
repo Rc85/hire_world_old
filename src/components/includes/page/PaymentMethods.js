@@ -94,7 +94,12 @@ class PaymentMethods extends Component {
 }
 
 PaymentMethods.propTypes = {
-
+    status: PropTypes.string,
+    payment: PropTypes.array,
+    defaultSource: PropTypes.string,
+    updateCard: PropTypes.func,
+    setDefault: PropTypes.func,
+    delete: PropTypes.func
 };
 
 const mapStateToProps = state => {

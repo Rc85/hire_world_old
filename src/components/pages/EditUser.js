@@ -1,21 +1,18 @@
 import React, { Component } from 'react';
-import UserInfo from '../includes/page/UserInfo';
 import { NavLink, Redirect } from 'react-router-dom';
 import UserProfilePic from '../includes/page/UserProfilePic';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import UserTitle from '../includes/page/UserTitle';
 import fetch from 'axios';
 import { LogError } from '../utils/LogError';
 import Loading from '../utils/Loading';
 import moment from 'moment';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBuilding, faCalendarAlt, faIdCard } from '@fortawesome/free-regular-svg-icons';
+import { faBuilding, faIdCard } from '@fortawesome/free-regular-svg-icons';
 import SlideToggle from '../utils/SlideToggle';
-import Badge from '../utils/Badge';
-import { faCog, faBell, faListUl, faSlidersH, faCogs, faIdCardAlt, faGlobe } from '@fortawesome/free-solid-svg-icons';
-import { LogoutUser, UpdateUser } from '../../actions/LoginActions';
+import { faBell, faListUl, faCogs, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { UpdateUser } from '../../actions/LoginActions';
 import InputWrapper from '../utils/InputWrapper';
 import { Alert } from '../../actions/AlertActions';
 import { faGithub, faFacebook, faTwitter, faInstagram, faLinkedin } from '@fortawesome/free-brands-svg-icons';
@@ -225,7 +222,7 @@ class EditUser extends Component {
                             <div className='profile-pic-wrapper'><UserProfilePic url={this.props.user.user.avatar_url} editable bordered borderColor='transparent' /></div>
 
                             <div id='dashboard-header-user-info'>
-                                <NavLink to={`/user/${this.props.user.user.username}`}><h1>{this.props.user.user.username}</h1></NavLink>
+                                <h1><NavLink to={`/user/${this.props.user.user.username}`}>{this.props.user.user.username}</NavLink></h1>
 
                                 <EditUserField field={this.props.user.user.user_business_name} save={(val) => this.saveField('business name', val)} placeholder='3 - 40 characters' maxLength='40' emptyString='Your business name here' label='Business Name' icon={<FontAwesomeIcon icon={faBuilding} className='text-special edit-user-field-icon' />} />
 
@@ -237,7 +234,7 @@ class EditUser extends Component {
 
                         <div id='dashboard-list-buttons-container'>
                             <NavLink to='/settings/listing'><FontAwesomeIcon icon={faCogs} size='2x' className='dashboard-list-button' color='white' /></NavLink>
-                            <SlideToggle status={this.props.user.user.subscription_end_date > new Date() && this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} />
+                            <SlideToggle status={new Date(this.props.user.user.subscription_end_date) > new Date() && this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} />
                             {/* <button id='mobile-logout-button' className='btn btn-secondary' onClick={() => this.props.dispatch(LogoutUser())}>Logout</button> */}
                         </div>
                     </div>
@@ -261,11 +258,11 @@ class EditUser extends Component {
                             </TitledContainer>
                         </div>
 
-                        <div id='upcoming-events-panel' className='dashboard-panel-full mb-5'>
+                        {/* <div id='upcoming-events-panel' className='dashboard-panel-full mb-5'>
                             <TitledContainer title='Upcoming Events' bgColor='lime' shadow icon={<FontAwesomeIcon icon={faCalendarAlt} />}>
                                 <h5 className='text-muted text-center'>No upcoming events</h5>
                             </TitledContainer>
-                        </div>
+                        </div> */}
                     </div>
                 </section>
             )

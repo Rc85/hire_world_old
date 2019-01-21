@@ -16,7 +16,14 @@ class ProfileSettings extends Component {
         super(props);
 
         this.state = {
-            settings: {},
+            settings: {
+                phone: this.props.user.user.user_phone || '',
+                address: this.props.user.user.user_address || '',
+                code: this.props.user.user.user_city_code || '',
+                country: this.props.user.user.user_country || '',
+                region: this.props.user.user.user_region || '',
+                city: this.props.user.user.user_city || ''
+            },
             status: '',
             statusMessage: ''
         }
@@ -25,32 +32,30 @@ class ProfileSettings extends Component {
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.user.user !== this.props.user.user) {
             this.initialSettings = {
-                businessName: this.props.user.user.user_business_name,
-                phone: this.props.user.user.user_phone,
-                address: this.props.user.user.user_address,
-                code: this.props.user.user.user_city_code,
-                country: this.props.user.user.user_country,
-                region: this.props.user.user.user_region,
-                city: this.props.user.user.user_city
+                phone: this.props.user.user.user_phone || '',
+                address: this.props.user.user.user_address || '',
+                code: this.props.user.user.user_city_code || '',
+                country: this.props.user.user.user_country || '',
+                region: this.props.user.user.user_region || '',
+                city: this.props.user.user.user_city || ''
             }
 
-            this.setState({settings: this.initialSettings});
+            //this.setState({settings: this.initialSettings});
         }
     }
     
     componentDidMount() {
         if (this.props.user.user) {
             this.initialSettings = {
-                businessName: this.props.user.user.user_business_name,
-                phone: this.props.user.user.user_phone,
-                address: this.props.user.user.user_address,
-                code: this.props.user.user.user_city_code,
-                country: this.props.user.user.user_country,
-                region: this.props.user.user.user_region,
-                city: this.props.user.user.user_city
+                phone: this.props.user.user.user_phone || '',
+                address: this.props.user.user.user_address || '',
+                code: this.props.user.user.user_city_code || '',
+                country: this.props.user.user.user_country || '',
+                region: this.props.user.user.user_region || '',
+                city: this.props.user.user.user_city || ''
             }
 
-            this.setState({settings: this.initialSettings});
+            //this.setState({settings: this.initialSettings});
         }
     }
     
@@ -63,7 +68,6 @@ class ProfileSettings extends Component {
                 }
 
                 this.initialSettings = {
-                    businessName: resp.data.user.user_business_name,
                     phone: resp.data.user.user_phone,
                     address: resp.data.user.user_address,
                     code: resp.data.user.user_city_code,
@@ -99,26 +103,8 @@ class ProfileSettings extends Component {
                 {status}
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child three-quarter'>
-                        <InputWrapper label='Business Name'>
-                            <input type='text' onChange={(e) => this.setSettings({businessName: e.target.value})} maxLength='40' palceholder='Maximum 40 characters' defaultValue={this.state.settings.businessName} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
-                        </InputWrapper>
-                    </div>
-                        {/* <label htmlFor='business-name'>Business Name:</label>
-                        <input type='text' name='business_name' id='business-name' defaultValue={this.initialSettings.businessName} onChange={(e) => this.setSettings({businessName: e.target.value})} maxLength='40' placeholder='Maximum 40 characters' /> */}
-
-                    <div className='setting-child quarter'>
-                        <InputWrapper label='Phone Number'>
-                            <input type='tel' onChange={(e) => this.setSettings({phone: e.target.value})} defaultValue={this.state.settings.phone} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
-                        </InputWrapper>
-                    </div>
-                        {/* <label htmlFor='phone'>Phone Number:</label>
-                        <input type='tel' name='phone' id='phone' onChange={(e) => this.setSettings({phone: e.target.value})} defaultValue={this.initialSettings.phone} /> */}
-                </div>
-
-                <div className='setting-field-container mb-3'>
-                    <div className='setting-child three-quarter'>
                         <InputWrapper label='Address'>
-                            <input type='text' onChange={(e) => this.setSettings({address: e.target.value})} defaultValue={this.state.settings.address} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                            <input type='text' onChange={(e) => this.setSettings({address: e.target.value})} value={this.state.settings.address} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                         </InputWrapper>
                         {/* <label htmlFor='user-address'>Address:</label>
                         
@@ -127,16 +113,22 @@ class ProfileSettings extends Component {
                     
                     <div className='setting-child quarter'>
                         <InputWrapper label='Postal/Zip Code'>
-                            <input type='text'onChange={(e) => this.setSettings({code: e.target.value})} defaultValue={this.state.settings.code} maxLength='7' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                            <input type='text'onChange={(e) => this.setSettings({code: e.target.value})} value={this.state.settings.code} maxLength='7' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                         </InputWrapper>
                         {/* <label htmlFor='postalzip'>Postal Code/Zip Code:</label>
                         <input type='text' name='postalzip' id='postalzip' onChange={(e) => this.setSettings({code: e.target.value})} defaultValue={this.initialSettings.code} /> */}
+                    </div>
+
+                    <div className='setting-child quarter'>
+                        <InputWrapper label='Phone Number'>
+                            <input type='tel' onChange={(e) => this.setSettings({phone: e.target.value})} value={this.state.settings ? this.state.settings.phone : ''} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                        </InputWrapper>
                     </div>
                 </div>
 
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child three-quarter'>
-                        <InputWrapper label='Country'>
+                        <InputWrapper label='Country' required>
                             <select onChange={(e) => this.setSettings({country: e.target.value})} value={this.state.settings.country}>
                                 <option value=''>Select Country</option>
                                 <option value='Canada'>Canada</option>
@@ -151,8 +143,8 @@ class ProfileSettings extends Component {
                     </div>
 
                     <div className='setting-child three-quarter'>
-                        <InputWrapper label='Region'>
-                            <RegionDropdown value={this.state.settings.region} country={this.state.settings.country} onChange={(e) => this.setSettings({region: e.target.value})}  />
+                        <InputWrapper label='Region' required>
+                            <RegionDropdown value={this.state.settings.region} country={this.state.settings.country} onChange={(val) => this.setSettings({region: val})}  />
                         </InputWrapper>
                         {/* <label htmlFor='region'>Region:</label> */}           
                     </div>

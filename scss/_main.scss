@@ -132,3 +132,17 @@ i { color: $theme-highlight; }
     padding-bottom: 100%;
     content: '';
 }
+
+#overview-splash {
+    display: flex;
+
+    #overview-diagram { width: 75%; }
+
+    #overview-text-container { width: 25%; }
+
+    .overview-text {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+    }
+}

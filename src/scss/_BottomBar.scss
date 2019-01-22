@@ -50,7 +50,7 @@
     justify-content: center;
     position: relative;
     overflow-y: scroll;
-    transition: height 0.15s ease-in-out;
+    transition: height 0.05s ease-in-out;
 
     &.expand { height: calc(100vh - 55px); }
 
@@ -68,7 +68,7 @@
         /* top: 0;
         left: 0;
         position: absolute; */
-        transition: all 0.15s ease-in-out;
+        transition: all 0.05s ease-in-out;
         padding: 10px 20px 0px 20px;
 
         &.hide { opacity: 0; }
@@ -104,7 +104,7 @@
         background-color: black;
         width: 100vw;
         height: 100%;
-        transition: left 0.15s ease-in-out;
+        transition: left 0.1s ease-in-out;
         overflow-y: scroll;
         font-size: 2rem;
         padding: 10px 20px 0px 20px;

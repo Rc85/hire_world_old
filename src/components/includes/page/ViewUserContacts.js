@@ -53,7 +53,7 @@ const ViewUserContacts = props => {
         }
     }
 
-    if (email || phone || address || education) {
+    if (name || email || phone || address || businessName) {
         return(
             <TitledContainer title='Contact' mini shadow className='mb-5'>
                 <div id='view-user-contacts'>

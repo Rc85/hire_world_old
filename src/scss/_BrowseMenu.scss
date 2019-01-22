@@ -8,7 +8,7 @@
     overflow: auto;
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 0.15s ease-in-out;
+    transition: transform 0.05s ease-in-out;
     padding-bottom: 10px;
 
     &.show { transform: scaleX(1); }

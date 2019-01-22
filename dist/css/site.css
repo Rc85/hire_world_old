@@ -5873,6 +5873,21 @@ i {
   content: "";
 }
 
+#overview-splash {
+  display: flex;
+}
+#overview-splash #overview-diagram {
+  width: 75%;
+}
+#overview-splash #overview-text-container {
+  width: 25%;
+}
+#overview-splash .overview-text {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
 #pricing-table {
   width: 50%;
   margin: 0 auto 30px auto;
@@ -6187,7 +6202,7 @@ i {
   src: url("../fonts/Montserrat-Bold.ttf");
 }
 body {
-  background-color: #FCFCFC;
+  background-color: white;
   overflow-x: hidden;
   margin: 0;
   font-family: "Montserrat";

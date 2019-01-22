@@ -224,11 +224,11 @@ class EditUser extends Component {
                             <div id='dashboard-header-user-info'>
                                 <h1><NavLink to={`/user/${this.props.user.user.username}`}>{this.props.user.user.username}</NavLink></h1>
 
-                                <EditUserField field={this.props.user.user.user_business_name} save={(val) => this.saveField('business name', val)} placeholder='3 - 40 characters' maxLength='40' emptyString='Your business name here' label='Business Name' icon={<FontAwesomeIcon icon={faBuilding} className='text-special edit-user-field-icon' />} />
+                                <EditUserField field={this.props.user.user.user_business_name} save={(val) => this.saveField('business name', val)} placeholder='3 - 40 characters' maxLength='40' emptyString='Your business name here' label='Business Name' icon={<FontAwesomeIcon icon={faBuilding} className='text-special edit-user-field-icon' />} dispatch={this.props.dispatch} />
 
-                                <EditUserField field={this.props.user.user.user_title} save={(val) => this.saveField('user title', val)} placeholder='3 - 30 characters' maxLength='30' emptyString='Your profession title here' label='Profession Title' icon={<FontAwesomeIcon icon={faIdCard} className='text-special edit-user-field-icon' />} />
+                                <EditUserField field={this.props.user.user.user_title} save={(val) => this.saveField('user title', val)} placeholder='3 - 30 characters' maxLength='30' emptyString='Your profession title here' label='Profession Title' icon={<FontAwesomeIcon icon={faIdCard} className='text-special edit-user-field-icon' />} dispatch={this.props.dispatch} />
 
-                                <EditUserSocialMedia user={this.props.user.user} save={(field, val) => this.saveField(field, val)} />
+                                <EditUserSocialMedia user={this.props.user.user} save={(field, val) => this.saveField(field, val)} dispatch={this.props.dispatch} />
                             </div>
                         </div>
 
@@ -304,7 +304,7 @@ class EditUserField extends Component {
         let value;
         let input = <InputWrapper label={this.props.label}>
             <form onClick={(e) => e.stopPropagation()} onSubmit={(e) => this.save(e)} className='edit-user-field-form'>
-                <input type='text' onChange={(e) => this.setState({value: e.target.value})} placeholder={this.props.placeholder} maxLength={this.props.maxLength} value={this.state.value} placeholder='Enter URL' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                <input type='text' onChange={(e) => this.setState({value: e.target.value})} placeholder={this.props.placeholder} maxLength={this.props.maxLength} value={this.state.value} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                 <div className='d-flex-end-center'>
                     <button type='submit' className='btn btn-primary btn-sm mr-1'>Save</button>
                     <button type='button' className='btn btn-secondary btn-sm mr-1' onClick={() => this.setState({edit: false})}>Cancel</button>
@@ -356,7 +356,7 @@ class EditUserSocialMedia extends Component {
             input = <div className='edit-user-field-container'>
                 <InputWrapper label={this.state.label}>
                     <form onSubmit={(e) => this.save(e)} className='edit-user-field-form'>
-                        <input type='text' value={this.state.value} onChange={(e) => this.setState({value: e.target.value})} value={this.state.value} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                        <input type='text' value={this.state.value} onChange={(e) => this.setState({value: e.target.value})} value={this.state.value} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} placeholder='Enter URL' />
                         <div className='d-flex-end-center'>
                             <button type='submit' className='btn btn-primary btn-sm mr-1'>Save</button>
                             <button type='button' className='btn btn-secondary btn-sm mr-1' onClick={() => this.setState({edit: false})}>Cancel</button>
@@ -370,12 +370,12 @@ class EditUserSocialMedia extends Component {
         return(
             <div id='edit-user-social-media' className='mt-3'>
                 <div id='edit-user-social-media-buttons'>
-                    <FontAwesomeIcon icon={faFacebook} id='edit-user-facebook' className='edit-user-social-media-button' size='2x' onClick={() => this.setState({edit: true, label: 'Facebook', field: 'user facebook', value: this.props.user.user_facebook})} />
-                    <FontAwesomeIcon icon={faGithub} id='edit-user-github' className='edit-user-social-media-button' size='2x' onClick={() => this.setState({edit: true, label: 'GitHub', field: 'user github', value: this.props.user.user_github})} />
-                    <FontAwesomeIcon icon={faTwitter} id='edit-user-twitter' className='edit-user-social-media-button' size='2x' onClick={() => this.setState({edit: true, label: 'Twitter', field: 'user twitter', value: this.props.user.user_twitter})} />
-                    <FontAwesomeIcon icon={faInstagram} id='edit-user-instagram' className='edit-user-social-media-button' size='2x' onClick={() => this.setState({edit: true, label: 'Instagram', field: 'user instagram', value: this.props.user.user_instagram})} />
-                    <FontAwesomeIcon icon={faLinkedin} id='edit-user-linkedin' className='edit-user-social-media-button' size='2x' onClick={() => this.setState({edit: true, label: 'Linkedin', field: 'user linkedin', value: this.props.user.user_linkedin})} />
-                    <FontAwesomeIcon icon={faGlobe} id='edit-user-website' className='edit-user-social-media-button' size='2x' onClick={() => this.setState({edit: true, label: 'Website', field: 'user website', value: this.props.user.user_website})} />
+                    <FontAwesomeIcon icon={faFacebook} id='edit-user-facebook' className={`edit-user-social-media-button ${this.props.user.user_facebook ? 'text-highlight' : 'text-muted'}`} size='2x' onClick={() => this.setState({edit: true, label: 'Facebook', field: 'user facebook', value: this.props.user.user_facebook})} />
+                    <FontAwesomeIcon icon={faGithub} id='edit-user-github' className={`edit-user-social-media-button ${this.props.user.user_github ? 'text-highlight' : 'text-muted'}`} size='2x' onClick={() => this.setState({edit: true, label: 'GitHub', field: 'user github', value: this.props.user.user_github})} />
+                    <FontAwesomeIcon icon={faTwitter} id='edit-user-twitter' className={`edit-user-social-media-button ${this.props.user.user_twitter ? 'text-highlight' : 'text-muted'}`} size='2x' onClick={() => this.setState({edit: true, label: 'Twitter', field: 'user twitter', value: this.props.user.user_twitter})} />
+                    <FontAwesomeIcon icon={faInstagram} id='edit-user-instagram' className={`edit-user-social-media-button ${this.props.user.user_instagram ? 'text-highlight' : 'text-muted'}`} size='2x' onClick={() => this.setState({edit: true, label: 'Instagram', field: 'user instagram', value: this.props.user.user_instagram})} />
+                    <FontAwesomeIcon icon={faLinkedin} id='edit-user-linkedin' className={`edit-user-social-media-button ${this.props.user.user_linkedin ? 'text-highlight' : 'text-muted'}`} size='2x' onClick={() => this.setState({edit: true, label: 'Linkedin', field: 'user linkedin', value: this.props.user.user_linkedin})} />
+                    <FontAwesomeIcon icon={faGlobe} id='edit-user-website' className={`edit-user-social-media-button ${this.props.user.user_website ? 'text-highlight' : 'text-muted'}`} size='2x' onClick={() => this.setState({edit: true, label: 'Website', field: 'user website', value: this.props.user.user_website})} />
                 </div>
 
                 {input}

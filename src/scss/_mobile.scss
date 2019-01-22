@@ -1,29 +1,5 @@
 @media only screen and (max-width: 414px) {
-    /* #sidebar {
-        position: fixed;
-        width: 100%;
-        min-height: 110px;
-        height: 110px;
-        bottom: 0;
-        z-index: 99;
-
-        #sidebar-username, #dashboard-profile-pic, hr, .sidebar-link-text, .sidebar-link-underline  { display: none; }
-
-        #sidebar-links {
-            display: flex;
-            justify-content: space-around;
-            margin-left: 0;
-        }
-
-        .sidebar-link-container { margin-top: 20px; }
-
-        .sidebar-link-icon {
-            font-size: 2rem;
-            margin-right: 0;
-        }
-
-        .sidebar-link-item.active { border-right: 0; }
-    } */
+    #root { overflow-x: hidden; }
 
     #footer { padding-bottom: 75px; }
 
@@ -412,7 +388,7 @@
     }
 
     #search-listings-field-container {
-        max-height: calc(100vh - 98px);
+        max-height: calc(100vh - 90px);
 
         .d-flex-between-center, .d-flex-between-start { flex-direction: column; }
 
@@ -422,7 +398,7 @@
         }
 
         #search-listings-field-wrapper {
-            max-height: calc(100vh - 98px);
+            max-height: calc(100vh - 90px);
             overflow-y: scroll;
         }
     }

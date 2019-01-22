@@ -8,6 +8,7 @@ import InputGroup from '../../utils/InputGroup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { isTyping } from '../../../actions/ConfigActions';
+import { connect } from 'react-redux';
 
 const initialState = {
     title: '',
@@ -52,12 +53,22 @@ class SearchListing extends Component {
         this.setState({show: false});
         this.props.filter(this.state);
     }
+
+    toggleSearch() {
+        if (this.props.config.isMobile && !this.state.show) {
+            document.body.style.overflowY = 'hidden';
+        } else if (this.props.config.isMobile && this.state.show) {
+            document.body.style.overflowY = '';
+        }
+
+        this.setState({show: !this.state.show});
+    }
     
     render() {
         return (
             <React.Fragment>
                 <div id='search-listings'>
-                    <div id='search-listings-toggler' onClick={() => this.setState({show: !this.state.show})}><FontAwesomeIcon icon={this.state.show ? faChevronUp : faChevronDown} size='2x' className='mr-1' /> <h4>Filter</h4></div>
+                    <div id='search-listings-toggler' onClick={() => this.toggleSearch()}><FontAwesomeIcon icon={this.state.show ? faChevronUp : faChevronDown} size='2x' className='mr-1' /> <h4>Filter</h4></div>
 
                     <div id='search-listings-field-container' className={!this.state.show ? 'hide' : ''}>
                         <div id='search-listings-field-wrapper'>
@@ -163,4 +174,10 @@ SearchListing.propTypes = {
     filter: PropTypes.func
 };
 
-export default SearchListing;
+const mapStateToProps = state => {
+    return {
+        config: state.Config
+    }
+}
+
+export default connect(mapStateToProps)(SearchListing);

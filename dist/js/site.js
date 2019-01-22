@@ -233,12 +233,14 @@ $(document).ready(function() {
     });
 
     $('#mobile-nav-button').on('click', function() {
-        if ($('#mobile-nav').hasClass('hide')) {
-            $('#mobile-nav-button i').removeClass('fa-bars').addClass('fa-times');
-            $('#mobile-nav').removeClass('hide').addClass('show');
-        } else {
-            $('#mobile-nav-button i').addClass('fa-bars').removeClass('fa-times');
+        if ($('#mobile-nav-button i').hasClass('fa-times')) {
             $('#mobile-nav').removeClass('show').addClass('hide');
+            $('#browse-menu').removeClass('show').addClass('hide');
+            $('#mobile-nav-button i').addClass('fa-bars').removeClass('fa-times');
+            $('body').css({'overflow-y': ''});
+        } else if ($('#mobile-nav-button i').hasClass('fa-bars')) {
+            $('#mobile-nav').addClass('show').removeClass('hide');
+            $('#mobile-nav-button i').removeClass('fa-bars').addClass('fa-times');
         }
     });
 
@@ -259,10 +261,59 @@ $(document).ready(function() {
     });
     
     $('#mobile-login-link').on('click', function() {
-        location.href = '/app/login';
+        location.href = '/app';
     });
     
     $('#mobile-register-link').on('click', function() {
         location.href = '/register';
+    });
+
+    $('#mobile-browse-link').on('click', function() {
+        $('#mobile-nav').removeClass('show').addClass('hide');
+
+        $('#browse-menu').addClass('show').removeClass('hide');
+        $('body').css({'overflow-y': 'hidden'});
+
+        $.get({
+            url: '/api/get/sectors',
+            success: (resp) => {
+                if (resp.status === 'get sectors success') {
+                    $('#browse-menu').empty();
+
+                    for (let sector of resp.sectors) {
+                        $('#browse-menu').append(
+                            $('<div>').addClass('sector-link').html(`<span>${sector.sector}</span>`).on('click', function() {
+                                location.href = `/app/sectors/${sector.sector}`;
+                            })
+                        )
+                    }
+                }
+            }
+        });
+    });
+
+    $('#browse-button').on('click', function() {
+        if ($('#browse-menu').hasClass('show')) {
+            $('#browse-menu').removeClass('show').addClass('hide');
+        } else {
+            $('#browse-menu').addClass('show').removeClass('hide');
+            
+            $.get({
+                url: '/api/get/sectors',
+                success: (resp) => {
+                    if (resp.status === 'get sectors success') {
+                        $('#browse-menu').empty();
+
+                        for (let sector of resp.sectors) {
+                            $('#browse-menu').append(
+                                $('<div>').addClass('sector-link').html(`<span>${sector.sector}</span>`).on('click', function() {
+                                    location.href = `/app/sectors/${sector.sector}`;
+                                })
+                            )
+                        }
+                    }
+                }
+            });
+        }
     });
 });

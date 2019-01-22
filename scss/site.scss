@@ -6,6 +6,7 @@
 @import './vendor/font-awesome/solid';
 @import './vendor/font-awesome/regular';
 @import './navbar';
+@import './browse-menu';
 @import './main';
 @import './pricing';
 @import './how';
@@ -16,6 +17,8 @@
 @import './1366px';
 @import './768px';
 @import './414px';
+@import './375px';
+@import './360px';
 @import './320px';
 
 @font-face {
@@ -38,6 +41,7 @@ body {
     width: 100%;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 body a {

@@ -5711,6 +5711,7 @@ readers do not read off random characters that represent icons */
   justify-content: space-between;
   align-items: center;
   padding: 20px;
+  height: 100px;
 }
 
 #navbar {
@@ -5726,6 +5727,38 @@ readers do not read off random characters that represent icons */
 
 #mobile-nav {
   display: none;
+}
+
+#browse-menu {
+  background-color: #2F496E;
+  position: absolute;
+  z-index: 2;
+  top: 100px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+}
+#browse-menu.show {
+  display: block;
+}
+#browse-menu.hide {
+  display: none;
+}
+#browse-menu .sector-link {
+  border: 1px solid black;
+  border-bottom: 0;
+  padding: 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+#browse-menu .sector-link:hover {
+  background-color: #2988BC;
+}
+#browse-menu .sector-link:hover span {
+  text-decoration: underline;
+}
+#browse-menu .sector-link:last-child {
+  border-top: 1px solid black;
 }
 
 #main {
@@ -5893,6 +5926,10 @@ i {
   display: flex;
   justify-content: center;
   flex-direction: column;
+}
+
+#browse-button {
+  cursor: pointer;
 }
 
 #pricing-table {
@@ -6088,6 +6125,10 @@ i {
     display: block;
   }
 
+  #main-section {
+    background-position: 60% 0;
+  }
+
   #mobile-nav {
     right: 0;
     position: absolute;
@@ -6136,6 +6177,30 @@ i {
     width: 100%;
     margin-bottom: 30px;
   }
+
+  #overview-splash {
+    flex-direction: column;
+  }
+  #overview-splash #overview-diagram, #overview-splash #overview-text-container {
+    width: 100%;
+  }
+  #overview-splash #overview-diagram img, #overview-splash #overview-text-container img {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+  #overview-splash .overview-text {
+    text-align: center;
+  }
+
+  #browse-menu {
+    width: 100vw;
+    font-size: 1.25rem;
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+  #browse-menu .sector-link {
+    font-weight: normal;
+  }
 }
 @media only screen and (max-width: 414px) {
   #main {
@@ -6148,6 +6213,7 @@ i {
 
   #main-section {
     padding: 15px;
+    background-position: 57% 0;
   }
   #main-section div {
     width: 100%;
@@ -6180,7 +6246,21 @@ i {
     margin-bottom: 20px;
   }
 }
+@media only screen and (max-width: 375px) {
+  #main-section {
+    background-position: 55% 0;
+  }
+}
+@media only screen and (max-width: 360px) {
+  #main-section {
+    background-position: 55% 0;
+  }
+}
 @media only screen and (max-width: 320px) {
+  #main-section {
+    background-position: 57% 0;
+  }
+
   #how-it-works i {
     display: none;
   }
@@ -6218,6 +6298,7 @@ body {
   width: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 body a {

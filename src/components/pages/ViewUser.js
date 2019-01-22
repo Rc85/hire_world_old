@@ -191,13 +191,13 @@ class ViewUser extends Component {
 
             if (this.props.user && this.props.user.username !== this.state.user.username) {
                 if (!this.state.isFriend) {
-                    friendIcon = <Tooltip text='Add to Friend' placement='bottom-right'><FontAwesomeIcon icon={faUserPlus} className='text-highlight' /></Tooltip>;
+                    friendIcon = <Tooltip text='Add to Friend' placement='bottom-right'><FontAwesomeIcon icon={faUserPlus} className='text-alt-highlight' /></Tooltip>;
                 } else {
                     friendIcon = <Tooltip text='Remove from Friends' placement='bottom-right'><FontAwesomeIcon icon={faUserMinus} className='text-secondary' /></Tooltip>
                 }
                 
                 if (!this.state.userReported) {
-                    reportButton = <Tooltip text='Report this user' placement='bottom-right'><FontAwesomeIcon icon={faExclamationTriangle} onClick={() => this.submitReport()} className='text-highlight' /></Tooltip>;
+                    reportButton = <Tooltip text='Report this user' placement='bottom-right'><FontAwesomeIcon icon={faExclamationTriangle} onClick={() => this.submitReport()} className='text-alt-highlight' /></Tooltip>;
                 }
 
                 if (this.state.user.username !== this.props.user.username && this.state.user.allow_messaging) {

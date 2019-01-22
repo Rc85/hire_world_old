@@ -97,9 +97,10 @@ i { color: $theme-highlight; }
     flex-direction: column;
 }
 
-.text-black { color: #000 }
-.text-blue { color: $theme-blue }
-.text-highlight { color: $theme-highlight }
+.text-black { color: #000; }
+.text-blue { color: $theme-blue; }
+.text-highlight { color: $theme-highlight; }
+.text-medgrey { color: $theme-medgrey; }
 
 #what-is-it {
     text-align: center;
@@ -138,7 +139,11 @@ i { color: $theme-highlight; }
 
     #overview-diagram { width: 75%; }
 
-    #overview-text-container { width: 25%; }
+    #overview-text-container {
+        width: 25%;
+
+        a { color: $theme-medgrey; }
+    }
 
     .overview-text {
         display: flex;

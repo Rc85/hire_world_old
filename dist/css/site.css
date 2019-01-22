@@ -5840,6 +5840,10 @@ i {
   color: #2988BC;
 }
 
+.text-medgrey {
+  color: #9b9b9b;
+}
+
 #what-is-it {
   text-align: center;
   width: 50%;
@@ -5881,6 +5885,9 @@ i {
 }
 #overview-splash #overview-text-container {
   width: 25%;
+}
+#overview-splash #overview-text-container a {
+  color: #9b9b9b;
 }
 #overview-splash .overview-text {
   display: flex;

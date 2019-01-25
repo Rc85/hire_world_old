@@ -1045,6 +1045,22 @@
   max-height: 250px;
 }
 
+.admin-panel-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.admin-panel-counter-row {
+  border-bottom: 1px dotted #9b9b9b;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 5px;
+}
+
 .alert-container {
   position: fixed;
   bottom: 10px;
@@ -1066,9 +1082,13 @@
   background: #ED463D;
 }
 
+#root {
+  width: 100%;
+}
+
 .col-container {
   display: flex;
-  width: 100vw;
+  width: 100%;
   min-height: 100%;
   position: relative;
 }
@@ -1746,6 +1766,9 @@
   justify-content: space-between;
   background: linear-gradient(45deg, #2A2A2A, #1F1F1F);
   padding: 10px 20px;
+  position: absolute;
+  width: 100%;
+  height: 55px;
 }
 #bottombar-container .bottombar-toggle-buttons #bottombar-toggle-button {
   margin-left: auto;
@@ -1762,9 +1785,6 @@
   top: -8px;
   left: 0;
 }
-#bottombar-container.expand {
-  height: 100%;
-}
 #bottombar-container.hide {
   display: none;
 }
@@ -1776,13 +1796,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   position: relative;
   overflow-y: scroll;
   transition: height 0.05s ease-in-out;
+  padding-bottom: 55px;
 }
 #bottombar.expand {
-  height: calc(100vh - 55px);
+  height: 100vh;
 }
 #bottombar .bottombar-item-icon {
   margin-right: 15px;
@@ -1804,9 +1824,6 @@
 #bottombar .bottombar-item-container.hide {
   opacity: 0;
 }
-#bottombar .bottombar-item-container.expand {
-  height: 100%;
-}
 #bottombar .bottombar-item-wrapper {
   display: flex;
   align-items: center;
@@ -1827,20 +1844,20 @@
 }
 #bottombar #bottombar-sectors-container {
   position: absolute;
-  top: 0;
-  left: 100%;
   z-index: 1;
   background: linear-gradient(45deg, #2A2A2A, #1F1F1F);
   background-color: black;
-  width: 100vw;
-  height: 100%;
-  transition: left 0.1s ease-in-out;
+  transform: scaleX(0);
+  transform-origin: right;
+  height: calc(100% - 55px);
+  width: 100%;
+  transition: transform 0.1s ease-in-out;
   overflow-y: scroll;
   font-size: 2rem;
-  padding: 10px 20px 0px 20px;
+  padding: 10px 20px 0 20px;
 }
 #bottombar #bottombar-sectors-container.show {
-  left: 0;
+  transform: scaleX(1);
 }
 #bottombar #bottombar-sectors-container #bottombar-sectors-close-button {
   margin: 0 20px 0 0;
@@ -1949,7 +1966,7 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
 
 #dashboard {
   display: flex;
-  width: 100vw;
+  width: 100%;
 }
 
 #dashboard-profile-pic {
@@ -2328,6 +2345,7 @@ footer {
   width: 100%;
 }
 #message-details a {
+  color: #2988BC;
   text-decoration: none;
 }
 
@@ -2555,7 +2573,7 @@ footer {
   margin-bottom: 30px;
   position: relative;
 }
-.message-filter-buttons-container #close-message-column-button {
+.message-filter-buttons-container .close-message-column-button {
   display: none;
 }
 
@@ -2569,6 +2587,10 @@ footer {
 #message-list-column #message-list-main-column {
   padding: 20px;
   width: 100%;
+}
+
+#message-list-toggle-up-down {
+  display: none;
 }
 
 #message-column {
@@ -2878,27 +2900,27 @@ footer {
   margin-right: 5px;
 }
 
-#search-listings {
+#search {
   width: 100%;
   position: relative;
 }
 
-#search-listings-field-container {
+#search-field-container {
   background-color: #2F496E;
   max-height: 75vh;
   transition: max-height 0.1s ease-in-out;
   overflow: hidden;
   border-bottom: 1px solid black;
 }
-#search-listings-field-container #search-listings-field-wrapper {
+#search-field-container #search-field-wrapper {
   height: 100%;
   padding: 20px;
 }
-#search-listings-field-container.hide {
+#search-field-container.hide {
   max-height: 0;
 }
 
-#search-listings-toggler {
+#search-toggler {
   background-color: #2F496E;
   height: 43px;
   display: flex;
@@ -3737,13 +3759,9 @@ footer {
   flex-grow: 2;
 }
 
-@media only screen and (max-width: 414px) {
-  #root {
-    overflow-x: hidden;
-  }
-
+@media only screen and (max-width: 1024px) {
   #footer {
-    padding-bottom: 75px;
+    padding: 20px 20px 75px 20px;
   }
 
   #dashboard-main {
@@ -3767,8 +3785,14 @@ footer {
     display: none;
   }
   #dashboard-header #dashboard-header-wrapper .profile-pic-wrapper {
-    width: 100%;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
     margin-bottom: 15px;
+  }
+
+  #dashboard-header-user-info {
+    max-width: 100%;
   }
 
   .edit-user-field-form {
@@ -3863,7 +3887,7 @@ footer {
     position: relative;
   }
   #inquiries #message-column {
-    padding: 20px 20px 75px 70px;
+    padding: 20px 20px 20px 70px;
     width: 100%;
   }
 
@@ -3872,12 +3896,12 @@ footer {
     left: 0;
     z-index: 5;
     overflow-x: hidden;
-    padding-bottom: 75px;
     height: 100%;
     width: 100%;
     transition: width 0.25s ease-in-out;
   }
   #message-list-column #message-list-main-column {
+    margin-bottom: 75px;
     width: 100%;
     opacity: 1;
     transition: opacity 0.1s ease-in 0.25s;
@@ -3912,29 +3936,11 @@ footer {
   .message-filter-buttons-container button {
     font-size: 0.8rem;
   }
-  .message-filter-buttons-container #close-message-column-button {
+  .message-filter-buttons-container .close-message-column-button {
     display: block;
     position: absolute;
     right: 0;
     top: 0;
-  }
-
-  .message-row.owner .message-row-profile-pic, .message-row.sender .message-row-profile-pic {
-    display: none;
-  }
-  .message-row.owner .message-container, .message-row.sender .message-container {
-    width: 100%;
-  }
-
-  .message-row-username.right {
-    padding-right: 0;
-  }
-  .message-row-username.left {
-    padding-left: 0;
-  }
-
-  .underline-div, .make-offer-field-container {
-    flex-direction: column;
   }
 
   .make-offer-field-container {
@@ -4046,21 +4052,8 @@ footer {
       transform-origin:0 0;
       -webkit-transform-origin:0 0;
   } */
-  #view-user-details-container {
-    display: flex;
-    align-items: flex-start;
-    margin-top: 20px;
-    flex-direction: column;
-  }
-
-  #view-user-main {
-    margin-top: 15px;
-  }
-
-  #view-user-main, #view-user-details {
-    width: 100%;
-    flex-grow: 0;
-    margin-right: 0;
+  #view-user-details-container, #listing-settings {
+    margin-top: 0;
   }
 
   #view-user-header {
@@ -4083,6 +4076,15 @@ footer {
     margin-right: 15px;
   }
 
+  #view-user-footer #view-user-stats {
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+  #view-user-footer #view-user-stats .mr-5 {
+    margin-right: 30px !important;
+  }
+
   #view-user-listing-info {
     flex-direction: column;
   }
@@ -4100,78 +4102,67 @@ footer {
     padding: 0;
   }
 
-  .user-review-container {
-    flex-direction: column;
-    margin: 0 auto 0 auto;
-    width: 90%;
-    margin-bottom: 30px;
-    padding: 15px;
-  }
-
-  .user-review {
-    width: 100%;
-  }
-
-  .user-review-profile-pic {
-    width: 100%;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    margin-right: 0px;
-  }
-  .user-review-profile-pic .profile-pic {
-    width: 25%;
-    margin-right: 15px;
-  }
-
-  .user-review-header, .user-review-header-info {
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .user-review-badge, .user-review-rating {
-    margin-right: 0;
-  }
-
-  .user-review-separator {
-    margin: 0 auto 30px auto;
-    width: 90%;
-  }
-
-  .user-review-buttons {
-    align-self: flex-end;
-  }
-
-  .user-reviews-placeholder-column {
-    display: none;
-  }
-
   #user-reviews-wrapper > .mt-3 {
     margin-top: 0 !important;
   }
 
-  #search-listings {
+  #search {
     position: absolute;
     z-index: 2;
   }
 
-  #search-listings-field-container {
+  #search-field-container {
     max-height: calc(100vh - 90px);
   }
-  #search-listings-field-container .d-flex-between-center, #search-listings-field-container .d-flex-between-start {
+  #search-field-container .d-flex-between-center, #search-field-container .d-flex-between-start {
     flex-direction: column;
   }
-  #search-listings-field-container .w-5, #search-listings-field-container .w-10, #search-listings-field-container .w-15, #search-listings-field-container .w-25, #search-listings-field-container .w-30, #search-listings-field-container .w-45 {
+  #search-field-container .w-5, #search-field-container .w-10, #search-field-container .w-15, #search-field-container .w-25, #search-field-container .w-30, #search-field-container .w-45 {
     width: 100% !important;
     margin-bottom: 30px;
   }
-  #search-listings-field-container #search-listings-field-wrapper {
+  #search-field-container #search-field-wrapper {
     max-height: calc(100vh - 90px);
     overflow-y: scroll;
   }
 
   #listings {
     margin-top: 50px;
+  }
+
+  #notification-panel {
+    position: absolute;
+    top: auto;
+    bottom: calc(100% + 10px);
+    left: -20px;
+    width: 75vw;
+    transform: scaleY(0);
+    transform-origin: bottom;
+    box-shadow: none;
+  }
+  #notification-panel.show {
+    transform: scaleY(1);
+  }
+
+  .activity-timestamp {
+    text-align: right;
+    margin-top: 5px;
+  }
+}
+@media only screen and (max-width: 768px) {
+  #view-user-title h3, #view-user-title #view-user-rating {
+    text-align: center;
+  }
+
+  #view-user-main {
+    flex-grow: 0;
+    margin-right: 15px;
+  }
+}
+@media only screen and (max-width: 414px) {
+  #dashboard-header #dashboard-header-wrapper .profile-pic-wrapper {
+    width: 100%;
+    margin-bottom: 15px;
   }
 
   .listing-row-profile-pic {
@@ -4215,34 +4206,164 @@ footer {
     display: none;
   }
 
-  #notification-panel {
-    position: absolute;
-    top: auto;
-    bottom: calc(100% + 10px);
-    left: -20px;
-    width: 75vw;
-    transform: scaleY(0);
-    transform-origin: bottom;
-    box-shadow: none;
+  .message-row.owner .message-row-profile-pic, .message-row.sender .message-row-profile-pic {
+    display: none;
   }
-  #notification-panel.show {
-    transform: scaleY(1);
+  .message-row.owner .message-container, .message-row.sender .message-container {
+    width: 100%;
   }
 
-  .activity-timestamp {
-    text-align: right;
-    margin-top: 5px;
+  #view-user-details-container {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 20px;
+    flex-direction: column;
+  }
+
+  #view-user-main {
+    margin-top: 15px;
+  }
+
+  #view-user-main, #view-user-details {
+    width: 100%;
+    flex-grow: 0;
+    margin-right: 0;
+  }
+
+  #view-user-profile-pic {
+    width: 50%;
+    margin-right: 0px;
+  }
+
+  .user-review-profile-pic {
+    width: 100%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    margin-right: 0px;
+  }
+  .user-review-profile-pic .profile-pic {
+    width: 25%;
+    margin-right: 15px;
+  }
+
+  .user-review-container {
+    flex-direction: column;
+    margin: 0 auto 0 auto;
+    width: 90%;
+    margin-bottom: 30px;
+    padding: 15px;
+  }
+
+  .user-review {
+    width: 100%;
+  }
+
+  .user-review-header, .user-review-header-info {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .user-review-badge, .user-review-rating {
+    margin-right: 0;
+  }
+
+  .user-review-separator {
+    margin: 0 auto 30px auto;
+    width: 90%;
+  }
+
+  .user-review-buttons {
+    align-self: flex-end;
+  }
+
+  .user-reviews-placeholder-column {
+    display: none;
+  }
+
+  .message-row-username.right {
+    padding-right: 0;
+  }
+  .message-row-username.left {
+    padding-left: 0;
+  }
+
+  .underline-div, .make-offer-field-container {
+    flex-direction: column;
   }
 }
-@media only screen and (min-width: 321px) and (max-width: 375px) {
+@media only screen and (max-width: 375px) {
   #g-recaptcha {
     transform: scale(0.86);
     -webkit-transform: scale(0.86);
     transform-origin: 0 0;
     -webkit-transform-origin: 0 0;
   }
+
+  #view-user-footer {
+    flex-direction: column;
+  }
+  #view-user-footer #view-user-stats {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+  #view-user-footer #view-user-stats .mr-5 {
+    margin-right: 0 !important;
+  }
+  #view-user-footer .view-user-buttons {
+    align-self: flex-end;
+    margin-top: 30px;
+  }
+
+  #bottombar .bottombar-item-wrapper, #bottombar #bottombar-sectors-container {
+    font-size: 1.6rem;
+  }
+  #bottombar .bottombar-sub-item-container {
+    font-size: 1.3rem;
+  }
+
+  #inquiries #message-column {
+    padding: 75px 20px 20px 20px;
+  }
+
+  #message-list-column {
+    transition: height 0.25s ease-in-out;
+    min-height: 0;
+  }
+  #message-list-column #message-list-main-column {
+    padding: 50px 20px 20px 20px;
+  }
+  #message-list-column.hide {
+    width: 100%;
+    height: 0;
+    z-index: 3;
+  }
+  #message-list-column.hide #message-list-main-column {
+    opacity: 0;
+    transition: opacity 0s ease-out 0s;
+  }
+
+  #message-list-mini-column {
+    display: none;
+  }
+
+  #message-list-toggle-up-down {
+    display: block;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: #2F496E;
+    text-align: center;
+    z-index: 6;
+  }
+
+  .message-filter-buttons-container .close-message-column-button {
+    display: none;
+  }
 }
-@media only screen and (min-width: 0px) and (max-width: 320px) {
+@media only screen and (max-width: 320px) {
   #g-recaptcha {
     transform: scale(0.75);
     -webkit-transform: scale(0.75);
@@ -4272,6 +4393,7 @@ body {
   display: flex;
   overflow-x: hidden;
   line-height: 1.25;
+  width: 100%;
 }
 
 a {
@@ -4373,11 +4495,12 @@ input {
   box-sizing: border-box;
 }
 
-@media only screen and (max-width: 414px) {
+@media only screen and (max-width: 1024px) {
   body {
-    padding-bottom: 55px;
+    padding-bottom: 50px;
   }
-
+}
+@media only screen and (max-width: 414px) {
   h1 {
     font-size: 1.5rem;
   }
@@ -4400,6 +4523,35 @@ input {
 
   h6 {
     font-size: 1rem;
+  }
+}
+@media only screen and (max-width: 320px) {
+  body {
+    font-size: 0.8rem;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+
+  h4 {
+    font-size: 1rem;
+  }
+
+  h5 {
+    font-size: 0.9rem;
+  }
+
+  h6 {
+    font-size: 0.8rem;
   }
 }
 

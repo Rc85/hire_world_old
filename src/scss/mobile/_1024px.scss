@@ -1,7 +1,7 @@
-@media only screen and (max-width: 414px) {
-    #root { overflow-x: hidden; }
-
-    #footer { padding-bottom: 75px; }
+@media only screen and (max-width: 1024px) {
+    #footer {
+        padding: 20px 20px 75px 20px;
+    }
 
     #dashboard-main { width: 100%; }
 
@@ -22,11 +22,15 @@
             }
         
             .profile-pic-wrapper {
-                width: 100%;
+                width: 50%;
+                margin-left: auto;
+                margin-right: auto;
                 margin-bottom: 15px;
             }
         }
     }
+
+    #dashboard-header-user-info { max-width: 100%; }
 
     .edit-user-field-form {
         flex-direction: column;
@@ -108,7 +112,7 @@
         position: relative;
 
         #message-column {
-            padding: 20px 20px 75px 70px; 
+            padding: 20px 20px 20px 70px; 
             width: 100%;
         }
     }
@@ -118,12 +122,12 @@
         left: 0;
         z-index: 5;
         overflow-x: hidden;
-        padding-bottom: 75px;
         height: 100%;
         width: 100%;
         transition: width 0.25s ease-in-out;
 
         #message-list-main-column {
+            margin-bottom: 75px;
             width: 100%;
             opacity: 1;
             transition: opacity 0.1s ease-in 0.25s;
@@ -162,29 +166,13 @@
             font-size: 0.8rem;
         }
 
-        #close-message-column-button {
+        .close-message-column-button {
             display: block;
             position: absolute;
             right: 0;
             top: 0;
         }
     }
-
-    .message-row.owner, .message-row.sender {
-        .message-row-profile-pic { display: none; }
-    
-        .message-container {
-            width: 100%;
-        }
-    }
-
-    .message-row-username {
-        &.right { padding-right: 0; }
-    
-        &.left { padding-left: 0; }
-    }
-
-    .underline-div, .make-offer-field-container { flex-direction: column; }
     
     .make-offer-field-container { margin-bottom: 0; }
 
@@ -286,21 +274,8 @@
         transform-origin:0 0;
         -webkit-transform-origin:0 0;
     } */
-
-    #view-user-details-container {
-        display: flex;
-        align-items: flex-start;
-        margin-top: 20px;
-        flex-direction: column;
-    }
-
-    #view-user-main { margin-top: 15px; }
-
-    #view-user-main, #view-user-details {
-        width: 100%;
-        flex-grow: 0;
-        margin-right: 0;
-    }
+    
+    #view-user-details-container, #listing-settings { margin-top: 0; }
 
     #view-user-header {
         align-items: center;
@@ -324,6 +299,16 @@
         }
     }
 
+    #view-user-footer {
+        #view-user-stats {
+            width: 100%;
+            display: flex;
+            align-items: center;
+
+            .mr-5 { margin-right: 30px !important; }
+        }
+    }
+
     #view-user-listing-info {
         flex-direction: column;
     }
@@ -339,55 +324,16 @@
         .submit-review { padding: 0; }
     }
 
-    .user-review-container {
-        flex-direction: column;
-        margin: 0 auto 0 auto;
-        width: 90%;
-        margin-bottom: 30px;
-        padding: 15px;
-    }
-
-    .user-review { width: 100%; }
-    
-    .user-review-profile-pic {
-        width: 100%;
-        text-align: center;
-        display: flex;
-        align-items: center;
-        margin-right: 0px;
-
-        .profile-pic {
-            width: 25%;
-            margin-right: 15px;
-        }
-    }
-
-    .user-review-header, .user-review-header-info {
-        flex-direction: column;
-        align-items: flex-end;
-    }
-
-    .user-review-badge, .user-review-rating { margin-right: 0; }
-
-    .user-review-separator {
-        margin: 0 auto 30px auto;
-        width: 90%;
-    }
-
-    .user-review-buttons { align-self: flex-end; }
-
-    .user-reviews-placeholder-column { display: none; }
-
     #user-reviews-wrapper {
         > .mt-3 { margin-top: 0 !important; }
     }
 
-    #search-listings {
+    #search {
         position: absolute;
         z-index: 2;
     }
 
-    #search-listings-field-container {
+    #search-field-container {
         max-height: calc(100vh - 90px);
 
         .d-flex-between-center, .d-flex-between-start { flex-direction: column; }
@@ -397,7 +343,7 @@
             margin-bottom: 30px;
         }
 
-        #search-listings-field-wrapper {
+        #search-field-wrapper {
             max-height: calc(100vh - 90px);
             overflow-y: scroll;
         }
@@ -405,33 +351,6 @@
 
     #listings { margin-top: 50px; }
 
-    .listing-row-profile-pic { display: none; }
-
-    .listing-row-title, .listing-row-detail-child {
-        width: 100%;
-        padding: 5px 10px;
-    }
-
-    .listing-row-main, {
-        flex-wrap: wrap;
-        justify-content: space-between;
-    }
-
-    .listing-row-title { order: 1; }
-    .listing-row-purpose { order: 2; }
-    .listing-row-rating { order: 3; }
-
-    .listing-row-detail { flex-direction: column; }
-
-    .listing-row-detail-child {
-        border-right: 0;
-
-        &:not(:first-child) { border-top: 1px solid $theme-highlight; }
-    }
-
-    .listing-row-buttons { display: none; }
-
-    
     #notification-panel {
         position: absolute;
         top: auto;
@@ -447,23 +366,5 @@
     .activity-timestamp {
         text-align: right;
         margin-top: 5px;
-    }
-}
-
-@media only screen and (min-width: 321px) and (max-width: 375px) {
-    #g-recaptcha {
-        transform:scale(0.86);
-        -webkit-transform:scale(0.86);
-        transform-origin:0 0;
-        -webkit-transform-origin:0 0;
-    }
-}
-
-@media only screen and (min-width: 0px) and (max-width: 320px) {
-    #g-recaptcha {
-        transform:scale(0.75);
-        -webkit-transform:scale(0.75);
-        transform-origin:0 0;
-        -webkit-transform-origin:0 0;
     }
 }

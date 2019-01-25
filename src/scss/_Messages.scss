@@ -8,7 +8,7 @@
     margin-bottom: 30px;
     position: relative;
 
-    #close-message-column-button {
+    .close-message-column-button {
         display: none;
     }
 }
@@ -23,8 +23,11 @@
     #message-list-main-column {
         padding: 20px;
         width: 100%;
+
     }
 }
+
+#message-list-toggle-up-down { display: none; }
 
 #message-column {
     padding: 20px;

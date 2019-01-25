@@ -17,7 +17,7 @@ import CheckoutConfirmation from './components/utils/CheckoutConfirmation';
 import fetch from 'axios';
 import { LogError } from './components/utils/LogError';
 import { Alert as Alerts } from 'reactstrap';
-import { isMobile } from './actions/ConfigActions';
+import { isMobile, isTyping } from './actions/ConfigActions';
 import { ToggleMenu } from './actions/MenuActions';
 
 class App extends Component {
@@ -33,6 +33,7 @@ class App extends Component {
 
 	componentDidUpdate(prevProps, prevState) {
 		if (this.props.location.key !== prevProps.location.key) {
+			this.props.dispatch(isTyping(false));
 			this.props.dispatch(GetUserNotificationAndMessageCount());
 
 			fetch.post('/api/get/announcements')
@@ -209,7 +210,7 @@ class App extends Component {
 					{confirmation}
 	
 					<Switch>
-						<Route exact path='/' render={() => <Pages.Login user={this.props.user} />} />
+						<Route exact path='/' render={() => <Pages.Dashboard user={this.props.user}><Pages.Login user={this.props.user} /></Pages.Dashboard>} />
 	
 						<Route exact path='/dashboard/edit' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
 	
@@ -229,6 +230,13 @@ class App extends Component {
 						<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Subscribed!'} message={`Thank you for subscribing to M-ploy. We hope you'll enjoy our service.`}><div><NavLink to='/settings/listing'>Start listing now</NavLink></div></Pages.Response>} />
 						<Route exact path='/registration/success' render={() => <Pages.Response code={200} header={'Registration Success!'} message='An confirmation email has been sent. Please click the link provided to activate your account' />} />
 						<Route exact path='/subscription/cancelled' render={() => <Pages.Response code={200} header={'Unsubscribed!'} message={'We hate to see you go. Please take a moment and give M-ploy a rating.'}><div className='d-flex-center-center'><ReviewMploy /></div></Pages.Response>} />
+
+						<Route exact path='/admin-panel' render={() => <Admin.Admin><Admin.AdminOverview user={this.props.user} /></Admin.Admin>} />
+						<Route exact path='/admin-panel/sectors' render={() => <Admin.Admin><Admin.AdminSectors user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />
+						<Route exact path='/admin-panel/users' render={() => <Admin.Admin><Admin.AdminUsers user={this.props.user} /></Admin.Admin>} />
+						<Route exact path='/admin-panel/listings' render={() => <Admin.Admin><Admin.AdminListings user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />
+						<Route exact path='/admin-panel/reports' render={() => <Admin.Admin><Admin.AdminReports user={this.props.user} /></Admin.Admin>} />
+						<Route exact path='/admin-panel/config' render={() => <Admin.Admin><Admin.AdminConfig user={this.props.user} /></Admin.Admin>} />
 	
 						<Route exact path='/error/:code' render={() => <Pages.Response />} />
 	

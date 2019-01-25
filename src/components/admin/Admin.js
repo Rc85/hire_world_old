@@ -6,6 +6,11 @@ import { connect } from 'react-redux';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
 import { LogError } from '../utils/LogError';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUsersCog, faExclamationTriangle, faCogs, faTable } from '@fortawesome/free-solid-svg-icons';
+import { faListAlt } from '@fortawesome/free-regular-svg-icons';
+import SideBar from '../includes/site/SideBar';
+import BottomBar from '../includes/site/BottomBar';
 
 class Admin extends Component {
     constructor(props) {
@@ -56,19 +61,22 @@ class Admin extends Component {
             return <Response code={403} header={'Unauthorized Access'} message={this.state.statusMessage} />;
         }
 
-        return(
-            <section id='admin' className='main-panel w-100'>
-                <TabBar items={[
-                    {name: 'Overview', active: this.props.location.pathname === '/admin-panel' ? true : false, link: '/admin-panel'},
-                    {name: 'Sectors', active: this.props.location.pathname === '/admin-panel/sectors' ? true : false, link: '/admin-panel/sectors'},
-                    {name: 'Users', active: this.props.location.pathname === '/admin-panel/users' ? true : false, link: '/admin-panel/users'},
-                    {name: 'Listings', active: this.props.location.pathname === '/admin-panel/listings' ? true : false, link: '/admin-panel/listings'},
-                    {name: 'Reports', active: this.props.location.pathname === '/admin-panel/reports' ? true : false, link: '/admin-panel/reports'},
-                    {name: 'Site Config', active: this.props.location.pathname === '/admin-panel/config' ? true : false, link: '/admin-panel/config'},
-                    /* {name: 'Error Log', active: this.props.location.pathname === '/admin-panel/error' ? true : false, link: '/admin-panel/error'}, */
-                ]} />
+        let items = [
+            {name: 'Overview', link: '/admin-panel', active: /^\/admin-panel$/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faTable} />},
+            {name: 'Users', link: '/admin-panel/users', active: /^\/admin-panel\/users/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faUsersCog} />},
+            {name: 'Sectors', link: '/admin-panel/sectors', active: /^\/admin-panel\/sectors/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faListAlt} />},
+            {name: 'Reports', link: '/admin-panel/reports', active: /^\/admin-panel\/reports/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faExclamationTriangle} />},
+            {name: 'Site Configs', link: '/admin-panel/configs', active: /^\/admin-panel\/configs/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCogs} />}
+        ];
 
-                {this.props.children}
+        return(
+            <section id='dashboard'>
+                {!this.props.config.isMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
+
+                <div id='dashboard-main'>
+                    {this.props.location.pathname.match(/^\/dashboard/) ? <div id='main-panel-bg'></div> : ''}
+                    {this.props.children}
+                </div>
             </section>
         )
     }
@@ -76,7 +84,8 @@ class Admin extends Component {
 
 const mapStateToProps = state => {
     return {
-        user: state.Login.user
+        user: state.Login,
+        config: state.Config
     }
 }
 

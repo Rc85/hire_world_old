@@ -1,16 +1,16 @@
-#search-listings {
+#search {
     width: 100%;
     position: relative;
 }
 
-#search-listings-field-container {
+#search-field-container {
     background-color: $theme-blue;
     max-height: 75vh;
     transition: max-height 0.1s ease-in-out;
     overflow: hidden;
     border-bottom: 1px solid black;
     
-    #search-listings-field-wrapper {
+    #search-field-wrapper {
         height: 100%;
         padding: 20px; 
     }
@@ -18,7 +18,7 @@
     &.hide { max-height: 0; }
 }
 
-#search-listings-toggler {
+#search-toggler {
     background-color: $theme-blue;
     height: 43px;
     display: flex;

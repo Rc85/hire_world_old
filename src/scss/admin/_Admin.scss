@@ -2,3 +2,20 @@
 @import 'AdminSectorsList';
 @import 'AdminConfig';
 @import 'AdminReports';
+@import 'AdminOverview';
+
+.admin-panel-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.admin-panel-counter-row {
+    border-bottom: 1px dotted $theme-medgrey;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 5px;
+}

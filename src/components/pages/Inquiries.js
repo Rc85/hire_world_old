@@ -11,7 +11,7 @@ import MessageDetails from '../pages/MessageDetails';
 import { GetUserNotificationAndMessageCount } from '../../actions/FetchActions';
 import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faChevronLeft, faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
 class Inquiries extends Component {
     constructor(props) {
@@ -260,6 +260,7 @@ class Inquiries extends Component {
                 <section id='inquiries'>
                     {status}
 
+                    <div id='message-list-toggle-up-down'><FontAwesomeIcon icon={this.state.showMessageList ? faChevronUp : faChevronDown} size='3x' onClick={() => this.toggleMessageList(!this.state.showMessageList)} /></div>
                     <div id='message-list-column' className={this.state.showMessageList ? '' : 'hide'}>
                         <div id='message-list-main-column'>
                             <div className='message-filter-buttons-container'>
@@ -267,13 +268,13 @@ class Inquiries extends Component {
                                 <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received'})}>Received</button>
                                 <button className={`btn ${this.state.showing === 'sent' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'sent'})}>Sent</button>
                                 <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned'})}>Pinned</button>
-                                <button id='close-message-column-button' className='btn btn-light' onClick={() => this.toggleMessageList(false)}><FontAwesomeIcon icon={faChevronLeft} /></button>
+                                <button className='close-message-column-button btn btn-light' onClick={() => this.toggleMessageList(false)}><FontAwesomeIcon icon={faChevronLeft} /></button>
                             </div>
                             
                             {body}
 
                             <div className='message-filter-buttons-container mt-3'>
-                                <button id='close-message-column-button' className='btn btn-light' onClick={() => this.toggleMessageList(false)}><FontAwesomeIcon icon={faChevronLeft} /></button>
+                                <button className='close-message-column-button btn btn-light' onClick={() => this.toggleMessageList(false)}><FontAwesomeIcon icon={faChevronLeft} /></button>
                             </div>
                         </div>
 

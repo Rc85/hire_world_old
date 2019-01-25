@@ -17,6 +17,9 @@
         justify-content: space-between;
         background: linear-gradient(45deg, $theme-lightblack, $not-black);
         padding: 10px 20px;
+        position: absolute;
+        width: 100%;
+        height: 55px;
 
         #bottombar-toggle-button { margin-left: auto; }
 
@@ -36,7 +39,6 @@
         }
     }
 
-    &.expand { height: 100%; }
     &.hide { display: none; }
 }
 
@@ -47,12 +49,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     position: relative;
     overflow-y: scroll;
     transition: height 0.05s ease-in-out;
+    padding-bottom: 55px;
 
-    &.expand { height: calc(100vh - 55px); }
+    &.expand { height: 100vh; }
 
     .bottombar-item-icon { margin-right: 15px; }
 
@@ -72,7 +74,6 @@
         padding: 10px 20px 0px 20px;
 
         &.hide { opacity: 0; }
-        &.expand { height: 100%; }
     }
 
     .bottombar-item-wrapper {
@@ -97,19 +98,19 @@
 
     #bottombar-sectors-container {
         position: absolute;
-        top: 0;
-        left: 100%;
         z-index: 1;
         background: linear-gradient(45deg, $theme-lightblack, $not-black);
         background-color: black;
-        width: 100vw;
-        height: 100%;
-        transition: left 0.1s ease-in-out;
+        transform: scaleX(0);
+        transform-origin: right;
+        height: calc(100% - 55px);
+        width: 100%;
+        transition: transform 0.1s ease-in-out;
         overflow-y: scroll;
         font-size: 2rem;
-        padding: 10px 20px 0px 20px;
+        padding: 10px 20px 0 20px;
 
-        &.show { left: 0; }
+        &.show { transform: scaleX(1); }
 
         #bottombar-sectors-close-button { margin: 0 20px 0 0; }
     }

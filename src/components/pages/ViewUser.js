@@ -225,7 +225,7 @@ class ViewUser extends Component {
                             <hr/>
                             
                             <div id='view-user-footer'>
-                                <div className='d-flex-center'>
+                                <div id='view-user-stats'>
                                     <div className='mr-5'>
                                         <Tooltip text='Job completed' placement='bottom'>
                                             <FontAwesomeIcon icon={faCheckCircle} className='text-success mr-2' />

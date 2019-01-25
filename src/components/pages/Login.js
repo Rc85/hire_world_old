@@ -15,9 +15,11 @@ class Login extends Component {
         } else if (this.props.user.status === 'error') {
             return(
                 <section id='login'>
-                    <TitledContainer title='Login' icon={<FontAwesomeIcon icon={faSignInAlt} />}>
-                        <LoginPanel />
-                    </TitledContainer>
+                    <div>
+                        <TitledContainer title='Login' icon={<FontAwesomeIcon icon={faSignInAlt} />}>
+                            <LoginPanel />
+                        </TitledContainer>
+                    </div>
                 </section>
             )
         }

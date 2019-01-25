@@ -67,11 +67,11 @@ class SearchListing extends Component {
     render() {
         return (
             <React.Fragment>
-                <div id='search-listings'>
-                    <div id='search-listings-toggler' onClick={() => this.toggleSearch()}><FontAwesomeIcon icon={this.state.show ? faChevronUp : faChevronDown} size='2x' className='mr-1' /> <h4>Filter</h4></div>
+                <div id='search-container'>
+                    <div id='search-toggler' onClick={() => this.toggleSearch()}><FontAwesomeIcon icon={this.state.show ? faChevronUp : faChevronDown} size='2x' className='mr-1' /> <h4>Filter</h4></div>
 
-                    <div id='search-listings-field-container' className={!this.state.show ? 'hide' : ''}>
-                        <div id='search-listings-field-wrapper'>
+                    <div id='search-field-container' className={!this.state.show ? 'hide' : ''}>
+                        <div id='search-field-wrapper'>
                             <div className='d-flex-between-start mb-3'>
                                 <div className='w-25'>
                                     <InputWrapper label='Profession Title'>
@@ -165,7 +165,6 @@ class SearchListing extends Component {
                     </div>
                 </div>
             </React.Fragment>
-            
         );
     }
 }

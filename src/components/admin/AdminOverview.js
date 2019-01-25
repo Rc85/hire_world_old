@@ -46,31 +46,31 @@ class AdminOverview extends Component {
         }
 
         let userStats = [
-            <div key='active' className='d-flex-between-center'><strong>Active Users:</strong> {this.state.activeUsers && this.state.activeUsers.active_users}</div>,
-            <div key='banned' className='d-flex-between-center'><strong>Permanently Banned Users:</strong> {this.state.bannedUsers && this.state.bannedUsers.banned_users}</div>,
-            <div key='pending' className='d-flex-between-center'><strong>Pending Users:</strong> {this.state.pendingUsers && this.state.pendingUsers.pending_users}</div>,
-            <div key='suspended' className='d-flex-between-center'><strong>Temporary Banned Users:</strong> {this.state.suspendedUsers && this.state.suspendedUsers.suspended_users}</div>,
+            <div key='active' className='admin-container-counter-row'><strong>Active Users:</strong> {this.state.activeUsers && this.state.activeUsers.active_users}</div>,
+            <div key='banned' className='admin-container-counter-row'><strong>Permanently Banned Users:</strong> {this.state.bannedUsers && this.state.bannedUsers.banned_users}</div>,
+            <div key='pending' className='admin-container-counter-row'><strong>Pending Users:</strong> {this.state.pendingUsers && this.state.pendingUsers.pending_users}</div>,
+            <div key='suspended' className='admin-container-counter-row'><strong>Temporary Banned Users:</strong> {this.state.suspendedUsers && this.state.suspendedUsers.suspended_users}</div>,
             <hr key='separator-1' />,
-            <div key='subscribed' className='d-flex-between-center'><strong>Subscribed Users:</strong> {this.state.subscribedUsers && this.state.subscribedUsers.subscribed_users}</div>,
-            <div key='unsubscribed' className='d-flex-between-center'><strong>Non-subscribed Users:</strong> {this.state.normalUsers && this.state.normalUsers.normal_users}</div>,
+            <div key='subscribed' className='admin-container-counter-row'><strong>Subscribed Users:</strong> {this.state.subscribedUsers && this.state.subscribedUsers.subscribed_users}</div>,
+            <div key='unsubscribed' className='admin-container-counter-row'><strong>Non-subscribed Users:</strong> {this.state.normalUsers && this.state.normalUsers.normal_users}</div>,
             <hr key='separator-2' />,
-            <div key='total-users' className='d-flex-between-center'><strong>Total Users:</strong> {this.state.userCount && this.state.userCount.user_count}</div>
+            <div key='total-users' className='admin-container-counter-row'><strong>Total Users:</strong> {this.state.userCount && this.state.userCount.user_count}</div>
         ];
 
         let jobStats = [
-            <div key='abandoned' className='d-flex-between-center'><strong>Abandoned Jobs:</strong> {this.state.abandonedJobs && this.state.abandonedJobs.abandoned_jobs}</div>,
-            <div key='active-jobs' className='d-flex-between-center'><strong>Active Jobs:</strong> {this.state.activeJobs && this.state.activeJobs.active_jobs}</div>,
-            <div key='completed' className='d-flex-between-center'><strong>Completed Jobs:</strong> {this.state.completedJobs && this.state.completedJobs.completed_jobs}</div>,
-            <div key='incomplete' className='d-flex-between-center'><strong>Incomplete Jobs:</strong> {this.state.incompleteJobs && this.state.incompleteJobs.incomplete_jobs}</div>,
+            <div key='abandoned' className='admin-container-counter-row'><strong>Abandoned Jobs:</strong> {this.state.abandonedJobs && this.state.abandonedJobs.abandoned_jobs}</div>,
+            <div key='active-jobs' className='admin-container-counter-row'><strong>Active Jobs:</strong> {this.state.activeJobs && this.state.activeJobs.active_jobs}</div>,
+            <div key='completed' className='admin-container-counter-row'><strong>Completed Jobs:</strong> {this.state.completedJobs && this.state.completedJobs.completed_jobs}</div>,
+            <div key='incomplete' className='admin-container-counter-row'><strong>Incomplete Jobs:</strong> {this.state.incompleteJobs && this.state.incompleteJobs.incomplete_jobs}</div>,
             <hr key='separator' />,
-            <div key='total-jobs' className='d-flex-between-center'><strong>Total Jobs:</strong> {this.state.totalJobs && this.state.totalJobs.total_jobs}</div>,
+            <div key='total-jobs' className='admin-container-counter-row'><strong>Total Jobs:</strong> {this.state.totalJobs && this.state.totalJobs.total_jobs}</div>,
         ];
 
         let listingStats = [
-            <div key='active-listings' className='d-flex-between-center'><strong>Active Listings:</strong> {this.state.activeListings && this.state.activeListings.active_listings}</div>,
-            <div key='inactive-listings' className='d-flex-between-center'><strong>Inactive Listings:</strong> {this.state.inactiveListings && this.state.inactiveListings.inactive_listings}</div>,
+            <div key='active-listings' className='admin-container-counter-row'><strong>Active Listings:</strong> {this.state.activeListings && this.state.activeListings.active_listings}</div>,
+            <div key='inactive-listings' className='admin-container-counter-row'><strong>Inactive Listings:</strong> {this.state.inactiveListings && this.state.inactiveListings.inactive_listings}</div>,
             <hr key='separator' />,
-            <div key='total-listings' className='d-flex-between-center'><strong>Total Listings:</strong> {this.state.totalListings && this.state.totalListings.total_listings}</div>,
+            <div key='total-listings' className='admin-container-counter-row'><strong>Total Listings:</strong> {this.state.totalListings && this.state.totalListings.total_listings}</div>,
         ];
 
         let listingPerSector = this.state.listingPerSector.map((l, i) => {
@@ -84,34 +84,30 @@ class AdminOverview extends Component {
                 badgeClass = 'danger';
             }
 
-            return <div key={i} className='d-flex-between-center w-30 border-bottom border-secondary mb-2'><span>{l.sector}</span> <span>{l.listing_count ? l.listing_count : 0}</span></div>
+            return <div key={i} className='admin-panel-counter-row w-30'><span><span className={`mini-badge mini-badge-${badgeClass} mr-1`}>{l.sector_status}</span>{l.sector}</span> <span>{l.listing_count ? l.listing_count : 0}</span></div>
         });
 
         return(
-            <div className='blue-panel shallow three-rounded'>
+            <div className='main-panel'>
                 {status}
 
-                <div className='d-flex-between-start mb-3'>
+                <div className='admin-panel-container mt-5 mb-5'>
                     <div className='w-30'>
-                        <TitledContainer content={userStats} title='Users' />
+                        <TitledContainer title='Users'>{userStats}</TitledContainer>
                     </div>
 
                     <div className='w-30'>
-                        <TitledContainer content={jobStats} title='Jobs' />
+                        <TitledContainer title='Jobs'>{jobStats}</TitledContainer>
                     </div>
 
                     <div className='w-30'>
-                        <TitledContainer content={listingStats} title='Listings' />
+                        <TitledContainer title='Listings'>{listingStats}</TitledContainer>
                     </div>
                 </div>
 
-                <hr/>
-
-                <h4>Listings By Sectors</h4>
-
-                <div className='d-flex-between-start flex-wrap'>
-                    {listingPerSector}
-                </div>
+                <TitledContainer title='Listings By Sectors'>
+                    <div className='admin-panel-container'>{listingPerSector}</div>
+                </TitledContainer>
             </div>
         )
     }

@@ -30,11 +30,11 @@ class LoginPanel extends Component {
             <div id='login-panel'>
                 <form onSubmit={(e) => this.handleLogin(e)}>
                     <InputWrapper label='Username' className='mb-3'>
-                        <input type='text' onChange={(e) => this.setState({username: e.target.value})} maxLength='15' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                        <input type='text' onChange={(e) => this.setState({username: e.target.value})} maxLength='15' />
                     </InputWrapper>
 
                     <InputWrapper label='Password' className='mb-1'>
-                        <input type='password' onChange={(e) => this.setState({password: e.target.value})} minLength='6' maxLength='20' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                        <input type='password' onChange={(e) => this.setState({password: e.target.value})} minLength='6' maxLength='20' />
                     </InputWrapper>
 
                     <div className='mb-3'>Forgot Password</div>

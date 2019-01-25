@@ -45,7 +45,11 @@
 @import 'Settings';
 @import 'ViewUser';
 @import 'ViewUserReview';
-@import 'mobile';
+@import 'mobile/1024px';
+@import 'mobile/768px';
+@import 'mobile/414px';
+@import 'mobile/375px';
+@import 'mobile/320px';
 
 @font-face {
     font-family: 'Montserrat';
@@ -69,6 +73,7 @@ body {
     display: flex;
     overflow-x: hidden;
     line-height: 1.25;
+    width: 100%;
 }
 
 a {
@@ -148,15 +153,28 @@ input { padding: 5px; }
 
 *, *::before, *::after { box-sizing: border-box; }
 
-@media only screen and (max-width: 414px) {
+@media only screen and (max-width: 1024px) {
     body {
-        padding-bottom: 55px;
+        padding-bottom: 50px;
     }
+}
 
+@media only screen and (max-width: 414px) {
     h1 { font-size: 1.5rem; }
     h2 { font-size: 1.4rem; }
     h3 { font-size: 1.3rem; }
     h4 { font-size: 1.2rem; }
     h5 { font-size: 1.1rem; }
     h6 { font-size: 1rem; }
+}
+
+@media only screen and (max-width: 320px) {
+    body { font-size: 0.8rem; }
+    
+    h1 { font-size: 1.3rem; }
+    h2 { font-size: 1.2rem; }
+    h3 { font-size: 1.1rem; }
+    h4 { font-size: 1rem; }
+    h5 { font-size: 0.9rem; }
+    h6 { font-size: 0.8rem; }
 }

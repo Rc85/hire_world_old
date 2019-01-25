@@ -13,5 +13,5 @@ module.exports = {
     phoneCheck: /^(\+1)?(\s)?([0-9]{1,15}|(\()?[0-9]{3}(\))?(\s|\-)?([0-9]{7,12}|[0-9]{3}(\s|\-)?[0-9]{4,9}))$/,
     locationCheck: /^[a-zA-Z0-9À-ž,'().\-\s]*$/,
     urlCheck: /^(http:\/\/|https:\/\/)?(www\.)?[a-zA-Z0-9\-]*.[a-zA-Z]{0,5}([a-zA-Z0-9\-\/]*)/,
-    userTitleCheck: /^[a-zA-Z0-9À-ž,'().\-\s]{3,25}$/
+    userTitleCheck: /^[a-zA-Z0-9À-ž,'().\-\s]{3,30}$/
 }

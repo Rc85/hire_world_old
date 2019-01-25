@@ -99,29 +99,32 @@ class AdminUsers extends Component {
         }
 
         return (
-            <div className='blue-panel shallow three-rounded'>
-                {status}
+            <React.Fragment>
                 <AdminSearchUsers filter={(data) => this.filterUsers(data)} currentState={{username: this.state.username, status: this.state.userStatus, level: this.state.level, type: this.state.type}} />
-
-                <div className='mb-3'><Pagination totalItems={this.state.totalUsers} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} /></div>
-
-                <div className='d-flex-between-center'>
-                    <div className='w-30'><strong>Username</strong></div>
-                    <div className='w-15'><strong>Status</strong></div>
-                    <div className='w-15'><strong>Level</strong></div>
-                    <div className='w-15'><strong>Account Type</strong></div>
-                    <div className='w-20'><strong>Last Login</strong></div>
-                    <div className='w-5'></div>
-                </div>
-
-                <hr/>
-
-                {users}
                 
-                <hr/>
-
-                <Pagination totalItems={this.state.totalUsers} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
-            </div>
+                <div className='main-panel'>
+                    {status}
+    
+                    <div className='mb-3'><Pagination totalItems={this.state.totalUsers} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} /></div>
+    
+                    <div className='d-flex-between-center'>
+                        <div className='w-30'><strong>Username</strong></div>
+                        <div className='w-15'><strong>Status</strong></div>
+                        <div className='w-15'><strong>Level</strong></div>
+                        <div className='w-15'><strong>Account Type</strong></div>
+                        <div className='w-20'><strong>Last Login</strong></div>
+                        <div className='w-5'></div>
+                    </div>
+    
+                    <hr/>
+    
+                    {users}
+                    
+                    <hr/>
+    
+                    <Pagination totalItems={this.state.totalUsers} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
+                </div>
+            </React.Fragment>
         );
     }
 }

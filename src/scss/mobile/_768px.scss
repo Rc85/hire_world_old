@@ -1,0 +1,10 @@
+@media only screen and (max-width: 768px) {
+    #view-user-title {
+        h3, #view-user-rating { text-align: center; }
+    }
+
+    #view-user-main {
+        flex-grow: 0;
+        margin-right: 15px;
+    }
+}

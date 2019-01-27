@@ -44,6 +44,7 @@
 .bg-success { background-color: $success; }
 .bg-yellow { background-color: $theme-yellow; }
 .bg-primary { background-color: $primary; }
+.bg-lightblue { background-color: $theme-lightblue; }
 
 .text-special { color: $theme-special !important;  }
 .text-black { color: black !important; }
@@ -114,7 +115,7 @@
     width: 100%;
 }
 
-#m-ploy-logo {
+#hireworld-logo {
     margin: 30px auto;
     cursor: pointer;
 }
@@ -125,7 +126,7 @@
     white-space: pre-line;
 }
 
-#review-mploy {
+#review-hireworld {
     display: flex;
     align-items: center;
     flex-direction: column;

@@ -5,6 +5,11 @@
 @import './utils/flex';
 @import './utils/margins-paddings';
 @import './admin/Admin.scss';
+@import 'TitledContainer';
+@import 'InputGroup';
+@import 'InputText';
+@import 'TextArea';
+@import 'Tooltip';
 @import 'Alert';
 @import 'App';
 @import 'Badge';
@@ -14,8 +19,7 @@
 @import 'Confirmation';
 @import 'Dashboard';
 @import 'Footer';
-@import 'InputGroup';
-@import 'InputText';
+@import 'FriendsList';
 @import 'Loading';
 @import 'Login';
 @import 'Main';
@@ -35,9 +39,6 @@
 @import 'SlideToggle';
 @import 'SubmitReview';
 @import 'TabBar';
-@import 'TextArea';
-@import 'TitledContainer';
-@import 'Tooltip';
 @import 'TwoSidedCheckbox';
 @import 'UserDetails';
 @import 'UserInfo';

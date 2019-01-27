@@ -92,10 +92,12 @@ app.post('/api/get/user', async(req, resp) => {
                         WHERE username = $1
                         LIMIT 1;`, [req.body.username]);
 
+                        let isFriend = await client.query(`SELECT * FROM friends WHERE friend_user_1 = $1 AND friend_user_2 = $2`, [req.session.user.username, req.body.username]);
+
                         await client.query(`INSERT INTO user_view_count (viewing_user, view_count) VALUES ($1, $2) ON CONFLICT (viewing_user) DO UPDATE SET view_count = user_view_count.view_count + 1`, [req.body.username, 1]);
 
                         await client.query('COMMIT')
-                        .then(() =>  resp.send({status: 'success', user: user.rows[0], reviews: reviews.rows, stats: stats.rows[0], hours: businessHours, reports: reportedReviews, userReported: userIsReported}));
+                        .then(() =>  resp.send({status: 'success', user: user.rows[0], reviews: reviews.rows, stats: stats.rows[0], hours: businessHours, reports: reportedReviews, userReported: userIsReported, isFriend: isFriend.rows.length === 1 ? true : false}));
                     }
                 } else {
                     let error = new Error(`That user is not listed`);
@@ -293,5 +295,34 @@ app.post('/api/get/user/activities', (req, resp) => {
     }
 });
 
+app.post('/api/user/get/friends', async(req, resp) => {
+    if (req.session.user) {
+        await db.query(`SELECT friends.*, users.user_email, users.user_last_login, user_profiles.*, user_settings.hide_email, user_listings.listing_status FROM friends
+        LEFT JOIN users ON friends.friend_user_2 = users.username
+        LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+        LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
+        LEFT JOIN user_listings ON friends.friend_user_2 = user_listings.listing_user
+        WHERE friend_user_1 = $1`, [req.session.user.username])
+        .then(result => {
+            if (result) {
+                for (let friend of result.rows) {
+                    if (friend.hide_email) {
+                        delete friend.user_email;
+                    }
+
+                    delete friend.hide_email;
+                }
+
+                resp.send({status: 'success', friends: result.rows});
+            } else {
+                resp.send({status: 'error', statusMessage: 'Failed to retrieve friends list'});
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            resp.send({status: 'error', statusMessage: 'An error occurred'});
+        });
+    }
+});
 
 module.exports = app;

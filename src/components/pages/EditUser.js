@@ -196,6 +196,8 @@ class EditUser extends Component {
                     type = 'badge-lime';
                 } else if (a.activity_type === 'Subscription') {
                     type = 'badge-pink';
+                } else if (a.activity_type === 'Job') {
+                    type = 'badge-lightblue';
                 }
 
                 return <div key={i} className='titled-container-row'>

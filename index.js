@@ -51,7 +51,7 @@ app.use(/^\/app\/(?!admin-panel).*/, async(req, resp, next) => {
     if (status.rows[0].config_status === 'Active') {
         next();
     } else {
-        resp.render('offline', {header: 'Site Offline', message: 'M-ploy has been brought down for maintenance, please check back later'});
+        resp.render('offline', {header: 'Site Offline', message: 'Hire World has been brought down for maintenance, please check back later'});
     }
 });
 
@@ -128,7 +128,7 @@ app.get('/activate-account', async(req, resp) => {
     let user = await db.query(`SELECT * FROM users WHERE registration_key = $1 AND reg_key_expire_date > current_timestamp`, [registrationKey])
 
     if (user && user.rows.length === 1) {
-        let decrypted = cryptoJS.AES.decrypt(registrationKey, 'registering for m-ploy');
+        let decrypted = cryptoJS.AES.decrypt(registrationKey, 'registering for hireworld');
 
         if (decrypted.toString(cryptoJS.enc.Utf8) === user.rows[0].user_email) {
             await db.query(`UPDATE users SET user_status = 'Active' WHERE user_id = $1`, [user.rows[0].user_id]);
@@ -149,7 +149,7 @@ app.post('/resend', async(req, resp) => {
     let user = await db.query(`SELECT * FROM users WHERE user_email = $1`, [req.body.email]);
 
     if (user && user.rows.length === 1) {
-        let encrypted = cryptoJS.AES.encrypt(req.body.email, 'registering for m-ploy');
+        let encrypted = cryptoJS.AES.encrypt(req.body.email, 'registering for hireworld');
         let regKeyString = encrypted.toString();
         let registrationKey = encodeURIComponent(regKeyString);
 
@@ -157,8 +157,8 @@ app.post('/resend', async(req, resp) => {
 
         let message = {
             to: req.body.email,
-            from: 'admin@m-ploy.ca',
-            subject: 'Welcome to Mploy',
+            from: 'admin@hireworld.ca',
+            subject: 'Welcome to Hire World',
             templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
             dynamicTemplateData: {
                 url: process.env.NODE_ENV === 'development' ? `${process.env.DEV_SITE_URL}` : `${process.env.SITE_URL}`,
@@ -205,7 +205,7 @@ app.get('/contact', (req, resp) => {
 
 app.post('/contact-form', (req, resp) => {
     let message = {
-        to: 'admin@m-ploy.ca',
+        to: 'admin@hireworld.ca',
         from: `${req.body.name} <${req.body.email}>`,
         subject: req.body.subject,
         text: req.body.message,

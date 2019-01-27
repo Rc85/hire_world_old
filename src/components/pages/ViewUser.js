@@ -48,7 +48,7 @@ class ViewUser extends Component {
             fetch.post('/api/get/user', {username: this.props.match.params.username})
             .then(resp => {
                 if (resp.data.status === 'success') {
-                    this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported});
+                    this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported, isFriend: resp.data.isFriend});
                 } else if (resp.data.status === 'error') {
                     this.setState({status: ''});
                     this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -66,7 +66,7 @@ class ViewUser extends Component {
         fetch.post('/api/get/user', {username: this.props.match.params.username})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported});
+                this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported, isFriend: resp.data.isFriend});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -142,6 +142,29 @@ class ViewUser extends Component {
         .catch(err => LogError(err, '/api/message/submit'));
     }
 
+    friendUser(action) {
+        this.setState({status: 'Adding'});
+
+        fetch.post('/api/user/friend', {user: this.state.user.username, action: action})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                let isFriend;
+
+                if (action === 'add') {
+                    isFriend = true;
+                } else if (action === 'remove') {
+                    isFriend = false;
+                }
+
+                this.setState({status: '', isFriend: isFriend});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        });
+    }
+
     render() {
         let status, contacts, profile, reviews, submitReviewButton, reviewed, reportButton, message, friendIcon, businessHours;
 
@@ -191,9 +214,9 @@ class ViewUser extends Component {
 
             if (this.props.user && this.props.user.username !== this.state.user.username) {
                 if (!this.state.isFriend) {
-                    friendIcon = <Tooltip text='Add to Friend' placement='bottom-right'><FontAwesomeIcon icon={faUserPlus} className='text-alt-highlight' /></Tooltip>;
+                    friendIcon = <Tooltip text='Add to Friends List' placement='bottom-right'><FontAwesomeIcon icon={faUserPlus} className='text-alt-highlight' onClick={() => this.friendUser('add')} /></Tooltip>;
                 } else {
-                    friendIcon = <Tooltip text='Remove from Friends' placement='bottom-right'><FontAwesomeIcon icon={faUserMinus} className='text-secondary' /></Tooltip>
+                    friendIcon = <Tooltip text='Remove from Friends List' placement='bottom-right'><FontAwesomeIcon icon={faUserMinus} className='text-alt-highlight' onClick={() => this.friendUser('remove')} /></Tooltip>
                 }
                 
                 if (!this.state.userReported) {

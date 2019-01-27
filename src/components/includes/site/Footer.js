@@ -11,7 +11,7 @@ const Footer = props => {
                     <div><a href='/contact'>Contact Us</a></div>
                 </div>
     
-                <div className='text-center'>Copyright © 2019 M-ploy. All rights reserved.</div>
+                <div className='text-center'>Copyright © 2019 Hire World. All rights reserved.</div>
             </section>
         </footer>
     )

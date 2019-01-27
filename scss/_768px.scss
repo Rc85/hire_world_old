@@ -59,28 +59,4 @@
         width: 100%;
         margin-bottom: 30px;
     }
-
-    #overview-splash {
-        flex-direction: column;
-
-        #overview-diagram, #overview-text-container {
-            width: 100%;
-    
-            img {
-                width: 100%;
-                margin-bottom: 30px;
-            }
-        }
-
-        .overview-text { text-align: center; }
-    }
-
-    #browse-menu {
-        width: 100vw;
-        font-size: 1.25rem;
-        height: calc(100vh - 100px);
-        overflow-y: auto;
-        
-        .sector-link { font-weight: normal; }
-    }
 }

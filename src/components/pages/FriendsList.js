@@ -4,163 +4,79 @@ import Loading from '../utils/Loading';
 import fetch from 'axios';
 import ListingRow from '../includes/page/ListingRow';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faUserFriends, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
 import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';
 import { unsaveListing } from '../utils/Utils';
 import { LogError } from '../utils/LogError';
 import Response from './Response';
-import { Redirect } from 'react-router-dom';
+import { Redirect, NavLink } from 'react-router-dom';
+import TitledContainer from '../utils/TitledContainer';
+import UserProfilePic from '../includes/page/UserProfilePic';
+import { faBuilding, faIdCard } from '@fortawesome/free-regular-svg-icons';
+import { faFacebook, faGithub, faTwitter, faInstagram, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 
 class FriendsList extends Component {
     constructor(props) {
         super(props);
         
         this.state = {
-            status: '',
-            statusMessage: '',
-            listings: []
+            status: 'Loading',
+            friends: []
         }
-
-        this.selected = [];
     }
     
     componentDidMount() {
-        this.setState({status: 'Loading'});
-
-        fetch.post('/api/get/saved_listings')
+        fetch.post('/api/user/get/friends')
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', listings: resp.data.listings});
-            } else if (resp.data.status === 'access error') {
-                this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                this.setState({status: '', friends: resp.data.friends});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: 'error'});
             }
         })
-        .catch(err => LogError(err, '/api/get/saved_listings'));
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.confirm.data && nextProps.confirm.option) {
-            if (nextProps.confirm.data.action === 'unsave selected') {
-                this.unsaveSelectedListing();
-                this.props.dispatch(ResetConfirmation());
-            }
-            
-            if (nextProps.confirm.data.action === 'unsave listing') {
-                this.unsave(nextProps.confirm.data.id);
-                this.props.dispatch(ResetConfirmation());
-            }
-        }
-    }
-    
-    selectRow(id, checked) {
-        if (checked) {
-            this.selected.push(id);
-        } else {
-            this.selected.splice(this.selected.indexOf(id), 1);
-        }
-    }
-
-    selectAll() {
-        let selectAllCheckbox = document.getElementById('select-all-checkbox');
-        let rows = document.getElementsByClassName('listing-row-checkbox');
-
-        if (selectAllCheckbox.checked) {
-            for (let checkbox of rows) {
-                checkbox.checked = true;
-            }
-
-            for (let listing of this.state.listings) {
-                this.selected.push(listing.saved_id);
-            }
-        } else {
-            for (let checkbox of rows) {
-                checkbox.checked = false;
-            }
-
-            this.selected = [];
-        }
-    }
-
-    unsaveSelectedListing() {
-        if (this.selected.length === 0) {
-            this.setState({status: 'error', statusMessage: 'Nothing to delete'});
-        } else {
-            this.setState({status: 'Loading'});
-
-            fetch.post('/api/saved_listings/unsave', {listings: this.selected})
-            .then(resp => {
-                if (resp.data.status === 'success') {
-                    let status = resp.data.status;
-                    let message = resp.data.statusMessage;
-
-                    fetch.post('/api/get/saved_listings')
-                    .then(resp => {
-                        let checkboxes = document.getElementsByClassName('listing-row-checkbox');
-
-                        for (let checkbox of checkboxes) {
-                            checkbox.checked = false;
-                        }
-
-                        this.setState({status: '', listings: resp.data.listings});
-
-                        this.props.dispatch(Alert(status, message));
-                    })
-                    .catch(err => LogError(err, '/api/get/saved_listings'));
-                } else if (resp.data.status === 'error') {
-                    this.setState({status: ''});
-
-                    this.props.dispatch(Alert(status, message));
-                }
-            })
-            .catch(err => LogError(err, '/api/saved_listings/unsave'));
-        }
-    }
-
-    unsave(id) {
-        this.setState({status: 'Loading'});
-
-        unsaveListing(id, resp => {
-            this.setState({status: '', listings: resp.data.listings});
-
-            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-        });
+        .catch(err => LogError(err, '/api/user/get/friends'));
     }
     
     render() {
-        let status, listings;
+        let status;
 
         if (this.state.status === 'Loading') {
             status = <Loading size='5x' />;
         }
 
-        listings = this.state.listings.map((listing, i) => {
-            return <ListingRow key={i} listing={listing} selected={(checked) => this.selectRow(listing.saved_id, checked)} delete={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to delete this listing?`, false, {id: listing.saved_id, action: 'unsave listing'}))} editable />;
-        })
-        
-        if (this.state.status === 'access error') {
-            return <Redirect to='/error/500' />;
-        }
-
         return(
-            <section className='blue-panel three-rounded shallow'>
+            <section id='friends-list' className='main-panel'>
                 {status}
-                
-                <div className='listings-header'>
-                    <div className='w-5'><input id='select-all-checkbox' className='listing-row-checkbox' type='checkbox' onClick={() => this.selectAll()} /></div>
-                    <div className='w-40'></div>
-                    <div className='w-15'></div>
-                    <div className='w-20'></div>
-                    <div className='w-15'></div>
-                    <div className='w-5 text-right'><button className='btn btn-secondary btn-sm' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to delete the selected listings?`, false, {action: 'unsave selected'}))}><FontAwesomeIcon icon={faTrash} /></button></div>
-                </div>
-                
-                <hr/>
+                <TitledContainer title='Friends List' icon={<FontAwesomeIcon icon={faUserFriends} />} bgColor='lightblue' className='friend-list-container'>
+                    {this.state.friends.map((friend, i) => {
+                        return <div className='friend-panel' key={i}>
+                            <div className='friend-panel-header'>
+                                <div className='friend-panel-profile-pic'><UserProfilePic url={friend.avatar_url} square /></div>
 
-                {listings}
+                                <div className='friend-panel-header-info'>
+                                    <div className='friend-panel-header-container'>
+                                        <h4><NavLink to={`/user/${friend.friend_user_2}`}>{friend.friend_user_2}</NavLink></h4>
+                                        {friend.user_business_name ? <div><FontAwesomeIcon icon={faBuilding} className='text-special' /> <strong>{friend.user_business_name}</strong></div> : ''}
+                                        {friend.user_title ? <div><FontAwesomeIcon icon={faIdCard} className='text-special' /> <strong>{friend.user_title}</strong></div> : ''}
+                                    </div>
+
+                                    <div className='friend-panel-body'>
+                                        {friend.user_facebook ? <FontAwesomeIcon icon={faFacebook} className='text-highlight' size='lg' /> : ''}
+                                        {friend.user_github ? <FontAwesomeIcon icon={faGithub} className='text-highlight' size='lg' /> : ''}
+                                        {friend.user_twitter ? <FontAwesomeIcon icon={faTwitter} className='text-highlight' size='lg'/> : ''}
+                                        {friend.user_instagram ? <FontAwesomeIcon icon={faInstagram} className='text-highlight' size='lg' /> : ''}
+                                        {friend.user_linkedin ? <FontAwesomeIcon icon={faLinkedin} className='text-highlight' size='lg' /> : ''}
+                                        {friend.user_website ? <FontAwesomeIcon icon={faGlobe} className='text-highlight' size='lg' /> : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    })}
+                </TitledContainer>
             </section>
-        );
+        )
     }
 }
 
@@ -170,8 +86,7 @@ FriendsList.propTypes = {
 
 const mapStateToProps = state => {
     return {
-        confirm: state.Confirmation,
-        alerts: state.Alert.alerts
+
     }
 }
 

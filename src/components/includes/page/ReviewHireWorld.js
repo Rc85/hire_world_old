@@ -8,7 +8,7 @@ import { Alert } from '../../../actions/AlertActions';
 import { LogError } from '../../utils/LogError';
 import { connect } from 'react-redux';
 
-class ReviewMploy extends Component {
+class ReviewHireWorld extends Component {
     constructor(props) {
         super(props);
         
@@ -43,11 +43,11 @@ class ReviewMploy extends Component {
         }
 
         return (
-            <div id='review-mploy'>
+            <div id='review-hireworld'>
                 <Rating set={(stars) => this.submit(stars)} />
             </div>
         );
     }
 }
 
-export default connect()(ReviewMploy);
+export default connect()(ReviewHireWorld);

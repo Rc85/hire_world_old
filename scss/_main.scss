@@ -137,7 +137,11 @@ i { color: $theme-highlight; }
 #overview-splash {
     display: flex;
 
-    #overview-diagram { width: 75%; }
+    #overview-diagram {
+        width: 75%;
+
+        img { width: 100%; }
+    }
 
     #overview-text-container {
         width: 25%;

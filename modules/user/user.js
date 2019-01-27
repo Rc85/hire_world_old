@@ -391,6 +391,7 @@ app.post('/api/user/subscription/add', (req, resp) => {
 
                                     subscription = await stripe.subscriptions.create(subscriptionParams);
 
+                                    await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Re-subscribed', req.session.user.username, 'Subscription']);
                                     await client.query(`UPDATE users SET is_subscribed = true, subscription_id = $1, plan_id = $2, account_type = $4 WHERE username = $3`, [subscription.id, subscription.plan.id, req.session.user.username, accountType]);
                                 } else {
                                     if (user.rows[0].plan_id === 'plan_EFVAGdrFIrpHx5' || user.rows[0].plan_id === 'plan_EAIyF94Yhy1BLB') {
@@ -412,12 +413,12 @@ app.post('/api/user/subscription/add', (req, resp) => {
                                     items: [{plan: req.body.plan}]
                                 });
 
+                                await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Subscription created', req.session.user.username, 'Subscription']);
                                 await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_cust_id = $1, subscription_id = $4, plan_id = $5, subscription_end_date = current_timestamp + interval '32 days' WHERE username = $2`, [customer.id, req.session.user.username, accountType, subscription.id, subscription.plan.id]);
                             }
 
                             await client.query('COMMIT')
                             .then(async() => {
-                                await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Subscription created', req.session.user.username, 'Subscription']);
                                 resp.send({status: 'success'});
                             });
                         } catch (e) {
@@ -724,6 +725,39 @@ app.post('/api/user/notifications/read', async(req, resp) => {
         })
         .catch(err => {
             error.log({name: err.name, message: err.message, origni: 'Updating user notifications to viewed', url: req.url});
+        });
+    }
+});
+
+app.post('/api/user/friend', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+                    
+                    if (req.body.action === 'add') {
+                        await client.query(`INSERT INTO friends (friend_user_1, friend_user_2) VALUES ($1, $2)`, [req.session.user.username, req.body.user]);
+                    } else if (req.body.action === 'remove') {
+                        await client.query(`DELETE FROM friends WHERE friend_user_1 = $1 AND friend_user_2 = $2`, [req.session.user.username, req.body.user]);
+                    }
+
+                    await client.query('COMMIT')
+                    .then(() => resp.send({status: 'success', statusMessage: req.body.action === 'add' ? 'Added to Friends' : 'Removed from Friends'}));
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                console.log(err);
+
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
         });
     }
 });

@@ -294,8 +294,10 @@ $(document).ready(function() {
 
     $('#browse-button').on('click', function() {
         if ($('#browse-menu').hasClass('show')) {
+            $('body').css({'overflow-y': ''});
             $('#browse-menu').removeClass('show').addClass('hide');
         } else {
+            $('body').css({'overflow-y': 'hidden'});
             $('#browse-menu').addClass('show').removeClass('hide');
             
             $.get({

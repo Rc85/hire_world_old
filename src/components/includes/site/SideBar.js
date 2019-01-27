@@ -87,7 +87,7 @@ class SideBar extends Component {
             <section id='sidebar'>
                 <BrowseMenu show={this.props.menu.id === 'browse-menu' && this.props.menu.show} />
 
-                <div className='text-center'><img src='/images/logo_sm.png' id='m-ploy-logo' onClick={() => location.href = '/'} /></div>
+                <div className='text-center'><img src='/images/logo_md.png' id='hireworld-logo' onClick={() => location.href = '/'} /></div>
 
                 <div id='sidebar-buttons-container'>
                     <div className='sidebar-button'><a href='/faq'>

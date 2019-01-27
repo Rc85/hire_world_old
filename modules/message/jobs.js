@@ -161,17 +161,20 @@ app.post('/api/job/complete/:decision', (req, resp) => {
                                 await client.query(`UPDATE jobs SET job_client_complete = $1, job_stage = 'Completed', job_status = 'Completed', job_modified_date = current_timestamp WHERE job_id = $2`, [true, req.body.job_id]);
 
                                 //let encryptUserToken = cryptojs.AES.encrypt(authorized.rows[0].job_user, 'authorize authentic review');
-                                let encryptClientToken = cryptojs.AES.encrypt(authorized.rows[0].job_client, 'authorize authentic review');
+                                let encryptClientToken = cryptojs.AES.encrypt(req.session.user.username, 'authorize authentic review');
                                 //let userToken = encodeURIComponent(encryptUserToken.toString());
                                 let clientToken = encodeURIComponent(encryptClientToken.toString());
 
                                 /* await client.query(`INSERT INTO user_reviews (reviewer, reviewing, review_token, review_job_id) VALUES ($1, $2, $3, $4)`, [authorized.rows[0].job_user, authorized.rows[0].job_client, userToken, req.body.job_id]); */
                                 // Removed token for user to review client as only client should review users
-                                await client.query(`INSERT INTO user_reviews (reviewer, reviewing, review_token, review_job_id) VALUES ($1, $2, $3, $4)`, [authorized.rows[0].job_client, authorized.rows[0].job_user, clientToken, req.body.job_id]);
+                                await client.query(`INSERT INTO user_reviews (reviewer, reviewing, review_token, review_job_id) VALUES ($1, $2, $3, $4)`, [req.session.user.username, authorized.rows[0].job_user, clientToken, req.body.job_id]);
 
                                 await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6)`, [req.body.job_id, `Congratulations! You have successfully completed this job. If you enjoyed working with the other party, be sure to give them a like.`, authorized.rows[0].job_user, 'Update', true, 'System']);
 
                                 await client.query(`UPDATE messages SET message_body = 'Congratulations! You completed this job. If you enjoy working with the other party, be sure to submit a verified review to help build their business.', message_type = 'Update' WHERE message_body = 'The other party is requesting approval to complete this job.' AND belongs_to_job = $1 AND message_sender = 'System' AND message_recipient = $2`, [req.body.job_id, authorized.rows[0].job_client]);
+
+                                await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['You completed a job!', req.session.user.username, 'Job']);
+                                await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['You completed a job!', authorized.rows[0].job_user, 'Job']);
 
                                 await client.query('COMMIT')
                                 .then(() => {
@@ -411,12 +414,16 @@ app.post('/api/job/abandon/:decision', (req, resp) => {
                             message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, [req.body.job_id, `You agreed to abandon this job. This job is now considered as "Incomplete".`, req.session.user.username, 'Update', true, 'System']);
                             
                             await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6)`, [req.body.job_id, `The other party has agreed to abandon this job. This job is now considered as "Incomplete".`, authorized.rows[0].job_user, 'Update', true, 'System']);
+
+                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Your request to abandon a job has been approved', authorized.rows[0].job_user, 'Job']);
                         } else if (req.params.decision === 'decline') {
                             job = await client.query(`UPDATE jobs SET job_stage = 'Abandoned', job_status = 'Abandoned', job_user_complete = false, job_client_complete = false, job_modified_date = current_timestamp WHERE job_id = $1 RETURNING *`, [req.body.job_id]);
 
                             message = await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6)`, [req.body.job_id, `You declined to abandon this job. This job is now considered as "Abandoned".`, req.session.user.username, 'Update', true, 'System']);
 
                             await client.query(`INSERT INTO messages (belongs_to_job, message_body, message_recipient, message_type, is_reply, message_sender) VALUES ($1, $2, $3, $4, $5, $6)`, [req.body.job_id, `The other party has declined to abandon this job. This job is now considered as "Abandoned".`, authorized.rows[0].job_user, 'Warning', true, 'System']);
+
+                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Your request to abandon a job has been declined', authorized.rows[0].job_user, 'Job']);
                         }
 
                         await client.query(`DELETE FROM messages WHERE message_type = 'Abandonment' AND belongs_to_job = $1`, [req.body.job_id]);
@@ -504,6 +511,7 @@ app.post('/api/jobs/appeal-abandon', (req, resp) => {
                     await client.query('BEGIN');
                     await client.query(`INSERT INTO appeal_abandoned_jobs (appeal_abandoned_job_id, additional_info) VALUES ($1, $2)`, [req.body.job_id, req.body.additional_info]);
                     await client.query(`UPDATE jobs SET job_stage = 'Appealing', job_status = 'Appealing' WHERE job_id = $1`, [req.body.job_id]);
+                    await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['You requested to appeal an abandoned job', req.session.user.username, 'Job']);
                     await client.query('COMMIT')
                     .then(() => resp.send({status: 'success', statusMessage: 'Appeal sent'}));
                 } catch (e) {

@@ -5733,7 +5733,10 @@ readers do not read off random characters that represent icons */
   background-color: #2F496E;
   position: absolute;
   z-index: 2;
+  height: calc(100vh - 100px);
+  overflow-y: auto;
   top: 100px;
+  width: 25vw;
   right: 0;
   display: flex;
   flex-direction: column;
@@ -5915,6 +5918,9 @@ i {
 }
 #overview-splash #overview-diagram {
   width: 75%;
+}
+#overview-splash #overview-diagram img {
+  width: 100%;
 }
 #overview-splash #overview-text-container {
   width: 25%;
@@ -6115,6 +6121,27 @@ i {
   #main-section {
     background-position: top center;
   }
+
+  #overview-splash {
+    flex-direction: column;
+  }
+  #overview-splash #overview-diagram, #overview-splash #overview-text-container {
+    width: 100%;
+  }
+  #overview-splash #overview-diagram img, #overview-splash #overview-text-container img {
+    margin-bottom: 30px;
+  }
+  #overview-splash .overview-text {
+    text-align: center;
+  }
+
+  #browse-menu {
+    width: 50vw;
+    font-size: 1.25rem;
+  }
+  #browse-menu .sector-link {
+    font-weight: normal;
+  }
 }
 @media only screen and (max-width: 768px) {
   #navbar {
@@ -6177,30 +6204,6 @@ i {
     width: 100%;
     margin-bottom: 30px;
   }
-
-  #overview-splash {
-    flex-direction: column;
-  }
-  #overview-splash #overview-diagram, #overview-splash #overview-text-container {
-    width: 100%;
-  }
-  #overview-splash #overview-diagram img, #overview-splash #overview-text-container img {
-    width: 100%;
-    margin-bottom: 30px;
-  }
-  #overview-splash .overview-text {
-    text-align: center;
-  }
-
-  #browse-menu {
-    width: 100vw;
-    font-size: 1.25rem;
-    height: calc(100vh - 100px);
-    overflow-y: auto;
-  }
-  #browse-menu .sector-link {
-    font-weight: normal;
-  }
 }
 @media only screen and (max-width: 414px) {
   #main {
@@ -6244,6 +6247,10 @@ i {
   .form-field {
     width: 100%;
     margin-bottom: 20px;
+  }
+
+  #browse-menu {
+    width: 100vw;
   }
 }
 @media only screen and (max-width: 375px) {

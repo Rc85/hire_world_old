@@ -52,6 +52,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    #view-user-stats {
+        display: flex;
+        align-items: center;
+    }
 }
 
 #view-user-listing-info {

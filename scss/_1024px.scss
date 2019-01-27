@@ -9,4 +9,23 @@
     #main-section {
         background-position: top center;
     }
+
+    #overview-splash {
+        flex-direction: column;
+
+        #overview-diagram, #overview-text-container {
+            width: 100%;
+    
+            img { margin-bottom: 30px; }
+        }
+
+        .overview-text { text-align: center; }
+    }
+
+    #browse-menu {
+        width: 50vw;
+        font-size: 1.25rem;
+        
+        .sector-link { font-weight: normal; }
+    }
 }

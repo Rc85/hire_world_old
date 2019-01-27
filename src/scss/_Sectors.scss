@@ -1,4 +1,9 @@
-.listing-row { border: 1px solid $theme-highlight; }
+.listing-row {
+    border: 1px solid black;
+    background: $theme-lightgrey;
+    color: black;
+}
+
 .listing-row-rating { padding: 10px; }
 .listing-row-detail-child { padding: 5px 10px; }
 
@@ -17,7 +22,7 @@
 }
 
 .listing-row-main {
-    border-bottom: 1px solid $theme-highlight;
+    border-bottom: 1px solid black;;
 
     &:hover {
         background-color: $theme-highlight;
@@ -33,7 +38,7 @@
 }
 
 .listing-row-profile-pic {
-    border-right: 1px solid $theme-highlight;
+    border-right: 1px solid black;;
     width: 3%;
     order: 1;
 }
@@ -50,11 +55,13 @@
     overflow-x: hidden;
     white-space: nowrap;
     padding: 10px;
+
+    a { color: $theme-highlight; }
 }
 
 .listing-row-rating { order: 4; }
 
 .listing-row-detail-child {
     font-size: 0.75rem;
-    border-right: 1px solid $theme-highlight;
+    border-right: 1px solid black;;
 }

@@ -50,7 +50,7 @@ const ListingRow = props => {
                 </div>
 
                 <div className='listing-row-buttons'>
-                    <Tooltip text='Report this user' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} className='text-alt-highlight' size='sm' /></Tooltip>
+                    <Tooltip text='Report this user' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} className='text-highlight' size='sm' /></Tooltip>
                 </div>
             </div>
         </div>

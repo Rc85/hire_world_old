@@ -25,8 +25,8 @@ class Dashboard extends Component {
         let items = [
             {name: 'Dashboard', link: '/dashboard/edit', active: /^\/dashboard/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faColumns} />, items: [
                 {name: 'Profile', active: this.props.location.pathname === '/dashboard/edit', link: '/dashboard/edit'},
-                /* {name: 'Friends', active: this.props.location.pathname === '/dashboard/friends', link: '/dashboard/friends'},
-                {name: 'Medals', active: this.props.location.pathname === '/dashboard/medals', link: '/dashboard/medals'} */
+                {name: 'Friends', active: this.props.location.pathname === '/dashboard/friends', link: '/dashboard/friends'},
+                /* {name: 'Medals', active: this.props.location.pathname === '/dashboard/medals', link: '/dashboard/medals'} */
             ]},
             {name: 'Messages', link: '/messages/Inquire', active: /^\/messages/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCommentAlt} />, messageCount: totalMessages, items: [
                 {name: 'Inquiries', active: this.props.location.pathname === '/messages/Inquire', link: '/messages/Inquire', messageCount: parseInt(this.props.user.messages.inquiries)},
@@ -50,7 +50,7 @@ class Dashboard extends Component {
                     {!this.props.config.isMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
 
                     <div id='dashboard-main'>
-                        {this.props.location.pathname.match(/^\/dashboard/) ? <div id='main-panel-bg'></div> : ''}
+                        {this.props.location.pathname.match(/^\/dashboard\/edit$/) ? <div id='main-panel-bg'></div> : ''}
                         {this.props.children}
                     </div>
                 </section>;

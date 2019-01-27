@@ -297,12 +297,39 @@ app.post('/api/get/user/activities', (req, resp) => {
 
 app.post('/api/user/get/friends', async(req, resp) => {
     if (req.session.user) {
+        let filterValue = '';
+        let filterString = '';
+
+        if (req.body.letter !== 'All') {
+            if (req.body.letter === '#') {
+                filterValue = '0-9';
+            } else if (req.body.letter === '_') {
+                filterValue = '_';
+            } else if (req.body.letter === '-') {
+                filterValue = '-';
+            } else if (/[a-zA-Z]/.test(req.body.letter)) {
+                filterValue = req.body.letter;
+            }
+
+            filterString = `AND friends.friend_user_2 ~ '^[${filterValue}${filterValue.toLowerCase()}]'`;
+        }
+
+        let totalFriends = await db.query(`SELECT COUNT(friend_id) AS friend_count FROM friends
+        WHERE friend_user_1 = $1
+        ${filterString}
+        OFFSET $2
+        LIMIT 30`, [req.session.user.username, req.body.offset]);
+
         await db.query(`SELECT friends.*, users.user_email, users.user_last_login, user_profiles.*, user_settings.hide_email, user_listings.listing_status FROM friends
         LEFT JOIN users ON friends.friend_user_2 = users.username
         LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
         LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
         LEFT JOIN user_listings ON friends.friend_user_2 = user_listings.listing_user
-        WHERE friend_user_1 = $1`, [req.session.user.username])
+        WHERE friend_user_1 = $1
+        ${filterString}
+        ORDER BY friends.friend_user_2
+        OFFSET $2
+        LIMIT 30`, [req.session.user.username, req.body.offset])
         .then(result => {
             if (result) {
                 for (let friend of result.rows) {
@@ -313,7 +340,7 @@ app.post('/api/user/get/friends', async(req, resp) => {
                     delete friend.hide_email;
                 }
 
-                resp.send({status: 'success', friends: result.rows});
+                resp.send({status: 'success', friends: result.rows, totalFriends: totalFriends.rows[0].friend_count});
             } else {
                 resp.send({status: 'error', statusMessage: 'Failed to retrieve friends list'});
             }

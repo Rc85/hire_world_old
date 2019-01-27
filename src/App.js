@@ -228,9 +228,9 @@ class App extends Component {
 		
 						<Route exact path='/sectors/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
 	
-						<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Subscribed!'} message={`Thank you for subscribing to Hire World. We hope you'll enjoy our service.`}><div><NavLink to='/settings/listing'>Start listing now</NavLink></div></Pages.Response>} />
+						<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Subscribed!'} message={`Thank you for subscribing to HireWorld. We hope you'll enjoy our service.`}><div><NavLink to='/settings/listing'>Start listing now</NavLink></div></Pages.Response>} />
 						<Route exact path='/registration/success' render={() => <Pages.Response code={200} header={'Registration Success!'} message='An confirmation email has been sent. Please click the link provided to activate your account' />} />
-						<Route exact path='/subscription/cancelled' render={() => <Pages.Response code={200} header={'Unsubscribed!'} message={'We hate to see you go. Please take a moment and give Hire World a rating.'}><div className='d-flex-center-center'><ReviewHireWorld /></div></Pages.Response>} />
+						<Route exact path='/subscription/cancelled' render={() => <Pages.Response code={200} header={'Unsubscribed!'} message={'We hate to see you go. Please take a moment and give HireWorld a rating.'}><div className='d-flex-center-center'><ReviewHireWorld /></div></Pages.Response>} />
 
 						<Route exact path='/admin-panel' render={() => <Admin.Admin><Admin.AdminOverview user={this.props.user} /></Admin.Admin>} />
 						<Route exact path='/admin-panel/sectors' render={() => <Admin.Admin><Admin.AdminSectors user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />
@@ -275,8 +275,8 @@ class App extends Component {
 	
 							<Route exact path='/sectors/:sector' component={Pages.Sectors} />
 	
-							<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Subscribed!'} message={`Thank you for subscribing to Hire World. We hope you'll enjoy our services.`}><div><NavLink to='/settings/listing'>Start listing now</NavLink></div></Pages.Response>} />
-							<Route exact path='/subscription/cancelled' render={() => <Pages.Response code={200} header={'Unsubscribed!'} message={'We hate to see you go. Please take a moment and give Hire World a rating.'}><div className='d-flex-center-center'><ReviewHireWorld /></div></Pages.Response>} />
+							<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Subscribed!'} message={`Thank you for subscribing to HireWorld. We hope you'll enjoy our services.`}><div><NavLink to='/settings/listing'>Start listing now</NavLink></div></Pages.Response>} />
+							<Route exact path='/subscription/cancelled' render={() => <Pages.Response code={200} header={'Unsubscribed!'} message={'We hate to see you go. Please take a moment and give HireWorld a rating.'}><div className='d-flex-center-center'><ReviewHireWorld /></div></Pages.Response>} />
 	
 							<Route exact path='/admin-panel' render={() => <Admin.Admin><Admin.AdminOverview user={this.props.user} /></Admin.Admin>} />
 							<Route exact path='/admin-panel/sectors' render={() => <Admin.Admin><Admin.AdminSectors user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />

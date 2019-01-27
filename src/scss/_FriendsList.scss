@@ -1,13 +1,19 @@
 #friends-list {
-    display: flex;
-    align-items: flex-start;
-    flex-wrap: wrap;
+    .friend-list-container {
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
     
     .friend-panel {
+        flex-basis: 33%;
         width: 33%;
         border: 1px solid black;
         background-color: $theme-lightgrey;
         color: black;
+        position: relative;
+
+        a { color: $theme-highlight; }
 
         .friend-panel-header {
             display: flex;
@@ -16,14 +22,46 @@
                 width: 15%;
                 border-right: 1px solid black;
             }
-            
-            .friend-panel-header-info {
-                flex-grow: 1;
-            }
 
-            .friend-panel-header-container {
-                border-bottom: 1px solid black;
-                padding: 5px 10px;
+            .friend-panel-header-info { flex-grow: 1; }
+            .friend-panel-header-container { padding: 5px 10px; }
+        }
+
+        .friend-panel-footer, .friend-panel-body { border-top: 1px solid black; }
+        .friend-panel-body, .friend-panel-footer { padding: 10px; }
+
+        .friend-panel-buttons {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            cursor: pointer;
+        }
+    }
+
+    .friend-panel:not(:nth-child(3n+3)) {
+        margin-right: 0.5%;
+    }
+
+    .friend-panel:nth-child(1n+4) {
+        margin-top: 30px;
+    }
+
+    #friends-list-filter {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 60px;
+
+        .friends-list-filter-button {
+            padding: 5px 10px;
+            background-color: $theme-lightgrey;
+            border: 1px solid black;
+            margin-right: 15px;
+            color: black;
+            cursor: pointer;
+
+            &:hover, &.active {
+                background-color: $theme-highlight;
+                color: white;
             }
         }
     }

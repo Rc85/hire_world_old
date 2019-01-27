@@ -66,7 +66,7 @@ app.post('/api/auth/register', (req, resp) => {
                                         let message = {
                                             to: req.body.email,
                                             from: 'admin@hireworld.ca',
-                                            subject: 'Welcome to Hire World',
+                                            subject: 'Welcome to HireWorld',
                                             templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
                                             dynamicTemplateData: {
                                                 url: process.env.NODE_ENV === 'development' ? `${process.env.DEV_SITE_URL}` : `${process.env.SITE_URL}`,

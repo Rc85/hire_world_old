@@ -41,7 +41,7 @@ class MessageSender extends Component {
                 </div>
 
                 <div className='text-right'>
-                    <SubmitButton type='button' value='Send' loading={this.props.status ? true : false} onClick={() => this.send()} />
+                    <SubmitButton type='button' value='Send' loading={this.props.status === 'Sending'} onClick={() => this.send()} />
                     {this.props.cancel ? <button className='message-cancel-button btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button> : <button className='btn btn-secondary' onClick={() => this.setState({subject: '', message: ''})}>Clear</button>}
                 </div>
             </div>

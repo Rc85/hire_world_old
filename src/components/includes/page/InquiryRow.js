@@ -8,6 +8,7 @@ import { PromptOpen, PromptReset } from '../../../actions/PromptActions';
 import { connect } from 'react-redux';
 import ReviewButton from '../../utils/ReviewButton';
 import SubmitReview from '../page/SubmitReview';
+import Username from '../page/Username';
 
 class InquiryRow extends Component {
     constructor(props) {
@@ -87,7 +88,13 @@ class InquiryRow extends Component {
                     <div className='d-flex'>
                         {this.props.message.unread_messages > 0 ? <div className={`inquiry-detail-type-indicator`}>{this.props.message.unread_messages}</div> : ''}
     
-                        <div className='inquiry-detail-type'>{this.props.user && this.props.message.job_client === this.props.user.username ? <span>To <NavLink to={`/user/${this.props.message.job_user}`}>{this.props.message.job_user}</NavLink> {moment(this.props.message.job_created_date).fromNow()}</span> : <span>From <NavLink to={`/user/${this.props.message.job_client}`}>{this.props.message.job_client}</NavLink> {moment(this.props.message.job_created_date).fromNow()}</span>}</div>
+                        <div className='inquiry-detail-type'>
+                            {this.props.user && this.props.message.job_client === this.props.user.username ? 
+                            
+                            <span>To <Username username={this.props.message.job_user} color='highlight' /> {moment(this.props.message.job_created_date).fromNow()}</span> : 
+                            
+                            <span>From <Username username={this.props.message.job_client} color='highlight' /> {moment(this.props.message.job_created_date).fromNow()}</span>}
+                        </div>
                     </div>
 
                     <div className='inquiry-row-id'>Job ID: {this.props.message.job_id}</div>

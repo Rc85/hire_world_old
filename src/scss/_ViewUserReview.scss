@@ -1,9 +1,6 @@
 #user-reviews {
     color: #000;
     position: relative;
-
-    a { color: $theme-highlight }
-    a:hover { text-decoration: underline }
 }
 
 .user-review-star { color: $theme-darkgrey }
@@ -42,6 +39,9 @@
     margin: 0 auto 0 auto;
     margin-bottom: 60px;
     padding: 15px;
+
+    a { color: $theme-highlight }
+    a:hover { text-decoration: underline }
 }
 
 .user-review-profile-pic {

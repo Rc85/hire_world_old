@@ -352,4 +352,30 @@ app.post('/api/user/get/friends', async(req, resp) => {
     }
 });
 
+app.post('/api/get/user/minimal', async(req, resp) => {
+    await db.query(`SELECT users.username, users.user_email, us.hide_email, up.avatar_url, up.user_business_name, up.user_title, ul.listing_status,
+        (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_stage = 'Completed' AND job_user = $1),
+        (SELECT COUNT(job_id) AS job_abandoned FROM jobs WHERE job_stage = 'Abandoned' AND job_user = $1)
+    FROM users
+    LEFT JOIN user_profiles AS up ON users.user_id = up.user_profile_id
+    LEFT JOIN user_listings AS ul ON users.username = ul.listing_user
+    LEFT JOIN user_settings AS us ON users.user_id = us.user_setting_id
+    WHERE users.username = $1`, [req.body.user])
+    .then(result => {
+        if (result && result.rows.length === 1) {
+            if (result.rows[0].hide_email) {
+                delete result.rows[0].user_email;
+            }
+
+            delete result.rows[0].hide_email;
+
+            resp.send({status: 'success', user: result.rows[0]});
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        resp.send({status: 'error', statusMessage: 'An error occurred'});
+    });
+});
+
 module.exports = app;

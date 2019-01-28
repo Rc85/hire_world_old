@@ -12,6 +12,7 @@ import { connect } from 'react-redux';
 import { LogError } from '../../utils/LogError';
 import Tooltip from '../../utils/Tooltip';
 import Badge from '../../utils/Badge';
+import Username from './Username';
 
 class ViewUserReview extends Component {
     constructor(props) {
@@ -85,7 +86,7 @@ class ViewUserReview extends Component {
 
         if (this.props.user && this.props.review && this.props.review.reviewer !== this.props.user.username) {
             if (!this.state.reviewReported) {
-                reportButton = <Tooltip text='Report' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} size='sm' className='review-buttons' onClick={() => this.submitReport()} /></Tooltip>;
+                reportButton = <Tooltip text='Report' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} size='sm' className='text-highlight' onClick={() => this.submitReport()} /></Tooltip>;
             }
         }
 
@@ -121,7 +122,7 @@ class ViewUserReview extends Component {
                     {status}
                     <div className='user-review-profile-pic'>
                         <div className='profile-pic' style={{background: `url(${this.props.review.avatar_url}) center top / cover`}}></div>
-                        <span><NavLink to={`/user/${this.props.review.reviewer}`}>{this.props.review.reviewer}</NavLink></span>
+                        <span><Username username={this.props.review.reviewer} color='highlight' /></span>
                     </div>
     
                     {review}

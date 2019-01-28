@@ -2,22 +2,15 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Loading from '../utils/Loading';
 import fetch from 'axios';
-import ListingRow from '../includes/page/ListingRow';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faUserFriends, faGlobe, faUserMinus, faEnvelope, faCircleNotch } from '@fortawesome/free-solid-svg-icons';
-import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
+import { faUserFriends, faUserMinus, faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';
-import { unsaveListing } from '../utils/Utils';
 import { LogError } from '../utils/LogError';
-import Response from './Response';
-import { Redirect, NavLink } from 'react-router-dom';
 import TitledContainer from '../utils/TitledContainer';
 import UserProfilePic from '../includes/page/UserProfilePic';
 import { faBuilding, faIdCard } from '@fortawesome/free-regular-svg-icons';
-import { faFacebook, faGithub, faTwitter, faInstagram, faLinkedin } from '@fortawesome/free-brands-svg-icons';
-import MessageSender from '../includes/page/MessageSender';
-import InputWrapper from '../utils/InputWrapper';
+import { NavLink } from 'react-router-dom';
 
 class FriendsList extends Component {
     constructor(props) {
@@ -130,7 +123,7 @@ class FriendsList extends Component {
 
                                     <div className='friend-panel-header-info'>
                                         <div className='friend-panel-header-container'>
-                                            <h5><NavLink to={`/user/${friend.friend_user_2}`}>{friend.friend_user_2}</NavLink></h5>
+                                            <div><h5>{friend.listing_status && friend.listing_status === 'Active' ? <NavLink to={`/user/${friend.friend_user_2}`}>{friend.friend_user_2}</NavLink> : friend.friend_user_2}</h5></div>
                                             {friend.user_email ? <a href={`mailto:${friend.user_email}`}>{friend.user_email}</a> : ''}
                                             {friend.user_business_name ? <div><FontAwesomeIcon icon={faBuilding} className='text-special' /> <strong>{friend.user_business_name}</strong></div> : ''}
                                             {friend.user_title ? <div><FontAwesomeIcon icon={faIdCard} className='text-special' /> <strong>{friend.user_title}</strong></div> : ''}

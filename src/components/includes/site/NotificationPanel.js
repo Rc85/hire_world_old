@@ -86,7 +86,7 @@ class NotificationPanel extends Component {
         }
 
         return (
-            <div id='notification-panel' className={this.props.show ? 'show' : ''}>
+            <div id='notification-panel' className={this.props.show ? 'show' : ''} onClick={(e) => e.stopPropagation()}>
                 {notifications}
             </div>
         );

@@ -1,0 +1,61 @@
+.username-container {
+    position: relative;
+    display: inline-block;
+
+    .username {
+        cursor: pointer;
+        font-weight: bold;
+
+        &:hover { text-decoration: underline; }
+    }
+
+    .username-popup {
+        width: 600px;
+        position: absolute;
+        z-index: 4;
+        color: white;
+        text-align: left;
+        font-size: 0.8rem;
+        display: flex;
+        
+        &.right {
+            right: 0;
+            justify-content: flex-end;
+        }
+
+        &.top { bottom: 100%; }
+        
+        a { color: $theme-alt-highlight; }
+        
+        .username-popup-container {
+            max-width: 400px;
+            box-shadow: 10px 10px 10px $not-black;
+            background-color: $theme-blue;
+            border: 1px solid black;
+            padding: 10px;
+
+            .username-popup-header {
+                display: flex;
+                width: 100%;
+
+                .username-popup-profile-pic {
+                    width: 50px;
+                    margin-right: 10px;
+                }
+
+                .username-popup-user-info { flex-grow: 1; }
+            }
+
+            .username-popup-body {
+                display: flex;
+                align-items: center;
+
+                .username-popup-body-child {
+                    display: flex;
+                    width: 25%;
+                    justify-content: center;
+                }
+            }
+        }
+    }
+}

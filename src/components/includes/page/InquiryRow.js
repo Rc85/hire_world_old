@@ -51,9 +51,9 @@ class InquiryRow extends Component {
                 }
             }
             
-            if (this.props.message.job_stage === 'Abandoned' && this.props.user.username === this.props.message.job_user) {
+            /* if (this.props.message.job_stage === 'Abandoned' && this.props.user.username === this.props.message.job_user) {
                 appealButton = <button className='btn btn-info btn-sm mr-1' onClick={() => this.props.dispatch(PromptOpen('Are there any additional information you would like to add?', {action: 'appeal', id: this.props.message.job_id}))} title='Appeal'><FontAwesomeIcon icon={faGavel} /></button>
-            } else if (this.props.message.job_stage === 'Completed' && this.props.user.username === this.props.message.job_client) {
+            } else  */if (this.props.message.job_stage === 'Completed' && this.props.user.username === this.props.message.job_client) {
                 if (this.props.message.token_status && this.props.message.token_status === 'Valid') {
                     appealButton = <ReviewButton review={() => this.setState({review: true})}/>;
                 } else {

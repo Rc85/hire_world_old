@@ -6210,6 +6210,10 @@ i {
     position: relative;
   }
 
+  #logo img {
+    width: 75%;
+  }
+
   #pricing-facts {
     margin: 0 auto 0 auto;
   }

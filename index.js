@@ -31,8 +31,7 @@ app.use(bodyParser.json({
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
-    maxAge: 8.64e+7,
-    secure: process.env.NODE_ENV === 'development' ? false : true
+    maxAge: 8.64e+7
 }));
 
 app.use(function (req, res, next) {

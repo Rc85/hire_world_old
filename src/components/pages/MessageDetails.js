@@ -546,7 +546,7 @@ class MessageDetails extends Component {
                     {confirmation}
                     <div id='message-header'>
                         <div className='message-header-row'>
-                            <small className='text-muted'>Job ID: {this.props.job.job ? this.props.job.job.job_id : ''}</small>
+                            <small className='text-dark'>Job ID: {this.props.job.job ? this.props.job.job.job_id : ''}</small>
     
                             <div className='message-header-buttons'>
                                 {closeButton}
@@ -579,7 +579,7 @@ class MessageDetails extends Component {
 
                         <div className='messages'>
                             {messages}
-                            {this.state.messages.length < parseInt(this.props.job.messages[0].message_count) ? <div className='text-center'><button className='btn btn-primary btn-sm' onClick={() => this.setState({offset: this.state.offset + 10})}>Load more</button></div> : <div className='text-center'><em className='text-muted'>No more messages</em></div>}
+                            {this.state.messages.length < parseInt(this.props.job.messages[0].message_count) ? <div className='text-center'><button className='btn btn-primary btn-sm' onClick={() => this.setState({offset: this.state.offset + 10})}>Load more</button></div> : <div className='text-center'><em className='text-dark'>No more messages</em></div>}
                             {fetchStatus}
                         </div>
                     </div>

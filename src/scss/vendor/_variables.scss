@@ -293,7 +293,7 @@ $lead-font-weight:            300 !default;
 
 $small-font-size:             80% !default;
 
-$text-muted:                  $gray-600 !default;
+$text-dark:                  $gray-600 !default;
 
 $blockquote-small-color:      $gray-600 !default;
 $blockquote-font-size:        ($font-size-base * 1.25) !default;
@@ -341,7 +341,7 @@ $table-dark-color:            $body-bg !default;
 
 $table-striped-order:         odd !default;
 
-$table-caption-color:         $text-muted !default;
+$table-caption-color:         $text-dark !default;
 
 // Buttons + Forms
 //

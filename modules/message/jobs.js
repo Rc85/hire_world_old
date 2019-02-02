@@ -6,7 +6,7 @@ const error = require('../utils/error-handler');
 app.post('/api/jobs/delete', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -76,7 +76,7 @@ app.post('/api/jobs/delete', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -88,7 +88,7 @@ app.post('/api/jobs/delete', (req, resp) => {
 app.post('/api/job/complete', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -127,7 +127,7 @@ app.post('/api/job/complete', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
 
                 let message = 'An error occurred';
 
@@ -146,7 +146,7 @@ app.post('/api/job/complete', (req, resp) => {
 app.post('/api/job/complete/:decision', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             if (req.params.decision === 'approve') {
                 (async() => {
@@ -196,7 +196,7 @@ app.post('/api/job/complete/:decision', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    console.log(err);
                     
                     let message = 'An error occurred';
 
@@ -244,7 +244,7 @@ app.post('/api/job/complete/:decision', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    console.log(err);
                     
                     let message = 'An error occurred';
 
@@ -264,7 +264,7 @@ app.post('/api/job/complete/:decision', (req, resp) => {
 app.post('/api/job/close', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -293,7 +293,7 @@ app.post('/api/job/close', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -303,7 +303,7 @@ app.post('/api/job/close', (req, resp) => {
 app.post('/api/job/abandon', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -339,7 +339,7 @@ app.post('/api/job/abandon', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -351,7 +351,7 @@ app.post('/api/job/abandon', (req, resp) => {
 app.post('/api/job/cancel-abandon', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -380,7 +380,7 @@ app.post('/api/job/cancel-abandon', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 
                 let message = 'An error occurred';
 
@@ -397,7 +397,7 @@ app.post('/api/job/cancel-abandon', (req, resp) => {
 app.post('/api/job/abandon/:decision', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -444,7 +444,7 @@ app.post('/api/job/abandon/:decision', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 let message = 'An error occurred';
                 
                 if (err.type === 'user_defined') {
@@ -462,7 +462,7 @@ app.post('/api/job/abandon/:decision', (req, resp) => {
 app.post('/api/job/pin', async(req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -494,7 +494,7 @@ app.post('/api/job/pin', async(req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -504,7 +504,7 @@ app.post('/api/job/pin', async(req, resp) => {
 app.post('/api/jobs/appeal-abandon', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -522,7 +522,7 @@ app.post('/api/jobs/appeal-abandon', (req, resp) => {
                 }
             })()
             .then(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });

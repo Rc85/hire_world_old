@@ -43,12 +43,12 @@ const upload = multer({
             if (filesize < 2000000) {
                 if (!fs.existsSync(dir)) {
                     fs.mkdir(dir, (err) => {
-                        if (err) error.log({name: err.name, message: err.message, origin: 'fs Creating Directory', url: req.url});
+                        if (err) console.log(err);
                     });
                 }
 
                 fs.readdir(dir, (err, files) => {
-                    if (err) error.log({name: err.name, message: err.message, origin: 'fs Reading Directory', url: req.url});
+                    if (err) console.log(err);
 
                     for (let file of files) {
                         if (file.match(filenameCheck)) {
@@ -70,7 +70,7 @@ const upload = multer({
 app.post('/api/user/profile-pic/upload', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({err: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             let uploadProfilePic = upload.single('profile_pic');
 
@@ -114,9 +114,9 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}, (type) => {
+                 console.log(err);
                     resp.send({status: type, statusMessage: err.message});
-                });
+                //});
             });
         });
     }
@@ -125,7 +125,7 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
 app.post('/api/user/profile-pic/delete', async(req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
         
             (async() => {
                 try {
@@ -149,7 +149,7 @@ app.post('/api/user/profile-pic/delete', async(req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Deleting profile picture', url: req.url});
+                 console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -178,7 +178,7 @@ app.post('/api/user/edit', (req, resp) => {
 
         if (validate.urlCheck.test(req.body.value)) {
             db.connect((err, client, done) => {
-                if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+                if (err) console.log(err);
 
                 (async() => {
                     try {
@@ -203,7 +203,7 @@ app.post('/api/user/edit', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                     console.log(err);
                     resp.send({status: 'error', statusMessage: 'An error occurred'});
                 });
             });
@@ -232,7 +232,7 @@ app.post('/api/user/search/titles', async(req, resp) => {
         }
     })
     .catch(err => {
-        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+         console.log(err);
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });
@@ -240,7 +240,7 @@ app.post('/api/user/search/titles', async(req, resp) => {
 app.post('/api/user/business_hours/save', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             delete req.body.status;
             delete req.body.showSettings;
@@ -293,7 +293,7 @@ app.post('/api/user/business_hours/save', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                     console.log(err);
 
                     let message = 'An error occurred';
 
@@ -319,7 +319,7 @@ app.post('/api/user/notifications/viewed', async(req, resp) => {
             }
         })
         .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+             console.log(err);
             resp.send({status: 'error'});
         });
     }
@@ -328,10 +328,10 @@ app.post('/api/user/notifications/viewed', async(req, resp) => {
 app.post('/api/user/subscription/add', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.SUBSCRIPTION_RECAPTCHA_SECRET, response: req.body.verified}}, (err, res, body) => {
-                if (err) error.log({name: err.name, message: err.message, origin: 'Subscription recaptcha', url: req.url});
+                if (err) console.log(err);
 
                 let response = JSON.parse(res.body);
 
@@ -429,7 +429,7 @@ app.post('/api/user/subscription/add', (req, resp) => {
                         }
                     })()
                     .catch(err => {
-                        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                         console.log(err);
                         
                         let message = 'An error occurred';
 
@@ -452,7 +452,7 @@ app.post('/api/user/subscription/add', (req, resp) => {
 app.post('/api/user/subscription/cancel', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
             
             (async() => {
                 try {
@@ -479,7 +479,7 @@ app.post('/api/user/subscription/cancel', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                 console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -491,7 +491,7 @@ app.post('/api/user/subscription/cancel', (req, resp) => {
 app.post('/api/user/payment/add', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -542,7 +542,7 @@ app.post('/api/user/payment/add', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                 console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -554,7 +554,7 @@ app.post('/api/user/payment/add', (req, resp) => {
 app.post('/api/user/payment/edit', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -583,7 +583,7 @@ app.post('/api/user/payment/edit', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Stripe updating client card', url: req.url});
+                 console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -593,7 +593,7 @@ app.post('/api/user/payment/edit', (req, resp) => {
 app.post('/api/user/payment/default', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -630,7 +630,7 @@ app.post('/api/user/payment/default', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Setting Stripe default payment', url: req.url});
+                 console.log(err);
                 let message = 'An error occurred';
 
                 if (err.type === 'CUSTOM') {
@@ -646,7 +646,7 @@ app.post('/api/user/payment/default', (req, resp) => {
 app.post('/api/user/payment/delete', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -691,7 +691,7 @@ app.post('/api/user/payment/delete', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Deleting payment method', url: req.url});
+                 console.log(err);
                 let message = 'An error occurred';
 
                 if (err.type === 'CUSTOM') {
@@ -709,7 +709,7 @@ app.post('/api/user/dismiss/announcement', async(req, resp) => {
         await db.query(`INSERT INTO dismissed_announcements (dismissed_announcement, dismissed_by) VALUES ($1, $2) ON CONFLICT ON CONSTRAINT unique_dismiss DO NOTHING`, [req.body.id, req.session.user.username])
         .then(() => resp.send({status: 'success'}))
         .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Adding to dismiss announcement table', url: req.url});
+             console.log(err);
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     }
@@ -724,7 +724,7 @@ app.post('/api/user/notifications/read', async(req, resp) => {
             }
         })
         .catch(err => {
-            error.log({name: err.name, message: err.message, origni: 'Updating user notifications to viewed', url: req.url});
+             console.log(err);
         });
     }
 });
@@ -746,6 +746,39 @@ app.post('/api/user/friend', (req, resp) => {
 
                     await client.query('COMMIT')
                     .then(() => resp.send({status: 'success', statusMessage: req.body.action === 'add' ? 'Added to Friends' : 'Removed from Friends'}));
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                console.log(err);
+
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
+        });
+    }
+});
+
+app.post('/api/user/block', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    if (req.body.action === 'block') {
+                        await client.query(`INSERT INTO blocked_users (blocking_user, blocked_user) VALUES ($1, $2)`, [req.session.user.username, req.body.user]);
+                    } else if (req.body.action === 'unblock') {
+                        await client.query(`DELETE FROM blocked_users WHERE blocking_user = $1 AND blocked_user = $2`, [req.session.user.username, req.body.user]);
+                    }
+
+                    await client.query('COMMIT')
+                    .then(() => resp.send({status: 'success', statusMessage: req.body.action === 'block' ? 'User blocked' : 'User unblocked'}));
                 } catch (e) {
                     await client.query('ROLLBACK');
                     throw e;

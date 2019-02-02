@@ -1,0 +1,67 @@
+#timeline {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+
+    #timeline-start-year-node, #timeline-end-year-node {
+        width: 40px;
+        height: 40px;
+        position: relative;
+
+        #start-node-container, #end-node-container {
+            position: absolute;
+            background-color: $theme-highlight;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+
+            #start-node, #end-node {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background-color: $theme-lightgrey;
+            }
+        }
+
+        #start-node-container { left: 5px; }
+        #end-node-container { right: 5px; }
+    }
+
+    #timeline-bar {
+        flex-grow: 1;
+        display: flex;
+
+        .timeline-months {
+            flex-grow: 1;
+            background-color: $theme-highlight;
+            height: 20px;
+            border-right: 1px solid black;
+            position: relative;
+            text-align: center;
+
+            .month-detail-wrapper {
+                position: absolute;
+                bottom: calc(100% + 15px);
+                z-index: 2;
+                width: 400px;
+                display: none;
+
+                &.show { display: block; }
+                
+                .month-detail-container {
+                    background-color: $theme-lightgrey;
+                    border: 1px solid black;
+                    color: black;
+                    padding: 10px;
+                    max-width: 400px;
+
+                    .month-detail { text-align: left; }
+                }
+            }
+        }
+    }
+}

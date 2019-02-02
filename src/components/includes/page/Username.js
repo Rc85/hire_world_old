@@ -5,10 +5,11 @@ import { LogError } from '../../utils/LogError';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faIdBadge, faCheckCircle } from '@fortawesome/free-regular-svg-icons';
-import { faBan, faCircleNotch, faTimes, faThumbsDown, faThumbsUp } from '@fortawesome/free-solid-svg-icons';
+import { faBan, faCircleNotch, faTimes, faThumbsDown, faThumbsUp, faUserPlus, faUserMinus, faUserTimes, faUser, faUserCheck } from '@fortawesome/free-solid-svg-icons';
 import UserProfilePic from './UserProfilePic';
 import { connect } from 'react-redux';
 import { ToggleMenu } from '../../../actions/MenuActions';
+import { Alert } from '../../../actions/AlertActions';
 
 class Username extends Component {
     constructor(props) {
@@ -28,8 +29,6 @@ class Username extends Component {
     
     togglePopup(e) {
         e.stopPropagation();
-        console.log(this.props.menu.id)
-        console.log(this.state.target)
 
         let date = new Date();
         let nowInMinutes = date.getTime() / (1000 * 60);
@@ -80,9 +79,8 @@ class Username extends Component {
             }
         }
     }
-    
+
     render() {
-        console.log(this.state);
         let popup;
 
         if (this.props.menu.show && this.state.target === this.props.menu.id) {
@@ -124,7 +122,7 @@ class Username extends Component {
 
         return (
             <div className='username-container'>
-                <div className={`username text-${this.props.color}`} onClick={(e) => this.togglePopup(e)}>{this.props.username}</div>
+                <div className={`username text-${this.props.color}`} onClick={(e) => this.togglePopup(e)} unselectable='on'>{this.props.username}</div>
 
                 {popup}
             </div>

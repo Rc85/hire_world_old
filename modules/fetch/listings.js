@@ -15,7 +15,7 @@ app.post('/api/get/listing', async(req, resp) => {
             resp.send({status: 'success', listing: listing});
         })
         .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+            console.log(err);
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     }
@@ -46,7 +46,7 @@ app.post('/api/get/listings', async(req, resp) => {
         }
     })
     .catch(err => {
-        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+        console.log(err);
         resp.send({status: 'access error', statusMessage: 'An error occurred'});
     });
 });
@@ -93,7 +93,7 @@ app.post('/api/get/listing/detail', async(req, resp) => {
         }
     })
     .catch(err => {
-        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+        console.log(err);
         resp.send({status: 'access error', statusMessage: 'An error occurred while trying to find that listing'});
     });
 });
@@ -114,7 +114,7 @@ app.post('/api/get/saved_listings', async(req, resp) => {
         }
     })
     .catch(err => {
-        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+        console.log(err);
         resp.send({status: 'access error', statusMessage: 'An error occurred while retrieving your saved listings'});
     });
 });

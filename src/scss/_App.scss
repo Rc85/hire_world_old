@@ -30,26 +30,26 @@
 
 .badge {
     display: flex;
-    margin: 5px 0;
     font-size: 0.7em;
     font-weight: bold;
 }
 
-.bg-purple { background-color: $theme-purple; }
-.bg-orange { background-color: $theme-orange; }
-.bg-green { background-color: $theme-green; }
-.bg-violet { background-color: $theme-violet; }
-.bg-highlight { background-color: $theme-highlight; }
-.bg-lime { background-color: $theme-lime; }
-.bg-success { background-color: $success; }
-.bg-yellow { background-color: $theme-yellow; }
-.bg-primary { background-color: $primary; }
-.bg-lightblue { background-color: $theme-lightblue; }
+/* .bg-purple { background-color: $theme-purple !important; }
+.bg-orange { background-color: $theme-orange !important; }
+.bg-green { background-color: $theme-green !important; }
+.bg-violet { background-color: $theme-violet !important; }
+.bg-highlight { background-color: $theme-highlight !important; }
+.bg-lime { background-color: $theme-lime !important; }
+.bg-success { background-color: $success !important; }
+.bg-yellow { background-color: $theme-yellow !important; }
+.bg-primary { background-color: $primary !important; }
+.bg-lightblue { background-color: $theme-lightblue !important; }
+.bg-lightgrey { background-color: $theme-lightgrey !important; }
 
 .text-special { color: $theme-special !important;  }
 .text-black { color: black !important; }
 .text-highlight { color: $theme-highlight !important; }
-.text-muted { color: $theme-darkgrey !important; }
+.text-dark { color: $theme-darkgrey !important; }
 .text-info { color: $info !important; }
 .text-blue { color: $theme-blue !important; }
 .text-light { color: $theme-lightgrey !important; }
@@ -58,10 +58,7 @@
 .text-warning { color: $warning !important; }
 .text-alt-highlight { color: $theme-alt-highlight !important; }
 .text-secondary { color: $secondary !important; }
-.text-white { color: white !important; }
-
-.border-blue { border-color: $theme-blue; }
-.border-highlight { border-color: $theme-highlight; }
+.text-white { color: white !important; } */
 
 .text-center { text-align: center !important; }
 .text-right { text-align: right !important; }

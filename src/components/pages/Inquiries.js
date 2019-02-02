@@ -248,7 +248,7 @@ class Inquiries extends Component {
                 </React.Fragment>;
             } else {
                 body = <div className='text-center'>
-                    <h2 className='text-muted'>There are no messages</h2>
+                    <h2 className='text-dark'>There are no messages</h2>
                 </div>;
             }
 
@@ -293,7 +293,7 @@ class Inquiries extends Component {
                             removeJob={(decision) => this.removeJob(decision)}
                             refresh={(id) => this.loadMessage(id, this.state.jobIndex)}
                             />
-                        : <h1 className='load-message-text text-muted'>Select a message to display here</h1>}
+                        : <h1 className='load-message-text text-dark'>Select a message to display here</h1>}
                     </div>
                 </section>
             )

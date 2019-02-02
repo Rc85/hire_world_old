@@ -85,7 +85,7 @@ const OfferDetails = props => {
                 <button className='btn btn-success' onClick={() => props.accept()}>Accept</button> <button className='btn btn-danger' onClick={() => props.decline()}>Decline</button>
             </div>
 
-            <div><small className='text-right text-muted'>Offer ID: {props.offer.offer_id}</small></div>
+            <div><small className='text-right text-dark'>Offer ID: {props.offer.offer_id}</small></div>
         </React.Fragment>;
     }
 

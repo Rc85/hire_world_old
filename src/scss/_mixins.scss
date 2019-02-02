@@ -67,7 +67,7 @@
 }
 
 @mixin new-component-colors {
-    @each $component in 'mini-badge', 'btn' {
+    //@each $component in 'mini-badge', 'btn', {
         @each $colorName, $color, $text in 
         ('success', $success, white),
         ('warning', $warning, black),
@@ -86,12 +86,22 @@
         ('lime', $theme-lime, white),
         ('yellow', $theme-yellow, black),
         ('grey', $theme-medgrey, black) {
-            .#{$component}-#{$colorName} {
+            .mini-badge-#{$colorName} {
+                background-color: $color;
+                color: $text;
+
+                &.outline {
+                    border: 1px solid $color;
+                    background-color: transparent;
+                }
+            }
+
+            .btn-#{$colorName} {
                 background-color: $color;
                 color: $text;
             }
         }
-    }
+    //}
 }
 
 @mixin badges {
@@ -112,7 +122,11 @@
     ('violet', $theme-violet),
     ('lime', $theme-lime),
     ('yellow', $theme-yellow),
-    ('grey', $theme-medgrey) {
+    ('grey', $theme-medgrey),
+    ('special', $theme-special),
+    ('highlight', $theme-highlight),
+    ('alt-highlight', $theme-alt-highlight),
+    ('black', black) {
         .badge.badge-#{$colorName} {
             color: white;
 
@@ -130,5 +144,19 @@
                 &:last-child { border-left: 0; }
             }
         }
+
+        .border-#{$colorName} {
+            border: 1px solid $color !important;
+        }
+
+        .bg-#{$colorName} {
+            background-color: $color !important;
+        }
+
+        .text-#{$colorName} {
+            color: $color !important;
+        }
+
+
     }
 }

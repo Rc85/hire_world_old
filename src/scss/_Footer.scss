@@ -7,4 +7,9 @@ footer { position: relative; }
     width: 100%;
     border-top: 1px solid black;
     z-index: 4;
+
+    .footer-links {
+        width: 50%;
+        margin: 0 auto 30px auto;
+    }
 }

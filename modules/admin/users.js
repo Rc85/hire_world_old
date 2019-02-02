@@ -75,7 +75,7 @@ app.post('/api/admin/get/users', async(req, resp) => {
         }
     })
     .catch(err => {
-        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+        console.log(err);
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });
@@ -102,7 +102,7 @@ app.post('/api/admin/user/change-status', (req, resp) => {
     }
 
     db.connect((err, client, done) => {
-        if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+        if (err) console.log(err);
 
         (async() => {
             try {
@@ -162,7 +162,7 @@ app.post('/api/admin/user/change-status', (req, resp) => {
             }
         })()
         .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+            console.log(err);
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     });
@@ -170,7 +170,7 @@ app.post('/api/admin/user/change-status', (req, resp) => {
 
 app.post('/api/admin/user/warn', (req, resp) => {
     db.connect((err, client, done) => {
-        if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+        if (err) console.log(err);
 
         (async() => {
             try {
@@ -188,7 +188,7 @@ app.post('/api/admin/user/warn', (req, resp) => {
             }
         })()
         .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+            console.log(err);
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     });

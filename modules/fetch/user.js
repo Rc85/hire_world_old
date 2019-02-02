@@ -5,7 +5,7 @@ const stripe = require('stripe')(process.env.NODE_ENV === 'development' ? proces
 
 app.post('/api/get/user', async(req, resp) => {
     db.connect((err, client, done) => {
-        if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+        if (err) console.log(err);
 
         (async() => {
             try {
@@ -42,25 +42,28 @@ app.post('/api/get/user', async(req, resp) => {
                         let userIsReported = false;
                         let reportedReviews = [];
                         let businessHours = {};
+                        let isFriend = false;
+                        let isBlocked = false;
                         
                         if (user.rows[0].display_business_hours) {
                             businessHoursQuery = await client.query(`SELECT * FROM business_hours WHERE business_owner = $1`, [req.body.username]);
-
+                            
                             if (businessHoursQuery.rows.length === 1) {
                                 delete businessHoursQuery.rows[0].business_hour_id;
                                 delete businessHoursQuery.rows[0].business_owner;
-
+                                
                                 businessHours = businessHoursQuery.rows[0];
                             }
                         }
-
+                        
                         if (req.session.user) {
                             orderby = 'user_reviews.reviewer = $2 DESC, ';
                             reviewsParam = [req.body.username, req.session.user.username];
                             reports = await client.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2 AND report_status = 'Pending'`, [req.session.user.username, 'Review']);
                             reportedUser = await client.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2 AND reported_user = $3 AND report_status = 'Pending'`, [req.session.user.username, 'User', req.body.username]);
-
-
+                            isFriend = await client.query(`SELECT * FROM friends WHERE friend_user_1 = $1 AND friend_user_2 = $2`, [req.session.user.username, req.body.username]);
+                            isBlocked = await client.query(`SELECT * FROM blocked_users WHERE blocking_user = $1 AND blocked_user = $2`, [req.session.user.username, req.body.username]);
+                            
                             for (let report of reports.rows) {
                                 reportedReviews.push(report.reported_id);
                             }
@@ -92,12 +95,12 @@ app.post('/api/get/user', async(req, resp) => {
                         WHERE username = $1
                         LIMIT 1;`, [req.body.username]);
 
-                        let isFriend = await client.query(`SELECT * FROM friends WHERE friend_user_1 = $1 AND friend_user_2 = $2`, [req.session.user.username, req.body.username]);
+                        let jobs = await client.query(`SELECT * FROM jobs WHERE job_user = $1 AND job_end_date IS NOT NULL AND job_stage IN ('Completed', 'Abandoned') ORDER BY job_end_date DESC LIMIT 5`, [req.body.username]);
 
                         await client.query(`INSERT INTO user_view_count (viewing_user, view_count) VALUES ($1, $2) ON CONFLICT (viewing_user) DO UPDATE SET view_count = user_view_count.view_count + 1`, [req.body.username, 1]);
 
                         await client.query('COMMIT')
-                        .then(() =>  resp.send({status: 'success', user: user.rows[0], reviews: reviews.rows, stats: stats.rows[0], hours: businessHours, reports: reportedReviews, userReported: userIsReported, isFriend: isFriend.rows.length === 1 ? true : false}));
+                        .then(() =>  resp.send({status: 'success', user: user.rows[0], reviews: reviews.rows, stats: stats.rows[0], hours: businessHours, reports: reportedReviews, userReported: userIsReported, isFriend: isFriend && isFriend.rows.length === 1, jobs: jobs.rows, isBlocked: isBlocked && isBlocked.rows.length === 1}));
                     }
                 } else {
                     let error = new Error(`That user is not listed`);
@@ -113,7 +116,7 @@ app.post('/api/get/user', async(req, resp) => {
             }
         })()
         .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+            console.log(err);
 
             let message = 'An error occurred';
             let errorStatus = 'error';
@@ -135,7 +138,7 @@ app.get('/api/get/business_hours', async(req, resp) => {
             if (result) resp.send({status: 'success', hours: result.rows[0]});
         })
         .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+             console.log(err);
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     } else {
@@ -205,7 +208,7 @@ app.post('/api/get/user/notifications', async(req, resp) => {
             }
         })
         .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: '/api/get/user/notifications'});
+             console.log(err);
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     } else {
@@ -220,7 +223,7 @@ app.post('/api/get/payments', async(req, resp) => {
         if (user && user.rows[0].stripe_cust_id) {
             stripe.customers.retrieve(user.rows[0].stripe_cust_id, (err, customer) => {
                 if (err) {
-                    error.log({name: err.name, message: err.message, origin: `Retrieiving customer's payments`, url: req.url});
+                     console.log(err);
                     resp.send({status: 'error', statusMessage: 'An error occurred'});
                 }
 
@@ -243,7 +246,7 @@ app.post('/api/get/user/subscription', async(req, resp) => {
                 resp.send({status: 'success', subscription: subscription});
             })
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: `Retrieving customer's subscription`, url: req.url});
+                 console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         } else {
@@ -257,7 +260,7 @@ app.post('/api/get/user/subscription', async(req, resp) => {
 app.post('/api/get/user/activities', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -288,7 +291,7 @@ app.post('/api/get/user/activities', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Getting user activities', url: req.url});
+                 console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -355,12 +358,14 @@ app.post('/api/user/get/friends', async(req, resp) => {
 app.post('/api/get/user/minimal', async(req, resp) => {
     await db.query(`SELECT users.username, users.user_email, us.hide_email, up.avatar_url, up.user_business_name, up.user_title, ul.listing_status,
         (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_stage = 'Completed' AND job_user = $1),
-        (SELECT COUNT(job_id) AS job_abandoned FROM jobs WHERE job_stage = 'Abandoned' AND job_user = $1)
+        (SELECT COUNT(job_id) AS job_abandoned FROM jobs WHERE job_stage = 'Abandoned' AND job_user = $1),
+        (SELECT COUNT(friend_id) AS is_friend FROM friends WHERE friend_user_1 = $2 AND friend_user_2 = $1),
+        (SELECT COUNT(blocked_user_id) AS is_blocked FROM blocked_users WHERE blocking_user = $2 AND blocked_user = $1)
     FROM users
     LEFT JOIN user_profiles AS up ON users.user_id = up.user_profile_id
     LEFT JOIN user_listings AS ul ON users.username = ul.listing_user
     LEFT JOIN user_settings AS us ON users.user_id = us.user_setting_id
-    WHERE users.username = $1`, [req.body.user])
+    WHERE users.username = $1`, [req.body.user, req.session.user.username])
     .then(result => {
         if (result && result.rows.length === 1) {
             if (result.rows[0].hide_email) {
@@ -375,6 +380,42 @@ app.post('/api/get/user/minimal', async(req, resp) => {
     .catch(err => {
         console.log(err);
         resp.send({status: 'error', statusMessage: 'An error occurred'});
+    });
+});
+
+app.post('/api/get/user/job-years', async(req, resp) => {
+    await db.query(`SELECT DISTINCT DATE_PART('year', job_end_date) AS job_years FROM jobs WHERE job_user = $1 AND job_stage IN ('Completed', 'Abandoned') ORDER BY job_years`, [req.body.user])
+    .then(result => {
+        if (result) {
+            let currentYear;
+            let years = [];
+
+            for (let year of result.rows) {
+                if (currentYear !== year.job_years) {
+                    years.push(year.job_years);
+                    currentYear = year.job_years;
+                }
+            }
+
+            resp.send({status: 'success', years: years});
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        resp.send({status: 'error', statusMessage: 'Cannot retrieve work history'});
+    });
+});
+
+app.post('/api/get/user/work-history', async(req, resp) => {
+    console.log(req.body);
+
+    await db.query(`SELECT * FROM jobs
+    WHERE job_user = $1 AND job_stage IN ('Completed', 'Abandoned')
+    AND DATE_PART('year', job_end_date) = DATE_PART('year', TO_DATE($2, 'YYYY-MM-DD'))`, [req.body.user, req.body.date])
+    .then(result => {
+        if (result) {    
+            resp.send({status: 'success', history: result.rows});
+        }
     });
 });
 

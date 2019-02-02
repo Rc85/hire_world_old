@@ -8,7 +8,7 @@ app.post('/api/report/submit', (req, resp) => {
             resp.send({status: 'error', statusMessage: 'You cannot report yourself'});
         } else {
             db.connect((err, client, done) => {
-                if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+                if (err) console.log(err);
 
                 (async() => {
                     try {
@@ -33,7 +33,7 @@ app.post('/api/report/submit', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    console.log(err);
                     
                     let message = 'An error occurred';
 

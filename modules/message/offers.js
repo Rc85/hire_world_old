@@ -5,7 +5,7 @@ const error = require('../utils/error-handler');
 app.post('/api/offer/submit', (req, resp) => {
     if (req.session.user) {
         db.connect(async(err, client, done) => {
-            if (err) { error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'}); }
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -69,7 +69,7 @@ app.post('/api/offer/submit', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 let message = 'Fail to send offer';
 
                 if (err.type === 'user_defined') {
@@ -85,7 +85,7 @@ app.post('/api/offer/submit', (req, resp) => {
 app.post('/api/offer/edit', (req, resp) => {
     if (req.session.user) {
         db.connect(async(err, client, done) => {
-            if (err) { error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'}); }
+            if (err) console.log(err);
 
             let authorized = await client.query(`SELECT job_user, job_client FROM jobs WHERE job_id = $1`, [req.body.job_id]);
 
@@ -114,7 +114,7 @@ app.post('/api/offer/edit', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    console.log(err);
                     resp.send({status: 'error', statusMessage: 'Fail to update offer'});
                 })
             } else {
@@ -128,7 +128,7 @@ app.post('/api/offer/edit', (req, resp) => {
 app.post('/api/offer/delete', (req, resp) => {
     if (req.session.user) {
         db.connect(async(err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});;
+            if (err) console.log(err);
 
             let authorized = await client.query(`SELECT job_user, job_client FROM jobs WHERE job_id = $1`, [req.body.job_id]);
 
@@ -156,7 +156,7 @@ app.post('/api/offer/delete', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    console.log(err);
                     resp.send({status: 'error', statusMessage: 'Fail to delete offer'});
                 });
             } else {
@@ -170,7 +170,7 @@ app.post('/api/offer/delete', (req, resp) => {
 app.post('/api/offer/accept', (req, resp) => {
     if (req.session.user) {
         db.connect(async(err, client, done) => {
-            if (err) { error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'}); }
+            if (err) console.log(err);
 
             let authorized = await client.query(`SELECT job_user, job_client FROM jobs WHERE job_id = $1`, [req.body.job_id]);
 
@@ -196,7 +196,7 @@ app.post('/api/offer/accept', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    console.log(err);
                     resp.send({status: 'error', statusMessage: 'Fail to accept offer'});
                 });
             } else {
@@ -210,7 +210,7 @@ app.post('/api/offer/accept', (req, resp) => {
 app.post('/api/offer/decline', (req, resp) => {
     if (req.session.user) {
         db.connect(async(err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             let authorized = await client.query(`SELECT job_user, job_client FROM jobs WHERE job_id = $1`, [req.body.job_id]);
 
@@ -234,7 +234,7 @@ app.post('/api/offer/decline', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    console.log(err);
                     resp.send({status: 'error', statusMessage: 'An error occurred'});
                 });
             } else {

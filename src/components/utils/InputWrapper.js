@@ -10,7 +10,7 @@ const InputWrapper = props => {
                 {props.altLabel ? <label className={props.altLabelClassName ? props.altLabelClassName : ''}>{props.altLabel}</label> : ''}
             </div>
 
-            {props.required ? <div className='input-required'><span className='text-special'>*</span> <small className='text-muted'><em>Required</em></small></div> : ''}
+            {props.required ? <div className='input-required'><span className='text-special'>*</span> <small className='text-dark'><em>Required</em></small></div> : ''}
 
             {props.children}
         </div>

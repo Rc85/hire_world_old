@@ -65,7 +65,7 @@ const ViewUserProfile = props => {
 
             <hr/>
             
-            <div id='view-user-details'>{bio ? bio : ''}</div>
+            <div id='view-user-details' className='mb-3'>{bio ? bio : ''}</div>
 
             <div className='text-right'>
                 <ViewUserSocialMedia user={props.user} />

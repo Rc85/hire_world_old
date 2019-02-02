@@ -90,7 +90,7 @@ class AdminUsers extends Component {
 
         if (this.state.users.length === 0) {
             users = <div className='blue-panel shallow three-rounded text-center'>
-                <h1 className='text-muted'>No users were found</h1>
+                <h1 className='text-dark'>No users were found</h1>
             </div>
         } else {
             users = this.state.users.map((user, i) => {

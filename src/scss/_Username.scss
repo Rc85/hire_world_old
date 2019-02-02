@@ -5,6 +5,9 @@
     .username {
         cursor: pointer;
         font-weight: bold;
+        -webkit-user-select: none;     
+        -moz-user-select: none;
+        -ms-user-select: none;
 
         &:hover { text-decoration: underline; }
     }
@@ -43,7 +46,14 @@
                     margin-right: 10px;
                 }
 
-                .username-popup-user-info { flex-grow: 1; }
+                .username-popup-user-info {
+                    flex-grow: 1;
+                
+                    .username-popup-buttons {
+                        cursor: pointer;
+                        color: $theme-alt-highlight;
+                    }
+                }
             }
 
             .username-popup-body {

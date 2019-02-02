@@ -25,6 +25,10 @@ class LoginPanel extends Component {
         this.props.dispatch(LoginUser(this.state));
     }
 
+    register() {
+        location.href = '/register';
+    }
+
     render() {
         return (
             <div id='login-panel'>
@@ -39,7 +43,10 @@ class LoginPanel extends Component {
 
                     <div className='mb-3'>Forgot Password</div>
 
-                    <div className='text-right'><SubmitButton type='submit' loading={this.state.status === 'Logging in'} value='Login' /></div>
+                    <div className='text-right'>
+                        <SubmitButton type='submit' loading={this.state.status === 'Logging in'} value='Login' />
+                        <button type='button' className='btn btn-info' onClick={() => this.register()}>Register</button>
+                    </div>
                 </form>
             </div>
         );

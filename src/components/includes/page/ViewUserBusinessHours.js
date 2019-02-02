@@ -14,7 +14,7 @@ const ViewUserStats = props => {
     }
 
     return(
-        <TitledContainer title='Business Hours' mini shadow>
+        <TitledContainer title='Business Hours' mini shadow className='mb-5'>
             {time}
         </TitledContainer>
     )

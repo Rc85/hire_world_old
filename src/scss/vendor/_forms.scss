@@ -216,7 +216,7 @@ textarea.form-control {
   margin-left: -$form-check-input-gutter;
 
   &:disabled ~ .form-check-label {
-    color: $text-muted;
+    color: $text-dark;
   }
 }
 

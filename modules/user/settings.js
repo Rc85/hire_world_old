@@ -8,7 +8,7 @@ const controller = require('../utils/controller');
 app.post('/api/user/settings/profile/save', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
             
             if (req.body.businessName && !validate.businessNameCheck.test(req.body.businessName)) {
                 resp.send({status: 'error', statusMessage: 'Business name too long or has invalid characters'});
@@ -52,7 +52,7 @@ app.post('/api/user/settings/profile/save', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    console.log(err);
                     resp.send({status:  'error', statusMessage: 'An error occurred'});
                 });
             }
@@ -65,7 +65,7 @@ app.post('/api/user/settings/profile/save', (req, resp) => {
 app.post('/api/user/settings/password/change', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             let blankCheck = /^\s*$/;
             let charCheck = /.{6,15}/;
@@ -85,11 +85,11 @@ app.post('/api/user/settings/password/change', (req, resp) => {
 
                         if (authorized && authorized.rows.length === 1) {
                             bcrypt.compare(req.body.currentPassword, authorized.rows[0].user_password, (err, matched) => {
-                                if (err) error.log({name: err.name, message: err.message, origin: 'bcrypt Compare', url: req.url});
+                                if (err) console.log(err);
 
                                 if (matched) {
                                     bcrypt.hash(req.body.newPassword, 10, async(err, result) => {
-                                        if (err) error.log({name: err.name, message: err.message, origin: 'bcrypt Unhashing', url: req.url});
+                                        if (err) console.log(err);
                                         
                                         await client.query(`UPDATE users SET user_password = $1 WHERE user_id = $2`, [result, req.session.user.user_id]);
 
@@ -116,7 +116,7 @@ app.post('/api/user/settings/password/change', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    console.log(err);
                     resp.send({status: 'error', statusMessage: 'An error occurred'});
                 });
             }
@@ -129,7 +129,7 @@ app.post('/api/user/settings/password/change', (req, resp) => {
 app.post('/api/user/settings/email/change', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             let emailCheck = /^[a-zA-Z0-9_\-]+(\.{1}[a-zA-Z0-9_\-]*){0,2}@{1}[a-zA-Z0-9_\-]+\.([a-zA-Z0-9_\-]*\.{1}){0,2}[a-zA-Z0-9_\-]{2,}$/;
 
@@ -164,7 +164,7 @@ app.post('/api/user/settings/email/change', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    console.log(err);
                     resp.send({status: 'error', statusMessage: 'An error occurred'});
                 });
             }
@@ -177,7 +177,7 @@ app.post('/api/user/settings/email/change', (req, resp) => {
 app.post('/api/user/settings/change', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -222,7 +222,7 @@ app.post('/api/user/settings/change', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 let message = 'An error occurred';
 
                 if (err.type === 'user_defined') {
@@ -240,7 +240,7 @@ app.post('/api/user/settings/change', (req, resp) => {
 app.post('/api/user/profile/update', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             let valueCheck, column;
 
@@ -305,7 +305,7 @@ app.post('/api/user/profile/update', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    console.log(err);
                     resp.send({status: 'error', statusMessage: 'An error occurred'});
                 });
             } else {

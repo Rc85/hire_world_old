@@ -10,7 +10,7 @@ app.post('/api/get/messages/:type', async(req, resp) => {
             resp.send({status: 'access error'});
         } else {
             db.connect((err, client, done) => {
-                if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+                if (err) console.log(err);
 
                 (async() => {
                     try {
@@ -89,7 +89,7 @@ app.post('/api/get/messages/:type', async(req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: '/api/get/messages/:type'});
+                     console.log(err);
                     resp.send({status: 'error', statusMessage: 'An error occurred'});
                 });
             });
@@ -173,7 +173,7 @@ app.post('/api/get/messages/:type', async(req, resp) => {
             }
         })
         .catch(err => {
-            error.log(err);
+            console.log(err);
             resp.send({status: 'error', statusMessage: 'An error occurred while trying to retrieve messages'});
         });
     }
@@ -220,7 +220,7 @@ app.post('/api/get/message', async(req, resp) => {
                     return false
                 }
             })
-            .catch(err => error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}));
+            .catch(err => console.log(err));
 
             await db.query(`UPDATE messages SET message_status = 'Read' WHERE belongs_to_job = $1 AND message_status != 'Deleted' AND message_recipient = $2`, [req.body.job_id, req.session.user.username])
             .then(() => {
@@ -231,7 +231,7 @@ app.post('/api/get/message', async(req, resp) => {
                 }
             })
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         } else {

@@ -12,7 +12,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.post('/api/auth/register', (req, resp) => {
     request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.RECAPTCHA_SECRET, response: req.body['g-recaptcha-response']}}, (err, res, body) => {
-        if (err) error.log({name: err.name, message: err.message, origin: 'Recaptcha Verification', url: '/api/auth/register'});
+        if (err) console.log(err);
 
         let response = JSON.parse(res.body);
 
@@ -45,10 +45,10 @@ app.post('/api/auth/register', (req, resp) => {
                         resp.send({status: 'error', statusMessage: 'Please enter your city name'});
                     } else {
                         bcrypt.hash(req.body.password, 10, (err, result) => {
-                            if (err) { error.log({name: err.name, message: err.message, origin: 'bcrypt Unhashing', url: req.url}); }
+                            if (err) console.log(err);
 
                             db.connect((err, client, done) => {
-                                if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+                                if (err) console.log(err);
                                 
                                 (async() => {
                                     try {
@@ -94,7 +94,7 @@ app.post('/api/auth/register', (req, resp) => {
                                     }
                                 })()
                                 .catch(err => {
-                                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                                     console.log(err);
                                     
                                     let message = `An error occurred`;
                                     
@@ -130,7 +130,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
         next();
     } else {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -164,7 +164,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
 
                         // Compare password
                         bcrypt.compare(req.body.password, auth.rows[0].user_password, async(err, match) => {
-                            if (err) error.log({name: err.name, message: err.message, origin: 'bcrypt Comparing', url: req.url});
+                            if (err) console.log(err);
 
                             if (match) {
                                 let now = new Date();
@@ -174,7 +174,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
                                 }
                                 
                                 await client.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
-                                .catch(err => error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url}));
+                                // .catch(err => console.log(err);
 
                                 let session = {
                                     user_id: auth.rows[0].user_id,
@@ -192,9 +192,8 @@ app.post('/api/auth/login', async(req, resp, next) => {
                         });
                     } else {
                         let error = new Error('User not found');
-                        error.type = 'CUSTOM';
-                        error.status = 'error';
-                        throw error;
+                        let errorObj = {error, stack: error.stack, type: 'CUSTOM'}
+                        throw errorObj;
                     }    
                 } catch (e) {
                     await client.query('ROLLBACK');
@@ -204,17 +203,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
-                
-                let message = 'An error occurred';
-                let errorStatus = 'error';
-
-                if (err.type === 'CUSTOM') {
-                    errorStatus = err.status;
-                    message = err.message;
-                }
-
-                resp.send({status: errorStatus, statusMessage: message});
+                error.log(err, req, resp);
             });
         }); 
     }
@@ -250,7 +239,7 @@ async(req, resp) => {
             }
         })
         .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+             console.log(err);
             resp.send({status: 'error', statusMessage: 'An errorr occurred'});
         });
     }

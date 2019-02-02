@@ -9,14 +9,15 @@ import ViewUserReview from '../includes/page/ViewUserReview';
 import SubmitReview from '../includes/page/SubmitReview';
 import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserCircle, faEye, faExclamationTriangle, faHeart, faCoins, faUserPlus, faUserMinus, faBan } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faEye, faExclamationTriangle, faHeart, faCoins, faUserPlus, faUserMinus, faBan, faUser } from '@fortawesome/free-solid-svg-icons';
 import ViewUserBusinessHours from '../includes/page/ViewUserBusinessHours';
 import { connect } from 'react-redux';
 import { LogError } from '../utils/LogError';
 import MessageSender from '../includes/page/MessageSender';
-import { faCheckCircle } from '@fortawesome/free-regular-svg-icons';
+import { faCheckCircle, faTimesCircle } from '@fortawesome/free-regular-svg-icons';
 import TitledContainer from '../utils/TitledContainer';
 import Tooltip from '../utils/Tooltip';
+import ViewUserJobActivities from '../includes/page/ViewUserJobActivities';
 
 class ViewUser extends Component {
     constructor(props) {
@@ -32,6 +33,8 @@ class ViewUser extends Component {
             reportedReviews: [],
             userReported: false,
             isFriend: false,
+            isBlocked: false,
+            jobs: [],
             stats: {
                 view_count: 0,
                 job_complete: 0,
@@ -48,7 +51,7 @@ class ViewUser extends Component {
             fetch.post('/api/get/user', {username: this.props.match.params.username})
             .then(resp => {
                 if (resp.data.status === 'success') {
-                    this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported, isFriend: resp.data.isFriend});
+                    this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported, isFriend: resp.data.isFriend, jobs: resp.data.jobs, isBlocked: resp.data.isBlocked});
                 } else if (resp.data.status === 'error') {
                     this.setState({status: ''});
                     this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -66,7 +69,7 @@ class ViewUser extends Component {
         fetch.post('/api/get/user', {username: this.props.match.params.username})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported, isFriend: resp.data.isFriend});
+                this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported, isFriend: resp.data.isFriend, jobs: resp.data.jobs, isBlocked: resp.data.isBlocked});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -74,7 +77,9 @@ class ViewUser extends Component {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
         })
-        .catch(err => LogError(err, '/api/get/user'));
+        .catch(err => {
+            LogError(err, '/api/get/user')
+        });
     }
 
     submitReview(review, star) {
@@ -148,15 +153,7 @@ class ViewUser extends Component {
         fetch.post('/api/user/friend', {user: this.state.user.username, action: action})
         .then(resp => {
             if (resp.data.status === 'success') {
-                let isFriend;
-
-                if (action === 'add') {
-                    isFriend = true;
-                } else if (action === 'remove') {
-                    isFriend = false;
-                }
-
-                this.setState({status: '', isFriend: isFriend});
+                this.setState({status: '', isFriend: action === 'add'});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
             }
@@ -165,8 +162,27 @@ class ViewUser extends Component {
         });
     }
 
+    blockUser(action) {
+        this.setState({status: 'Blocking'});
+
+        fetch.post('/api/user/block', {user: this.state.user.username, action: action})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({status: '', isBlocked: action === 'block'});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => {
+            this.setState({status: ''});
+            LogError(err, '/api/user/block');
+        });
+    }
+
     render() {
-        let status, contacts, profile, reviews, submitReviewButton, reviewed, reportButton, message, friendIcon, businessHours;
+        let status, contacts, profile, reviews, submitReviewButton, reviewed, reportButton, message, friendIcon, businessHours, jobs, blockIcon;
 
         if (this.state.status === 'access error') {
             return <Redirect to={`/error/404`} />
@@ -187,6 +203,7 @@ class ViewUser extends Component {
         if (this.state.user) {
             contacts = <ViewUserContacts user={this.state.user} />;
             profile = <ViewUserProfile user={this.state.user} stats={this.state.stats} hours={this.state.hours} />;
+            jobs = <ViewUserJobActivities user={this.state.user} jobs={this.state.jobs} />;
 
             if (this.state.user.display_business_hours) {
                 businessHours = <ViewUserBusinessHours hours={this.state.hours} />;
@@ -202,7 +219,7 @@ class ViewUser extends Component {
                 });
             } else {
                 reviews = <div className='text-center mt-5'>
-                    <h1 className='text-muted'>Not Yet Reviewed</h1>
+                    <h1 className='text-dark'>Not Yet Reviewed</h1>
                 </div>
             }
 
@@ -218,9 +235,15 @@ class ViewUser extends Component {
                 } else {
                     friendIcon = <Tooltip text='Remove from Friends List' placement='bottom-right'><FontAwesomeIcon icon={faUserMinus} className='text-alt-highlight' onClick={() => this.friendUser('remove')} /></Tooltip>
                 }
+
+                if (!this.state.isBlocked) {
+                    blockIcon = <Tooltip text='Block User' placement='bottom-right'><FontAwesomeIcon icon={faTimesCircle} className='text-secondary' onClick={() => this.blockUser('block')} /></Tooltip>
+                } else {
+                    blockIcon = <Tooltip text='Unblock User' placement='bottom-right'><FontAwesomeIcon icon={faTimesCircle} className='text-danger' onClick={() => this.blockUser('unblock')} /></Tooltip>
+                }
                 
                 if (!this.state.userReported) {
-                    reportButton = <Tooltip text='Report this user' placement='bottom-right'><FontAwesomeIcon icon={faExclamationTriangle} onClick={() => this.submitReport()} className='text-alt-highlight' /></Tooltip>;
+                    reportButton = <Tooltip text='Report this user' placement='bottom-right'><FontAwesomeIcon icon={faExclamationTriangle} onClick={() => this.submitReport()} className='text-warning' /></Tooltip>;
                 }
 
                 if (this.state.user.username !== this.props.user.username && this.state.user.allow_messaging) {
@@ -240,7 +263,7 @@ class ViewUser extends Component {
                 
                 <div id='view-user-details-container'>
                     <div id='view-user-main'>
-                        <TitledContainer title={this.state.user ? this.state.user.username : ''} bgColor='purple' icon={<FontAwesomeIcon icon={faUserCircle} />} shadow>
+                        {<TitledContainer title={this.state.user ? this.state.user.username : ''} bgColor='purple' icon={<FontAwesomeIcon icon={faUserCircle} />} shadow>
                             {profile}
 
                             {message}
@@ -273,32 +296,34 @@ class ViewUser extends Component {
         
                                 <div className='view-user-buttons'>
                                     {friendIcon}
+                                    {blockIcon}
                                     {reportButton}
                                 </div>
                             </div>
-                        </TitledContainer>
+                        </TitledContainer>}
                     </div>
 
                     <div id='view-user-details'>
                         {contacts}
                         {businessHours}
-                    </div>
-                </div>
-
-                <div id='user-reviews-container'>
-                    <div id='user-reviews-wrapper'>
-                        <div className='mt-3'>
-                            <div className='text-right'>{submitReviewButton}</div>
-        
-                            <SubmitReview submit={(review, star) => this.submitReview(review, star)} cancel={() => this.setState({submitReview: false })} className='mt-1' show={this.state.submitReview} />
-                        </div>
-        
-                        <div id='user-reviews' className='mt-5'>
-                            {reviews}
-                        </div>
+                        {jobs}
                     </div>
 
-                    <div className='user-reviews-placeholder-column'></div>
+                    <div id='user-reviews-container'>
+                        <div id='user-reviews-wrapper'>
+                            <div className='mt-3'>
+                                <div className='text-right'>{submitReviewButton}</div>
+            
+                                <SubmitReview submit={(review, star) => this.submitReview(review, star)} cancel={() => this.setState({submitReview: false })} className='mt-1' show={this.state.submitReview} />
+                            </div>
+            
+                            <div id='user-reviews' className='mt-5'>
+                                {reviews}
+                            </div>
+                        </div>
+
+                        <div className='user-reviews-placeholder-column'></div>
+                    </div>
                 </div>
             </div>
         )

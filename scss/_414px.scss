@@ -1,6 +1,10 @@
 @media only screen and (max-width: 414px) {
     #main { position: relative;}
 
+    #logo {
+        img { width: 75%; }
+    }
+
     #pricing-facts {
         margin: 0 auto 0 auto;
     }

@@ -116,7 +116,7 @@ class SubscriptionSettings extends Component {
                                 <div>
                                     <label htmlFor='price' className='mr-2'>Price: </label>
                                     {price}
-                                    <div><small className='text-muted'>Not including Stripe Fees</small></div>
+                                    <div><small className='text-dark'>Not including Stripe Fees</small></div>
                                 </div>
                             </div>
                         </div>

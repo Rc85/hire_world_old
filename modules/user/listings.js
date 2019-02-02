@@ -11,7 +11,7 @@ app.post('/api/listing/create', (req, resp) => {
             resp.send({status: 'error', statusMessage: 'Invalid characters in title'});
         } else {
             db.connect((err, client, done) => {
-                if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+                if (err) console.log(err);
 
                 (async() => {
                     try {
@@ -42,7 +42,7 @@ app.post('/api/listing/create', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    console.log(err);
                     let message = `An error occurred`;
 
                     if (err.type === 'CUSTOM') {
@@ -78,7 +78,7 @@ app.post('/api/listing/toggle', async(req, resp) => {
                 }
             })
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Toggling listing status', url: req.url});
+                console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         }
@@ -90,7 +90,7 @@ app.post('/api/listing/toggle', async(req, resp) => {
 app.post('/api/listing/edit', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             let title = req.body.listing_title.trim();
 
@@ -127,7 +127,7 @@ app.post('/api/listing/edit', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                    console.log(err);
 
                     let message = 'An error occurred';
 
@@ -147,7 +147,7 @@ app.post('/api/listing/edit', (req, resp) => {
 app.post('/api/listing/renew', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -189,7 +189,7 @@ app.post('/api/listing/renew', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 let message = 'An error occurred';
 
                 if (err.type === 'CUSTOM') {
@@ -205,7 +205,7 @@ app.post('/api/listing/renew', (req, resp) => {
 app.post('/api/listing/save', async(req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             if (validate.blankCheck.test(req.body.listing_purpose)) {
                 resp.send({status: 'error', statusMessage: 'Are you looking for work or to hire?'});
@@ -255,7 +255,7 @@ app.post('/api/listing/save', async(req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    error.log({name: err.name, message: err.message, origin: 'Saving list settings', url: req.url});
+                    console.log(err);
                     
                     let message = 'An error occurred';
 
@@ -279,7 +279,7 @@ app.post('/api/listing/save', async(req, resp) => {
             }
         })
         .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+            console.log(err);
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     }
@@ -288,7 +288,7 @@ app.post('/api/listing/save', async(req, resp) => {
 app.post('/api/saved_listings/unsave', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -306,7 +306,7 @@ app.post('/api/saved_listings/unsave', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -420,7 +420,7 @@ app.post('/api/filter/listings', async(req, resp) => {
         }
     })
     .catch(err => {
-        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+        console.log(err);
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });

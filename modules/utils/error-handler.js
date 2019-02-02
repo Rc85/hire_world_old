@@ -1,9 +1,19 @@
 const db = require('../db');
 
 module.exports = {
-    log: async (obj, callback) => {
-        console.log(obj);
-        await db.query(`INSERT INTO error_log (error_name, error_message, error_origin, error_url) VALUES ($1, $2, $3, $4) ON CONFLICT ON CONSTRAINT unique_error DO UPDATE SET error_occurrence = error_log.error_occurrence + 1`, [obj.name, obj.message, obj.origin, obj.url])
+    log: async (err, req, resp, url) => {
+        console.log(err);
+        
+        let message = 'An error occurred';
+
+        if (err.type === 'CUSTOM') {
+            message = err.error.message;
+        }
+
+        await db.query(`INSERT INTO error_log (error, error_url) VALUES ($1, $2) ON CONFLICT (error) DO UPDATE SET error_occurrence = error_log.error_occurrence + 1`, [err.stack, url ? url : req.url]);
+
+        resp.send({status: 'error', statusMessage: message});
+        /* await db.query(`INSERT INTO console.log(err);
         .then(result => {
             if (result && result.rowCount === 1 && callback) {
                 callback('success');
@@ -17,6 +27,6 @@ module.exports = {
             }
             
             console.log(err);
-        });
+        }); */
     }
 }

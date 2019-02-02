@@ -5,7 +5,7 @@ const error = require('../utils/error-handler');
 app.post('/api/get/jobs', async(req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -47,7 +47,7 @@ app.post('/api/get/jobs', async(req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log(err, {name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         });
@@ -59,7 +59,7 @@ app.post('/api/get/jobs', async(req, resp) => {
 app.post('/api/get/offer', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) error.log({name: err.name, message: err.message, origin: 'Database Connection', url: '/'});
+            if (err) console.log(err);
 
             (async() => {
                 try {
@@ -94,7 +94,7 @@ app.post('/api/get/offer', (req, resp) => {
                 }
             })()
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 resp.send({status: 'access error', statusMessage: 'An error occurred'});
             });
         });

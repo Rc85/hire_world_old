@@ -32,7 +32,7 @@ app.post('/api/admin/config/set/:name', async(req, resp) => {
         if (result) resp.send({status: 'success', statusMessage: 'Status changed'});
     })
     .catch(err => {
-        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+        console.log(err);
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });
@@ -59,7 +59,7 @@ app.post('/api/admin/announcement/create', async(req, resp) => {
                 if (result) resp.send({status: 'success', announcement: result.rows[0]});
             })
             .catch(err => {
-                error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+                console.log(err);
                 resp.send({status: 'error', statusMessage: 'An error occurred'});
             });
         }
@@ -74,7 +74,7 @@ app.post('/api/admin/announcement/delete', async(req, resp) => {
         if (result) resp.send({status: 'success'});
     })
     .catch(err => {
-        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+        console.log(err);
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });
@@ -90,7 +90,7 @@ app.post('/api/admin/promo/change-status', async(req, resp) => {
             if (result) resp.send({status: 'success', promo: result.rows[0]});
         })
         .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+            console.log(err);
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     }
@@ -102,7 +102,7 @@ app.post('/api/admin/plan/change-status', async(req, resp) => {
         if (result) resp.send({status: 'success', plan: result.rows[0]});
     })
     .catch(err => {
-        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+        console.log(err);
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });

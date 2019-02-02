@@ -20,7 +20,7 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
 
         resp.json({received: true});
     } catch (e) {
-        error.log({name: e.name, message: e.message, origin: 'Stripe subscription renew webhook', url: req.url});
+        console.log(err);
         resp.status(400).end();
     }
 });

@@ -31,7 +31,8 @@ app.use(bodyParser.json({
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
-    maxAge: 8.64e+7
+    maxAge: 8.64e+7,
+    secure: process.env.NODE_ENV === 'development' ? false : true
 }));
 
 app.use(function (req, res, next) {
@@ -97,7 +98,7 @@ app.get('/pricing', async(req, resp) => {
             return result.rows[0];
         }
     })
-    .catch(err => error.log({name: err.name, message: err.message, origin: 'Database', url: req.url}));
+    .catch(err => console.log(err));
 
     resp.render('pricing', {promo: promo, user: req.session.user});
 });
@@ -219,7 +220,7 @@ app.post('/contact-form', (req, resp) => {
     sgMail.send(message)
     .then(() => resp.render('response', {header: 'Message Sent', message: 'Thank you for writing to us. If your message expects a response, we will respond as soon as we can.'}))
     .catch(err => {
-        error.log({name: err.name, message: err.message, origin: 'Sending message through contact form', url: req.url});
+        console.log(err);
         resp.render('response', {header: '500 Internal Server Error', message: 'An error occurred while trying to deliver your message. Please try again later.'});
     });
 });
@@ -234,7 +235,7 @@ app.post('/api/site/review', (req, resp) => {
         }
     })
     .catch(err => {
-        error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+        console.log(err);
         resp.send({status: 'error', statusMessage: 'An error occurred'});
     });
 });
@@ -252,9 +253,8 @@ app.get(/^\/(app|app(\/)?.*)?/, (req, resp) => {
 }); */
 
 app.post('/api/log-error', (req, resp) => {
-    error.log(req.body, status => {
-        resp.send({status: status});
-    });
+    let errorObj = {stack: req.body.stack}
+    error.log(errorObj, req, resp, req.body.url);
 });
 
 app.use('/api/admin', (req, resp, next) => {
@@ -268,7 +268,7 @@ app.use('/api/admin', (req, resp, next) => {
             }
         })
         .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+            console.log(err);
             resp.send({status: 'error', statusMessage: 'An errorr occurred'});
         });
     } else {
@@ -287,7 +287,7 @@ app.post('/api/admin/privilege', (req, resp) => {
             }
         })
         .catch(err => {
-            error.log({name: err.name, message: err.message, origin: 'Database Query', url: req.url});
+            console.log(err);
             resp.send({status: 'error', statusMessage: 'An errorr occurred'});
         });
     } else {
@@ -321,7 +321,7 @@ app.use(require('./modules/webhooks'));
 
 server.listen(port, '0.0.0.0', (err) => {
     if (err) {
-        error.log({name: err.name, message: err.message, origin: 'Server', url: req.url});
+        console.log(err);
         console.log(err);
     } else {
         console.log(process.env.NODE_ENV);

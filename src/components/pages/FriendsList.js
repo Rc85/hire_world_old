@@ -91,7 +91,6 @@ class FriendsList extends Component {
     }
     
     render() {
-        console.log(this.state);
         let status;
 
         if (this.state.status === 'Loading') {

@@ -38,7 +38,6 @@ class UserWorkHistory extends Component {
 
         fetch.post('/api/get/user/job-years', {user: this.props.user})
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', years: resp.data.years});
             } else {
@@ -56,7 +55,6 @@ class UserWorkHistory extends Component {
 
         fetch.post('/api/get/user/work-history', {user: this.props.user, date: year})
         .then(resp => {
-            console.log(resp)
             if (resp.data.status === 'success') {
                 let startDate = new Date(resp.data.history[0].job_end_date);
                 let startYear = startDate.getUTCFullYear();

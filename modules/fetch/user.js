@@ -407,8 +407,6 @@ app.post('/api/get/user/job-years', async(req, resp) => {
 });
 
 app.post('/api/get/user/work-history', async(req, resp) => {
-    console.log(req.body);
-
     await db.query(`SELECT * FROM jobs
     WHERE job_user = $1 AND job_stage IN ('Completed', 'Abandoned')
     AND DATE_PART('year', job_end_date) = DATE_PART('year', TO_DATE($2, 'YYYY-MM-DD'))`, [req.body.user, req.body.date])

@@ -13,20 +13,5 @@ module.exports = {
         await db.query(`INSERT INTO error_log (error, error_url) VALUES ($1, $2) ON CONFLICT (error) DO UPDATE SET error_occurrence = error_log.error_occurrence + 1`, [err.stack, url ? url : req.url]);
 
         resp.send({status: 'error', statusMessage: message});
-        /* await db.query(`INSERT INTO console.log(err);
-        .then(result => {
-            if (result && result.rowCount === 1 && callback) {
-                callback('success');
-            } else if (result && result.rowCount === 0 && callback) {
-                callback('error');
-            }
-        })
-        .catch(err => {
-            if (callback) {
-                callback('error');
-            }
-            
-            console.log(err);
-        }); */
     }
 }

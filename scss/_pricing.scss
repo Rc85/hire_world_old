@@ -25,7 +25,29 @@
 #pricing-facts {
     font-size: 1.2rem;
     width: 50%;
-    margin: 0 auto 0 auto;
+    margin: 60px auto 0 auto;
+
+    #pricing-cards {
+        display: flex;
+        justify-content: space-between;
+
+        .pricing-card {
+            flex-grow: 1;
+            flex-basis: 50%;
+            margin-right: 15px;
+            border: 1px solid $theme-highlight;
+            padding: 20px;
+
+            h2 {
+                display: flex;
+                justify-content: space-between;
+            }
+        }
+
+        .pricing-card:last-child {
+            margin-right: 0;
+        }
+    }
 }
 
 .pricing-section {
@@ -43,5 +65,18 @@
     a:hover {
         color: $theme-alt-highlight;
         text-decoration: underline;
+    }
+}
+
+#click-money {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    margin-bottom: 60px;
+    color: black;
+
+    img {
+        width: 25%;
+        margin-right: 30px;
     }
 }

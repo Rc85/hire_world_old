@@ -166,7 +166,7 @@ class ListingDetails extends Component {
 
                             <div className='col-4'>
                                 {this.state.listing.user_business_name ? <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faBuilding} className='view-user-icon mr-2' /><strong>Business Name: </strong></div>{this.state.listing.user_business_name}</div> : ''}
-                                <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faUserCircle} className='view-user-icon mr-2' /><strong>User:</strong></div> <div className='mr-2'><NavLink to={`/user/${this.state.listing.listing_user}`}>{this.state.listing.listing_user}</NavLink></div> <UserRating rating={this.state.rating} /></div>
+                                <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faUserCircle} className='view-user-icon mr-2' /><strong>User:</strong></div> <div className='mr-2'>{this.state.listing.listing_user}</div> <UserRating rating={this.state.rating} /></div>
                                 <div className='d-flex'><div className='w-35'><FontAwesomeIcon icon={faIdBadge} className='view-user-icon mr-2' /><strong>Profession Title:</strong></div>{this.state.listing.user_title}</div>
 
                                 <hr/>

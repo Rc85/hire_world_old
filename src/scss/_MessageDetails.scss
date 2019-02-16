@@ -1,10 +1,14 @@
-#message-details {
-    color: black;
-    width: 100%;
-    
-    a {
-        color: $theme-highlight;
-        text-decoration: none;
+#message-column {    
+    #message-details {
+        color: black;
+        width: 100%;
+        
+        a {
+            color: $theme-highlight;
+            text-decoration: none;
+        }
+
+        #reply-button { display: none; }
     }
 }
 

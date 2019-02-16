@@ -13,17 +13,20 @@
     }
 }
 
-#message-list-column {
-    background-color: $theme-blue;
+#message-list-column-container {
     width: 40%;
-    min-height: 100vh;
-    display: flex;
-    align-items: flex-start;
 
-    #message-list-main-column {
-        padding: 20px;
-        width: 100%;
+    #message-list-column {
+        background-color: $theme-blue;
+        min-height: 100%;
+        display: flex;
+        align-items: flex-start;
 
+        #message-list-main-column {
+            padding: 20px;
+            width: 100%;
+
+        }
     }
 }
 

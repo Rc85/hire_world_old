@@ -49,6 +49,12 @@
         }
     }
 
+    .column-end {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
     hr { background-color: $theme-highlight; }
 
     &.with-shadow { box-shadow: 10px 10px 10px $theme-lightblack; }

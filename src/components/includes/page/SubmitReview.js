@@ -43,7 +43,7 @@ class SubmitReview extends Component {
                         <Rating stars={this.state.stars} set={(stars) => this.setRating(stars)} />
                     </div>
     
-                    <TextArea label='Review' value={this.state.review} onChange={(val) => this.setState({review: val})} textAreaClassName='w-100 mb-2' />
+                    <TextArea label='Review' value={this.state.review} onChange={(val) => this.setState({review: val})} textAreaClassName='w-100 mb-2' placeholder={this.props.placeholder} />
 
                     <div className='text-right'><SubmitButton type='button' status={this.props.status} onClick={() => this.props.submit(this.state.review, this.state.stars)} /> <button className='btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button></div>
                 </div>

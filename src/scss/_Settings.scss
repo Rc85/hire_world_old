@@ -2,16 +2,10 @@
 
 #list-settings {
     display: flex;
-    flex-direction: column;
     width: 100%;
         
-    #listing-price {
-        width: 50%;
-    }
-
-    #listing-price-type, #listing-price-currency {
-        width: 25%;
-    }
+    #listing-title, #listing-price, #listing-location { width: 50%; }
+    #listing-under, #listing-price-type, #listing-price-currency { width: 25%; }
 }
 
 .setting-panel-container {
@@ -24,19 +18,43 @@
 .setting-field-container {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+
+    > .setting-field-container {
+        flex-grow: 1;
+        flex-basis: 100%;
+
+        &.quarter { flex-basis: 25% }
+        &.three-quarter { flex-basis: 75%; }
+        &.one-third { flex-basis: 33%; }
+    }
+
+    > .setting-field-container:not(:last-child) {
+        margin-right: 15px;
+    }
+
+    > .input-container {
+        flex-grow: 1;
+        
+        &:not(:last-child) {
+            margin-right: 15px;
+        }
+    }
 
     &.center { align-items: center; }
 }
 
 .setting-child {
     flex-grow: 1;
-    flex-basis: 45%;
-    padding: 0 30px;
+    flex-basis: 100%;
 
-    &.quarter { flex-basis: 25%; }
-    &.three-quarter { flex-basis: 70%; }
-    &.one-third { flex-basis: 30%; }
+    &.quarter { flex-basis: 25% }
+    &.three-quarter { flex-basis: 75%; }
+    &.one-third { flex-basis: 33%; }
+
+    &:not(:last-child) {
+        margin-right: 15px;
+    }
 }
 
 .settings-col {
@@ -58,7 +76,7 @@
     input { text-align: center }
 }
 
-.business-hour-container {
+.hour-container {
     margin: 0 auto 30px auto;
     //width: 50%;
 }
@@ -68,9 +86,23 @@
     text-align: center;
 }
 
+.setting-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    .list-setting-container {
+        width: 60%;
+    }
+
+    .business-hours-setting-container {
+        width: 35%;
+    }
+}
+
 .payment-icons { text-align: right; }
 
-.payment-icon { width: 15%; }
+.payment-icon { width: 100px; }
 .payment-brand { margin-right: 30px; }
 
 .checkout-buttons {
@@ -79,12 +111,47 @@
     align-items: flex-end;
 }
 
-/* .settings-row {
+.radio-container {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+    justify-content: space-around;
 
-#user-address {
-    white-space: pre-line;
-} */
+    label {
+        display: block;
+        margin-bottom: 15px;
+        position: relative;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        
+        input[type=radio] {
+            display: none;
+        }
+    
+        .radio {
+            width: 30px;
+            height: 30px;
+            border: 5px solid $theme-lightgrey;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            cursor: pointer;
+    
+            .radio-selected {
+                width: 14px;
+                height: 14px;
+                background-color: $success;
+                border-radius: 50%;
+            }
+        }
+    
+        &.active {
+            .radio {
+                border: 5px solid $success;
+            }
+    
+            color: $success
+        }
+    }
+}

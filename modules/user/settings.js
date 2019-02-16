@@ -194,13 +194,21 @@ app.post('/api/user/settings/change', (req, resp) => {
                     // Check if user have active jobs
                     if (hasInquiries && hasInquiries.rows.length > 0) {
                         let error = new Error(`Cannot change setting due to active jobs`);
-                        error.type = 'user_defined';
-                        throw error;
+                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                        throw errObj;
                     } else {
                         await client.query(`UPDATE user_settings SET hide_email = $1, display_fullname = $2, email_notifications = $3, allow_messaging = $4, display_business_hours = $6 WHERE user_setting_id = $5`, [req.body.hide_email, req.body.display_fullname, req.body.email_notifications, req.body.allow_messaging, req.session.user.user_id, req.body.display_business_hours]);
 
                         if (req.body.display_business_hours) {
-                            await client.query(`INSERT INTO business_hours (business_owner, monday, tuesday, wednesday, thursday, friday, saturday, sunday) VALUES ($1, $2, $2, $2, $2, $2, $2, $2) ON CONFLICT (business_owner) DO NOTHING`, [req.session.user.username, 'Closed']);
+                            let listing = await client.query(`SELECT listing_id FROM user_listings WHERE listing_user = $1 AND listing_status != 'Deleted'`, [req.session.user.username]);
+
+                            if (listing.rows.length === 1) {
+                                await client.query(`INSERT INTO business_hours (for_listing, monday, tuesday, wednesday, thursday, friday, saturday, sunday) VALUES ($1, $2, $2, $2, $2, $2, $2, $2) ON CONFLICT (for_listing) DO NOTHING`, [listing.rows[0].listing_id, 'Closed']);
+                            } else if (listing.rows.length === 0) {
+                                let error = new Error(`You need to save your list settings`);
+                                let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                                throw errObj;
+                            }
                         }
 
                         /* let user = await client.query(`SELECT users.username, users.user_email, users.account_type, users.user_status, users.is_subscribed, users.plan_id, users.user_last_login, users.user_level, users.subscription_end_date, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
@@ -222,14 +230,7 @@ app.post('/api/user/settings/change', (req, resp) => {
                 }
             })()
             .catch(err => {
-                console.log(err);
-                let message = 'An error occurred';
-
-                if (err.type === 'user_defined') {
-                    message = err.message;
-                }
-                
-                resp.send({status: 'error', statusMessage: message});
+                error.log(err, req, resp);
             });
         });
     } else {

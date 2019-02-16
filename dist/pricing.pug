@@ -6,27 +6,28 @@ block content
             div.alert.alert-info.text-center
                 h4 #{promo.promo_name}
                 .mt-3 #{promo.promo_description}
+        .w-50.mx-auto
+            #click-money
+                img(src='/images/click_money.png')
+                .click-money-article
+                    h1 CPC adds up fast
+                    p When you set your daily budget at five dollar, think about how much that is going to clicks, per month. Not to mention, that is per ad campaign. The worst part of it is, when those clicks doesn't result in any conversion, you're literally paying for nothing.
+                    p At HireWorld, we offer flat rates to list your profile in our directory searchable by users. You can list your profile locally to do your business with local customers. Or you can list remotely to work with customers from across the world using our provided PaaS.
+            hr
         #pricing-facts.blue-panel.shallow.rounded.mb-3
-            .d-flex.align-items-center
+            .d-flex.align-items-center.justify-content-center
                 i.fa.fa-check.fa-lg.mr-3
                 strong No hidden fees
-            .d-flex.align-items-center
+            .d-flex.align-items-center.justify-content-center
                 i.fa.fa-check.fa-lg.mr-3
                 strong No cost per click charges
-            .d-flex.align-items-center
-                i.fa.fa-check.fa-lg.mr-3
-                strong No percent of project fees
-            .d-flex.align-items-center
+            .d-flex.align-items-center.justify-content-center
                 i.fa.fa-check.fa-lg.mr-3
                 strong One flat monthly rate to start listing
             hr
-            .text-center
-                strike
-                    h1 $7 / month
-                    small Plus any applicable fees by 
-                        a(href='https://stripe.com') Stripe, Inc.
-                h1 Free
-                small For a limited time only
+            .d-flex-center-center
+                h2.text-center.mr-1 $8
+                span / 30 day listing
         //-table#pricing-table.table.table-bordered
             thead
                 tr
@@ -108,6 +109,7 @@ block content
                     td
                         i.far.fa-check-circle.fa-2x.text-success
         .text-center.mb-3
+            .mb-3.text-black Registration is free!
             button#pricing-register-button.btn.btn-primary Register Now
         //-hr.mt-5.mb-5.w-50.mx-auto
         //-.mx-auto.w-50.d-flex

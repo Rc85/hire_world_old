@@ -101,7 +101,7 @@ class EditUser extends Component {
         });
     }
 
-    toggleListing() {
+    /* toggleListing() {
         this.setState({status: 'Loading'});
 
         let status;
@@ -126,7 +126,7 @@ class EditUser extends Component {
             }
         })
         .catch(err => LogError(err, '/api/listing/toggle'));
-    }
+    } */
 
     saveField(field, val) {
         this.setState({status: 'Saving'});
@@ -198,6 +198,8 @@ class EditUser extends Component {
                     type = 'badge-pink';
                 } else if (a.activity_type === 'Job') {
                     type = 'badge-lightblue';
+                } else if (a.activity_type === 'Purchase') {
+                    type = 'badge-purple';
                 }
 
                 return <div key={i} className='titled-container-row'>
@@ -218,30 +220,28 @@ class EditUser extends Component {
             });
 
             return(
-                <section id='edit-user' className='main-panel'>
+                <section id='edit-user'>
                     <div id='dashboard-header'>
-                        <div id='dashboard-header-wrapper'>
+                        <div className='dashboard-bar'>
                             <div className='profile-pic-wrapper'><UserProfilePic url={this.props.user.user.avatar_url} editable bordered borderColor='transparent' /></div>
 
                             <div id='dashboard-header-user-info'>
                                 <h1><NavLink to={`/user/${this.props.user.user.username}`}>{this.props.user.user.username}</NavLink></h1>
 
-                                <EditUserField field={this.props.user.user.user_business_name} save={(val) => this.saveField('business name', val)} placeholder='3 - 40 characters' maxLength='40' emptyString='Your business name here' label='Business Name' icon={<FontAwesomeIcon icon={faBuilding} className='text-special edit-user-field-icon' />} dispatch={this.props.dispatch} />
+                                <EditUserField field={this.props.user.user.user_business_name} save={(val) => this.saveField('business name', val)} placeholder='3 - 40 characters' maxLength='40' emptyString='Your company name here' label='Company Name' icon={<FontAwesomeIcon icon={faBuilding} className='text-special edit-user-field-icon' />} dispatch={this.props.dispatch} />
 
                                 <EditUserField field={this.props.user.user.user_title} save={(val) => this.saveField('user title', val)} placeholder='3 - 30 characters' maxLength='30' emptyString='Your profession title here' label='Profession Title' icon={<FontAwesomeIcon icon={faIdCard} className='text-special edit-user-field-icon' />} dispatch={this.props.dispatch} />
 
-                                <EditUserSocialMedia user={this.props.user.user} save={(field, val) => this.saveField(field, val)} dispatch={this.props.dispatch} />
                             </div>
                         </div>
 
-                        <div id='dashboard-list-buttons-container'>
+                        <EditUserSocialMedia user={this.props.user.user} save={(field, val) => this.saveField(field, val)} dispatch={this.props.dispatch} />
+
+                        {/* <div id='dashboard-list-buttons-container'>
                             <NavLink to='/settings/listing'><FontAwesomeIcon icon={faCogs} size='2x' className='dashboard-list-button' color='white' /></NavLink>
                             <SlideToggle status={new Date(this.props.user.user.subscription_end_date) > new Date() && this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} />
-                            {/* <button id='mobile-logout-button' className='btn btn-secondary' onClick={() => this.props.dispatch(LogoutUser())}>Logout</button> */}
-                        </div>
+                        </div> */}
                     </div>
-
-                    <hr/>
 
                     <div id='dashboard-panel-container'>
                         <div id='notifications-panel' className='dashboard-panel-half mb-5'>
@@ -372,12 +372,53 @@ class EditUserSocialMedia extends Component {
         return(
             <div id='edit-user-social-media' className='mt-3'>
                 <div id='edit-user-social-media-buttons'>
-                    <FontAwesomeIcon icon={faFacebook} id='edit-user-facebook' className={`edit-user-social-media-button ${this.props.user.user_facebook ? 'text-highlight' : 'text-dark'}`} size='2x' onClick={() => this.setState({edit: true, label: 'Facebook', field: 'user facebook', value: this.props.user.user_facebook || ''})} />
-                    <FontAwesomeIcon icon={faGithub} id='edit-user-github' className={`edit-user-social-media-button ${this.props.user.user_github ? 'text-highlight' : 'text-dark'}`} size='2x' onClick={() => this.setState({edit: true, label: 'GitHub', field: 'user github', value: this.props.user.user_github || ''})} />
-                    <FontAwesomeIcon icon={faTwitter} id='edit-user-twitter' className={`edit-user-social-media-button ${this.props.user.user_twitter ? 'text-highlight' : 'text-dark'}`} size='2x' onClick={() => this.setState({edit: true, label: 'Twitter', field: 'user twitter', value: this.props.user.user_twitter || ''})} />
-                    <FontAwesomeIcon icon={faInstagram} id='edit-user-instagram' className={`edit-user-social-media-button ${this.props.user.user_instagram ? 'text-highlight' : 'text-dark'}`} size='2x' onClick={() => this.setState({edit: true, label: 'Instagram', field: 'user instagram', value: this.props.user.user_instagram || ''})} />
-                    <FontAwesomeIcon icon={faLinkedin} id='edit-user-linkedin' className={`edit-user-social-media-button ${this.props.user.user_linkedin ? 'text-highlight' : 'text-dark'}`} size='2x' onClick={() => this.setState({edit: true, label: 'Linkedin', field: 'user linkedin', value: this.props.user.user_linkedin || ''})} />
-                    <FontAwesomeIcon icon={faGlobe} id='edit-user-website' className={`edit-user-social-media-button ${this.props.user.user_website ? 'text-highlight' : 'text-dark'}`} size='2x' onClick={() => this.setState({edit: true, label: 'Website', field: 'user website', value: this.props.user.user_website || ''})} />
+                    <FontAwesomeIcon
+                    icon={faFacebook}
+                    id='edit-user-facebook'
+                    className={`edit-user-social-media-button ${this.props.user.user_facebook ? 'text-highlight' : ''}`}
+                    size='2x'
+                    onClick={() => this.setState({edit: true, label: 'Facebook', field: 'user facebook', value: this.props.user.user_facebook || ''})}
+                    />
+
+                    <FontAwesomeIcon
+                    icon={faGithub}
+                    id='edit-user-github'
+                    className={`edit-user-social-media-button ${this.props.user.user_github ? 'text-highlight' : ''}`}
+                    size='2x'
+                    onClick={() => this.setState({edit: true, label: 'GitHub', field: 'user github', value: this.props.user.user_github || ''})}
+                    />
+
+                    <FontAwesomeIcon
+                    icon={faTwitter}
+                    id='edit-user-twitter'
+                    className={`edit-user-social-media-button ${this.props.user.user_twitter ? 'text-highlight' : ''}`}
+                    size='2x'
+                    onClick={() => this.setState({edit: true, label: 'Twitter', field: 'user twitter', value: this.props.user.user_twitter || ''})}
+                    />
+
+                    <FontAwesomeIcon
+                    icon={faInstagram}
+                    id='edit-user-instagram'
+                    className={`edit-user-social-media-button ${this.props.user.user_instagram ? 'text-highlight' : ''}`}
+                    size='2x'
+                    onClick={() => this.setState({edit: true, label: 'Instagram', field: 'user instagram', value: this.props.user.user_instagram || ''})}
+                    />
+
+                    <FontAwesomeIcon
+                    icon={faLinkedin}
+                    id='edit-user-linkedin'
+                    className={`edit-user-social-media-button ${this.props.user.user_linkedin ? 'text-highlight' : ''}`}
+                    size='2x'
+                    onClick={() => this.setState({edit: true, label: 'Linkedin', field: 'user linkedin', value: this.props.user.user_linkedin || ''})}
+                    />
+
+                    <FontAwesomeIcon
+                    icon={faGlobe}
+                    id='edit-user-website'
+                    className={`edit-user-social-media-button ${this.props.user.user_website ? 'text-highlight' : ''}`}
+                    size='2x'
+                    onClick={() => this.setState({edit: true, label: 'Website', field: 'user website', value: this.props.user.user_website || ''})}
+                    />
                 </div>
 
                 {input}

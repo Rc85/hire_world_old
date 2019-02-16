@@ -9,10 +9,20 @@
 }
 
 #sidebar-buttons-container {
-    margin-right: 30px;
+    padding: 0 20px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     position: relative;
+
+    div {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+
+        &:hover {
+            color: $theme-highlight;
+        }
+    }
 
     .sidebar-button:first-child { margin-right: 5px; }
 
@@ -91,9 +101,9 @@
 #notification-panel {
     position: absolute;
     top: 0;
-    left: calc(100% + 30px);
+    left: calc(100% + 20px);
     z-index: 3;
-    width: 100%;
+    width: 400px;
     transform: scaleX(0);
     transition: transform 0.05s ease-in-out;
     transform-origin: left;

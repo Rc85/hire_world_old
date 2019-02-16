@@ -1,0 +1,23 @@
+@media only screen and (max-width: 1366px) {
+    #hireworld-logo { width: 90%; }
+
+    #sidebar-links { margin-left: 25px; }
+
+    #view-user-header { flex-direction: column-reverse; }
+
+    #view-user-login-info {
+        align-self: flex-end;
+        margin-bottom: 30px;
+    }
+
+    #view-user-details-container { grid-template-columns: 65% 35%; }
+
+    #view-user-header {
+        #view-user-header-info {
+            flex-grow: 0;
+            width: 100%;
+        }
+    }
+
+    #view-user-profile-pic { margin-right: 15px; }
+}

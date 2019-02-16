@@ -66,12 +66,12 @@ class AccountSettings extends Component {
                 <section id='user-settings' className='main-panel'>
                     {status}
 
-                    <TitledContainer title='Account Settings' bgColor='yellow' textColor='black' icon={<FontAwesomeIcon icon={faUserCircle} />} shadow>
+                    <TitledContainer title='Account Settings' bgColor='orange' icon={<FontAwesomeIcon icon={faUserCircle} />} shadow>
                         <ProfileSettings user={this.props.user} />
         
                         <hr/>
         
-                        <div className='setting-field-container mb-3'>
+                        <div className='d-flex-between-start mb-3'>
                             <div className='settings-col'><PasswordSettings /></div>
                             <div className='settings-col'><EmailSettings user={this.props.user.user} /></div>
                         </div>
@@ -99,7 +99,7 @@ class AccountSettings extends Component {
                                 </div>
         
                                 <div className='setting-col-field mb-3'>
-                                    <label htmlFor='allowMessaging'>Allow messaging:</label>
+                                    <label htmlFor='allowMessaging'>Block New Messages:</label>
         
                                     <SlideToggle status={this.props.user.user && this.props.user.user.allow_messaging ? this.props.user.user.allow_messaging : false} id='allowMessaging' onClick={() => this.saveSetting('allow_messaging')} />
                                 </div>

@@ -6,6 +6,8 @@
         -webkit-transform-origin:0 0;
     }
 
+    #main-panel-bg { height: 150px; }
+
     #view-user-footer {
         flex-direction: column;
 
@@ -36,25 +38,31 @@
         }
     }
 
-    #message-list-column {
-        transition: height 0.25s ease-in-out;
-        min-height: 0;
+    #message-list-column-container {
+        height: auto;
+        width: 100%;
 
-        #message-list-main-column { padding: 50px 20px 20px 20px; }
-
-        &.hide {
+        #message-list-column {
+            height: 100vh;
             width: 100%;
-            height: 0;
-            z-index: 3;
-        
-            #message-list-main-column {
-                opacity: 0;
-                transition: opacity 0s ease-out 0s;
+            transition: height 0.25s ease-in-out;
+
+            #message-list-main-column { padding: 50px 20px 20px 20px; }
+
+            &.hide {
+                width: 100%;
+                height: 0;
+                z-index: 3;
+            
+                #message-list-main-column {
+                    opacity: 0;
+                    transition: opacity 0s ease-out 0s;
+                }
             }
         }
-    }
 
-    #message-list-mini-column { display: none; }
+        #message-list-mini-column { display: none; }
+    }
 
     #message-list-toggle-up-down {
         display: block;

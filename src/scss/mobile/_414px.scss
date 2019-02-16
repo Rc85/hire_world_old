@@ -1,11 +1,15 @@
 @media only screen and (max-width: 414px) {
     #dashboard-header {
-        #dashboard-header-wrapper {
-            .profile-pic-wrapper {
-                width: 100%;
-                margin-bottom: 15px;
-            }
+        .profile-pic-wrapper {
+            width: 100%;
+            margin-bottom: 15px;
         }
+    }
+
+    #main-panel-bg { height: 200px; }
+
+    .edit-user-header-field {
+        h3 { justify-content: space-between; }
     }
 
     .listing-row-title, .listing-row-detail-child {
@@ -37,6 +41,20 @@
     
         .message-container {
             width: 100%;
+        }
+    }
+
+    #message-column {
+        #message-details {
+            #reply-button { display: block; }
+
+            #reply-container {
+                display: none;
+
+                &.show {
+                    display: block;
+                }
+            }
         }
     }
     

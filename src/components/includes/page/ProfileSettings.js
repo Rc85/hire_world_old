@@ -129,12 +129,7 @@ class ProfileSettings extends Component {
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child three-quarter'>
                         <InputWrapper label='Country' required>
-                            <select onChange={(e) => this.setSettings({country: e.target.value})} value={this.state.settings.country}>
-                                <option value=''>Select Country</option>
-                                <option value='Canada'>Canada</option>
-                                <option value='Mexico'>Mexico</option>
-                                <option value='United States'>United States</option>
-                            </select>
+                            <CountryDropdown value={this.state.settings.country} onChange={(val) => this.setSettings({country: val})} />
                         </InputWrapper>
                         {/* <label htmlFor='country'>Country:</label>
                         <select name='country' id='country' onChange={(e) => this.setSettings({country: e.target.value})} defaultValue={this.initialSettings.country}>

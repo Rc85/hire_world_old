@@ -1,0 +1,21 @@
+.static-alert {
+    border-width: 1px;
+    border-style: solid;
+    display: inline-flex;
+    align-items: center;
+    margin: 15px auto;
+
+    &.static-alert-danger {
+        border-color: #a54646;
+        background-color: #e6a8a8;
+        color: #a54646;
+
+        .static-alert-icon {
+            background-color: #a54646;
+            color: #e6a8a8;
+        }
+    }
+
+    .static-alert-icon, .static-alert-text { padding: 10px; }
+    .static-alert-icon { height: 100%; }
+}

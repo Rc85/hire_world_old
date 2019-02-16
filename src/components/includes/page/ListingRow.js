@@ -25,7 +25,7 @@ const ListingRow = props => {
 
                 <div className='listing-row-title' title={props.listing.listing_title}><NavLink to={`/user/${props.listing.listing_user}`}>{props.listing.listing_title}</NavLink></div>
 
-                <div className='listing-row-purpose'>{purpose}</div>
+                <div className='listing-row-purpose'>{props.listing.listing_remote ? <span className='mini-badge mini-badge-orange'>Remote</span> : ''} {props.listing.listing_local ? <span className='mini-badge mini-badge-purple'>Local</span> : ''}</div>
 
                 <div className='listing-row-rating'>
                     <UserRating rating={props.listing.rating} /> ({props.listing.review_count ? props.listing.review_count : 0})
@@ -50,7 +50,7 @@ const ListingRow = props => {
                 </div>
 
                 <div className='listing-row-buttons'>
-                    <Tooltip text='Report this user' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} className='text-highlight' size='sm' /></Tooltip>
+                    <Tooltip text='Report this listing' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} className='text-highlight' size='sm' /></Tooltip>
                 </div>
             </div>
         </div>

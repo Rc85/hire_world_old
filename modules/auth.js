@@ -60,7 +60,7 @@ app.post('/api/auth/register', (req, resp) => {
 
                                         let user = await client.query(`INSERT INTO users (username, user_password, user_email, account_type, registration_key) VALUES ($1, $2, $3, $4, $5) RETURNING user_id, username`, [req.body.username, result, req.body.email, 'User', regKeyString]);
 
-                                        await client.query(`INSERT INTO user_profiles (user_profile_id, user_firstname, user_lastname, user_country, user_region, user_city, user_title) VALUES ($1, $2, $3, $4, $5, $6, $7)`, [user.rows[0].user_id, req.body.firstName, req.body.lastName, req.body.country, req.body.region, req.body.city, req.body.title]);
+                                        await client.query(`INSERT INTO user_profiles (user_profile_id, user_firstname, user_lastname, user_title) VALUES ($1, $2, $3, $4)`, [user.rows[0].user_id, req.body.firstName, req.body.lastName, req.body.title]);
                                         await client.query(`INSERT INTO user_settings (user_setting_id) VALUES ($1)`, [user.rows[0].user_id]);
 
                                         let message = {

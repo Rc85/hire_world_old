@@ -37,7 +37,7 @@ class BusinessHoursSettings extends Component {
     }
 
     componentDidMount() {
-        fetch.get('/api/get/business_hours')
+        fetch.post('/api/get/business_hours', {id: this.props.id})
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.initialState = this.splitHours(resp.data.hours);
@@ -148,7 +148,7 @@ class BusinessHoursSettings extends Component {
             days['sun'] = 'Closed';
         }
 
-        fetch.post('/api/user/business_hours/save', days)
+        fetch.post('/api/user/business_hours/save', {days: days, id: this.props.id})
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.initialState = {...this.state};
@@ -182,38 +182,36 @@ class BusinessHoursSettings extends Component {
     
     render() {
         return (
-            <TitledContainer title='Business Hours' bgColor='orange' shadow icon={<FontAwesomeIcon icon={faBusinessTime} />} >
-                <section id='business-hours-settings' className='w-100'>
-                    <div className='d-flex-between-center'>
-                        <div className='mr-1'><h5>Business Hours:</h5></div>
-    
-                        <SlideToggle status={this.props.user.user.display_business_hours} onClick={() => this.toggle()} />
-                    </div>
-    
-                    <span>If one or both fields are blank, it will indicate 'Closed' for that day.</span>
-    
-                    <hr/>
-    
-                    <div id='hours-settings'>
-                        <HourSetters day='Monday' startTime={(val) => this.setState({monStartTime: val})} endTime={(val) => this.setState({monEndTime: val})} startValue={this.state.monStartTime} endValue={this.state.monEndTime} dispatch={this.props.dispatch} />
-                        <HourSetters day='Tuesday' startTime={(val) => this.setState({tueStartTime: val})} endTime={(val) => this.setState({tueEndTime: val})} startValue={this.state.tueStartTime} endValue={this.state.tueEndTime} dispatch={this.props.dispatch} />
-                        <HourSetters day='Wednesday' startTime={(val) => this.setState({wedStartTime: val})} endTime={(val) => this.setState({wedEndTime: val})} startValue={this.state.wedStartTime} endValue={this.state.wedEndTime} dispatch={this.props.dispatch} />
-                        <HourSetters day='Thursday' startTime={(val) => this.setState({thuStartTime: val})} endTime={(val) => this.setState({thuEndTime: val})} startValue={this.state.thuStartTime} endValue={this.state.thuEndTime} dispatch={this.props.dispatch} />
-                        <HourSetters day='Friday' startTime={(val) => this.setState({friStartTime: val})} endTime={(val) => this.setState({friEndTime: val})} startValue={this.state.friStartTime} endValue={this.state.friEndTime} dispatch={this.props.dispatch} />
-                        <HourSetters day='Saturday' startTime={(val) => this.setState({satStartTime: val})} endTime={(val) => this.setState({satEndTime: val})} startValue={this.state.satStartTime} endValue={this.state.satEndTime} dispatch={this.props.dispatch} />
-                        <HourSetters day='Sunday' startTime={(val) => this.setState({sunStartTime: val})} endTime={(val) => this.setState({sunEndTime: val})} startValue={this.state.sunStartTime} endValue={this.state.sunEndTime} dispatch={this.props.dispatch} />
-    
-                        <div className='text-right'><SubmitButton loading={this.state.status === 'Loading'} type='button' value='Save' onClick={() => this.save(this.state)} disabled={JSON.stringify(this.state) == JSON.stringify(this.initialState)} /></div>
-                    </div>
-                </section>
-            </TitledContainer>
+            <section id='business-hours-settings' className='mb-3'>
+                <div className='d-flex-between-center'>
+                    <div className='mr-1'><h5>Business Hours:</h5></div>
+
+                    <SlideToggle status={this.props.user.user.display_business_hours} onClick={() => this.toggle()} />
+                </div>
+
+                <span>If one or both fields are blank, it will indicate 'Closed' for that day.</span>
+
+                <hr/>
+
+                <div id='hours-settings'>
+                    <HourSetters day='Monday' startTime={(val) => this.setState({monStartTime: val})} endTime={(val) => this.setState({monEndTime: val})} startValue={this.state.monStartTime} endValue={this.state.monEndTime} dispatch={this.props.dispatch} />
+                    <HourSetters day='Tuesday' startTime={(val) => this.setState({tueStartTime: val})} endTime={(val) => this.setState({tueEndTime: val})} startValue={this.state.tueStartTime} endValue={this.state.tueEndTime} dispatch={this.props.dispatch} />
+                    <HourSetters day='Wednesday' startTime={(val) => this.setState({wedStartTime: val})} endTime={(val) => this.setState({wedEndTime: val})} startValue={this.state.wedStartTime} endValue={this.state.wedEndTime} dispatch={this.props.dispatch} />
+                    <HourSetters day='Thursday' startTime={(val) => this.setState({thuStartTime: val})} endTime={(val) => this.setState({thuEndTime: val})} startValue={this.state.thuStartTime} endValue={this.state.thuEndTime} dispatch={this.props.dispatch} />
+                    <HourSetters day='Friday' startTime={(val) => this.setState({friStartTime: val})} endTime={(val) => this.setState({friEndTime: val})} startValue={this.state.friStartTime} endValue={this.state.friEndTime} dispatch={this.props.dispatch} />
+                    <HourSetters day='Saturday' startTime={(val) => this.setState({satStartTime: val})} endTime={(val) => this.setState({satEndTime: val})} startValue={this.state.satStartTime} endValue={this.state.satEndTime} dispatch={this.props.dispatch} />
+                    <HourSetters day='Sunday' startTime={(val) => this.setState({sunStartTime: val})} endTime={(val) => this.setState({sunEndTime: val})} startValue={this.state.sunStartTime} endValue={this.state.sunEndTime} dispatch={this.props.dispatch} />
+
+                    <div className='text-right'><SubmitButton loading={this.state.status === 'Loading'} type='button' value='Save' onClick={() => this.save(this.state)} disabled={JSON.stringify(this.state) == JSON.stringify(this.initialState)} /></div>
+                </div>
+            </section>
         );
     }
 }
 
 const HourSetters = props => {
     return(
-        <div id={props.day} className='business-hour-container'>                      
+        <div id={props.day} className='hour-container'>                      
             <InputGroup className='hour-container' label={props.day}>
                 <div className='start-time'><input type='text' onChange={(e) => props.startTime(e.target.value)} maxLength='15' defaultValue={props.startValue} onFocus={() => props.dispatch(isTyping(true))} onBlur={() => props.dispatch(isTyping(false))} /></div>
                 <div className='hour-separator'>to</div>
@@ -227,4 +225,10 @@ BusinessHoursSettings.propTypes = {
     user: PropTypes.object
 }
 
-export default connect()(BusinessHoursSettings);
+const mapStateToProps = state => {
+    return {
+        user: state.Login
+    }
+}
+
+export default connect(mapStateToProps)(BusinessHoursSettings);

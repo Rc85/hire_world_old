@@ -5,10 +5,12 @@
 @import 'vendor/font-awesome/fontawesome';
 @import 'vendor/font-awesome/solid';
 @import 'vendor/font-awesome/regular';
+@import 'vendor/font-awesome/brands';
 @import 'navbar';
 @import 'browse-menu';
 @import 'main';
 @import 'pricing';
+@import 'features';
 @import 'how';
 @import 'about';
 @import 'faq';
@@ -58,6 +60,9 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Montserrat Bold'; }
 
 .blue-panel {
     background: $theme-blue;
+    color: white;
+
+    h1, h2, h3, h4, h5, h6 { color: white; }
 
     a {
         color: $theme-alt-highlight;

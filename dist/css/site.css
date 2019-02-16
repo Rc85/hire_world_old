@@ -5705,6 +5705,21 @@ readers do not read off random characters that represent icons */
   font-weight: 400;
 }
 
+/*!
+ * Font Awesome Free 5.4.1 by @fontawesome - https://fontawesome.com
+ * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+ */
+@font-face {
+  font-family: "Font Awesome 5 Brands";
+  font-style: normal;
+  font-weight: normal;
+  src: url("../webfonts/fa-brands-400.eot");
+  src: url("../webfonts/fa-brands-400.eot?#iefix") format("embedded-opentype"), url("../webfonts/fa-brands-400.woff2") format("woff2"), url("../webfonts/fa-brands-400.woff") format("woff"), url("../webfonts/fa-brands-400.ttf") format("truetype"), url("../webfonts/fa-brands-400.svg#fontawesome") format("svg");
+}
+.fab {
+  font-family: "Font Awesome 5 Brands";
+}
+
 #topbar {
   background-color: #2F496E;
   display: flex;
@@ -5809,7 +5824,7 @@ readers do not read off random characters that represent icons */
 .sub-section {
   padding: 30px;
   color: #1F1F1F;
-  min-height: 50vh;
+  min-height: 25vh;
   font-size: 1.2rem;
   margin-bottom: 30px;
 }
@@ -5938,6 +5953,15 @@ i {
   cursor: pointer;
 }
 
+.credit {
+  text-align: right;
+  color: #DFDFDF;
+  font-size: 0.7rem;
+}
+.credit a {
+  color: #2988BC;
+}
+
 #pricing-table {
   width: 50%;
   margin: 0 auto 30px auto;
@@ -5967,7 +5991,25 @@ i {
 #pricing-facts {
   font-size: 1.2rem;
   width: 50%;
-  margin: 0 auto 0 auto;
+  margin: 60px auto 0 auto;
+}
+#pricing-facts #pricing-cards {
+  display: flex;
+  justify-content: space-between;
+}
+#pricing-facts #pricing-cards .pricing-card {
+  flex-grow: 1;
+  flex-basis: 50%;
+  margin-right: 15px;
+  border: 1px solid #2988BC;
+  padding: 20px;
+}
+#pricing-facts #pricing-cards .pricing-card h2 {
+  display: flex;
+  justify-content: space-between;
+}
+#pricing-facts #pricing-cards .pricing-card:last-child {
+  margin-right: 0;
 }
 
 .pricing-section {
@@ -5985,6 +6027,81 @@ i {
 .pricing-section a:hover {
   color: #7dd2ff;
   text-decoration: underline;
+}
+
+#click-money {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 60px;
+  color: black;
+}
+#click-money img {
+  width: 25%;
+  margin-right: 30px;
+}
+
+#features {
+  color: black;
+}
+#features a {
+  color: #2988BC;
+}
+#features > h1, #features > h2, #features > h3, #features > h4, #features > h5, #features > h6 {
+  color: #2F496E;
+}
+#features #feature-intro {
+  display: flex;
+  align-items: flex-start;
+}
+#features #feature-intro img {
+  width: 25%;
+}
+#features .how-container {
+  display: grid;
+  grid-template-columns: 5fr 10fr;
+  padding-left: 60px;
+  grid-row-gap: 30px;
+}
+#features .how-container .how-img, #features .how-container .step {
+  display: flex;
+  align-items: center;
+}
+#features .how-container .how-img i {
+  color: #DFDFDF;
+}
+#features .how-container .how-img i.blue {
+  color: #2F496E;
+}
+#features .how-container .how-img .milestone {
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  border-radius: 100%;
+  background-color: #DFDFDF;
+  color: #2F496E;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#features .how-container .how-img img {
+  filter: brightness(90%);
+}
+#features .how-container .description {
+  display: grid;
+}
+#features .how-container .description span {
+  align-self: center;
+}
+#features .how-container .description hr {
+  margin: 0;
+  align-self: end;
+}
+#features .how-container .step {
+  font-family: "Arial";
+  color: #2988BC;
+  font-weight: bold;
+  font-size: 4rem;
 }
 
 #how-it-works {
@@ -6194,6 +6311,13 @@ i {
     margin-bottom: 50px;
   }
 
+  #benefits {
+    margin-top: 0;
+  }
+  #benefits i {
+    font-size: 1em;
+  }
+
   .process {
     flex-direction: column;
     justify-content: flex-start;
@@ -6328,6 +6452,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .blue-panel {
   background: #2F496E;
+  color: white;
+}
+.blue-panel h1, .blue-panel h2, .blue-panel h3, .blue-panel h4, .blue-panel h5, .blue-panel h6 {
+  color: white;
 }
 .blue-panel a {
   color: #7dd2ff;

@@ -247,7 +247,11 @@ $(document).ready(function() {
     $('#mobile-home-link').on('click', function() {
         location.href = '/';
     });
-    
+
+    $('#mobile-features-link').on('click', function() {
+        location.href = '/features';
+    });
+
     $('#mobile-pricing-link').on('click', function() {
         location.href = '/pricing';
     });

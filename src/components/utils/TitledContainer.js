@@ -9,7 +9,7 @@ const TitledContainer = props => {
                 <h3 className={`bg-${props.bgColor ? props.bgColor : 'highlight'} ${props.textColor ? `text-${props.textColor}` : ''}`}>{props.title}</h3>
             </div>
 
-            <div className={`${props.scroll ? 'with-scroll' : 'no-scroll'}`}>{props.children}</div>
+            <div className={`${props.contentClassName ? props.contentClassName : ''} ${props.scroll ? 'with-scroll' : 'no-scroll'}`}>{props.children}</div>
         </div>
     )
 }

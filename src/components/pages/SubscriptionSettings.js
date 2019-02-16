@@ -10,7 +10,7 @@ import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationA
 import { connect } from 'react-redux';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSyncAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSyncAlt, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import { Redirect } from 'react-router-dom';
 import Loading from '../utils/Loading';
 import Tooltip from '../utils/Tooltip';
@@ -33,7 +33,7 @@ class SubscriptionSettings extends Component {
         }
     }
 
-    componentDidMount() {
+    /* componentDidMount() {
         fetch.post('/api/get/user/subscription')
         .then(resp => {
             if (resp.data.status === 'success') {
@@ -41,7 +41,7 @@ class SubscriptionSettings extends Component {
             }
         })
         .catch(err => LogError(err, '/api/get/user/subscription'));
-    }
+    } */
 
     cancelSubscription() {
         this.setState({status: 'Loading'});
@@ -132,10 +132,8 @@ class SubscriptionSettings extends Component {
 
             return (
                 <section id='subscription-setting' className='main-panel'>
-                    <TitledContainer title='Subscription Setting' bgColor='orange' icon={<FontAwesomeIcon icon={faSyncAlt} />} shadow>
+                    <TitledContainer title='Purchase' bgColor='orange' icon={<FontAwesomeIcon icon={faShoppingCart} />} shadow>
                         {subscriptionInfo}
-        
-                        <span>Upgrading will have pro-rated credit applied to your next bill. See FAQ for more detail.</span>
         
                         <StripeProvider apiKey={process.env.REACT_ENV === 'development' ? 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R' : 'pk_live_wJ7nxOazDSHu9czRrGjUqpep'}>
                             <Elements>

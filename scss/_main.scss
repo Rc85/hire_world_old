@@ -46,7 +46,7 @@
 .sub-section {
     padding: 30px;
     color: $not-black;
-    min-height: 50vh;
+    min-height: 25vh;
     font-size: 1.2rem;
     margin-bottom: 30px;
 
@@ -158,4 +158,12 @@ i { color: $theme-highlight; }
 
 #browse-button {
     cursor: pointer;
+}
+
+.credit {
+    text-align: right;
+    color: $theme-lightgrey;
+    font-size: 0.7rem;
+
+    a { color: $theme-highlight; }
 }

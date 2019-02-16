@@ -8,7 +8,7 @@
 @import 'App';
 @import 'TitledContainer';
 @import 'InputGroup';
-@import 'InputText';
+@import 'InputWrapper';
 @import 'TextArea';
 @import 'Tooltip';
 
@@ -18,10 +18,11 @@
 @import 'Dashboard';
 @import 'Footer';
 @import 'FriendsList';
+@import 'Jobs';
 @import 'Login';
 @import 'Main';
 @import 'MessageDetails';
-@import 'MessageRow';
+@import 'Conversation';
 @import 'Messages';
 @import 'RegisterForm';
 @import 'Response';
@@ -29,11 +30,13 @@
 @import 'Sectors';
 @import 'ServiceDetails';
 @import 'SideBar';
+@import 'StartJob';
 @import 'SubmitReview';
 @import 'TabBar';
 @import 'UserDetails';
 @import 'UserInfo';
 @import 'Settings';
+@import 'MyListingRow';
 @import 'ViewUser';
 @import 'ViewUserReview';
 
@@ -45,12 +48,14 @@
 @import 'Pagination';
 @import 'RadioInput';
 @import 'ReviewButtonTooltip';
+@import 'StaticAlert';
 @import 'SlideToggle';
 @import 'Timeline';
 @import 'TwoSidedCheckbox';
 @import 'UserProfilePic';
 @import 'Username';
 
+@import 'mobile/1366px';
 @import 'mobile/1024px';
 @import 'mobile/768px';
 @import 'mobile/414px';
@@ -108,7 +113,7 @@ h6 { font-size: 1.1rem; }
 hr {
     background-color: $theme-highlight;
     border: 0;
-    height: 1px;
+    height: 1px !important;
     margin: 20px auto;
 }
 

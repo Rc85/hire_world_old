@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink, withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faBell, faThList } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt, faBell, faThList, faUserCircle, faUserFriends, faUserSlash } from '@fortawesome/free-solid-svg-icons';
 import { LogoutUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
@@ -15,6 +15,10 @@ import NotificationPanel from '../site/NotificationPanel';
 class SideBar extends Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            hover: false
+        }
     }
 
     toggleMenu(e) {
@@ -38,45 +42,79 @@ class SideBar extends Component {
     }
     
     render() {
-        let sidebarContent, notificationPanel;
+        let sidebarContent;
 
-        let browseLink = <div className='sidebar-link-container'><Link
-        className='browse-listing-link'
-        text={<h5 className='browse-listing-link'>Browse Listings</h5>}
-        onClick={(e) => this.toggleMenu(e)}
-        icon={<FontAwesomeIcon icon={faThList} className='browse-listing-link' />}
-        active={/^\/(browse|sector|user)/.test(this.props.location.pathname) || (this.props.menu.id === 'browse-menu' && this.props.menu.show)} /></div>;
+        let browseLink = <div className='sidebar-link-container'>
+            <Link
+            className='browse-listing-link'
+            text={<h5>Browse Listings</h5>}
+            onClick={(e) => this.toggleMenu(e)}
+            icon={<FontAwesomeIcon icon={faThList} />}
+            active={/^\/(browse|sector|user)/.test(this.props.location.pathname) || (this.props.menu.id === 'browse-menu' && this.props.menu.show)} />
+        </div>;
+
+        let faq = <div className='sidebar-link-container'>
+            <a href='/faq'>
+                <div className={`sidebar-link-item-container`} onMouseOver={() => this.setState({hover: 'faq'})} onMouseOut={() => this.setState({hover: false})}>
+                    <div className='sidebar-link-item-wrapper'>
+                        <div className='sidebar-link-item'>
+                            <div className='sidebar-link-icon'><FontAwesomeIcon icon={faQuestionCircle} /></div>
+                            <div className='sidebar-link-text'><h5>FAQ</h5></div>
+                        </div>
+                        <div className={`sidebar-link-underline ${this.state.hover === 'faq' ? 'hover' : ''}`}></div>
+                    </div>
+                </div>
+            </a>
+        </div>;
 
         if (this.props.user.status === 'getting session') {
             sidebarContent = <Loading size='5x' />;
         } else if (this.props.user.status === 'get session success') {
-            sidebarContent = <div id='sidebar-links'>
-                {browseLink}
-                {this.props.items.map((item, i) => {
-                    let messageCount = 0;
-
-                    if (item.messageCount && parseInt(item.messageCount) > 0) {
-                        messageCount = parseInt(item.messageCount);
-                    }
-
-                    return <div key={i} className='sidebar-link-container'>
-                        <Link
-                        text={<h5>{item.name}</h5>}
-                        link={item.link}
-                        icon={item.icon}
-                        active={item.active}
-                        items={item.items}
-                        messageCount={messageCount > 0 ? messageCount : false} />
+                sidebarContent = <React.Fragment>
+                    <div id='sidebar-buttons-container'>
+                        <div><FontAwesomeIcon icon={faUserCircle} className='text-highlight mr-1' /> <NavLink to='/dashboard/edit'>{this.props.user.user.username}</NavLink></div>
+                        <div><NavLink to='/dashboard/friends'><FontAwesomeIcon icon={faUserFriends} /></NavLink></div>
+                        <div><NavLink to='/dashboard/blocked-users'><FontAwesomeIcon icon={faUserSlash} /></NavLink></div>
+                        {this.props.user.user ? <React.Fragment><div className='notification-button-container sidebar-button' onClick={(e) => this.showNotificationPanel(e)}>{parseInt(this.props.user.notifications) > 0 ? <span className='notification-counter mini-badge mini-badge-danger'>{this.props.user.notifications}</span> : ''}<FontAwesomeIcon icon={faBell} size='lg' id='notification-icon'/><NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} user={this.props.user} /></div></React.Fragment> : ''}
                     </div>
-                })}
 
-                <div className='sidebar-link-container'>
-                    <Link text={<h5>Logout</h5>} icon={<FontAwesomeIcon icon={faSignOutAlt} />} onClick={() => this.props.dispatch(LogoutUser())} />
+                <hr className='w-90' />
+                
+                <div id='sidebar-links'>
+                    {browseLink}
+                    {this.props.items.map((item, i) => {
+                        let messageCount = 0;
+
+                        if (item.messageCount && parseInt(item.messageCount) > 0) {
+                            messageCount = parseInt(item.messageCount);
+                        }
+
+                        return <div key={i} className='sidebar-link-container'>
+                            <Link
+                            name={item.name}
+                            text={<h5>{item.name}</h5>}
+                            link={item.link}
+                            icon={item.icon}
+                            active={item.active}
+                            items={item.items}
+                            messageCount={messageCount > 0 ? messageCount : false}
+                            user={this.props.user} />
+                        </div>
+                    })}
+
+                    {faq}
+
+                    <div className='sidebar-link-container'>
+                        <Link text={<h5>Logout</h5>} icon={<FontAwesomeIcon icon={faSignOutAlt} />} onClick={() => this.props.dispatch(LogoutUser())} />
+                    </div>
                 </div>
-            </div>;
+            </React.Fragment>;
         } else if (this.props.user.status === 'error') {
             sidebarContent = <React.Fragment>
-                <div id='sidebar-links'>{browseLink}</div>
+                <div id='sidebar-links'>
+                    {browseLink}
+                    {faq}
+                </div>
 
                 <LoginPanel />
             </React.Fragment>
@@ -88,14 +126,6 @@ class SideBar extends Component {
                 <BrowseMenu show={this.props.menu.id === 'browse-menu' && this.props.menu.show} />
 
                 <div className='text-center'><img src='/images/logo_md.png' id='hireworld-logo' onClick={() => location.href = '/'} /></div>
-
-                <div id='sidebar-buttons-container'>
-                    <div className='sidebar-button'><a href='/faq'>
-                        <FontAwesomeIcon icon={faQuestionCircle} size='lg' /></a></div>
-                    {this.props.user.user ? <React.Fragment><div className='notification-button-container sidebar-button' onClick={(e) => this.showNotificationPanel(e)}>{parseInt(this.props.user.notifications) > 0 ? <span className='notification-counter mini-badge mini-badge-danger'>{this.props.user.notifications}</span> : ''}<FontAwesomeIcon icon={faBell} size='lg' id='notification-icon'/></div><NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} user={this.props.user} /></React.Fragment> : ''}
-                </div>
-
-                <hr className='w-90' />
 
                 {sidebarContent}
             </section>
@@ -123,7 +153,15 @@ class Link extends Component {
 
         if (this.props.active && this.props.items) {
             subItems = this.props.items.map((item, i) => {
-                return <NavLink key={i} to={item.link}><div className={`sidebar-sub-item ${item.active ? 'active' : ''}`}><div className='sidebar-sub-item-link'>{item.name}</div> {item.messageCount > 0 ? <span className='mini-badge mini-badge-danger'>{item.messageCount}</span> : ''}</div></NavLink>
+                if (this.props.name === 'Jobs') {
+                    if (this.props.user.user && this.props.user.user.connected_id) {
+                        return <NavLink key={i} to={item.link}><div className={`sidebar-sub-item ${item.active ? 'active' : ''}`}><div className='sidebar-sub-item-link'>{item.name}</div> {item.messageCount > 0 ? <span className='mini-badge mini-badge-danger'>{item.messageCount}</span> : ''}</div></NavLink>
+                    } else {
+                        return false
+                    }
+                } else {
+                    return <NavLink key={i} to={item.link}><div className={`sidebar-sub-item ${item.active ? 'active' : ''}`}><div className='sidebar-sub-item-link'>{item.name}</div> {item.messageCount > 0 ? <span className='mini-badge mini-badge-danger'>{item.messageCount}</span> : ''}</div></NavLink>
+                }
             });
         }
 

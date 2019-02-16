@@ -3,5 +3,20 @@
         h3, #view-user-rating { text-align: center; }
     }
 
+    #message-column {
+        #message-details {
+            #reply-button { display: none; }
+        }
+    }
+
+    #main-panel-bg { height: 200px; }
+
     .listing-row-profile-pic { display: none; }
+
+    .setting-container { flex-direction: column; }
+
+    .setting-container {
+        .list-setting-container { margin-bottom: 30px; }
+        .list-setting-container, .business-hours-setting-container { width: 100%; }
+    }
 }

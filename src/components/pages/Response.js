@@ -29,22 +29,28 @@ class Response extends Component {
     render() {
         let code, header, message;
 
-        if (this.props.match.params.code === '404') {
-            code = 404;
-            header = 'Not Found';
-            message = `The page you're trying to access does not exist`;
-        } else if (this.props.match.params.code === '500') {
-            code = 500;
-            header = 'Internal Server Error';
-            message = `An error occurred while trying to process your request`;
+        if (this.props.match.params.code) {
+            if (this.props.match.params.code === '404') {
+                code = 404;
+                header = 'Not Found';
+                message = `The page you're trying to access does not exist`;
+            } else if (this.props.match.params.code === '500') {
+                code = 500;
+                header = 'Internal Server Error';
+                message = `An error occurred while trying to process your request`;
+            }
+        } else {
+            code = this.props.code;
+            header = this.props.header;
+            message = this.props.message;
         }
 
         return(
             <div id='response' className='main-panel'>
                 <div className='text-center'>
-                    <h3>{code} {header}</h3>
+                    <h3 className='mb-2'>{code !== 200 ? code : ''} {header}</h3>
     
-                    {this.props.code ? <div dangerouslySetInnerHTML={{__html: this.props.message}}></div> : message}
+                    <div dangerouslySetInnerHTML={{__html: message}}></div>
 
                     {this.props.children ? this.props.children : ''}
                 </div>
@@ -54,6 +60,7 @@ class Response extends Component {
 }
 
 Response.defaultProps = {
+    code: 500,
     header: 'Unknown Error',
     message: 'An unknown error has occurred. Please contact the administrator with your previous actions and/or the page you were on.'
 }

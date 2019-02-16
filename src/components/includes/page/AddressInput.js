@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { RegionDropdown } from 'react-country-region-selector';
+import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import InputWrapper from '../../utils/InputWrapper';
 import { isTyping } from '../../../actions/ConfigActions';
+import { connect } from 'react-redux';
 
 const AddressInput = props => {
     let saveable;
@@ -24,12 +25,7 @@ const AddressInput = props => {
 
                 <div className='setting-child'>
                     <InputWrapper label='Country'>
-                        <select name='country' id='country' onChange={(e) => props.set('address_country', e.target.value)} value={props.info && props.info.address_country ? props.info.address_country : ''}>
-                            <option value=''>Select Country</option>
-                            <option value='Canada'>Canada</option>
-                            <option value='Mexico'>Mexico</option>
-                            <option value='United States'>United States</option>
-                        </select>
+                        <CountryDropdown value={props.info.address_country} onChange={(val) => props.set('address_country', val)} />
                     </InputWrapper>
                 </div>
             </div>
@@ -61,4 +57,4 @@ AddressInput.propTypes = {
     set: PropTypes.func
 };
 
-export default AddressInput;
+export default connect()(AddressInput);

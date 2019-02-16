@@ -175,30 +175,28 @@ class PaymentSettings extends Component {
             return (
                 <section id='payment-settings' className='main-panel'>
                     <TitledContainer title='Payment Settings' bgColor='green' icon={<FontAwesomeIcon icon={faCreditCard} />} shadow>
-                        <div className='setting-child payment-icons'>
+                        <div className='payment-icons'>
                             <img src='/images/powered_by_stripe.png' className='payment-icon mr-1' />
                             <img src='/images/payment_methods.png' className='payment-icon' />
                         </div>
 
                         <div className='mobile-tooltip mb-3'>Your name on your profile will be used if left blank</div>
-        
-                        <div className='setting-child mb-3'>
-                            <InputWrapper label='Name on Card'>
-                                <input type='text' name='name' id='nameOnCard' onChange={(e) => this.setState({name: e.target.value})} placeholder={this.props.config.isTyping ? '' : 'Your name on your profile will be used if left blank'} value={this.state.name} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
-                            </InputWrapper>
-                        </div>
+                        
+                        <InputWrapper label='Name on Card' className='mb-3'>
+                            <input type='text' name='name' id='nameOnCard' onChange={(e) => this.setState({name: e.target.value})} placeholder={this.props.config.isTyping ? '' : 'Your name on your profile will be used if left blank'} value={this.state.name} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                        </InputWrapper>
         
                         <div className='setting-field-container mb-3'>
                             <div className='setting-child three-quarter'>
-                                <InputWrapper label='Card Number' required><CardNumberElement onReady={el => this.CardNumberElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
+                                <InputWrapper label='Card Number' required className='pl-2 pb-2 pr-2'><CardNumberElement onReady={el => this.CardNumberElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
                             </div>
 
                             <div className='setting-child quarter'>
-                                <InputWrapper label='Expiry Date' required><CardExpiryElement onReady={el => this.CardExpiryElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
+                                <InputWrapper label='Expiry Date' required className='pl-2 pb-2 pr-2'><CardExpiryElement onReady={el => this.CardExpiryElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
                             </div>
         
                             <div className='setting-child quarter'>
-                                <InputWrapper label='CVC' required><CardCVCElement onReady={el => this.CardCVCElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
+                                <InputWrapper label='CVC' required className='pl-2 pb-2 pr-2'><CardCVCElement onReady={el => this.CardCVCElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
                             </div>
                         </div>
         

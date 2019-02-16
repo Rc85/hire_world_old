@@ -6,7 +6,7 @@ import SubmitButton from '../../utils/SubmitButton';
 import { Alert } from '../../../actions/AlertActions';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-import { CheckoutConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
+import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 import Loading from '../../utils/Loading';
 import { GetSession } from '../../../actions/FetchActions';
 import AddressInput from './AddressInput';
@@ -39,7 +39,7 @@ class Checkout extends Component {
     }
     
     componentWillReceiveProps(nextProps) {
-        if (nextProps.confirm.obj.type === 'checkout' && nextProps.confirm.data) {
+        if (nextProps.confirm.data) {
             if (nextProps.confirm.data.action === 'submit payment' && nextProps.confirm.option) {
                 this.submit();
 
@@ -167,17 +167,17 @@ class Checkout extends Component {
 
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child'>
-                        <InputWrapper label='Credit Card Number' required><CardNumberElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
+                        <InputWrapper label='Credit Card Number' required className='pl-2 pb-2 pr-2'><CardNumberElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
                     </div>
                 </div>
 
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child'>
-                        <InputWrapper label='Expiry Date' required><CardExpiryElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
+                        <InputWrapper label='Expiry Date' required className='pl-2 pb-2 pr-2'><CardExpiryElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
                     </div>
 
                     <div className='setting-child'>
-                        <InputWrapper label='CVC' required><CardCVCElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
+                        <InputWrapper label='CVC' required className='pl-2 pb-2 pr-2'><CardCVCElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
                     </div>
                 </div>
             </React.Fragment>;
@@ -193,7 +193,8 @@ class Checkout extends Component {
                         <InputWrapper label='Choose Plan' required>
                             <select name='plan' id='choose-plan' onChange={(e) => this.setState({plan: e.target.value})}>
                                 <option value=''>Select a plan</option>
-                                {!this.props.user.is_subscribed ? <option value={process.env.REACT_ENV === 'development' ? 'plan_EAIyF94Yhy1BLB' : 'plan_EFVAGdrFIrpHx5'}>Listing - $7/month</option> : ''}
+                                <option value='30 Day Listing'>30 Day Listing - $8</option>
+                                {!this.props.user.is_subscribed ? <option value={process.env.REACT_ENV === 'development' ? 'plan_EVUbtmca9pryxy' : 'plan_EVTJiZUT4rVkCT'}>Recurring Listing - $8/month</option> : ''}
                             </select>
                         </InputWrapper>
                     </div>
@@ -205,12 +206,12 @@ class Checkout extends Component {
 
                 {addressInput}
 
-                <div className='text-right mb-3'>Note: This will become your default payment</div>
+                <div className='text-right mb-3'>Note: If you are subscribing to recurring listing, this will become your default payment</div>
 
                 <div className='checkout-buttons'>
                     <Recaptcha sitekey='6Ld784QUAAAAAISqu_99k8_Qk7bHs2ud4cD7EBeI' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} />
     
-                    <SubmitButton type='button' loading={this.state.status === 'Sending'} onClick={() => this.props.dispatch(CheckoutConfirmation(this.state, {action: 'submit payment'}))} />
+                    <SubmitButton type='button' loading={this.state.status === 'Sending'} onClick={() => this.props.dispatch(ShowConfirmation('An $8 charge will apply immediate to your credit card. Do you want to proceed?', false, {action: 'submit payment'}))} />
                 </div>
             </div>
         );

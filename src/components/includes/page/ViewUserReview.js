@@ -91,7 +91,7 @@ class ViewUserReview extends Component {
         }
 
         if (this.state.editing) {
-            review = <SubmitReview submit={(review, star) => this.editReview(review, this.props.review.review_id, star)} cancel={() => this.setState({editing: false})} review={this.props.review.review} stars={this.props.review.review_rating} show />;
+            review = <SubmitReview submit={(review, star) => this.props.edit(review, this.props.review.review_id, star)} cancel={() => this.setState({editing: false})} review={this.props.review.review} stars={this.props.review.review_rating} show />;
         } else {
             review = <div className='user-review'>
                 <div className='user-review-header'>

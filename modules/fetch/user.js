@@ -11,10 +11,20 @@ app.post('/api/get/user', async(req, resp) => {
             try {
                 await client.query('BEGIN');
 
-                let listed = await client.query(`SELECT listing_user FROM user_listings WHERE listing_user = $1 AND listing_status = 'Active'`, [req.body.username]);
+                /* let listed = await client.query(`SELECT listing_user FROM user_listings WHERE listing_user = $1 AND listing_status = 'Active'`, [req.body.username]);
 
-                if (listed && listed.rows.length === 1) {
-                    let user = await client.query(`SELECT users.username, users.user_email, users.user_last_login, user_profiles.*, user_settings.*, user_listings.* FROM users
+                if (listed && listed.rows.length === 1) { */
+                    let user = await client.query(`SELECT
+                        users.username,
+                        users.user_email,
+                        users.user_last_login,
+                        user_profiles.*,
+                        user_settings.hide_email,
+                        user_settings.display_fullname,
+                        user_settings.allow_messaging,
+                        user_settings.display_business_hours,
+                        user_listings.*
+                    FROM users
                     LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
                     LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
                     LEFT JOIN user_listings ON users.username = user_listings.listing_user
@@ -34,8 +44,6 @@ app.post('/api/get/user', async(req, resp) => {
 
                         delete user.rows[0].hide_email;
                         delete user.rows[0].display_fullname;
-                        delete user.rows[0].email_notifications;
-                        delete user.rows[0].user_setting_id;
                         
                         let orderby = '';
                         let reviewsParam, reports, reportedUser;
@@ -46,11 +54,11 @@ app.post('/api/get/user', async(req, resp) => {
                         let isBlocked = false;
                         
                         if (user.rows[0].display_business_hours) {
-                            businessHoursQuery = await client.query(`SELECT * FROM business_hours WHERE business_owner = $1`, [req.body.username]);
+                            businessHoursQuery = await client.query(`SELECT * FROM business_hours WHERE for_listing = $1`, [req.body.id]);
                             
                             if (businessHoursQuery.rows.length === 1) {
                                 delete businessHoursQuery.rows[0].business_hour_id;
-                                delete businessHoursQuery.rows[0].business_owner;
+                                delete businessHoursQuery.rows[0].for_listing;
                                 
                                 businessHours = businessHoursQuery.rows[0];
                             }
@@ -60,7 +68,7 @@ app.post('/api/get/user', async(req, resp) => {
                             orderby = 'user_reviews.reviewer = $2 DESC, ';
                             reviewsParam = [req.body.username, req.session.user.username];
                             reports = await client.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2 AND report_status = 'Pending'`, [req.session.user.username, 'Review']);
-                            reportedUser = await client.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2 AND reported_user = $3 AND report_status = 'Pending'`, [req.session.user.username, 'User', req.body.username]);
+                            reportedUser = await client.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2 AND reported_user = $3 AND report_status = 'Pending'`, [req.session.user.username, 'Listing', req.body.username]);
                             isFriend = await client.query(`SELECT * FROM friends WHERE friend_user_1 = $1 AND friend_user_2 = $2`, [req.session.user.username, req.body.username]);
                             isBlocked = await client.query(`SELECT * FROM blocked_users WHERE blocking_user = $1 AND blocked_user = $2`, [req.session.user.username, req.body.username]);
                             
@@ -83,8 +91,8 @@ app.post('/api/get/user', async(req, resp) => {
                         ORDER BY ${orderby}user_reviews.review_date DESC`, reviewsParam);
 
                         let stats = await client.query(`SELECT
-                            (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_stage = 'Completed'),
-                            (SELECT COUNT(job_id) AS job_abandon FROM jobs WHERE job_stage = 'Abandoned'),
+                            (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Completed' AND job_user = $1),
+                            (SELECT COUNT(job_id) AS job_abandon FROM jobs WHERE job_status = 'Abandoned' AND job_user = $1),
                             (SELECT (SUM(review_rating) / COUNT(review_id)) AS rating FROM user_reviews WHERE reviewing = $1 AND review_rating IS NOT NULL),
                             (SELECT COUNT(review_id) AS job_count FROM user_reviews WHERE review IS NOT NULL AND reviewing = $1 AND review_status = 'Active'),
                             user_view_count.view_count,
@@ -95,19 +103,17 @@ app.post('/api/get/user', async(req, resp) => {
                         WHERE username = $1
                         LIMIT 1;`, [req.body.username]);
 
-                        let jobs = await client.query(`SELECT * FROM jobs WHERE job_user = $1 AND job_end_date IS NOT NULL AND job_stage IN ('Completed', 'Abandoned') ORDER BY job_end_date DESC LIMIT 5`, [req.body.username]);
+                        let jobs = await client.query(`SELECT * FROM jobs WHERE job_user = $1 AND job_end_date IS NOT NULL AND job_status IN ('Completed', 'Abandoned') ORDER BY job_end_date DESC LIMIT 5`, [req.body.username]);
 
                         await client.query(`INSERT INTO user_view_count (viewing_user, view_count) VALUES ($1, $2) ON CONFLICT (viewing_user) DO UPDATE SET view_count = user_view_count.view_count + 1`, [req.body.username, 1]);
 
                         await client.query('COMMIT')
                         .then(() =>  resp.send({status: 'success', user: user.rows[0], reviews: reviews.rows, stats: stats.rows[0], hours: businessHours, reports: reportedReviews, userReported: userIsReported, isFriend: isFriend && isFriend.rows.length === 1, jobs: jobs.rows, isBlocked: isBlocked && isBlocked.rows.length === 1}));
+                    }  else {
+                        let error = new Error(`That listing does not exist`);
+                        let errObj = {error: error, type: 'CUSTOM', status: 'access error', stack: error.stack}
+                        throw errObj;
                     }
-                } else {
-                    let error = new Error(`That user is not listed`);
-                    error.type = 'CUSTOM';
-                    error.status = 'access error';
-                    throw error;
-                }
             } catch (e) {
                 await client.query('ROLLBACK');
                 throw e
@@ -116,24 +122,14 @@ app.post('/api/get/user', async(req, resp) => {
             }
         })()
         .catch(err => {
-            console.log(err);
-
-            let message = 'An error occurred';
-            let errorStatus = 'error';
-            
-            if (err.type === 'CUSTOM') {
-                message = err.message;
-                errorStatus = err.status;
-            }
-
-            resp.send({status: errorStatus, statusMessage: message});
+            error.log(err, req, resp);
         });
     });
 });
 
-app.get('/api/get/business_hours', async(req, resp) => {
+app.post('/api/get/business_hours', async(req, resp) => {
     if (req.session.user) {
-        await db.query(`SELECT monday, tuesday, wednesday, thursday, friday, saturday, sunday FROM business_hours WHERE business_owner = $1`, [req.session.user.username])
+        await db.query(`SELECT monday, tuesday, wednesday, thursday, friday, saturday, sunday FROM business_hours WHERE for_listing = $1`, [req.body.id])
         .then(result => {
             if (result) resp.send({status: 'success', hours: result.rows[0]});
         })
@@ -150,39 +146,14 @@ app.get('/api/get/user/notification-and-message-count', async(req, resp) => {
     if (req.session.user) {
         let notifications = await db.query(`SELECT COUNT(notification_id) AS notification_count FROM notifications WHERE notification_recipient = $1 AND notification_status = 'New'`, [req.session.user.username]);
 
-        let messages = await db.query(`SELECT
-            (
-                SELECT COUNT(message_id) AS unread_inquiries FROM messages
-                LEFT JOIN jobs ON messages.belongs_to_job = jobs.job_id
-                WHERE jobs.job_stage = 'Inquire'
-                AND messages.message_status = 'New'
-                AND (messages.message_recipient = $1)
-            ),
-            (
-                SELECT COUNT(message_id) AS unread_active FROM messages
-                LEFT JOIN jobs ON messages.belongs_to_job = jobs.job_id
-                WHERE jobs.job_stage = 'Active'
-                AND messages.message_status = 'New'
-                AND (messages.message_recipient = $1)
-            ),
-            (
-                SELECT COUNT(message_id) AS unread_completed FROM messages
-                LEFT JOIN jobs ON messages.belongs_to_job = jobs.job_id
-                WHERE jobs.job_stage = 'Completed'
-                AND messages.message_status = 'New'
-                AND (messages.message_recipient = $1)
-            ),
-            (
-                SELECT COUNT(message_id) AS unread_abandoned FROM messages
-                LEFT JOIN jobs ON messages.belongs_to_job = jobs.job_id
-                WHERE jobs.job_stage = 'Abandoned'
-                AND messages.message_status = 'New'
-                AND (messages.message_recipient = $1)
-            )
-        FROM users WHERE username = $1`, [req.session.user.username]);
+        let messages = await db.query(`SELECT COUNT(message_id) AS message_count FROM messages
+        LEFT JOIN conversations ON conversation_id = message_conversation_id
+        WHERE message_creator != $1
+        AND (conversation_starter = $1 OR conversation_recipient = $1)
+        AND message_status = 'New'`, [req.session.user.username]);
 
         if (notifications && messages) {
-            resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0]});
+            resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0].message_count});
         } else {
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         }
@@ -218,10 +189,10 @@ app.post('/api/get/user/notifications', async(req, resp) => {
 
 app.post('/api/get/payments', async(req, resp) => {
     if (req.session.user) {
-        let user = await db.query(`SELECT stripe_cust_id FROM users WHERE username = $1`, [req.session.user.username])
+        let user = await db.query(`SELECT stripe_id FROM users WHERE username = $1`, [req.session.user.username])
 
-        if (user && user.rows[0].stripe_cust_id) {
-            stripe.customers.retrieve(user.rows[0].stripe_cust_id, (err, customer) => {
+        if (user && user.rows[0].stripe_id) {
+            stripe.customers.retrieve(user.rows[0].stripe_id, (err, customer) => {
                 if (err) {
                      console.log(err);
                     resp.send({status: 'error', statusMessage: 'An error occurred'});
@@ -237,17 +208,18 @@ app.post('/api/get/payments', async(req, resp) => {
 
 app.post('/api/get/user/subscription', async(req, resp) => {
     if (req.session.user) {
-        let user = await db.query(`SELECT subscription_id, subscription_end_date FROM users WHERE username = $1`, [req.session.user.username]);
-        let now = new Date();
+        let user = await db.query(`SELECT subscription_id FROM users WHERE username = $1`, [req.session.user.username]);
 
-        if (user && user.rows[0].subscription_end_date > now) {
-            await stripe.subscriptions.retrieve(user.rows[0].subscription_id)
+        if (user && user.rows[0].subscription_id) {
+            subscription = await stripe.subscriptions.retrieve(user.rows[0].subscription_id)
             .then(subscription => {
-                resp.send({status: 'success', subscription: subscription});
+                if (subscription) {
+                    resp.send({status: 'success', subscription: subscription});
+                }
             })
             .catch(err => {
-                 console.log(err);
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
+                console.log(err);
+                resp.send({status: 'error', statusMessage: 'Cannot retrieve subscription details'});
             });
         } else {
             resp.send('done');
@@ -357,8 +329,8 @@ app.post('/api/user/get/friends', async(req, resp) => {
 
 app.post('/api/get/user/minimal', async(req, resp) => {
     await db.query(`SELECT users.username, users.user_email, us.hide_email, up.avatar_url, up.user_business_name, up.user_title, ul.listing_status,
-        (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_stage = 'Completed' AND job_user = $1),
-        (SELECT COUNT(job_id) AS job_abandoned FROM jobs WHERE job_stage = 'Abandoned' AND job_user = $1),
+        (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Completed' AND job_user = $1),
+        (SELECT COUNT(job_id) AS job_abandoned FROM jobs WHERE job_status = 'Abandoned' AND job_user = $1),
         (SELECT COUNT(friend_id) AS is_friend FROM friends WHERE friend_user_1 = $2 AND friend_user_2 = $1),
         (SELECT COUNT(blocked_user_id) AS is_blocked FROM blocked_users WHERE blocking_user = $2 AND blocked_user = $1)
     FROM users
@@ -383,8 +355,8 @@ app.post('/api/get/user/minimal', async(req, resp) => {
     });
 });
 
-app.post('/api/get/user/job-years', async(req, resp) => {
-    await db.query(`SELECT DISTINCT DATE_PART('year', job_end_date) AS job_years FROM jobs WHERE job_user = $1 AND job_stage IN ('Completed', 'Abandoned') ORDER BY job_years`, [req.body.user])
+/* app.post('/api/get/user/job-years', async(req, resp) => {
+    await db.query(`SELECT DISTINCT DATE_PART('year', job_end_date) AS job_years FROM jobs WHERE job_user = $1 AND job_status IN ('Completed', 'Abandoned') ORDER BY job_years`, [req.body.user])
     .then(result => {
         if (result) {
             let currentYear;
@@ -408,13 +380,13 @@ app.post('/api/get/user/job-years', async(req, resp) => {
 
 app.post('/api/get/user/work-history', async(req, resp) => {
     await db.query(`SELECT * FROM jobs
-    WHERE job_user = $1 AND job_stage IN ('Completed', 'Abandoned')
+    WHERE job_user = $1 AND job_status IN ('Completed', 'Abandoned')
     AND DATE_PART('year', job_end_date) = DATE_PART('year', TO_DATE($2, 'YYYY-MM-DD'))`, [req.body.user, req.body.date])
     .then(result => {
         if (result) {    
             resp.send({status: 'success', history: result.rows});
         }
     });
-});
+}); */
 
 module.exports = app;

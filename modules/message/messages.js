@@ -18,25 +18,33 @@ app.post('/api/message/submit', (req, resp) => {
                         let user = await client.query(`SELECT user_status FROM users WHERE user_id = $1`, [req.session.user.user_id]);
 
                         if (user && user.rows[0].user_status === 'Active') {
-                            let allowMessage = await client.query(`SELECT allow_messaging FROM user_settings LEFT JOIN users ON users.user_id = user_settings.user_setting_id WHERE users.username = $1`, [req.body.user.username]);
+                            let allowMessaging = true;
+                            
+                            if (!req.body.messageId) {
+                                await client.query(`SELECT allow_messaging FROM user_settings LEFT JOIN users ON users.user_id = user_settings.user_setting_id WHERE users.username = $1`, [req.body.user])
+                                .then(result => {
+                                    allowMessaging = result.rows[0].allow_messaging;
+                                });
+                            }
 
-                            if (allowMessage.rows[0].allow_messaging) {
-                                let job = await client.query(`INSERT INTO jobs (job_client, job_listing_id, job_user, job_subject) VALUES ($1, $2, $3, $4) RETURNING job_id`, [req.session.user.username, req.body.user.listing_id, req.body.user.username, req.body.subject]);
-                                await client.query(`INSERT INTO messages (belongs_to_job, message_sender, message_recipient, message_body) VALUES ($1, $2, $3, $4)`,
-                                [job.rows[0].job_id, req.session.user.username, req.body.user.username, req.body.message]);
+                            if (allowMessaging) {
+                                let convoId = await client.query(`INSERT INTO conversations (conversation_starter, conversation_recipient, conversation_subject) VALUES ($1, $2, $3) RETURNING conversation_id`, [req.session.user.username, req.body.user, req.body.subject]);
+
+                                await client.query(`INSERT INTO messages (message_creator, message_conversation_id) VALUES ($1, $2)`, [req.session.user.username, convoId.rows[0].conversation_id]);
+
                                 await client.query('COMMIT')
                                 .then(() => {
-                                    resp.send({status: 'send success', statusMessage: 'Message sent'});
+                                    resp.send({status: 'success', statusMessage: 'Message sent'});
                                 })
                             } else {
-                                let error = new Error(`The user is not accepting messages`);
-                                error.type = 'CUSTOM';
-                                throw error;
+                                let error = new Error(`The user is not accepting new messages`);
+                                let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                                throw errObj;
                             }
                         } else {
                             let error = new Error(`You're temporarily banned`);
-                            error.type = 'CUSTOM';
-                            throw error;
+                            let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                            throw errObj;
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
@@ -46,18 +54,7 @@ app.post('/api/message/submit', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    console.log(err);
-                    let message = 'Fail to send message';
-
-                    if (err.type === 'CUSTOM') {
-                        message = err.message;
-                    }
-
-                    if (err.code === '23505') {
-                        message = 'You already have an inquiry with this user';
-                    }
-
-                    resp.send({status: 'send error', statusMessage: message});
+                    error.log(err, req, resp);
                 });
             }
         });
@@ -80,35 +77,26 @@ app.post('/api/message/reply', (req, resp) => {
                         let user = await client.query(`SELECT user_status FROM users WHERE user_id = $1`, [req.session.user.user_id]);
 
                         if (user && user.rows[0].user_status === 'Active') {
-                            let stage = await client.query(`SELECT job_status FROM jobs WHERE job_id = $1`, [req.body.job_id]);
+                            let authorized = await client.query(`SELECT conversation_starter, conversation_recipient FROM conversations WHERE conversation_id = $1`, [req.body.id]);
 
-                            let allowMessaging = await client.query(`SELECT allow_messaging FROM user_settings LEFT JOIN users ON users.user_id = user_settings.user_setting_id WHERE users.username = $1`, [req.body.recipient]);
+                            if (authorized.rows.length === 1 && (authorized.rows[0].conversation_starter === req.session.user.username || authorized.rows[0].conversation_recipient === req.session.user.username)) {
+                                let message = await client.query(`INSERT INTO messages (message_body, message_creator, message_conversation_id) VALUES ($1, $2, $3) RETURNING *`, [req.body.message, req.session.user.username, req.body.id]);
+                                let messageRow = await client.query(`SELECT messages.*, user_profiles.avatar_url FROM messages
+                                LEFT JOIN users ON users.username = messages.message_creator
+                                LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+                                WHERE messages.message_id = $1`, [message.rows[0].message_id]);
 
-                            if (allowMessaging.rows[0].allow_messaging) {
-                                if (stage && (stage.rows[0].job_status !== 'Incomplete' || stage.rows[0].job_status !== 'Completed' || stage.rows[0].job_status !== 'Abandoned' || stage.rows[0].job_status !== 'Closed')) {
-                                    let newMessage = await client.query(`INSERT INTO messages (belongs_to_job, message_sender, message_recipient, message_body, is_reply) VALUES ($1, $2, $3, $4, $5) RETURNING message_id`,
-                                    [req.body.job_id, req.session.user.username, req.body.recipient, req.body.message, true])
-                                    
-                                    let reply = await client.query(`SELECT messages.*, user_profiles.avatar_url FROM messages LEFT JOIN users ON username = message_sender LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id WHERE message_id = $1`, [newMessage.rows[0].message_id]);
-
-                                    await client.query('COMMIT')
-                                    .then(() => {
-                                        resp.send({status: 'send success', statusMessage: 'Message sent', reply: reply.rows[0]});
-                                    });
-                                } else {
-                                    let error = new Error('Job is closed');
-                                    error.type = 'CUSTOM';
-                                    throw error;
-                                }
+                                await client.query('COMMIT')
+                                .then(() => resp.send({status: 'success', message: messageRow.rows[0]}));
                             } else {
-                                let error = new Error(`The other party has turned off messaging`);
-                                error.type = 'CUSTOM';
-                                throw error;
+                                let error = new Error(`You're not authorized`);
+                                let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                                throw errObj;
                             }
                         } else {
                             let error = new Error(`You're temporarily banned`);
-                            error.type = 'CUSTOM';
-                            throw error;
+                            let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                            throw errObj;
                         }
                     } catch (e) {
                         await client.query('ROLLBACK');
@@ -118,21 +106,14 @@ app.post('/api/message/reply', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    console.log(err);
-                    let message = 'Fail to send reply';
-
-                    if (err.type === 'CUSTOM') {
-                        message = err.message;
-                    }
-
-                    resp.send({status: 'send error', statusMessage: message});
+                    error.log(err, req, resp);
                 });
             }
         });
     }
 });
 
-app.post('/api/message/delete', async(req, resp) => {
+/* app.post('/api/message/delete', async(req, resp) => {
     if (req.session.user) {
         let authorized = await db.query(`SELECT message_sender FROM messages WHERE message_id = $1`, [req.body.message_id]);
 
@@ -199,6 +180,6 @@ app.post('/api/message/edit', (req, resp) => {
             });
         });
     }   
-});
+}); */
 
 module.exports = app;

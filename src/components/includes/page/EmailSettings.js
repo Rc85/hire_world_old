@@ -45,9 +45,7 @@ class EmailSettings extends Component {
         return(
             <div id='email-settings' className='mb-3'>
                 <div>
-                    <div className='d-flex-between-center mb-3'>
-                        <div>Current Email: {this.props.user.user_email}</div>
-
+                    <div className='text-right'>
                         <Tooltip text='You will not be able to log in until you verify your new email' placement='left' className='tooltip-icon'><FontAwesomeIcon icon={faQuestionCircle} id='change-email-tip' /></Tooltip>
                     </div>
 

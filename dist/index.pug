@@ -3,35 +3,16 @@ extends layout
 block content
     section#main-section
         div
-            h1 List your profile
+            h1 Start listing
             h1.d-flex-end-center And grow your business today
     section#sub-section-parent
-        section.sub-section
-            .d-flex.justify-content-center.align-items-center.mb-5
-                h1 What is it?
-            p#what-is-it HireWorld is a listing site for users to hire other users or be hired by other users. It is very simple to use; Search and select your desired listing and quickly engage with the other party by using the messaging system. When you find the candidate you want, hiring is just one click away.
-            #benefits.text-center
-                h4 Benefits when listing at HireWorld
-                .text-left.mx-auto
-                    div
-                        i.fa.fa-check.mr-3
-                        strong Your profile is listed in a searchable directory
-                    div
-                        i.fa.fa-check.mr-3
-                        strong Get testimonies from real users
-                    div
-                        i.fa.fa-check.mr-3
-                        strong Save money from building a professional website
-                    div
-                        i.fa.fa-check.mr-3
-                        strong Competitive pricing
-                    div
-                        i.fa.fa-check.mr-3
-                        strong Keep track of your jobs
+        section.sub-section.text-center
+            h1.mb-5 What is it?
+            p#what-is-it HireWorld is a listing site for people who are self-employed or have a side gig to list their business profile. We want to help these people connect with customers that need their service, even if their customers are across the globe.
         hr.w-90
         section#four-panel.sub-section
             .text-center.mb-5
-                h1 A community to help provide trusted services
+                h1 Benefits when listing at HireWorld
             #four-panel-children.d-flex-around-start
                 .panel
                     h3 User Reviews
@@ -42,21 +23,38 @@ block content
                     h3 Report System
                     i.fa.fa-exclamation-triangle.fa-5x
                     .w-50.mx-auto.mt-3
-                        strong One-click user report to flag users, reviews, and messages
+                        strong One-click user report to flag users and reviews
                 .panel
                     h3 Moderated
                     i.fa.fa-user-shield.fa-5x
                     .w-50.mx-auto.mt-3
                         strong Heavily moderated to provide a safe and appropriate community for every user
                 .panel
-                    h3 Job Tracking
+                    h3 Stats
                     i.fa.fa-chart-area.fa-5x
                     .w-50.mx-auto.mt-3
-                        strong Track jobs to completion stage to gain stats and 
+                        strong Complete jobs to gain stats and 
                             span.badge.badge-success verified
                             |  reviews
-        hr.w-90
-        section.sub-section.position-relative
+            #benefits.text-center
+                .text-left.mx-auto
+                    div
+                        i.fa.fa-check.mr-3
+                        strong Your profile is listed in a searchable directory
+                    div
+                        i.fa.fa-check.mr-3
+                        strong User-to-user messaging
+                    div
+                        i.fa.fa-check.mr-3
+                        strong Track jobs by milestones
+                    div
+                        i.fa.fa-check.mr-3
+                        strong Save money from building a professional website
+                    div
+                        i.fa.fa-check.mr-3
+                        strong Competitive pricing
+        //-hr.w-90
+        //-section.sub-section.position-relative
             .text-center.mb-3
                 h1 User friendly and easy to use
                 span Communicate, establish an agreement, and keep track of jobs
@@ -154,18 +152,17 @@ block content
                     img(src='/images/overview_diagram.jpg')
                 #overview-text-container
                     .overview-text.mb-5
-                        h1 Anyone can use 
+                        h1.mb-5 Anyone can use 
                             nobr HireWorld
                         p From photographers to tutors and personal trainers to graphic designers, anyone can list on HireWorld and grow their business.
                         p Company recruiters or anybody who are looking to hire, HireWorld is the place to start.
-                        p Even side gigs like a resume writer or part time jobs like a babysitter can use HireWorld.
+                        p Even side gigs like a resume writer or part time jobs like private piano teacher can use HireWorld.
                     .overview-text.mb-5
-                        h1 Categorized, organized, and searchable
+                        h1.mb-5 Categorized, organized, and searchable
                         p At HireWorld, we have sectors for you list your profile in. We have the Events sector for a wedding planner or the Laborers sector for a moving company. Employment sectors are forever growing and HireWorld will always be up to date.
-                        p We ensure that our listing filter has all the parameters for users to find the services that meet their specifications.
-                    .text-right.text-muted
-                        small Profession vectors designed by 
-                            a(href='https://www.freepik.com/free-vector/illustration-vector-of-various-careers-and-professions_2582204.htm') Rawpixel.com
+                        p We ensure that our listing filter has all the parameters for users to find the services they need.
+                    .credit Profession vectors designed by 
+                                a(href='https://www.freepik.com/free-vector/illustration-vector-of-various-careers-and-professions_2582204.htm') Rawpixel.com
         //-section.sub-section
             .text-center.mb-5
                 h1 User friendly. Easy to use

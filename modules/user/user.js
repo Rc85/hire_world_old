@@ -242,15 +242,12 @@ app.post('/api/user/business_hours/save', (req, resp) => {
         db.connect((err, client, done) => {
             if (err) console.log(err);
 
-            delete req.body.status;
-            delete req.body.showSettings;
-
             let timeCheck = /^([0-9]|[1-2][0-4]):?([0-5][0-9])?(\s?(AM|am|PM|pm))?(\s[A-Za-z]{3,5})?$/;
             let invalidFormat = false;
 
-            for (let key in req.body) {
-                if (req.body[key] !== 'Closed') {
-                    let times = req.body[key].split(' - ');
+            for (let key in req.body.days) {
+                if (req.body.days[key] !== 'Closed') {
+                    let times = req.body.days[key].split(' - ');
 
                     if (times.length !== 2) {
                         invalidFormat = true;
@@ -273,18 +270,26 @@ app.post('/api/user/business_hours/save', (req, resp) => {
                     try {
                         await client.query('BEGIN');
 
-                        let user = await client.query(`SELECT account_type FROM users WHERE username = $1`, [req.session.user.username]);
+                        let user = await client.query(`SELECT account_type FROM users
+                        LEFT JOIN user_listings ON users.username = user_listings.listing_user
+                        WHERE username = $1 AND listing_id = $2`, [req.session.user.username, req.body.id]);
 
                         if (user.rows[0].account_type !== 'User') {
-                            await client.query(`INSERT INTO business_hours (monday, tuesday, wednesday, thursday, friday, saturday, sunday, business_owner) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (business_owner) DO UPDATE SET monday = $1, tuesday = $2, wednesday = $3, thursday = $4, friday = $5, saturday = $6, sunday = $7`, [req.body.mon, req.body.tue, req.body.wed, req.body.thu, req.body.fri, req.body.sat, req.body.sun, req.session.user.username]);
-                        } else {
-                            let error = new Error(`You're not subscribed`);
-                            error.type = 'CUSTOM';
-                            throw error;
-                        }
+                            let businessHour = await client.query(`SELECT * FROM business_hours WHERE for_listing = $1`, [req.body.id]);
 
-                        await client.query('COMMIT')
-                        .then(() => resp.send({status: 'success', statusMessage: 'Business hours saved'}));
+                            if (businessHour.rows.length === 0) {
+                                await client.query(`INSERT INTO business_hours (monday, tuesday, wednesday, thursday, friday, saturday, sunday, for_listing) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, [req.body.days.mon, req.body.days.tue, req.body.days.wed, req.body.days.thu, req.body.days.fri, req.body.days.sat, req.body.days.sun, req.body.id]);
+                            } else if (businessHour.rows.length === 1) {
+                                await client.query('UPDATE business_hours SET monday = $1, tuesday = $2, wednesday = $3, thursday = $4, friday = $5, saturday = $6, sunday = $7 WHERE for_listing = $8', [req.body.days.mon, req.body.days.tue, req.body.days.wed, req.body.days.thu, req.body.days.fri, req.body.days.sat, req.body.days.sun, req.body.id])
+                            }
+
+                            await client.query('COMMIT')
+                            .then(() => resp.send({status: 'success', statusMessage: 'Business hours saved'}));
+                        } else if (user.rows[0].account_type === 'User') {
+                            let error = new Error(`You're not subscribed`);
+                            let errObj = {error: error, type: 'CUSTOM', stack: error.stack}
+                            throw errObj;
+                        }
                     } catch (e) {
                         await client.query('ROLLBACK');
                         throw e;
@@ -293,15 +298,7 @@ app.post('/api/user/business_hours/save', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                     console.log(err);
-
-                    let message = 'An error occurred';
-
-                    if (err.type === 'CUSTOM') {
-                        message = err.message;
-                    }
-
-                    resp.send({status: 'error', statusMessage: message});
+                     error.log(err, req, resp);
                 });
             }
         });
@@ -334,13 +331,13 @@ app.post('/api/user/subscription/add', (req, resp) => {
                 if (err) console.log(err);
 
                 let response = JSON.parse(res.body);
-
+                
                 if (response.success) {
                     (async() => {
                         try {
                             await client.query('BEGIN');
 
-                            let user = await client.query(`SELECT * FROM users
+                            let user = await client.query(`SELECT username, user_email, stripe_id, subscription_end_date, is_subscribed, plan_id, subscription_id, user_profiles.* FROM users
                             LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
                             WHERE username = $1`, [req.session.user.username]);
 
@@ -349,72 +346,95 @@ app.post('/api/user/subscription/add', (req, resp) => {
                             }
 
                             let customer, subscription, accountType;
+                            let now = new Date();
 
-                            if (req.body.plan === 'plan_EFVAGdrFIrpHx5' || req.body.plan === 'plan_EAIyF94Yhy1BLB' /* testing */) {
-                                accountType = 'Listing';
-                            }
-
-                            // If user already has a stripe account
-                            if (user.rows[0].stripe_cust_id) {
-                                let customerParams = {
-                                    source: req.body.token.id,
-                                    email: user.rows[0].user_email
-                                }
-
-                                // If user is using a stored payment method
-                                if (req.body.usePayment && req.body.usePayment !== 'New') {
-                                    customerParams = {
-                                        default_source: req.body.token.id,
+                            if (req.body.plan === 'plan_EVUbtmca9pryxy' || req.body.plan === 'plan_EVTJiZUT4rVkCT') {
+                                // If user already has a stripe account
+                                if (user.rows[0].stripe_id) {
+                                    let customerParams = {
+                                        source: req.body.token.id,
                                         email: user.rows[0].user_email
                                     }
-                                }
 
-                                // Update the user's default payment method
-                                await stripe.customers.update(user.rows[0].stripe_cust_id, customerParams);
-
-                                // If user is not subscribed
-                                if (!user.rows[0].is_subscribed) {
-                                    let subscriptionParams = {
-                                        customer: user.rows[0].stripe_cust_id,
-                                        items: [{plan: req.body.plan}]
+                                    // If user is using a stored payment method
+                                    if (req.body.usePayment && req.body.usePayment !== 'New') {
+                                        customerParams = {
+                                            default_source: req.body.token.id,
+                                            email: user.rows[0].user_email
+                                        }
                                     }
 
-                                    let now = new Date();
-                                    
-                                    // If user still have days left on their subscription
-                                    if (user.rows[0].subscription_end_date > now) {
-                                        // Get the different of subscription end date and today
-                                        let dayDiff = moment(user.rows[0].subscription_end_date).unix();
-                                        // Apply the difference to the trial days so user gets billed at the end of their remaining subscription days
-                                        subscriptionParams['trial_end'] = dayDiff;
-                                    }
+                                    // Update the user's default payment method
+                                    await stripe.customers.update(user.rows[0].stripe_id, customerParams);
 
-                                    subscription = await stripe.subscriptions.create(subscriptionParams);
+                                    // If user is not subscribed
+                                    if (!user.rows[0].is_subscribed) {
+                                        let subscriptionParams = {
+                                            customer: user.rows[0].stripe_id,
+                                            items: [{plan: req.body.plan}]
+                                        }
+                                        
+                                        // If user still have days left on their subscription
+                                        if (new Date(user.rows[0].subscription_end_date) > now) {
+                                            // Get the different of subscription end date and today
+                                            let dayDiff = moment(user.rows[0].subscription_end_date).unix();
+                                            // Apply the difference to the trial days so user gets billed at the end of their remaining subscription days
+                                            subscriptionParams['trial_end'] = dayDiff;
+                                        }
 
-                                    await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Re-subscribed', req.session.user.username, 'Subscription']);
-                                    await client.query(`UPDATE users SET is_subscribed = true, subscription_id = $1, plan_id = $2, account_type = $4 WHERE username = $3`, [subscription.id, subscription.plan.id, req.session.user.username, accountType]);
-                                } else {
-                                    if (user.rows[0].plan_id === 'plan_EFVAGdrFIrpHx5' || user.rows[0].plan_id === 'plan_EAIyF94Yhy1BLB') {
-                                        let error = new Error(`You're already subscribed to that plan`);
-                                        error.type = 'CUSTOM';
-                                        throw error;
+                                        subscription = await stripe.subscriptions.create(subscriptionParams);
+
+                                        await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Re-subscribed', req.session.user.username, 'Subscription']);
+                                        await client.query(`UPDATE users SET is_subscribed = true, subscription_id = $1, plan_id = $2, account_type = $4 WHERE username = $3`, [subscription.id, subscription.plan.id, req.session.user.username, accountType]);
                                     } else {
-                                        // upgrade or downgrade plan
+                                        if (user.rows[0].plan_id === 'plan_EVUbtmca9pryxy' || user.rows[0].plan_id === 'plan_EVTJiZUT4rVkCT') {
+                                            let error = new Error(`You're already subscribed to that plan`);
+                                            let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                                            throw errObj;
+                                        } else {
+                                            // upgrade or downgrade plan
+                                        }
                                     }
+                                } else {
+                                    customer = await stripe.customers.create({
+                                        source: req.body.token.id,
+                                        email: user.rows[0].user_email,
+                                    });
+
+                                    subscription = await stripe.subscriptions.create({
+                                        customer: customer.id,
+                                        items: [{plan: req.body.plan}]
+                                    });
+
+                                    await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Subscription created', req.session.user.username, 'Subscription']);
+                                    await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_id = $1, subscription_id = $4, plan_id = $5, subscription_end_date = current_timestamp + interval '32 days' WHERE username = $2`, [customer.id, req.session.user.username, accountType, subscription.id, subscription.plan.id]);
                                 }
-                            } else {
-                                customer = await stripe.customers.create({
+                            } else if (req.body.plan === '30 Day Listing') {
+                                /* if (user.rows[0].subscription_end_date && new Date(user.rows[0].subscription_end_date) > now) {
+                                    await client.query
+                                } */
+
+                                let charge = await stripe.charges.create({
+                                    amount: 800,
+                                    currency: 'cad',
                                     source: req.body.token.id,
-                                    email: user.rows[0].user_email,
+                                    receipt_email: user.rows[0].user_email,
+                                    description: 'HireWorld 30 Day Listing'
                                 });
 
-                                subscription = await stripe.subscriptions.create({
-                                    customer: customer.id,
-                                    items: [{plan: req.body.plan}]
-                                });
+                                if (charge.paid && charge.status === 'succeeded') {
+                                    if (user.rows[0].subscription_end_date && new Date(user.rows[0].subscription_end_date) > now) {
+                                        await client.query(`UPDATE users SET subscription_end_date = subscription_end_date + interval '30 days' WHERE username = $1`, [req.session.user.username]);
+                                    } else if (user.rows[0].subscription_end_date && new Date(user.rows[0].subscription_end_date) < now || !user.rows[0].subscription_end_date) {
+                                        await client.query(`UPDATE users SET subscription_end_date = current_timestamp + interval '30 days' WHERE username = $1`, [req.session.user.username]);
+                                    }
 
-                                await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Subscription created', req.session.user.username, 'Subscription']);
-                                await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_cust_id = $1, subscription_id = $4, plan_id = $5, subscription_end_date = current_timestamp + interval '32 days' WHERE username = $2`, [customer.id, req.session.user.username, accountType, subscription.id, subscription.plan.id]);
+                                    await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Purchased 30 Day Listing', req.session.user.username, 'Purchase']);
+                                } else {
+                                    let error = new Error('Failed to process payment');
+                                    let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                                    throw errObj;
+                                }
                             }
 
                             await client.query('COMMIT')
@@ -429,15 +449,7 @@ app.post('/api/user/subscription/add', (req, resp) => {
                         }
                     })()
                     .catch(err => {
-                         console.log(err);
-                        
-                        let message = 'An error occurred';
-
-                        if (err.type === 'CUSTOM') {
-                            message = err.message;
-                        }
-
-                        resp.send({status: 'error', statusMessage: message});
+                         error.log(err, req, resp);
                     });
                 } else {
                     resp.send({status: 'error', statusMessage: `You're not human`});
@@ -497,23 +509,23 @@ app.post('/api/user/payment/add', (req, resp) => {
                 try {
                     await client.query('BEGIN');
 
-                    let user = await client.query(`SELECT stripe_cust_id, user_email FROM users WHERE username = $1`, [req.session.user.username]);
+                    let user = await client.query(`SELECT stripe_id, user_email FROM users WHERE username = $1`, [req.session.user.username]);
 
                     if (req.body.saveAddress) {
                         await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.address_line1, req.body.address_city, req.body.address_state, req.body.address_country, req.body.address_zip, req.session.user.user_id]);
                     }
 
-                    if (user && user.rows[0].stripe_cust_id) {
-                        let card = await stripe.customers.createSource(user.rows[0].stripe_cust_id, {source: req.body.token.id});
+                    if (user && user.rows[0].stripe_id) {
+                        let card = await stripe.customers.createSource(user.rows[0].stripe_id, {source: req.body.token.id});
 
-                        let customer = await stripe.customers.retrieve(user.rows[0].stripe_cust_id);
+                        let customer = await stripe.customers.retrieve(user.rows[0].stripe_id);
 
                         await client.query('COMMIT')
                         .then(async() => {
                             await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a card ending in ${card.last4}`, req.session.user.username, 'Payment']);
                             resp.send({status: 'success', card: card, defaultSource: customer.default_source});
                         });
-                    } else if (user && !user.rows[0].stripe_cust_id) {
+                    } else if (user && !user.rows[0].stripe_id) {
                         let customer = await stripe.customers.create({
                             source: req.body.token.id,
                             email: user.rows[0].user_email,
@@ -526,7 +538,7 @@ app.post('/api/user/payment/add', (req, resp) => {
                             }
                         });
 
-                        await client.query(`UPDATE users SET stripe_cust_id = $1 WHERE username = $2`, [customer.id, req.session.user.username]);
+                        await client.query(`UPDATE users SET stripe_id = $1 WHERE username = $2`, [customer.id, req.session.user.username]);
 
                         await client.query('COMMIT')
                         .then(async() => {
@@ -560,9 +572,9 @@ app.post('/api/user/payment/edit', (req, resp) => {
                 try {
                     await client.query('BEGIN');
 
-                    let user = await client.query(`SELECT stripe_cust_id FROM users WHERE username = $1`, [req.session.user.username]);
+                    let user = await client.query(`SELECT stripe_id FROM users WHERE username = $1`, [req.session.user.username]);
 
-                    let card = await stripe.customers.updateCard(user.rows[0].stripe_cust_id, req.body.source, {
+                    let card = await stripe.customers.updateCard(user.rows[0].stripe_id, req.body.source, {
                         address_line1: req.body.address_line1,
                         address_city: req.body.address_city,
                         address_state: req.body.address_state,
@@ -599,10 +611,10 @@ app.post('/api/user/payment/default', (req, resp) => {
                 try {
                     await client.query('BEGIN');
 
-                    let user = await client.query(`SELECT stripe_cust_id FROM users WHERE username = $1`, [req.session.user.username]);
+                    let user = await client.query(`SELECT stripe_id FROM users WHERE username = $1`, [req.session.user.username]);
 
-                    if (user && user.rows[0].stripe_cust_id) {
-                        let customer = await stripe.customers.update(user.rows[0].stripe_cust_id, {default_source: req.body.id});
+                    if (user && user.rows[0].stripe_id) {
+                        let customer = await stripe.customers.update(user.rows[0].stripe_id, {default_source: req.body.id});
 
                         let defaultPayment;
 
@@ -617,7 +629,7 @@ app.post('/api/user/payment/default', (req, resp) => {
                             await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Set card ending in ${defaultPayment} as default`, req.session.user.username, 'Payment']);
                             resp.send({status: 'success', statusMessage: 'Default card has been set', defaultSource: customer.default_source});
                         });
-                    } else if (user && !user.rows[0].stripe_cust_id) {
+                    } else if (user && !user.rows[0].stripe_id) {
                         let error = new Error(`You need to add a card`);
                         error.type = 'CUSTOM';
                         throw error;
@@ -652,20 +664,20 @@ app.post('/api/user/payment/delete', (req, resp) => {
                 try {
                     await client.query('BEGIN');
 
-                    let user = await client.query(`SELECT stripe_cust_id, is_subscribed FROM users WHERE username = $1`, [req.session.user.username]);
+                    let user = await client.query(`SELECT stripe_id, is_subscribed FROM users WHERE username = $1`, [req.session.user.username]);
 
-                    if (user && user.rows[0].stripe_cust_id) {
-                        let customer = await stripe.customers.retrieve(user.rows[0].stripe_cust_id);
+                    if (user && user.rows[0].stripe_id) {
+                        let customer = await stripe.customers.retrieve(user.rows[0].stripe_id);
 
                         if (user.rows[0].is_subscribed && customer.sources.data.length === 1) {
                             let error = new Error(`This card cannot be deleted`);
                             error.type = 'CUSTOM';
                             throw error;
                         } else if (customer.sources.data.length > 1) {
-                            card = await stripe.customers.deleteCard(user.rows[0].stripe_cust_id, req.body.id);
+                            card = await stripe.customers.deleteCard(user.rows[0].stripe_id, req.body.id);
 
                             if (card.deleted) {
-                                customer = await stripe.customers.retrieve(user.rows[0].stripe_cust_id);
+                                customer = await stripe.customers.retrieve(user.rows[0].stripe_id);
 
                                 await client.query('COMMIT')
                                 .then(async() => {

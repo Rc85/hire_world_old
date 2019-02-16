@@ -19,7 +19,7 @@ class TextArea extends Component {
                 onBlur={() => this.props.dispatch(isTyping(false))}
                 disabled={this.props.disabled}
                 autoFocus={this.props.autoFocus}
-                placeholder={this.props.placeholder ? this.props.placeholder : ''}></textarea>
+                placeholder={this.props.placeholder}></textarea>
             </div>
         )
     }

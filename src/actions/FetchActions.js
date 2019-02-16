@@ -86,12 +86,7 @@ const UpdateUserNotificationAndMessageCount = (notifications, messages) => {
     return {
         type: 'UPDATE_NOTIFICATION_AND_MESSAGE_COUNT',
         notifications,
-        messages: {
-            inquiries: messages.unread_inquiries,
-            active: messages.unread_active,
-            completed: messages.unread_completed,
-            abandoned: messages.unread_abandoned
-        }
+        messages: messages
     }
 }
 

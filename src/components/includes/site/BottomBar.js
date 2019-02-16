@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink, withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faThList, faTimes, faBars, faBell } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt, faThList, faTimes, faBars, faBell, faUserCircle, faUserFriends, faUserSlash } from '@fortawesome/free-solid-svg-icons';
 import { LogoutUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
 import LoginPanel from './LoginPanel';
@@ -64,7 +64,15 @@ class BottomBar extends Component {
 
                         <div className='bottombar-sub-item-container'>
                             {item.items ? item.items.map((subItem, index) => {
-                                return <div key={index} className='bottombar-sub-item'><NavLink to={subItem.link}>{subItem.name}</NavLink></div>
+                                if (item.name === 'Jobs') {
+                                    if (this.props.user.user && this.props.user.user.connected_id) {
+                                        return <div key={index} className='bottombar-sub-item'><NavLink to={subItem.link}>{subItem.name}</NavLink></div>
+                                    } else {
+                                        return false
+                                    }
+                                } else {
+                                    return <div key={index} className='bottombar-sub-item'><NavLink to={subItem.link}>{subItem.name}</NavLink></div>
+                                }
                             }) : false}
                         </div>
                     </div>
@@ -100,6 +108,14 @@ class BottomBar extends Component {
                 
                 <div className='bottombar-toggle-buttons'>
                     <div id='bottombar-button-container'>
+                        {this.props.user.user ?
+                        <div id='bottombar-dashboard-buttons'>
+                            <NavLink to='/dashboard/edit'><FontAwesomeIcon icon={faUserCircle} size='2x' className='mr-2' /></NavLink>
+                            <NavLink to='/dashboard/friends'><FontAwesomeIcon icon={faUserFriends} size='2x' className='mr-2' /></NavLink>
+                            <NavLink to='/dashboard/blocked-users'><FontAwesomeIcon icon={faUserSlash} size='2x' className='mr-2' /></NavLink>
+                        </div>
+                        : ''}
+
                         {this.props.user.user ? <div id='bottombar-notification-button'>
                             <FontAwesomeIcon icon={faBell} size='2x' onClick={(e) => this.showNotificationPanel(e)} className={`mr-2 ${this.props.menu.id === 'notification-panel' && this.props.menu.show ? 'text-highlight' : ''}`} />
                             {parseInt(this.props.user.notifications) > 0 ? <span id='bottombar-notification-counter' className='mini-badge mini-badge-danger'>{this.props.user.notifications}</span> : ''}

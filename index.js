@@ -81,8 +81,9 @@ app.use(require('./modules/fetch/listings'));
 app.use(require('./modules/fetch/configs'));
 
 app.use(require('./modules/message/messages'));
-app.use(require('./modules/message/offers'));
-app.use(require('./modules/message/jobs'));
+
+const job = require('./modules/jobs');
+job.accounts.create();
 
 app.get('/', async(req, resp) => {
     let announcements = await db.query(`SELECT * FROM announcements`);
@@ -106,6 +107,10 @@ app.get('/how-it-works', (req, resp) => {
     resp.render('how', {user: req.session.user});
 });
 
+app.get('/features', (req, resp) => {
+    resp.render('features', {user: req.session.user});
+});
+
 app.get('/faq', (req, resp) => {
     resp.render('faq', {user: req.session.user});
 });
@@ -119,7 +124,7 @@ app.get('/register', (req, resp) => {
 });
 
 app.get('/register/success', (req, resp) => {
-    resp.render('response', {header: 'Registration Success', message: 'An verification email has been sent to you. Please click the link provided to activate your account.'});
+    resp.render('response', {header: 'Registration Successful', message: 'A verification email has been sent. Please click the link provided to activate your account.'});
 });
 
 app.get('/activate-account', async(req, resp) => {
@@ -243,13 +248,60 @@ app.get(/^\/(app|app(\/)?.*)?/, (req, resp) => {
     resp.sendFile(__dirname + '/dist/app.html');
 });
 
-/* app.use('/mploy/admin-panel', (req, resp, next) => {
-    if (req.session.user && req.session.user.userLevel > 90) {
-        next();
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not authorized`});
+app.post('/api/pin', async(req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let table, pinnedId, pinnedBy, pinnedDate, action, date;;
+
+                    if (req.body.type === 'message') {
+                        table = 'pinned_messages';
+                        pinnedId = 'pinned_message';
+                        pinnedBy = 'message_pinned_by';
+                        pinnedDate = 'message_pinned_date';
+                    } else if (req.body.type === 'job') {
+                        table = 'pinned_jobs';
+                        pinnedId = 'pinned_job';
+                        pinnedBy = 'job_pinned_by';
+                        pinnedDate = 'job_pinned_date';
+                    }
+
+                    let exist = await db.query(`SELECT * FROM ${table} WHERE ${pinnedId} = $1 AND ${pinnedBy} = $2`, [req.body.id, req.session.user.username]);
+
+                    if (exist && exist.rows.length === 1) {
+                        await client.query(`DELETE FROM ${table} WHERE ${pinnedId} = $1 AND ${pinnedBy} = $2`, [req.body.id, req.session.user.username]);
+                        date = null;
+                        action = 'delete';
+                    } else if (exist && exist.rows.length === 0) {
+                        date = await client.query(`INSERT INTO ${table} (${pinnedId}, ${pinnedBy}) VALUES ($1, $2) RETURNING ${pinnedDate}`, [req.body.id, req.session.user.username])
+                        .then(result => {
+                            return result.rows[0].pinned_date;
+                        });
+
+                        action = 'pin';
+                    }
+
+                    await client.query('COMMIt')
+                    .then(() => resp.send({status: 'success', pinnedDate: date, action: action}));
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                console.log(err);
+                resp.send({status: 'error', statusMessage: 'An error occurred'});
+            });
+        });
     }
-}); */
+});
 
 app.post('/api/log-error', (req, resp) => {
     let errorObj = {stack: req.body.stack}

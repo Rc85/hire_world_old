@@ -16,7 +16,7 @@ app.post('/api/user/review/submit', (req, resp) => {
                     let user = await client.query('SELECT user_status FROM users WHERE user_id = $1', [req.session.user.user_id]);
 
                     if (user && user.rows[0].user_status === 'Active') {
-                        if (req.body.message.token_status === 'Valid') {
+                        //if (req.body.message.token_status === 'Valid') {
                             let decoded = decodeURIComponent(req.body.message.review_token);
                             let decrypt = cryptojs.AES.decrypt(decoded, 'authorize authentic review');
                             let authenticated = decrypt.toString(cryptojs.enc.Utf8);
@@ -30,11 +30,11 @@ app.post('/api/user/review/submit', (req, resp) => {
 
                             let job = await client.query(`SELECT * FROM jobs
                             LEFT JOIN user_reviews ON user_reviews.review_job_id = jobs.job_id
-                            WHERE jobs.job_id = $1 AND user_reviews.reviewer = $2`, [req.body.message.job_id, req.session.user.username]);
+                            WHERE jobs.job_id = $1 AND user_reviews.reviewer = $2 AND user_reviews.review_list_id = $3`, [req.body.message.job_id, req.session.user.username, req.body.list_id]);
 
                             await client.query(`COMMIT`)
                             .then(() => resp.send({status: 'success', job: job.rows[0]}));
-                        } else if (req.body.message.job_id) {
+                        /* } else if (req.body.message.job_id) {
                             let reviewing;
 
                             if (req.session.user.username === req.body.message.job_user) {
@@ -62,7 +62,7 @@ app.post('/api/user/review/submit', (req, resp) => {
                             } else {
                                 throw new Error('Insert error');
                             }
-                        }
+                        } */
                     } else if (user && user.rows[0].user_status === 'Suspend') {
                         let error = new Error(`You're temporarily banned`);
                         error.type = 'CUSTOM';
@@ -90,6 +90,8 @@ app.post('/api/user/review/submit', (req, resp) => {
     }
 });
 
+
+
 app.post('/api/review/submit', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
@@ -101,7 +103,7 @@ app.post('/api/review/submit', (req, resp) => {
                     let user = await client.query(`SELECT user_status FROM users WHERE user_id = $1`, [req.session.user.user_id]);
 
                     if (user && user.rows[0].user_status === 'Active') {
-                        let inserted = await client.query(`INSERT INTO user_reviews (reviewer, reviewing, review, review_rating) VALUES ($1, $2, $3, $4) RETURNING *`, [req.session.user.username, req.body.reviewing, req.body.review, req.body.star]);
+                        let inserted = await client.query(`INSERT INTO user_reviews (reviewer, reviewing, review, review_rating, review_list_id) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [req.session.user.username, req.body.reviewing, req.body.review, req.body.star, req.body.id]);
 
                         let review = await client.query(`SELECT user_reviews.*, user_profiles.avatar_url FROM user_reviews
                         LEFT JOIN users ON users.username = user_reviews.reviewer

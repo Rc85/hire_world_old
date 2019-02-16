@@ -4,9 +4,10 @@ import Loading from '../utils/Loading';
 import PropTypes from 'prop-types';
 import SideBar from '../includes/site/SideBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faColumns, faCommentAlt, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faColumns, faCommentAlt, faCog, faShoppingCart, faSyncAlt, faBriefcase } from '@fortawesome/free-solid-svg-icons';
 import BottomBar from '../includes/site/BottomBar';
 import { connect } from 'react-redux';
+import { faListAlt } from '@fortawesome/free-regular-svg-icons';
 
 class Dashboard extends Component {
     constructor(props) {
@@ -20,25 +21,25 @@ class Dashboard extends Component {
     render() {
         let dashboard;
 
-        let totalMessages = parseInt(this.props.user.messages.inquiries) + parseInt(this.props.user.messages.active) + parseInt(this.props.user.messages.completed) + parseInt(this.props.user.messages.abandoned);
-
         let items = [
-            {name: 'Dashboard', link: '/dashboard/edit', active: /^\/dashboard/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faColumns} />, items: [
-                {name: 'Profile', active: this.props.location.pathname === '/dashboard/edit', link: '/dashboard/edit'},
-                {name: 'Friends', active: this.props.location.pathname === '/dashboard/friends', link: '/dashboard/friends'},
-                /* {name: 'Medals', active: this.props.location.pathname === '/dashboard/medals', link: '/dashboard/medals'} */
-            ]},
-            {name: 'Messages', link: '/messages/Inquire', active: /^\/messages/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCommentAlt} />, messageCount: totalMessages, items: [
+            {name: 'My Listing', link: '/my-listing', active: /^\/my-listing/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faListAlt} />},
+            {name: 'Messages', link: '/messages', active: /^\/messages/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCommentAlt} />, messageCount: this.props.user.messages/* , items: [
                 {name: 'Inquiries', active: this.props.location.pathname === '/messages/Inquire', link: '/messages/Inquire', messageCount: parseInt(this.props.user.messages.inquiries)},
-                {name: 'Active', active: this.props.location.pathname === '/messages/Active', link: '/messages/Active', messageCount: parseInt(this.props.user.messages.active)},
-                {name: 'Completed', active: this.props.location.pathname === '/messages/Completed', link: '/messages/Completed', messageCount: this.props.user.messages.completed},
-                {name: 'Abandoned', active: this.props.location.pathname === '/messages/Abandoned', link: '/messages/Abandoned', messageCount: this.props.user.messages.abandoned}
+            ] */},
+            /* {name: 'Jobs', link: '/jobs', active: /^\/jobs/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faBriefcase} />, items: [
+                {name: 'Offers', active: this.props.location.pathname === '/jobs/Offers', link: '/jobs/Offers'},
+                {name: 'Active', active: this.props.location.pathname === '/jobs/Active', link: '/jobs/Active'},
+                {name: 'Completed', active: this.props.location.pathname === '/jobs/Completed', link: '/jobs/Completed'},
+                {name: 'Abandoned', active: this.props.location.pathname === '/jobs/Abandoned', link: '/jobs/Abandoned'}
+            ]}, */
+            {name: 'Subscription', link: '/subscription/purchase', active: this.props.location.pathname === '/subscription/purchase', icon: <FontAwesomeIcon icon={faSyncAlt} />, items: [
+                {name: 'Purchase', active: this.props.location.pathname === '/subscription/purchase', link: '/subscription/purchase'},
+                {name: 'Details', active: this.props.location.pathname === '/subscription/details', link: '/subscription/details'}
             ]},
-            {name: 'Settings', link: '/settings/listing', active: /^\/settings/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCog} />, items: [
-                {name: 'Listing', active: this.props.location.pathname === '/settings/listing', link: '/settings/listing'},
+            {name: 'Settings', link: '/settings/account', active: /^\/settings/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCog} />, items: [
+                /* {name: 'Listing', active: this.props.location.pathname === '/settings/listing', link: '/settings/listing'}, */
                 {name: 'Account', active: this.props.location.pathname === '/settings/account', link: '/settings/account'},
                 {name: 'Payment', active: this.props.location.pathname === '/settings/payment', link: '/settings/payment'},
-                {name: 'Subscription', active: this.props.location.pathname === '/settings/subscription', link: '/settings/subscription'},
             ]}
         ];
         

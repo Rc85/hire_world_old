@@ -111,9 +111,6 @@ class Username extends Component {
                             <div className='username-popup-body-child'><FontAwesomeIcon icon={faCheckCircle} className='text-success mr-1' /> {this.state.user.job_complete}</div>
     
                             <div className='username-popup-body-child'><FontAwesomeIcon icon={faBan} className='text-danger mr-1' /> {this.state.user.job_abandoned}</div>
-    
-                            {!this.state.user.listing_status ? <div className='username-popup-body-child'><FontAwesomeIcon icon={faThumbsUp} className='mr-1' /> 0</div> : ''}
-                            {!this.state.user.listing_status ? <div className='username-popup-body-child'><FontAwesomeIcon icon={faThumbsDown} className='mr-1' /> 0</div> : ''}
                         </div>
                     </div>
                 </div>;

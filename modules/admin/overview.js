@@ -15,10 +15,10 @@ app.post('/api/admin/get/overview', async(req, resp) => {
     let inactiveListings = await db.query(`SELECT COUNT(listing_id) AS inactive_listings FROM user_listings WHERE listing_status = 'Inactive'`);
 
     let totalJobs = await db.query(`SELECT COUNT(job_id) AS total_jobs FROM jobs`);
-    let completedJobs = await db.query(`SELECT COUNT(job_id) AS completed_jobs FROM jobs WHERE job_stage = 'Completed'`);
-    let abandonedJobs = await db.query(`SELECT COUNT(job_id) AS abandoned_jobs FROM jobs WHERE job_stage = 'Abandoned'`);
-    let incompleteJobs = await db.query(`SELECT COUNT(job_id) AS incomplete_jobs FROM jobs WHERE job_stage = 'Incomplete'`);
-    let activeJobs = await db.query(`SELECT COUNT(job_id) AS active_jobs FROM jobs WHERE job_stage = 'Active'`);
+    let completedJobs = await db.query(`SELECT COUNT(job_id) AS completed_jobs FROM jobs WHERE job_status = 'Completed'`);
+    let abandonedJobs = await db.query(`SELECT COUNT(job_id) AS abandoned_jobs FROM jobs WHERE job_status = 'Abandoned'`);
+    let incompleteJobs = await db.query(`SELECT COUNT(job_id) AS incomplete_jobs FROM jobs WHERE job_status = 'Incomplete'`);
+    let activeJobs = await db.query(`SELECT COUNT(job_id) AS active_jobs FROM jobs WHERE job_status = 'Active'`);
 
     let listingPerSector = await db.query(`SELECT * FROM sectors LEFT JOIN (SELECT COUNT(listing_id) AS listing_count, listing_sector FROM user_listings GROUP BY listing_sector) AS user_listings ON user_listings.listing_sector = sectors.sector WHERE sectors.sector_status != 'Delete';`)
 

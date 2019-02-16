@@ -58,7 +58,7 @@ app.post('/api/auth/register', (req, resp) => {
                                         let regKeyString = encrypted.toString();
                                         let registrationKey = encodeURIComponent(regKeyString);
 
-                                        let user = await client.query(`INSERT INTO users (username, user_password, user_email, account_type, registration_key) VALUES ($1, $2, $3, $4, $5) RETURNING user_id, username`, [req.body.username, result, req.body.email, 'User', regKeyString]);
+                                        let user = await client.query(`INSERT INTO users (username, user_password, user_email, registration_key) VALUES ($1, $2, $3, $4) RETURNING user_id, username`, [req.body.username, result, req.body.email, regKeyString]);
 
                                         await client.query(`INSERT INTO user_profiles (user_profile_id, user_firstname, user_lastname, user_title) VALUES ($1, $2, $3, $4)`, [user.rows[0].user_id, req.body.firstName, req.body.lastName, req.body.title]);
                                         await client.query(`INSERT INTO user_settings (user_setting_id) VALUES ($1)`, [user.rows[0].user_id]);

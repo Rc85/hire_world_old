@@ -27,7 +27,7 @@ class Checkout extends Component {
         this.state = {
             type: 'checkout',
             status: 'Loading',
-            plan: process.env.REACT_ENV === 'development' ? 'plan_EAIyF94Yhy1BLB' : 'plan_EFVAGdrFIrpHx5',
+            plan: '',
             name: '',
             defaultAddress: this.props.user.user_address && this.props.user.user_city && this.props.user.user_region && this.props.user.user_country && this.props.user.user_city_code ? true : false,
             saveAddress: false,

@@ -330,6 +330,8 @@ app.post('/api/user/subscription/add', (req, resp) => {
             request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.SUBSCRIPTION_RECAPTCHA_SECRET, response: req.body.verified}}, (err, res, body) => {
                 if (err) console.log(err);
 
+                console.log(req.body);
+
                 let response = JSON.parse(res.body);
                 
                 if (response.success) {
@@ -345,7 +347,7 @@ app.post('/api/user/subscription/add', (req, resp) => {
                                 await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.address_line1, req.body.address_city, req.body.address_state, req.body.address_country, req.body.address_zip, req.session.user.user_id]);
                             }
 
-                            let customer, subscription, accountType;
+                            let customer, subscription;
                             let now = new Date();
 
                             if (req.body.plan === 'plan_EVUbtmca9pryxy' || req.body.plan === 'plan_EVTJiZUT4rVkCT') {
@@ -359,7 +361,7 @@ app.post('/api/user/subscription/add', (req, resp) => {
                                     // If user is using a stored payment method
                                     if (req.body.usePayment && req.body.usePayment !== 'New') {
                                         customerParams = {
-                                            default_source: req.body.token.id,
+                                            default_source: req.body.usePayment,
                                             email: user.rows[0].user_email
                                         }
                                     }
@@ -385,7 +387,7 @@ app.post('/api/user/subscription/add', (req, resp) => {
                                         subscription = await stripe.subscriptions.create(subscriptionParams);
 
                                         await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Re-subscribed', req.session.user.username, 'Subscription']);
-                                        await client.query(`UPDATE users SET is_subscribed = true, subscription_id = $1, plan_id = $2, account_type = $4 WHERE username = $3`, [subscription.id, subscription.plan.id, req.session.user.username, accountType]);
+                                        await client.query(`UPDATE users SET is_subscribed = true, subscription_id = $1, plan_id = $2, account_type = $4, subscription_end_date = current_timestamp + interval '32 days' WHERE username = $3`, [subscription.id, subscription.plan.id, req.session.user.username, 'Listing']);
                                     } else {
                                         if (user.rows[0].plan_id === 'plan_EVUbtmca9pryxy' || user.rows[0].plan_id === 'plan_EVTJiZUT4rVkCT') {
                                             let error = new Error(`You're already subscribed to that plan`);
@@ -424,9 +426,9 @@ app.post('/api/user/subscription/add', (req, resp) => {
 
                                 if (charge.paid && charge.status === 'succeeded') {
                                     if (user.rows[0].subscription_end_date && new Date(user.rows[0].subscription_end_date) > now) {
-                                        await client.query(`UPDATE users SET subscription_end_date = subscription_end_date + interval '30 days' WHERE username = $1`, [req.session.user.username]);
+                                        await client.query(`UPDATE users SET subscription_end_date = subscription_end_date + interval '30 days', account_type = 'Listing' WHERE username = $1`, [req.session.user.username]);
                                     } else if (user.rows[0].subscription_end_date && new Date(user.rows[0].subscription_end_date) < now || !user.rows[0].subscription_end_date) {
-                                        await client.query(`UPDATE users SET subscription_end_date = current_timestamp + interval '30 days' WHERE username = $1`, [req.session.user.username]);
+                                        await client.query(`UPDATE users SET subscription_end_date = current_timestamp + interval '30 days', account_type = 'Listing' WHERE username = $1`, [req.session.user.username]);
                                     }
 
                                     await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Purchased 30 Day Listing', req.session.user.username, 'Purchase']);

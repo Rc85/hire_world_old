@@ -45,7 +45,7 @@ app.use('/styles', express.static('dist/css'));
 app.use('/user_files', express.static(`user_files`))
 app.use('/images', express.static('dist/images'));
 
-app.use(/^\/app\/(?!admin-panel).*/, async(req, resp, next) => {
+app.use(/^\/app(?!\/admin-panel).*/, async(req, resp, next) => {
     let status = await db.query(`SELECT config_status FROM site_configs WHERE config_name = 'Site'`);
 
     if (status.rows[0].config_status === 'Active') {

@@ -136,66 +136,70 @@ app.post('/api/auth/login', async(req, resp, next) => {
                 try {
                     await client.query('BEGIN');
 
-                    let auth = await client.query(`SELECT * FROM users WHERE LOWER(username) = LOWER($1)`, [req.body.username]);
-                   
-                    // If user exists
-                    if (auth && auth.rows.length === 1) {
-                        // Get user's ban date and today's date
-                        let banEndDate = await client.query(`SELECT ban_end_date FROM user_bans WHERE banned_user = $1 ORDER BY ban_id DESC LIMIT 1`, [req.body.username]);
-                        let today = new Date();
-                        // If user is banned, deny access
-                        if (auth.rows[0].user_status === 'Ban') {
-                            let error = new Error(`Your account has been permanently banned`);
-                            error.type = 'CUSTOM';
-                            error.status = 'access error';
-                            throw error;
-                        // if users haven't activated their account
-                        } else if (auth.rows[0].user_status === 'Pending') {
-                            let error = new Error(`You need to activate your account`);
-                            error.type = 'CUSTOM';
-                            error.status = 'error';
-                            throw error;
-                        // If user is temporarily banned, check if today is after ban date. If it is, set user status to 'Active'
-                        } else if (auth.rows[0].user_status === 'Suspend') {
-                            if (today >= banEndDate) {
-                                await client.query(`UPDATE users SET user_status = 'Active' WHERE username = $1`, [req.body.username]);
-                            }
-                        }
-
-                        // Compare password
-                        bcrypt.compare(req.body.password, auth.rows[0].user_password, async(err, match) => {
-                            if (err) console.log(err);
-
-                            if (match) {
-                                let now = new Date();
-
-                                if (now > auth.rows[0].subscription_end_date) {
-                                    await client.query(`UPDATE users SET account_type = 'User', subscription_id = null, plan_id = null WHERE user_id = $1`, [auth.rows[0].user_id]);
+                    if (req.body.username) {
+                        let auth = await client.query(`SELECT * FROM users WHERE LOWER(username) = LOWER($1)`, [req.body.username]);
+                    
+                        // If user exists
+                        if (auth && auth.rows.length === 1) {
+                            // Get user's ban date and today's date
+                            let banEndDate = await client.query(`SELECT ban_end_date FROM user_bans WHERE banned_user = $1 ORDER BY ban_id DESC LIMIT 1`, [req.body.username]);
+                            let today = new Date();
+                            // If user is banned, deny access
+                            if (auth.rows[0].user_status === 'Ban') {
+                                let error = new Error(`Your account has been permanently banned`);
+                                error.type = 'CUSTOM';
+                                error.status = 'access error';
+                                throw error;
+                            // if users haven't activated their account
+                            } else if (auth.rows[0].user_status === 'Pending') {
+                                let error = new Error(`You need to activate your account`);
+                                error.type = 'CUSTOM';
+                                error.status = 'error';
+                                throw error;
+                            // If user is temporarily banned, check if today is after ban date. If it is, set user status to 'Active'
+                            } else if (auth.rows[0].user_status === 'Suspend') {
+                                if (today >= banEndDate) {
+                                    await client.query(`UPDATE users SET user_status = 'Active' WHERE username = $1`, [req.body.username]);
                                 }
-                                
-                                await client.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
-                                // .catch(err => console.log(err);
-
-                                let session = {
-                                    user_id: auth.rows[0].user_id,
-                                    username: auth.rows[0].username
-                                }
-
-                                req.session.user = session;
-                                
-                                await client.query('COMMIT')
-                                .then(() => next());
-                            } else {
-                                await client.query('ROLLBACK');
-                                resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
-                                return;
                             }
-                        });
+
+                            // Compare password
+                            bcrypt.compare(req.body.password, auth.rows[0].user_password, async(err, match) => {
+                                if (err) console.log(err);
+
+                                if (match) {
+                                    let now = new Date();
+
+                                    if (now > auth.rows[0].subscription_end_date) {
+                                        await client.query(`UPDATE users SET account_type = 'User', subscription_id = null, plan_id = null WHERE user_id = $1`, [auth.rows[0].user_id]);
+                                    }
+                                    
+                                    await client.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
+                                    // .catch(err => console.log(err);
+
+                                    let session = {
+                                        user_id: auth.rows[0].user_id,
+                                        username: auth.rows[0].username
+                                    }
+
+                                    req.session.user = session;
+                                    
+                                    await client.query('COMMIT')
+                                    .then(() => next());
+                                } else {
+                                    await client.query('ROLLBACK');
+                                    resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
+                                    return;
+                                }
+                            });
+                        } else {
+                            await client.query('ROLLBACK');
+                            resp.send({status: 'error', statusMessage: 'User not found'});
+                            return;
+                        }    
                     } else {
-                        await client.query('ROLLBACK');
-                        resp.send('done');
-                        return;
-                    }    
+                        resp.send({status: 'not logged in'});
+                    }
                 } catch (e) {
                     await client.query('ROLLBACK');
                     throw e;
@@ -211,12 +215,6 @@ app.post('/api/auth/login', async(req, resp, next) => {
 },
 async(req, resp) => {
     if (req.session.user) {
-        /* let user = await db.query(`SELECT users.username, users.user_email, users.account_type, users.user_status, users.is_subscribed, users.plan_id, users.user_last_login, users.user_level, users.subscription_end_date, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
-        LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
-        LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
-        LEFT JOIN user_listings ON users.username = user_listings.listing_user
-        WHERE users.user_id = $1`, [req.session.user.user_id]); */
-
         let user = await controller.session.retrieve(false, req.session.user.user_id);
 
         if (user) {    
@@ -228,23 +226,6 @@ async(req, resp) => {
         resp.send({status: 'get session fail', statusMessage: `You're not logged in`});
     }
 });
-
-/* app.get('/api/auth/privilege', (req, resp) => {
-    if (req.session.user) {
-        db.query(`SELECT user_level FROM users WHERE username = $1`, [req.session.user.username])
-        .then(result => {
-            if (result.rows[0].user_level > 90) {
-                resp.send({status: 'success'});
-            } else {
-                resp.send({status: 'access error', statusMessage: `You're not authorized to access this area`});
-            }
-        })
-        .catch(err => {
-             console.log(err);
-            resp.send({status: 'error', statusMessage: 'An errorr occurred'});
-        });
-    }
-}); */
 
 app.post('/api/auth/logout', (req, resp) => {
     req.session = null;

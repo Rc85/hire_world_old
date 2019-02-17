@@ -109,7 +109,7 @@ class SideBar extends Component {
                     </div>
                 </div>
             </React.Fragment>;
-        } else if (this.props.user.status === 'error') {
+        } else if (this.props.user.status === 'error' || this.props.user.status === 'not logged in') {
             sidebarContent = <React.Fragment>
                 <div id='sidebar-links'>
                     {browseLink}

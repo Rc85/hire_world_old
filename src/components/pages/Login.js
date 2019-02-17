@@ -12,7 +12,7 @@ class Login extends Component {
             return <Redirect to='/dashboard/edit' />;
         } else if (this.props.user.status === 'getting session') {
             return <Loading size='7x' />;
-        } else if (this.props.user.status === 'error') {
+        } else if (this.props.user.status === 'error' || this.props.user.status === 'not logged in') {
             return(
                 <section id='login'>
                     <div>

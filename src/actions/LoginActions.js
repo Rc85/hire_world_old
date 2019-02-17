@@ -5,7 +5,7 @@ import { GetSession } from './FetchActions';
 
 export const LoginUser = (data) => {
     return dispatch => {
-        dispatch(LoginBegin('login in'));
+        dispatch(LoginBegin('login begin'));
 
         return fetch.post('/api/auth/login', data)
         .then(resp => {

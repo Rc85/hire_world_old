@@ -115,7 +115,9 @@ app.post('/api/job/accounts/create', (req, resp) => {
                 }
             });
         } */
-        console.log(req);
+        console.log(req.connection.remoteAddress);
+        console.log(req.headers['x-forwarded-for']);
+        console.log(req.header('x-forwarded-for'));
     }
 });
 

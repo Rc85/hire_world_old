@@ -17,6 +17,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.set('view engine', 'pug');
 app.set('views', ['dist', 'dist/inc']);
+app.set('trust proxy', true);
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json({

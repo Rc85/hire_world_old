@@ -55,7 +55,7 @@ class Dashboard extends Component {
                         {this.props.children}
                     </div>
                 </section>;
-            } else if (this.props.user.status === 'error') {
+            } else if (this.props.user.status === 'error' || this.props.user.status === 'not logged in') {
                 dashboard = <Redirect to='/' />;
             }
         } else {

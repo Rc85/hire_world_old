@@ -195,8 +195,17 @@ class ListSettings extends Component {
                                             <input type='text' value={this.state.newSettings.listing_title} onChange={(e) => this.setSetting('listing_title', e.target.value)} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                                         </InputWrapper>
             
-                                        <InputWrapper label='Location of Work' id='listing-location' required>
+                                        <InputWrapper label='Type of Business' id='listing-location' required>
                                             <div className='checkbox-label-container'>
+                                                <label className={`checkbox-label ${this.state.newSettings.listing_online ? 'active' : ''}`}>
+                                                    <input type='checkbox' value='Online' onChange={(e) => this.setSetting('listing_online', !this.state.newSettings.listing_online)} checked={this.state.newSettings.Listing_online} />
+                                                    
+                                                    <div className='checkbox-container'>
+                                                        <div className='checkbox'>{this.state.newSettings.listing_online ? <FontAwesomeIcon icon={faCheck} /> : ''}</div>
+                                                        <span className='checkbox-label-text'>Online</span>
+                                                    </div>
+                                                </label>
+
                                                 <label className={`checkbox-label ${this.state.newSettings.listing_remote ? 'active' : ''}`}>
                                                     <input type='checkbox' value='Remote' onChange={(e) => this.setSetting('listing_remote', !this.state.newSettings.listing_remote)} checked={this.state.newSettings.listing_remote} />
                                                     

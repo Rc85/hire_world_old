@@ -13,6 +13,12 @@
 
     .listing-row-profile-pic { display: none; }
 
+    .listing-row-main {
+        a {
+            width: 100%;
+        }
+    }
+
     .setting-container { flex-direction: column; }
 
     .setting-container {

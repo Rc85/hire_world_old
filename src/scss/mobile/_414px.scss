@@ -22,8 +22,17 @@
         justify-content: space-between;
     }
 
+    .listing-row-main {
+        a {
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+    }
+
     .listing-row-title { order: 1; }
-    .listing-row-purpose { order: 2; }
+
+    .listing-row-purpose {order: 2;}
+
     .listing-row-rating { order: 3; }
 
     .listing-row-detail { flex-direction: column; }

@@ -258,13 +258,13 @@ app.post('/api/listing/save', async(req, resp) => {
 
                         // If user have a listing, update it
                         if (userListing.rows.length === 1) {
-                            queryString = `UPDATE user_listings SET listing_title = $1, listing_sector = $2, listing_price = $3, listing_price_type = $4, listing_price_currency = $5, listing_negotiable = $6, listing_detail = $7, listing_remote = $9, listing_local = $10, listing_status = $11 WHERE listing_user = $8 RETURNING *`;
+                            queryString = `UPDATE user_listings SET listing_title = $1, listing_sector = $2, listing_price = $3, listing_price_type = $4, listing_price_currency = $5, listing_negotiable = $6, listing_detail = $7, listing_remote = $9, listing_local = $10, listing_status = $11, listing_online = $12 WHERE listing_user = $8 RETURNING *`;
                         // Else create it
                         } else if (userListing.rows.length === 0) {
-                            queryString = 'INSERT INTO user_listings (listing_title, listing_sector, listing_price, listing_price_type, listing_price_currency, listing_negotiable, listing_detail, listing_user, listing_remote, listing_local, listing_status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *';
+                            queryString = 'INSERT INTO user_listings (listing_title, listing_sector, listing_price, listing_price_type, listing_price_currency, listing_negotiable, listing_detail, listing_user, listing_remote, listing_local, listing_status, listing_online) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *';
                         }
 
-                        let listing = await client.query(queryString, [req.body.listing_title, req.body.listing_sector, price, req.body.listing_price_type, req.body.listing_price_currency.toUpperCase(), req.body.listing_negotiable, req.body.listing_detail, req.session.user.username, req.body.listing_remote, req.body.listing_local, status]);
+                        let listing = await client.query(queryString, [req.body.listing_title, req.body.listing_sector, price, req.body.listing_price_type, req.body.listing_price_currency.toUpperCase(), req.body.listing_negotiable, req.body.listing_detail, req.session.user.username, req.body.listing_remote, req.body.listing_local, status, req.body.listing_online]);
 
                         if (listing.rows.length === 1) {
                             await client.query('COMMIT')

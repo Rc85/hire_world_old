@@ -6,10 +6,19 @@ import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import InputWrapper from '../../utils/InputWrapper';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import SubmitButton from '../../utils/SubmitButton';
+import Recaptcha from 'react-recaptcha';
+import fetch from 'axios';
+import { LogError } from '../../utils/LogError';
+
+var onloadCallback = function() {
+    console.log('Recaptcha ready!');
+}
 
 class NotConnected extends Component {
     constructor(props) {
         super(props);
+
+        console.log(this.props);
         
         this.state = {
             firstname: this.props.user.user.user_firstname,
@@ -23,7 +32,8 @@ class NotConnected extends Component {
             address: this.props.user.user.user_address || '',
             cityCode: this.props.user.user.user_city_code || '',
             tosAgree: false,
-            stripeAgree: false
+            stripeAgree: false,
+            verified: false
         }
     }
 
@@ -31,8 +41,17 @@ class NotConnected extends Component {
         this.setState({status: 'Submitting'});
 
         fetch.post('/api/job/accounts/create', this.state)
-        .then(resp => (resp))
-        .catch(err => console.log(err));
+        .then(resp => {
+            this.setState({status: ''});
+        })
+        .catch(err => {
+            this.setState({status: ''});
+            LogError(err, '/api/job/account/create');
+        });
+    }
+
+    verify(response) {
+        this.setState({verified: response});
     }
     
     render() {
@@ -103,7 +122,11 @@ class NotConnected extends Component {
                 <div id='jobs-not-connected' className='main-panel'>
                     <TitledContainer title='Not Connected' icon={<FontAwesomeIcon icon={faTimesCircle} />} shadow>
                         <div className='mb-3'>
-                            <div className='mb-3'>To begin working with other users on HireWorld, you need a Stripe Connected account connected to our platform. To create an account, please fill out the form below.</div>
+                            <div className='mb-3'>To begin working with other users on HireWorld, you need a Stripe Connected account connected to our platform. To create an account, please fill out the form below. Your country, once set, cannot be updated. For everything else, you can update it later as you wish.</div>
+
+                            <div className='mb-3'>Please note that this form provides only some of the fields required to verified your identity and that your Connected account may not be verified immediately.</div>
+
+                            <div className='mb-3'>Once an account is created, you can update your information in the Settings page.</div>
                             
                             <form onSubmit={(e) => {
                                 e.preventDefault();
@@ -111,26 +134,26 @@ class NotConnected extends Component {
                                 this.submit();
                             }}>
                                 <div className='setting-field-container mb-3'>
-                                    <InputWrapper label='First Name' disabled required>
-                                        <input type='text' value={this.props.user.user.user_firstname} disabled />
+                                    <InputWrapper label='First Name' required>
+                                        <input type='text' onChange={(e) => this.setState({firstname: e.target.value})} />
                                     </InputWrapper>
 
-                                    <InputWrapper label='Last Name' disabled required>
-                                        <input type='text' value={this.props.user.user.user_lastname} disabled />
+                                    <InputWrapper label='Last Name' required>
+                                        <input type='text' onChange={(e) => this.setState({lastname: e.target.value})} />
                                     </InputWrapper>
                                 </div>
 
                                 <div className='setting-field-container mb-3'>
-                                    <InputWrapper label='Country' disabled={this.props.user.user.user_country ? true : false} required>
-                                        <CountryDropdown value={this.state.country} onChange={(val) => this.setState({country: val})} valueType='short' disabled={this.props.user.user.user_country ? true : false} whitelist={supportedCountries} />
+                                    <InputWrapper label='Country' required>
+                                        <CountryDropdown value={this.state.country} onChange={(val) => this.setState({country: val})} valueType='short' whitelist={supportedCountries} />
                                     </InputWrapper>
 
-                                    <InputWrapper label='Region' disabled={this.props.user.user.user_region ? true : false} required>
-                                        <RegionDropdown value={this.state.region} country={this.state.country} onChange={(val) => this.setState({region: val})} countryValueType='short' valueType='short' disabled={this.props.user.user.user_region ? true : false}  />
+                                    <InputWrapper label='Region' required>
+                                        <RegionDropdown value={this.state.region} country={this.state.country} onChange={(val) => this.setState({region: val})} countryValueType='short' valueType='short'  />
                                     </InputWrapper>
 
-                                    <InputWrapper label='City' disabled={this.props.user.user.user_city ? true : false} required>
-                                        <input type='text' value={this.state.city} disabled={this.props.user.user.user_city ? true : false} />
+                                    <InputWrapper label='City' required>
+                                        <input type='text' value={this.state.city} onChange={(e) => this.setState({city: e.target.value})} />
                                     </InputWrapper>
                                 </div>
                                 
@@ -159,14 +182,14 @@ class NotConnected extends Component {
 
                                 <div className='setting-field-container mb-3'>
                                     <div className='setting-child three-quarter'>
-                                        <InputWrapper label='Address' disabled={this.props.user.user.user_address ? true : false} required>
-                                            <input type='text' disabled={this.props.user.user.user_address ? true : false} onChange={(e) => this.setState({address: e.target.value})} />
+                                        <InputWrapper label='Address' required>
+                                            <input type='text' onChange={(e) => this.setState({address: e.target.value})} />
                                         </InputWrapper>
                                     </div>
 
                                     <div className='setting-child quarter'>
-                                        <InputWrapper label='Postal/Zip Code' disabled={this.props.user.user.user_city_code ? true : false} required>
-                                            <input type='text' disabled={this.props.user.user.user_city_code ? true : false} onChange={(e) => this.setState({cityCode: e.target.value})} />
+                                        <InputWrapper label='Postal/Zip Code' required>
+                                            <input type='text' onChange={(e) => this.setState({cityCode: e.target.value})} />
                                         </InputWrapper>
                                     </div>
                                 </div>
@@ -180,7 +203,9 @@ class NotConnected extends Component {
                                     <div><label><input type='checkbox' checked={this.state.stripeAgree} onChange={() => this.setState({stripeAgree: !this.state.stripeAgree})} /> I have read, understood, and agreed to <a href='https://stripe.com/connect-account/legal'>Stripe Connected Account Agreement</a> and <a href='https://stripe.com/legal'>Stripe Terms of Service</a>.</label></div>
                                 </div>
 
-                                <div className='text-right'>
+                                <div className='d-flex-between-center'>
+                                    <Recaptcha sitekey='6Lev95EUAAAAAD6Ox0SOCyKyqQgCW7LA8d3f0DDa' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} />
+
                                     <SubmitButton type='submit' loading={this.state.status === 'Submitting'} />
                                 </div>
                             </form>

@@ -168,7 +168,7 @@
 
 .mini-badge-lightblue {
   background-color: #3ab2fc;
-  color: black;
+  color: white;
 }
 .mini-badge-lightblue.outline {
   border: 1px solid #3ab2fc;
@@ -177,7 +177,7 @@
 
 .btn-lightblue {
   background-color: #3ab2fc;
-  color: black;
+  color: white;
 }
 
 .mini-badge-violet {
@@ -1238,7 +1238,7 @@
   padding: 3px 5px;
   border-radius: 3px;
   font-weight: bold;
-  margin: 0 2px;
+  margin: 0 1px;
 }
 
 .med-badge {
@@ -1682,7 +1682,7 @@
 }
 .input-container .checkbox-label-container .checkbox-label .checkbox {
   border-width: 1px 1px 1px 0;
-  border-color: #DFDFDF;
+  border-color: #9b9b9b;
   border-style: solid;
   width: 30px;
   height: 30px;
@@ -1712,12 +1712,12 @@
 .input-container .checkbox-label-container .checkbox-container {
   display: flex;
   align-items: center;
-  color: #DFDFDF;
+  color: #9b9b9b;
 }
 .input-container .checkbox-label-container .checkbox-container .checkbox-label-text {
   padding: 5px;
   border-width: 1px 0;
-  border-color: #DFDFDF;
+  border-color: #9b9b9b;
   border-style: solid;
   height: 30px;
   flex-grow: 1;
@@ -2815,40 +2815,52 @@ footer {
 .listing-row-main {
   border-bottom: 1px solid black;
 }
+.listing-row-main a {
+  display: flex;
+  align-items: center;
+  width: 97%;
+  color: #2988BC;
+}
 .listing-row-main:hover {
   background-color: #2988BC;
   color: white;
 }
-.listing-row-main:hover .listing-row-title a {
-  color: white;
-  text-decoration: underline;
+.listing-row-main:hover a {
+  text-decoration: none;
 }
 
 .listing-row-profile-pic {
+  flex-grow: 1;
   border-right: 1px solid black;
-  width: 3%;
-  order: 1;
 }
 
 .listing-row-purpose {
   margin-left: 10px;
-  order: 2;
+  order: 1;
+  white-space: nowrap;
 }
 
 .listing-row-title {
-  order: 3;
   flex-grow: 1;
-  text-overflow: ellipsis;
   overflow-x: hidden;
   white-space: nowrap;
   padding: 10px;
+  order: 2;
+}
+.listing-row-title span {
+  text-overflow: ellipsis;
+  overflow-x: hidden;
 }
 .listing-row-title a {
   color: #2988BC;
 }
 
 .listing-row-rating {
-  order: 4;
+  order: 3;
+  white-space: nowrap;
+}
+.listing-row-rating span {
+  color: black;
 }
 
 .listing-row-detail-child {
@@ -5031,6 +5043,10 @@ footer {
     display: none;
   }
 
+  .listing-row-main a {
+    width: 100%;
+  }
+
   .setting-container {
     flex-direction: column;
   }
@@ -5062,6 +5078,11 @@ footer {
   }
 
   .listing-row-main {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .listing-row-main a {
     flex-wrap: wrap;
     justify-content: space-between;
   }
@@ -5293,6 +5314,20 @@ footer {
   }
   #footer .footer-links {
     margin: 0 0 15px 0;
+  }
+}
+@media only screen and (max-width: 360px) {
+  .listing-row-title {
+    margin-bottom: 5px;
+  }
+
+  .listing-row-main a {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .listing-row-rating {
+    align-self: flex-end;
   }
 }
 @media only screen and (max-width: 320px) {

@@ -188,12 +188,13 @@ app.post('/api/auth/login', async(req, resp, next) => {
                             } else {
                                 await client.query('ROLLBACK');
                                 resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
+                                return;
                             }
                         });
                     } else {
-                        let error = new Error('User not found');
-                        let errorObj = {error, stack: error.stack, type: 'CUSTOM'}
-                        throw errorObj;
+                        await client.query('ROLLBACK');
+                        resp.send('done');
+                        return;
                     }    
                 } catch (e) {
                     await client.query('ROLLBACK');

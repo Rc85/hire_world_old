@@ -84,7 +84,7 @@
 
             .checkbox {
                 border-width: 1px 1px 1px 0;
-                border-color: $theme-lightgrey;
+                border-color: $theme-medgrey;
                 border-style: solid;
                 width: 30px;
                 height: 30px;
@@ -122,12 +122,12 @@
         .checkbox-container {
             display: flex;
             align-items: center;
-            color: $theme-lightgrey;
+            color: $theme-medgrey;
 
             .checkbox-label-text {
                 padding: 5px;
                 border-width: 1px 0;
-                border-color: $theme-lightgrey;
+                border-color: $theme-medgrey;
                 border-style: solid;
                 height: 30px;
                 flex-grow: 1;

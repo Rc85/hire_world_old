@@ -80,10 +80,8 @@ app.use(require('./modules/fetch/jobs'));
 app.use(require('./modules/fetch/listings'));
 app.use(require('./modules/fetch/configs'));
 
-app.use(require('./modules/message/messages'));
-
-const job = require('./modules/jobs');
-job.accounts.create();
+app.use(require('./modules/api/messages'));
+app.use(require('./modules/api/jobs'));
 
 app.get('/', async(req, resp) => {
     let announcements = await db.query(`SELECT * FROM announcements`);

@@ -26,12 +26,12 @@ class Dashboard extends Component {
             {name: 'Messages', link: '/messages', active: /^\/messages/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCommentAlt} />, messageCount: this.props.user.messages/* , items: [
                 {name: 'Inquiries', active: this.props.location.pathname === '/messages/Inquire', link: '/messages/Inquire', messageCount: parseInt(this.props.user.messages.inquiries)},
             ] */},
-            /* {name: 'Jobs', link: '/jobs', active: /^\/jobs/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faBriefcase} />, items: [
+            {name: 'Jobs', link: '/jobs', active: /^\/jobs/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faBriefcase} />, items: [
                 {name: 'Offers', active: this.props.location.pathname === '/jobs/Offers', link: '/jobs/Offers'},
                 {name: 'Active', active: this.props.location.pathname === '/jobs/Active', link: '/jobs/Active'},
                 {name: 'Completed', active: this.props.location.pathname === '/jobs/Completed', link: '/jobs/Completed'},
                 {name: 'Abandoned', active: this.props.location.pathname === '/jobs/Abandoned', link: '/jobs/Abandoned'}
-            ]}, */
+            ]},
             {name: 'Subscription', link: '/subscription/purchase', active: this.props.location.pathname === '/subscription/purchase', icon: <FontAwesomeIcon icon={faSyncAlt} />, items: [
                 {name: 'Purchase', active: this.props.location.pathname === '/subscription/purchase', link: '/subscription/purchase'},
                 {name: 'Details', active: this.props.location.pathname === '/subscription/details', link: '/subscription/details'}

@@ -23,13 +23,15 @@ const ListingRow = props => {
             <div className='listing-row-main'>
                 <div className='listing-row-profile-pic'><UserProfilePic url={props.listing.avatar_url} square /></div>
 
-                <div className='listing-row-title' title={props.listing.listing_title}><NavLink to={`/user/${props.listing.listing_user}`}>{props.listing.listing_title}</NavLink></div>
-
-                <div className='listing-row-purpose'>{props.listing.listing_remote ? <span className='mini-badge mini-badge-orange'>Remote</span> : ''} {props.listing.listing_local ? <span className='mini-badge mini-badge-purple'>Local</span> : ''}</div>
-
-                <div className='listing-row-rating'>
-                    <UserRating rating={props.listing.rating} /> ({props.listing.review_count ? props.listing.review_count : 0})
-                </div>
+                <NavLink to={`/user/${props.listing.listing_user}`}>
+                    <div className='listing-row-title' title={props.listing.listing_title}><span>{props.listing.listing_title}</span></div>
+    
+                    <div className='listing-row-purpose'>{props.listing.listing_online ? <span className='mini-badge mini-badge-green'>Online</span> : ''} {props.listing.listing_remote ? <span className='mini-badge mini-badge-orange'>Remote</span> : ''} {props.listing.listing_local ? <span className='mini-badge mini-badge-purple'>Local</span> : ''}</div>
+    
+                    <div className='listing-row-rating'>
+                        <UserRating rating={props.listing.rating} /> <span>({props.listing.review_count ? props.listing.review_count : 0})</span>
+                    </div>
+                </NavLink>
             </div>
 
             <div className='listing-row-detail'>
@@ -47,10 +49,6 @@ const ListingRow = props => {
 
                 <div className='listing-row-detail-child'>
                     <FontAwesomeIcon icon={faCheckCircle} className='text-success mr-1' /> <strong>{props.listing.job_complete}</strong> {parseInt(props.listing.job_complete) === 1 ? 'Job' : 'Jobs'} completed
-                </div>
-
-                <div className='listing-row-buttons'>
-                    <Tooltip text='Report this listing' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} className='text-highlight' size='sm' /></Tooltip>
                 </div>
             </div>
         </div>

@@ -3,43 +3,23 @@
     font-size: 0.6rem;
 }
 
+.delete-milestone-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+}
+
 .milestone-container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 20px;
     width: 100%;
+}
 
-    .milestone-wrapper {
-        position: relative;
-        border: 1px solid black;
-        padding: 50px 20px 20px 20px;
-        background-color: $theme-lightgrey;
+.condition-container {
+    display: flex;
+    align-items: center;
 
-        .milestone-title {
-            position: absolute;
-            background: $theme-highlight;
-            color: white;
-            border: 1px solid black;
-            top: -14px;
-            z-index: 1;
-            margin-left: 10px;
-            padding: 4px 8px;
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-
-        .delete-milestone-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1;
-        }
-
-        .condition-container {
-            display: flex;
-            align-items: center;
-
-            .input-container { flex-grow: 1; }
-        }
-    }
+    .input-container { flex-grow: 1; }
 }

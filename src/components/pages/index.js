@@ -11,5 +11,6 @@ import PaymentSettings from './PaymentSettings';
 import SubscriptionSettings from './SubscriptionSettings';
 import ListSettings from './ListSettings';
 import Jobs from './Jobs'
+import ConnectedSettings from './ConnectedSettings';
 
-export { Dashboard, EditUser, Conversations, Login, Response, FriendsList, Sectors, AccountSettings, ViewUser, PaymentSettings, SubscriptionSettings, ListSettings, Jobs }
+export { Dashboard, EditUser, Conversations, Login, Response, FriendsList, Sectors, AccountSettings, ViewUser, PaymentSettings, SubscriptionSettings, ListSettings, Jobs, ConnectedSettings }

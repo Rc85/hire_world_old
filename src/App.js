@@ -186,20 +186,20 @@ class App extends Component {
 
 						<Route exact path='/jobs/:stage(Offers|Active|Completed|Abandoned)?' render={() => <Pages.Dashboard user={this.props.user}><Pages.Jobs user={this.props.user} /></Pages.Dashboard>} />
 	
-						<Route exact path='/settings/account' render={() =>  <Pages.Dashboard user={this.props.user}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
-						{/* // test key pk_test_KgwS8DEnH46HAFvrCaoXPY6R
-	            		// live key pk_live_wJ7nxOazDSHu9czRrGjUqpep */}
-						<Route exact path='/settings/payment' render={() =>  <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'development' ? 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R' : 'pk_live_wJ7nxOazDSHu9czRrGjUqpep'}><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
-						{/* <Route exact path='/settings/listing' render={() => <Pages.Dashboard user={this.props.user}><Pages.Listing user={this.props.user} /></Pages.Dashboard>} /> */}
+						<Route exact path='/settings/account' render={() => <Pages.Dashboard user={this.props.user}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/settings/payment' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'development' ? 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R' : 'pk_live_wJ7nxOazDSHu9czRrGjUqpep'}><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+						<Route exact path='/settings/connected' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'development' ? 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R' : 'pk_live_wJ7nxOazDSHu9czRrGjUqpep'}><Elements><Pages.ConnectedSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+						
 						<Route exact path='/subscription/purchase' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
 	
 						<Route exact path='/user/:username' render={() => <Pages.Dashboard user={this.props.user}><Pages.ViewUser user={this.props.user} /></Pages.Dashboard>} />
 		
 						<Route exact path='/sectors/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
 	
-						<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Thank You!'} message={`We really appreciate your business and hope you enjoy our service.`}><div><NavLink to='/my-listing'>Start listing now</NavLink></div></Pages.Response>} />
+						<Route exact path='/payment/success' render={() => <Pages.Response code={200} header={'Thank You!'} message={`We really appreciate your business and hope you enjoy our service.`}><div className='mt-3'><NavLink to='/my-listing'>Start listing now</NavLink></div></Pages.Response>} />
 						<Route exact path='/registration/success' render={() => <Pages.Response code={200} header={'Registration Success!'} message='An confirmation email has been sent. Please click the link provided to activate your account' />} />
 						<Route exact path='/subscription/cancelled' render={() => <Pages.Response code={200} header={'Unsubscribed!'} message={'We hate to see you go. Please take a moment and give rate our service.'}><div className='d-flex-center-center'><ReviewHireWorld /></div></Pages.Response>} />
+						<Route exact path='/account/created' render={() => <Pages.Response code={200} header={'Account Created! But...'} message={'Your Connected account was successfully created and connected to our platform; however, it may not be verified yet.'}><div className='mt-3'>Please check the settings in your <NavLink to='/settings/connected'>Connected Settings</NavLink>.</div></Pages.Response>} />
 
 						<Route exact path='/admin-panel' render={() => <Admin.Admin><Admin.AdminOverview user={this.props.user} /></Admin.Admin>} />
 						<Route exact path='/admin-panel/sectors' render={() => <Admin.Admin><Admin.AdminSectors user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />

@@ -6,7 +6,6 @@ app.post('/api/get/listing', async(req, resp) => {
     if (req.session.user) {
         await db.query(`SELECT * FROM user_listings WHERE listing_user = $1 AND listing_status != 'Delete'`, [req.session.user.username])
         .then(result => {
-            console.log(result.rows);
             let listing;
 
             if (result && result.rows.length > 0) {

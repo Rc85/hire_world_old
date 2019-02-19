@@ -23,9 +23,7 @@ class Dashboard extends Component {
 
         let items = [
             {name: 'My Listing', link: '/my-listing', active: /^\/my-listing/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faListAlt} />},
-            {name: 'Messages', link: '/messages', active: /^\/messages/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCommentAlt} />, messageCount: this.props.user.messages/* , items: [
-                {name: 'Inquiries', active: this.props.location.pathname === '/messages/Inquire', link: '/messages/Inquire', messageCount: parseInt(this.props.user.messages.inquiries)},
-            ] */},
+            {name: 'Messages', link: '/messages', active: /^\/messages/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCommentAlt} />, messageCount: this.props.user.messages},
             {name: 'Jobs', link: '/jobs', active: /^\/jobs/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faBriefcase} />, items: [
                 {name: 'Offers', active: this.props.location.pathname === '/jobs/Offers', link: '/jobs/Offers'},
                 {name: 'Active', active: this.props.location.pathname === '/jobs/Active', link: '/jobs/Active'},
@@ -37,9 +35,9 @@ class Dashboard extends Component {
                 {name: 'Details', active: this.props.location.pathname === '/subscription/details', link: '/subscription/details'}
             ]},
             {name: 'Settings', link: '/settings/account', active: /^\/settings/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCog} />, items: [
-                /* {name: 'Listing', active: this.props.location.pathname === '/settings/listing', link: '/settings/listing'}, */
                 {name: 'Account', active: this.props.location.pathname === '/settings/account', link: '/settings/account'},
                 {name: 'Payment', active: this.props.location.pathname === '/settings/payment', link: '/settings/payment'},
+                {name: 'Connected', active: this.props.location.pathname === '/settings/connected', link: '/settings/connected'},
             ]}
         ];
         

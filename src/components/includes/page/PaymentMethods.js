@@ -66,17 +66,18 @@ class PaymentMethods extends Component {
 
         return (
             <div className='payment-method'>
-                <div className='setting-field-container mb-3'>
-                    <div className='setting-field-container '>
+                <div className='d-flex-between-center mb-3'>
+                    <div className='d-flex-center'>
                         <div className='payment-brand'>{brand}</div>
         
                         <div className='payment-method-info'>
-                            <div><strong>Card Number: </strong> **** **** **** {this.props.payment.last4} {this.props.defaultSource === this.props.payment.id ? <div className='badge badge-success ml-2'>Default</div> : ''}</div>
-                            <div><strong>Expiry Date: </strong>{this.props.payment.exp_month} / {this.props.payment.exp_year}</div>
+                            <div className='mb-1'><strong>{this.props.payment.brand} {this.props.payment.funding.charAt(0).toUpperCase() + this.props.payment.funding.substr(1)}</strong></div>
+                            <div className='mb-1'>**** **** **** {this.props.payment.last4} {this.props.defaultSource === this.props.payment.id ? <div className='mini-badge mini-badge-success ml-2'>Default</div> : ''}</div>
+                            <div><strong>Expiry Date:</strong> {this.props.payment.exp_month} / {this.props.payment.exp_year}</div>
                         </div>
                     </div>
-    
-                    <div>
+
+                    <div className='payment-methods-buttons'>
                         {this.props.defaultSource !== this.props.payment.id ? <button className='btn btn-primary mr-1' onClick={() => this.props.setDefault(this.props.payment.id)} disabled={this.props.status === 'Setting'}>Set as Default</button> : ''}
                         <button className='btn btn-info mr-1' onClick={() => this.setState({edit: !this.state.edit})}>{this.state.edit ? 'Cancel' : 'Edit'}</button>
                         <button className='btn btn-secondary' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to delete this card?`, `This cannot be reverted and your next most recent added card will be used.`, {action: 'delete payment', id: this.props.payment.id}))} disabled={this.props.status === 'Setting'}><FontAwesomeIcon icon={faTrash} /></button>
@@ -84,7 +85,9 @@ class PaymentMethods extends Component {
                 </div>
     
                 
-                {this.state.edit ? <div className='bordered-container no-top mb-5'>
+                {this.state.edit ? <div className='simple-container no-bg mb-5'>
+                    <div className='simple-container-title'>Edit</div>
+
                     <AddressInput saveable={false} info={this.state} set={(key, val) => this.set(key, val)} />
                     <div className='text-right'><SubmitButton type='button' onClick={() => this.save()} loading={this.state.status === 'Loading' || this.props.status === 'Setting'} value='Save' /></div>
                 </div> : ''}
@@ -95,7 +98,7 @@ class PaymentMethods extends Component {
 
 PaymentMethods.propTypes = {
     status: PropTypes.string,
-    payment: PropTypes.array,
+    payment: PropTypes.object,
     defaultSource: PropTypes.string,
     updateCard: PropTypes.func,
     setDefault: PropTypes.func,

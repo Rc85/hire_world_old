@@ -64,7 +64,7 @@ class BottomBar extends Component {
 
                         <div className='bottombar-sub-item-container'>
                             {item.items ? item.items.map((subItem, index) => {
-                                if (item.name === 'Jobs') {
+                                if (item.name === 'Jobs' || (item.name === 'Settings' && subItem.name === 'Connected')) {
                                     if (this.props.user.user && this.props.user.user.connected_id) {
                                         return <div key={index} className='bottombar-sub-item'><NavLink to={subItem.link}>{subItem.name}</NavLink></div>
                                     } else {

@@ -153,7 +153,7 @@ class Link extends Component {
 
         if (this.props.active && this.props.items) {
             subItems = this.props.items.map((item, i) => {
-                if (this.props.name === 'Jobs') {
+                if (this.props.name === 'Jobs' || (this.props.name === 'Settings' && item.name === 'Connected')) {
                     if (this.props.user.user && this.props.user.user.connected_id) {
                         return <NavLink key={i} to={item.link}><div className={`sidebar-sub-item ${item.active ? 'active' : ''}`}><div className='sidebar-sub-item-link'>{item.name}</div> {item.messageCount > 0 ? <span className='mini-badge mini-badge-danger'>{item.messageCount}</span> : ''}</div></NavLink>
                     } else {

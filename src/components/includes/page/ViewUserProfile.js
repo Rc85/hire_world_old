@@ -28,10 +28,8 @@ const ViewUserProfile = props => {
         <div id='view-user-profile' className='mb-3'>
             <div id='view-user-header'>
                 <div id='view-user-header-info' className='mb-3'>
-                    <div id='view-user-profile-pic'>
-                        <div className='w-100 text-center'>
-                            <div>{avatar}</div>
-                        </div>
+                    <div id='view-user-profile-pic'> 
+                        {avatar}     
                     </div>
     
                     <div id='view-user-title'>
@@ -52,14 +50,6 @@ const ViewUserProfile = props => {
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div id='view-user-login-info'>
-                    {props.stats.user_last_login ?
-                    <div className='d-flex-between-center'>
-                        <div className='mr-2'><strong>Last Login:</strong></div>
-                        {moment(props.stats.user_last_login).format('MM-DD-YY @ hh:mm A')}
-                    </div> : ''}
                 </div>
             </div>
 

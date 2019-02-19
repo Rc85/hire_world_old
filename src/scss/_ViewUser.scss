@@ -43,9 +43,12 @@
 }
 
 #view-user-profile-pic {
-    width: 15%;
-    margin-right: 45px;
+    flex-grow: 1;
+    flex-basis: 15%;
+    margin-right: 15px;
 }
+
+#view-user-title { width: 85%; }
 
 #view-user-footer {
     display: flex;

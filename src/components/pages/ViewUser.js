@@ -299,7 +299,7 @@ class ViewUser extends Component {
                             {this.props.user && this.state.user && this.props.user.username !== this.state.user.username ?
                                 <div className='text-right'>
                                     {this.state.message != 'message' ? <button className='btn btn-primary' onClick={() => this.setState({message: 'message'})}>Message</button> : ''}
-                                    {this.state.message != 'start job' && this.props.user.user && this.props.user.user.stripe_connect_acct_id ? <button className='btn btn-success' onClick={() => this.setState({message: 'start job'})}>Start A Job</button> : ''}
+                                    {this.state.message != 'start job' && this.props.user && this.props.user.connected_id ? <button className='btn btn-success' onClick={() => this.setState({message: 'start job'})}>Start A Job</button> : ''}
                                 </div>
                             : ''}
 

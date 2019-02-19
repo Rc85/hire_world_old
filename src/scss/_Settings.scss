@@ -155,3 +155,21 @@
         }
     }
 }
+
+.account-id {
+    display: inline-flex;
+    align-items: center;
+}
+
+.financial-accounts {
+    .financial-info-container { flex-grow: 1; }
+
+    .financial-info-container, .financial-info {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .financial-info-container { align-items: center; }
+    .financial-info { align-items: flex-start; }
+}
+

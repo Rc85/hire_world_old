@@ -2,6 +2,8 @@ extends layout
 
 block content
     section#main-panel
+        .text-center.mb-5
+            img(src='/images/connected_logo_md.png', alt='Link')
         #features
             #feature-intro.mb-5
                 img(src='/images/features.jpg', alt='Features')
@@ -12,13 +14,15 @@ block content
                         p At HireWorld, we offer a platform as a service to help you work with other users as long as the business can be conducted online. This service is mainly for business that transfer digital goods such as image files and documents.
             .blue-panel.shallow.rounded.mb-5
                 h1.mb-5 How it works
-                .how-container
+                .how-container.mb-5
                     .how-img
                         i.fa.fa-user.fa-3x.mr-2
                         i.fa.fa-plus.fa-2x.mr-2
                         i.fab.fa-stripe.fa-6x
                     .description
-                        span First and foremost, you need create a custom Stripe account and connect it to our platform using Stripe Connect.
+                        span First and foremost, a service provider must have a Connected account with HireWorld. If the service provider's profile does not indicate 
+                            span.badge.badge-success Connected
+                            | , then work cannot be completed on HireWorld.
                         hr
 
                     .how-img
@@ -33,7 +37,7 @@ block content
                         span.milestone
                             i.fa.fa-dollar-sign.fa-lg.blue
                     .description
-                        span Create an agreement with the work description, total price you will pay, and at least one milestone with one condition and an optional due date. You can add more milestones and more conditions if you like.
+                        span Create an agreement by providing the work description, total price you will pay, and at least one milestone with one condition and an optional due date. You can add more milestones and more conditions if you like.
                         hr
 
                     .how-img
@@ -43,16 +47,15 @@ block content
                         i.fa.fa-arrow-left.fa-2x.ml-2
                         i.fa.fa-user-edit.fa-3x.ml-2
                     .description
-                        span Start a job with the user of your choice and have both of you agree to the terms in the agreement that you created. This will act as a binding contract between both parties. It also helps with our investigations if any issue arises.
+                        span Start a job with the service provider of your choice and have both of you agree to the terms in the agreement that you created. This will act as a binding contract between both parties. It also helps with our investigations if any issue arises.
                         hr
 
                     .how-img
                         i.fa.fa-dollar-sign.fa-3x.mr-2
                         i.fa.fa-arrow-right.fa-2x.mr-2
                         i.fa.fa-user.fa-3x.mr-2
-                        i.fab.fa-stripe.fa-6x
                     .description
-                        span Deposit the fund equal to the total amount set out in the agreement to your Stripe Connected account.
+                        span Deposit the funds equal to the total amount set out in the agreement to your Connected account.
                         hr
 
                     .how-img
@@ -63,7 +66,7 @@ block content
                         i.fa.fa-arrow-right.fa-2x.mr-2
                         i.fa.fa-user.fa-3x
                     .description
-                        span HireWorld will notify the user that the fund is secured and the user will start working on the first milestone.
+                        span HireWorld will notify the service provider that the fund has been deposited and secured (after 7 days of deposit) and the user will start working on the first milestone. If the fund fails to deposit due to errors such as insufficient funds, the service provider will be noified immediately.
                         hr
 
                     .how-img
@@ -73,7 +76,7 @@ block content
                         i.fa.fa-ellipsis-h.fa-2x
                         i.fa.fa-circle.fa-3x
                     .description
-                        span When the other party completes the work, it will be uploaded to HireWorld for you to download. If all looks good and you're satisfied, check off all the conditions in the milestone and the milestone will be completed.
+                        span When the service provider completes the work, it will be uploaded to HireWorld for you to download. If all looks good and you're satisfied, check off all the conditions in the milestone and the milestone will be completed.
                         hr
 
                     .how-img
@@ -82,9 +85,9 @@ block content
                         i.fa.fa-dollar-sign.fa-3x
                         i.fa.fa-arrow-right.fa-2x.mr-2
                         i.fa.fa-user.fa-3x.mr-2
-                        i.fab.fa-stripe.fa-6x
                     .description
-                        span When the condition is complete, HireWorld will be notify to release the funds equal to the amount indicated in the milestone to the other party.
+                        span When the condition(s) is completed, HireWorld will release the funds equal to the amount indicated in the milestone to the service provider's Connected account.
+                span Funds are held in the Connected account for 7 days before payouts can be initiated. This is to ensure that if any dispute arises, we can freeze the fund from being paid out until the dispute is resolved.
             .blue-panel.shallow.rounded.mb-5
                 h1.mb-5 Payment and service protection
                 p When conducting business with anybody, anywhere, it is your priority to take all measures to ensure that you don't get scammed. Communicate with the other party before sending out and agreeing to terms so that there is no misunderstandings between the two of you. We strongly encouraged that your payment and goods are delivered in small divided parts so that you can minimize losses in events where payments and goods are not delivered.

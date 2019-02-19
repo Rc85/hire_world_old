@@ -9,6 +9,9 @@ import SubmitButton from '../../utils/SubmitButton';
 import Recaptcha from 'react-recaptcha';
 import fetch from 'axios';
 import { LogError } from '../../utils/LogError';
+import { Alert } from '../../../actions/AlertActions';
+import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 var onloadCallback = function() {
     console.log('Recaptcha ready!');
@@ -17,8 +20,6 @@ var onloadCallback = function() {
 class NotConnected extends Component {
     constructor(props) {
         super(props);
-
-        console.log(this.props);
         
         this.state = {
             firstname: this.props.user.user.user_firstname,
@@ -30,10 +31,13 @@ class NotConnected extends Component {
             region: this.props.user.user.user_region,
             city: this.props.user.user.user_city || '',
             address: this.props.user.user.user_address || '',
+            address2: '',
             cityCode: this.props.user.user.user_city_code || '',
+            ssn: '',
             tosAgree: false,
             stripeAgree: false,
-            verified: false
+            verified: false,
+            useDefault: true
         }
     }
 
@@ -42,7 +46,13 @@ class NotConnected extends Component {
 
         fetch.post('/api/job/accounts/create', this.state)
         .then(resp => {
-            this.setState({status: ''});
+            if (resp.data.status === 'success') {
+                this.setState({status: 'Account Created'});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
         })
         .catch(err => {
             this.setState({status: ''});
@@ -53,9 +63,29 @@ class NotConnected extends Component {
     verify(response) {
         this.setState({verified: response});
     }
+
+    useDefault() {
+        if (!this.state.useDefault) {
+            this.setState({
+                useDefault: true,
+                firstname: this.props.user.user.user_firstname,
+                lastname: this.props.user.user.user_lastname,
+                country: this.props.user.user.user_country,
+                region: this.props.user.user.user_region,
+                city: this.props.user.user.user_city,
+                address: this.props.user.user.user_address,
+                cityCode: this.props.user.user.user_city_code
+            })
+        } else {
+            this.setState({useDefault: false});
+        }
+    }
     
     render() {
-        (this.state);
+        if (this.state.status === 'Account Created') {
+            return <Redirect to='/account/created' />;
+        }
+
         let supportedCountries = ['AT', 'AU', 'BE', 'CA', 'CH', 'DE', 'DK', 'ES', 'FI', 'FR', 'GB', 'IE', 'IT', 'LU', 'NL', 'NO', 'NZ', 'PT', 'SE', 'US'];
 
         if (supportedCountries.indexOf(this.props.user.user.user_country) >= 0) {
@@ -104,15 +134,9 @@ class NotConnected extends Component {
                 return <option key={i} value={d}>{d}</option>
             });
 
-            if (this.state.country === 'US') {
+            if (this.state.country === 'US' || this.state.country === 'CA') {
                 ssn = <div className='setting-field-container quarter'>
-                    <InputWrapper label='Social Security Number'>
-                        <input type='number' maxLength='4' placeholder='Last 4 digits' onChange={(e) => this.setState({ssn: e.target.value})} />
-                    </InputWrapper>
-                </div>;
-            } else if (this.state.country === 'CA') {
-                ssn = <div className='setting-field-container quarter'>
-                    <InputWrapper label='Social Insurance Number'>
+                    <InputWrapper label='SIN/SSN'>
                         <input type='number' maxLength='9' onChange={(e) => this.setState({ssn: e.target.value})} />
                     </InputWrapper>
                 </div>;
@@ -122,38 +146,42 @@ class NotConnected extends Component {
                 <div id='jobs-not-connected' className='main-panel'>
                     <TitledContainer title='Not Connected' icon={<FontAwesomeIcon icon={faTimesCircle} />} shadow>
                         <div className='mb-3'>
-                            <div className='mb-3'>To begin working with other users on HireWorld, you need a Stripe Connected account connected to our platform. To create an account, please fill out the form below. Your country, once set, cannot be updated. For everything else, you can update it later as you wish.</div>
+                            <div className='mb-3'>To begin working with other users on HireWorld, you need a Stripe Connected account connected to our platform. To create an account, please fill out the form below.</div>
 
                             <div className='mb-3'>Please note that this form provides only some of the fields required to verified your identity and that your Connected account may not be verified immediately.</div>
 
                             <div className='mb-3'>Once an account is created, you can update your information in the Settings page.</div>
+
+                            <hr/>
                             
                             <form onSubmit={(e) => {
                                 e.preventDefault();
 
                                 this.submit();
                             }}>
+                                <div className='mb-3'><label><input type='checkbox' onChange={() => this.useDefault()} checked={this.state.useDefault} /> Use information on my account</label></div>
+
                                 <div className='setting-field-container mb-3'>
-                                    <InputWrapper label='First Name' required>
-                                        <input type='text' onChange={(e) => this.setState({firstname: e.target.value})} />
+                                    <InputWrapper label='First Name' disabled={this.state.useDefault} required>
+                                        <input type='text' value={this.state.firstname} disabled={this.state.useDefault} onChange={(e) => this.setState({firstname: e.target.value})} />
                                     </InputWrapper>
 
-                                    <InputWrapper label='Last Name' required>
-                                        <input type='text' onChange={(e) => this.setState({lastname: e.target.value})} />
+                                    <InputWrapper label='Last Name' disabled={this.state.useDefault} required>
+                                        <input type='text' value={this.state.lastname} disabled={this.state.useDefault} onChange={(e) => this.setState({lastname: e.target.value})} />
                                     </InputWrapper>
                                 </div>
 
                                 <div className='setting-field-container mb-3'>
-                                    <InputWrapper label='Country' required>
-                                        <CountryDropdown value={this.state.country} onChange={(val) => this.setState({country: val})} valueType='short' whitelist={supportedCountries} />
+                                    <InputWrapper label='Country' disabled={this.state.useDefault} required>
+                                        <CountryDropdown value={this.state.country} onChange={(val) => this.setState({country: val})} valueType='short' disabled={this.state.useDefault} whitelist={supportedCountries} />
                                     </InputWrapper>
 
-                                    <InputWrapper label='Region' required>
-                                        <RegionDropdown value={this.state.region} country={this.state.country} onChange={(val) => this.setState({region: val})} countryValueType='short' valueType='short'  />
+                                    <InputWrapper label='Region' disabled={this.state.useDefault} required>
+                                        <RegionDropdown value={this.state.region} country={this.state.country} onChange={(val) => this.setState({region: val})} countryValueType='short' valueType='short' disabled={this.state.useDefault}  />
                                     </InputWrapper>
 
-                                    <InputWrapper label='City' required>
-                                        <input type='text' value={this.state.city} onChange={(e) => this.setState({city: e.target.value})} />
+                                    <InputWrapper label='City' disabled={this.state.useDefault} required>
+                                        <input type='text' value={this.state.city} disabled={this.state.useDefault} onChange={(e) => this.setState({city: e.target.value})} />
                                     </InputWrapper>
                                 </div>
                                 
@@ -182,16 +210,22 @@ class NotConnected extends Component {
 
                                 <div className='setting-field-container mb-3'>
                                     <div className='setting-child three-quarter'>
-                                        <InputWrapper label='Address' required>
-                                            <input type='text' onChange={(e) => this.setState({address: e.target.value})} />
+                                        <InputWrapper label='Address Line 1' disabled={this.state.useDefault} required>
+                                            <input type='text' value={this.state.address} disabled={this.state.useDefault} onChange={(e) => this.setState({address: e.target.value})} />
                                         </InputWrapper>
                                     </div>
 
                                     <div className='setting-child quarter'>
-                                        <InputWrapper label='Postal/Zip Code' required>
-                                            <input type='text' onChange={(e) => this.setState({cityCode: e.target.value})} />
+                                        <InputWrapper label='Postal/Zip Code' disabled={this.state.useDefault} required>
+                                            <input type='text' value={this.state.cityCode} disabled={this.state.useDefault} onChange={(e) => this.setState({cityCode: e.target.value})} />
                                         </InputWrapper>
                                     </div>
+                                </div>
+
+                                <div className='setting-field-container mb-3'>
+                                <InputWrapper label='Address Line 2'>
+                                    <input type='text' value={this.state.address2} onChange={(e) => this.setState({address2: e.target.value})} />
+                                </InputWrapper>
                                 </div>
                                 
                                 <div className='terms mb-3'>
@@ -232,4 +266,4 @@ NotConnected.propTypes = {
     
 };
 
-export default NotConnected;
+export default connect()(NotConnected);

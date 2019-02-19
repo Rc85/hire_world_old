@@ -1234,6 +1234,7 @@
 }
 
 .mini-badge, .med-badge {
+  display: inline-block;
   font-size: 0.7rem;
   padding: 3px 5px;
   border-radius: 3px;
@@ -1253,6 +1254,7 @@
 
 #hireworld-logo {
   margin: 30px auto;
+  width: 90%;
   cursor: pointer;
 }
 
@@ -1270,174 +1272,21 @@
   flex-direction: column;
 }
 
-/* .main-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
+.hr-label {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.hr-label .hr {
+  width: 100%;
+  height: 1px;
+  background-color: #2988BC;
+  flex-grow: 1;
+}
+.hr-label .label {
+  padding: 0 20px;
 }
 
-.blue-panel {
-    background: #2F496E;
-
-    a {
-        color: $theme-alt-highlight;
-    }
-
-    a:hover {
-        color: $theme-alt-highlight;
-    }
-
-    &.deep { padding: 100px }
-    &.shallow {padding: 25px }
-}
-
-.main-panel {
-    padding: 100px 200px;
-    display: flex;
-    flex-direction: column;
-}
-
-.three-rounded {
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    border-top-right-radius: 5px;
-}
-
-.three-rounded-reverse {
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    border-top-left-radius: 5px;
-}
-
-.section-container .section-header {
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    background: linear-gradient(#406497, #2F496E);
-    padding: 15px;
-}
-
-.section-container .section-body {
-    border-width: 0 1px 1px 1px;
-    border-color: #2F496E;
-    border-style: solid;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    padding: 15px;
-    color: #000;
-}
-
-.col-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    min-height: 100%;
-    position: relative;
-}
-
-.row-container {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    min-height: 100%;
-    flex-wrap: wrap;
-}
-
-.section-container {
-    width: 17%;
-}
-
-.submit-btn {
-    width: 90px;
-}
-
-.required-asterisk {
-    color: $theme-special;
-}
-
-.grey-panel {
-    background: $theme-fg;
-    padding: 10px;
-    color: #000;
-}
-
-.dark-grey-panel {
-    background: $theme-darkgrey;
-    padding: 10px;
-}
-
-.btn-sm {
-    min-width: 35px;
-}
-
-
-
-.badge-dark a {
-    color: #FFF;
-}
-
-.badge-light a {
-    color: #000;
-}
-
-.border-blue {
-    border: 1px solid $theme-blue;
-}
-
-#root {
-    width: 100%;
-    min-height: 100%;
-}
-
-.bordered-container {
-    padding: 20px;
-    border: 1px solid $theme-bg;
-
-    hr { background: $theme-bg }
-
-    &.no-top { border-top-width: 0px; }
-}
-
-.dark-bordered-container {
-    padding: 20px;
-    border: 1px solid $theme-darkgrey;
-}
-
-.alert-container {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    z-index: 10;
-}
-
-.scroller-div {
-    width: 100%;
-    overflow-y: scroll;
-    border: 1px solid $theme-bg;
-    padding: 20px;
-
-    &.h-200 {
-        height: 200px;
-    }
-
-    &.h-300 {
-        height: 300px;
-    }
-}
-
-.theme-highlight { color: $theme-highlight; }
-.theme-bg { color: $theme-bg; }
-.theme-darkgrey { color: $theme-darkgrey; }
-.theme-orange { color: $theme-orange; }
-.theme-orange-bg { background-color: $theme-orange; }
-.theme-lightgrey-bg { background-color: $theme-lightgrey; }
-.theme-medgrey { color: $theme-medgrey; }
-.theme-medgrey-bg { background-color: $theme-medgrey; }
-.theme-alt-highlight { color: $theme-alt-highlight; }
-.theme-alt-highlight-bg { background-color: $theme-alt-highlight; }
-.theme-blue-bg { background-color: $theme-blue;}
-
-.modal-container { max-width: 50% } */
 .titled-container-parent {
   max-height: 300px;
   overflow-y: auto;
@@ -3013,41 +2862,25 @@ footer {
   font-size: 0.6rem;
 }
 
+.delete-milestone-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
 .milestone-container {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-gap: 20px;
   width: 100%;
 }
-.milestone-container .milestone-wrapper {
-  position: relative;
-  border: 1px solid black;
-  padding: 50px 20px 20px 20px;
-  background-color: #DFDFDF;
-}
-.milestone-container .milestone-wrapper .milestone-title {
-  position: absolute;
-  background: #2988BC;
-  color: white;
-  border: 1px solid black;
-  top: -14px;
-  z-index: 1;
-  margin-left: 10px;
-  padding: 4px 8px;
-  font-weight: bold;
-  font-size: 0.8rem;
-}
-.milestone-container .milestone-wrapper .delete-milestone-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1;
-}
-.milestone-container .milestone-wrapper .condition-container {
+
+.condition-container {
   display: flex;
   align-items: center;
 }
-.milestone-container .milestone-wrapper .condition-container .input-container {
+.condition-container .input-container {
   flex-grow: 1;
 }
 
@@ -3295,6 +3128,25 @@ footer {
   border: 5px solid #00c900;
 }
 
+.account-id {
+  display: inline-flex;
+  align-items: center;
+}
+
+.financial-accounts .financial-info-container {
+  flex-grow: 1;
+}
+.financial-accounts .financial-info-container, .financial-accounts .financial-info {
+  display: flex;
+  justify-content: space-between;
+}
+.financial-accounts .financial-info-container {
+  align-items: center;
+}
+.financial-accounts .financial-info {
+  align-items: flex-start;
+}
+
 .my-listing-row {
   margin-bottom: 30px;
 }
@@ -3369,8 +3221,13 @@ footer {
 }
 
 #view-user-profile-pic {
-  width: 15%;
-  margin-right: 45px;
+  flex-grow: 1;
+  flex-basis: 15%;
+  margin-right: 15px;
+}
+
+#view-user-title {
+  width: 85%;
 }
 
 #view-user-footer {
@@ -4317,6 +4174,32 @@ footer {
 }
 .static-alert .static-alert-icon {
   height: 100%;
+}
+
+.simple-container {
+  position: relative;
+  border: 1px solid black;
+  padding: 25px;
+  background-color: #DFDFDF;
+}
+.simple-container.no-bg {
+  background-color: transparent;
+  border: 1px solid #2988BC;
+}
+.simple-container.no-bg .simple-container-title {
+  border: 0;
+}
+.simple-container .simple-container-title {
+  position: absolute;
+  background: #2988BC;
+  color: white;
+  border: 1px solid black;
+  top: -14px;
+  z-index: 1;
+  margin-left: 10px;
+  padding: 4px 8px;
+  font-weight: bold;
+  font-size: 0.8rem;
 }
 
 .slider-container {

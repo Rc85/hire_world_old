@@ -1,0 +1,26 @@
+.simple-container {
+    position: relative;
+    border: 1px solid black;
+    padding: 25px;
+    background-color: $theme-lightgrey;
+
+    &.no-bg {
+        background-color: transparent;
+        border: 1px solid $theme-highlight;
+
+        .simple-container-title { border: 0; }
+    }
+
+    .simple-container-title {
+        position: absolute;
+        background: $theme-highlight;
+        color: white;
+        border: 1px solid black;
+        top: -14px;
+        z-index: 1;
+        margin-left: 10px;
+        padding: 4px 8px;
+        font-weight: bold;
+        font-size: 0.8rem;
+    }
+}

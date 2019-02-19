@@ -6043,6 +6043,8 @@ i {
 
 #features {
   color: black;
+  width: 50%;
+  margin: 0 auto;
 }
 #features a {
   color: #2988BC;
@@ -6062,6 +6064,7 @@ i {
   grid-template-columns: 5fr 10fr;
   padding-left: 60px;
   grid-row-gap: 30px;
+  grid-column-gap: 15px;
 }
 #features .how-container .how-img, #features .how-container .step {
   display: flex;
@@ -6225,6 +6228,11 @@ i {
   width: 45%;
 }
 
+@media only screen and (max-width: 1600px) {
+  #features {
+    width: auto;
+  }
+}
 @media only screen and (max-width: 1024px) {
   #main-panel {
     padding: 15px 15px;

@@ -156,8 +156,8 @@ class StartJob extends Component {
     render() {
         (this.state);
         let milestones = this.state.milestones.map((m, i) => {
-            return <div key={i} className='milestone-wrapper mb-3'>
-                <div className='milestone-title'>Milestone #{i + 1}</div>
+            return <div key={i} className='simple-container mb-3'>
+                <div className='simple-container-title'>Milestone #{i + 1}</div>
 
                 {this.state.milestones.length > 1 ? <button type='button' className='btn btn-danger delete-milestone-button' onClick={() => this.deleteMilestone(i)}><FontAwesomeIcon icon={faTimes} /></button> : ''}
 

@@ -14,7 +14,7 @@ const store = createStore(reducers, applyMiddleware(thunk));
 
 ReactDOM.render(
     <Provider store={store}>
-        <Router exact>
+        <Router exact basename={process.env.REACT_ENV === 'production' || process.env.REACT_ENV === 'development' ? '/' : '/staging'}>
             <App />
         </Router>
     </Provider>,

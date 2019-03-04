@@ -6107,6 +6107,10 @@ i {
   font-size: 4rem;
 }
 
+#worldlink-logo {
+  width: 50%;
+}
+
 #how-it-works {
   width: 50%;
   margin: 0 auto 0 auto;
@@ -6231,6 +6235,10 @@ i {
 @media only screen and (max-width: 1600px) {
   #features {
     width: auto;
+  }
+
+  #worldlink-logo {
+    width: 75%;
   }
 }
 @media only screen and (max-width: 1024px) {

@@ -23,17 +23,24 @@
             font-size: 0.8rem;
             padding: 5px;
         }
-        
+
         label:first-child {
             color: white;
             border: 1px solid black;
             background-color: $theme-highlight;
         }
 
-        label:nth-child(2) {
+        .alt-label {
             border: 1px solid black;
             border-left: 0;
             background-color: $theme-medgrey;
+            color: white;
+        }
+
+        .required-label {
+            border: 1px solid black;
+            border-left: 0;
+            background-color: white;
         }
     }
 

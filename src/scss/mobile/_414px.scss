@@ -14,18 +14,15 @@
 
     .listing-row-title, .listing-row-detail-child {
         width: 100%;
-        padding: 5px 10px;
-    }
-
-    .listing-row-main, {
-        flex-wrap: wrap;
-        justify-content: space-between;
     }
 
     .listing-row-main {
+        flex-wrap: wrap;
+        justify-content: space-between;
+
         a {
-            flex-wrap: wrap;
-            justify-content: space-between;
+            flex-direction: column;
+            align-items: flex-end;
         }
     }
 
@@ -39,6 +36,7 @@
 
     .listing-row-detail-child {
         border-right: 0;
+        margin-right: 0;
 
         &:not(:first-child) { border-top: 1px solid $theme-highlight; }
     }
@@ -154,4 +152,9 @@
             margin: 0 0 30px 0;
         }
     }
+
+    .account-id { flex-direction: column; }
+
+    .add-bank-mobile-button, .add-card-mobile-button { display: inline-block !important; }
+    .add-bank-button, .add-card-button { display: none !important; }
 }

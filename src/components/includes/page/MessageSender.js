@@ -29,11 +29,11 @@ class MessageSender extends Component {
     render() {
         return (
             <div id={this.props.id ? this.props.id : ''} className={`mb-3 ${this.props.className ? this.props.className : ''}`}>
-                <div className='mb-1'>
+                {this.props.withSubject ? <div className='mb-1'>
                     <InputWrapper label='Subject' disabled={this.props.subject ? true : false}>
                         <input type='text' className='message-subject' disabled={this.props.subject ? true : false} value={this.props.subject ? `RE: ${this.props.subject}` : this.state.subject} onChange={(e) => this.setState({subject: e.target.value})} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
                     </InputWrapper>
-                </div>
+                </div> : ''}
 
                 <div className='mb-1'>
                     <TextArea rows={10} className='w-100 mb-1' textAreaClassName='w-100' value={this.state.message} onChange={(val) => this.setState({message: val})} autoFocus={this.props.autoFocus} />

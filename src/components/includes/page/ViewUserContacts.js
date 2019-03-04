@@ -11,15 +11,15 @@ const ViewUserContacts = props => {
 
     if (props.user) {
         if (props.user.user_firstname && props.user.user_lastname) {
-            name = <div className='d-flex-center mb-2'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faUserCircle} className='text-special' /></div>{props.user.user_firstname + ' ' + props.user.user_lastname}</div>;
+            name = <div className='d-flex-start mb-2'><div className='mr-1'><FontAwesomeIcon icon={faUserCircle} className='text-special' /></div><span className='view-user-contact-field'>{props.user.user_firstname + ' ' + props.user.user_lastname}</span></div>;
         }
         
         if (props.user.user_email) {
-            email = <div className='d-flex-center mb-2'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faEnvelope} className='text-special' /></div><a href={`mailto: ${props.user.user_email}`}>{props.user.user_email}</a></div>
+            email = <div className='d-flex-start mb-2'><div className='mr-1'><FontAwesomeIcon icon={faEnvelope} className='text-special' /></div><a className='view-user-contact-field' href={`mailto: ${props.user.user_email}`}>{props.user.user_email}</a></div>
         }
 
         if (props.user.user_phone) {
-            phone = <div className='d-flex-center mb-2'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faPhone} className='text-special' /></div>{props.user.user_phone}</div>
+            phone = <div className='d-flex-start mb-2'><div className='mr-1'><FontAwesomeIcon icon={faPhone} className='text-special' /></div><span className='view-user-contact-field'><nobr>{props.user.user_phone}</nobr></span></div>
         }
 
         if (props.user.user_address) {
@@ -29,7 +29,7 @@ const ViewUserContacts = props => {
                 city_code = <span>, {props.user.user_city_code}</span>;
             }
 
-            address = <div className='d-flex-center mb-2'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faMapMarkedAlt} className='text-special' /></div>{props.user.user_address} {city_code}</div>
+            address = <div className='d-flex-start mb-2'><div className='mr-1'><FontAwesomeIcon icon={faMapMarkedAlt} className='text-special' /></div><span className='view-user-contact-field'>{props.user.user_address} {city_code}</span></div>
         }
 
         if (props.user.user_city) {
@@ -45,11 +45,11 @@ const ViewUserContacts = props => {
         }
 
         if (city || region || country) {
-            location = <div className='d-flex-center mb-2'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faMapMarkerAlt} className='text-special' /></div><span>{country} {region} {city}</span></div>
+            location = <div className='d-flex-start mb-2'><div className='mr-1'><FontAwesomeIcon icon={faMapMarkerAlt} className='text-special' /></div><span className='view-user-contact-field'>{country} {region} {city}</span></div>
         }
 
         if (props.user.user_business_name) {
-            businessName = <div className='d-flex-center mb-2'><div className='text-center w-10 mr-1'><FontAwesomeIcon icon={faBuilding} className='text-special mr-1' /></div> {props.user.user_website ? <a href={props.user.user_website}>{props.user.user_business_name}</a> : props.user.user_business_name}</div>;
+            businessName = <div className='d-flex-start mb-2'><div className='mr-1'><FontAwesomeIcon icon={faBuilding} className='text-special mr-1' /></div> {props.user.user_website ? <a className='view-user-contact-field' href={props.user.user_website}>{props.user.user_business_name}</a> :<span className='view-user-contact-field'>{props.user.user_business_name}</span>}</div>;
         }
     }
 

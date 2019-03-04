@@ -3,10 +3,13 @@
     border: 1px solid black;
     padding: 25px;
     background-color: $theme-lightgrey;
+    margin-top: 30px;
+    color: black;
 
     &.no-bg {
         background-color: transparent;
         border: 1px solid $theme-highlight;
+        color: white;
 
         .simple-container-title { border: 0; }
     }

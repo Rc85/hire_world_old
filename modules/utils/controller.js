@@ -1,4 +1,9 @@
 const db = require('../db');
+const cryptoJS = require('crypto-js');
+const sgMail = require('@sendgrid/mail');
+const error = require('./error-handler');
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 module.exports = {
     session: {
@@ -34,6 +39,121 @@ module.exports = {
             } else {
                 return false;
             }
+        }
+    },
+    email: {
+        confirmation: {
+            resend: async(email) => {
+                let encrypted = cryptoJS.AES.encrypt(email, 'activating account');
+                let regKeyString = encrypted.toString();
+                let registrationKey = encodeURIComponent(regKeyString);
+                
+                let message = {
+                    to: email,
+                    from: 'admin@hireworld.ca',
+                    subject: 'Welcome to HireWorld',
+                    templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
+                    dynamicTemplateData: {
+                        url: process.env.SITE_URL,
+                        regkey: registrationKey
+                    },
+                    trackingSettings: {
+                        clickTracking: {
+                            enable: false
+                        }
+                    }
+                }
+                
+                sgMail.send(message);
+
+                return regKeyString;
+            }
+        },
+        password: {
+            reset: async(email) => {
+                let encrypted = cryptoJS.AES.encrypt(email, 'resetting password');
+                let sessionKeyString = encrypted.toString();
+                let sessionKey = encodeURIComponent(sessionKeyString);
+                
+                let message = {
+                    to: email,
+                    from: 'admin@hireworld.ca',
+                    subject: 'Password Reset',
+                    templateId: 'd-d299977ec2404a5d9952b08a21576be5',
+                    dynamicTemplateData: {
+                        url: process.env.SITE_URL,
+                        key: sessionKey
+                    },
+                    trackingSettings: {
+                        clickTracking: {
+                            enable: false
+                        }
+                    }
+                }
+
+                sgMail.send(message);
+            }
+        }
+    },
+    conversations: {
+        delete: async(id, req, callback) => {
+            let authorized = await db.query(`SELECT conversation_starter, conversation_recipient FROM conversations WHERE conversation_id = $1`, [id]);
+
+            if (req.session.user.username === authorized.rows[0].conversation_recipient || req.session.user.username === authorized.rows[0].conversation_starter) {
+                await db.query(`INSERT INTO deleted_conversations (deleted_convo, convo_deleted_by) VALUES ($1, $2)`, [id, req.session.user.username])
+                .then(result => {
+                    if (result && result.rowCount === 1) {
+                        callback('success', 'Message deleted');
+                    }
+                })
+                .catch(err => {
+                    error.log(err, req);
+                    callback('error', 'An error occurred');
+                });
+            } else {
+                callback('error', `You're not authorized`);
+            }
+        }
+    },
+    retrieve: {
+        blockedUsers: async(req, callback) => {
+            let filterValue = '';
+            let filterString = '';
+    
+            if (req.body.letter !== 'All') {
+                if (req.body.letter === '#') {
+                    filterValue = '0-9';
+                } else if (req.body.letter === '_') {
+                    filterValue = '_';
+                } else if (req.body.letter === '-') {
+                    filterValue = '-';
+                } else if (/[a-zA-Z]/.test(req.body.letter)) {
+                    filterValue = req.body.letter;
+                }
+    
+                filterString = `AND blocked_users.blocked_user ~ '^[${filterValue}${filterValue.toLowerCase()}]'`;
+            }
+
+            let totalBlockedUsers = await db.query(`SELECT COUNT(blocked_user_id) AS count FROM blocked_users
+            WHERE blocking_user = $1
+            ${filterString}
+            OFFSET $2
+            LIMIT 30`, [req.session.user.username, req.body.offset]);
+    
+            await db.query(`SELECT blocked_user FROM blocked_users  
+            WHERE blocking_user = $1
+            ${filterString}
+            ORDER BY blocking_user
+            OFFSET $2
+            LIMIT 30`, [req.session.user.username, req.body.offset])
+            .then(result => {
+                if (result) {
+                    callback({status: 'success', statusMessage: 'User blocked', users: result.rows, totalBlockedUser: totalBlockedUsers.rows[0].count});
+                } else {
+                    callback({status: 'error', statusMessage: 'Failed to retrieve blocked users list'});
+                }
+            })
+            .catch(err => callback({status: 'error', statusMessage: 'An error occurred', error: err}));
         }
     }
 }

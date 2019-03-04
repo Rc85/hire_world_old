@@ -43,7 +43,6 @@ export const LogoutUser = () => {
         .then(resp => {
             if (resp.data.status === 'logged out') {
                 dispatch(Logout(resp.data.status));
-                location.href = '/app';
             }
         })
         .catch(err => LogError(err, '/api/auth/logout'));

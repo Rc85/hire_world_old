@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Alert } from '../../../actions/AlertActions';
 import SubmitButton from '../../utils/SubmitButton';
-import { UpdateUser } from '../../../actions/LoginActions';
+import { UpdateUser, LogoutUser } from '../../../actions/LoginActions';
 import fetch from 'axios';
 import { LogError } from '../../utils/LogError';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
@@ -29,9 +29,7 @@ class EmailSettings extends Component {
         fetch.post('/api/user/settings/email/change', this.state)
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.props.dispatch(UpdateUser(resp.data.user));
-
-                this.setState({status: '', statusMessage: '', newEmail: '', confirmEmail: ''});
+                this.props.dispatch(LogoutUser());
             } else if (resp.data.status === 'error') {
                 this.setState({status: '', statusMessage: ''});
             }
@@ -45,11 +43,7 @@ class EmailSettings extends Component {
         return(
             <div id='email-settings' className='mb-3'>
                 <div>
-                    <div className='text-right'>
-                        <Tooltip text='You will not be able to log in until you verify your new email' placement='left' className='tooltip-icon'><FontAwesomeIcon icon={faQuestionCircle} id='change-email-tip' /></Tooltip>
-                    </div>
-
-                    <div className='mobile-tooltip mb-3'>You will not be able to log in until you verify your new email</div>
+                    <div className='mb-3'><small>NOTE: You will be logged out and not be able to log in until you verify your new email</small></div>
 
                     <div className='mb-3'>
                         <div className='mb-3'>
@@ -67,7 +61,7 @@ class EmailSettings extends Component {
                 </div>
 
                 <div className='text-right'>
-                    <SubmitButton type='button' value='Save' loading={this.state.status === 'Loading'} onClick={() => this.save()} disabled={!this.state.newEmail || !this.state.confirmEmail} />
+                    <SubmitButton type='button' value='Save' loading={this.state.status === 'Loading'} onClick={() => this.save()} disabled={this.state.newEmail !== this.state.confirmEmail || !this.state.newEmail && !this.state.confirmEmail} />
                 </div>
             </div>
         )

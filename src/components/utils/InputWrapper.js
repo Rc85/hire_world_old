@@ -7,10 +7,9 @@ const InputWrapper = props => {
         <div id={props.id} className={`input-container ${props.className ? props.className : ''} ${props.disabled ? 'disabled' : ''}`}>
             <div className='input-container-header'>
                 <label className={`${props.labelBgColor ? `bg-${props.labelBgColor}` : ''}`}>{props.label}</label>
-                {props.altLabel ? <label className={props.altLabelClassName ? props.altLabelClassName : ''}>{props.altLabel}</label> : ''}
+                {props.altLabel ? <label className={`alt-label ${props.altLabelClassName ? props.altLabelClassName : ''}`}>{props.altLabel}</label> : ''}
+                {props.required ? <label className='required-label'><span className='text-special'>*</span></label> : ''}
             </div>
-
-            {props.required ? <div className='input-required'><span className='text-special'>*</span> <small className='text-dark'><em>Required</em></small></div> : ''}
 
             {props.children}
         </div>

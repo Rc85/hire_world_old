@@ -126,6 +126,8 @@
     ('special', $theme-special),
     ('highlight', $theme-highlight),
     ('alt-highlight', $theme-alt-highlight),
+    ('blue', $theme-blue),
+    ('white', white),
     ('black', black) {
         .badge.badge-#{$colorName} {
             color: white;

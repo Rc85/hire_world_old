@@ -34,6 +34,15 @@
     font-weight: bold;
 }
 
+#initial-loading {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+}
+
 /* .bg-purple { background-color: $theme-purple !important; }
 .bg-orange { background-color: $theme-orange !important; }
 .bg-green { background-color: $theme-green !important; }
@@ -97,7 +106,7 @@
 .mini-badge {
     display: inline-block;
     font-size: 0.7rem;
-    padding: 3px 5px;
+    padding: 2px 4px;
     border-radius: 3px;
     font-weight: bold;
     margin: 0 1px;
@@ -147,4 +156,12 @@
     .label {
         padding: 0 20px;
     }
+}
+
+#activate-account, #forgot-password {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 }

@@ -9,6 +9,7 @@ import { LogError } from '../utils/LogError';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThList } from '@fortawesome/free-solid-svg-icons';
+import Loading from '../utils/Loading';
 
 class Sectors extends Component {
     constructor(props) {
@@ -16,7 +17,7 @@ class Sectors extends Component {
 
         this.state = {
             sector: this.props.match.params.sector,
-            status: 'loading',
+            status: 'Loading',
             statusMessage: '',
             listings: []
         }
@@ -63,17 +64,23 @@ class Sectors extends Component {
     }
 
     render() {
+        let status;
+
         let listings = this.state.listings.map((listing, i) => {
             return <ListingRow key={i} listing={listing} />
         });
 
         if (this.state.status === 'access error') {
-            return <Redirect to='/error/500' />
+            return <Redirect to='/error/app/500' />
+        } else if (this.state.status === 'Loading') {
+            status = <Loading size='5x' />;
         }
 
         return(
             <React.Fragment>
                 <SearchListing filter={(data) => this.filterListings(data)} />
+
+                {status}
                 
                 <section id='listings' className='main-panel'>
                     <TitledContainer title={this.state.sector} bgColor='primary' icon={<FontAwesomeIcon icon={faThList} />}shadow >

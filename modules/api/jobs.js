@@ -1,9 +1,11 @@
 const app = require('express').Router();
 const db = require('../db');
 const error = require('../utils/error-handler');
-const stripe = require('stripe')(process.env.NODE_ENV === 'development' ? process.env.DEV_STRIPE_API_KEY : process.env.STRIPE_API_KEY);
+const stripe = require('stripe')(process.env.STRIPE_API_KEY);
 const request = require('request');
 const validate = require('../utils/validate');
+
+stripe.setApiVersion('2019-02-19');
 
 app.post('/api/job/accounts/create', (req, resp) => {
     if (req.session.user) {
@@ -64,9 +66,14 @@ app.post('/api/job/accounts/create', (req, resp) => {
                                         country: req.body.country,
                                         tos_acceptance: {
                                             date: Math.floor(Date.now() / 1000),
-                                            ip: req.headers['x-real-ip']
+                                            ip: process.env.NODE_ENV === 'development' ? '127.0.0.1' : req.headers['x-real-ip']
                                         },
-                                        legal_entity: {
+                                        business_type: req.body.type,
+                                        business_profile: {
+                                            name: req.body.businessName,
+                                            product_description: req.body.businessDescription,
+                                        },
+                                        individual: {
                                             dob: {
                                                 day: req.body.dobDay,
                                                 month: req.body.dobMonth,
@@ -80,17 +87,18 @@ app.post('/api/job/accounts/create', (req, resp) => {
                                                 line1: req.body.address,
                                                 line2: req.body.address2,
                                                 postal_code: req.body.cityCode,
-                                                state: req.body.region,
-                                                personal_id_number: req.body.ssn
-                                            }
+                                                state: req.body.region
+                                            },
+                                            id_number: req.body.ssn
                                         },
-                                        default_currency: 'cad',
+                                        requested_capabilities: ['platform_payments'],
+                                        default_currency: req.body.country === 'US' ? 'usd' : 'cad',
                                         settings: {
                                             payments: {
-                                                statement_descriptor: 'HireWorld Connected Account Deposit'
+                                                statement_descriptor: 'HireWorld Deposit'
                                             },
                                             payouts: {
-                                                statement_descriptor: 'HireWorld Connected Account Payment',
+                                                statement_descriptor: 'HireWorld Payment',
                                                 schedule: {
                                                     delay_days: 7
                                                 }
@@ -109,7 +117,9 @@ app.post('/api/job/accounts/create', (req, resp) => {
                                     await client.query('COMMIT')
                                     .then(() => resp.send({status: 'success'}));
                                 } else {
-                                    return;
+                                    let error = new Error(`Your country is not yet supported`);
+                                    let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                                    throw errObj;
                                 }
                             } catch (e) {
                                 await client.query('ROLLBACK');
@@ -117,13 +127,9 @@ app.post('/api/job/accounts/create', (req, resp) => {
                             } finally {
                                 done();
                             }
-
-                            await client.query('ROLLBACK');
-
-                            done();
                         })()
                         .catch(err => error.log(err, req, resp));
-                    })
+                    });
                 }
             });
         }
@@ -132,6 +138,7 @@ app.post('/api/job/accounts/create', (req, resp) => {
 
 app.post('/api/job/account/update', async(req, resp) => {
     if (req.session.user) {
+        delete req.body.ukBankType;
         delete req.body.useDefault;
         delete req.body.accountHolder;
         delete req.body.accountType;
@@ -141,6 +148,8 @@ app.post('/api/job/account/update', async(req, resp) => {
         delete req.body.accountCurrency;
         delete req.body.external_accounts;
         delete req.body.status;
+        delete req.body.statusMessage;
+        delete req.body.user;
 
         let user = await db.query(`SELECT connected_id FROM users WHERE username = $1`, [req.session.user.username]);
 
@@ -220,6 +229,59 @@ app.post('/api/job/account/payment/delete', async(req, resp) => {
     } else {
         resp.send({status: 'error', statusMessage: `You're not logged in`});
     }
-})
+});
+
+app.post('/api/job/create', async(req, resp) => {
+    if (req.session.user) {
+        await db.query(`INSERT INTO jobs (job_title, job_description, job_due_date, job_client, job_user) VALUES ($1, $2, $3, $4, $5)`, [req.body.workTitle, req.body.workDescription, req.body.workDueDate, req.session.user.username, req.body.user])
+        .then(result => {
+            if (result && result.rowCount === 1) {
+                resp.send({status: 'success', statusMessage: 'Proposal submitted'});
+            } else {
+                resp.send({status: 'error', statusMessage: 'Fail to submit proposal'});
+            }
+        })
+        .catch(err => {
+            error.log(err, req, resp);
+        });
+    }
+});
+
+app.post('/api/job/submit/message', (req, resp) => {
+    if (req.session.user) {
+        db.connect((err, client, done) => {
+            if (err) console.log(err);
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let authorized = await client.query(`SELECT job_user, job_client FROM jobs WHERE job_id = $1`, [req.body.id]);
+
+                    if (authorized.rows[0].job_user === req.session.user.username || authorized.rows[0].job_client === req.session.user.username) {
+                        let newMessage = await client.query(`INSERT INTO job_messages (job_message_creator, job_message, job_message_parent_id) VALUES ($1, $2, $3) RETURNING job_message_id`, [req.session.user.username, req.body.message, req.body.id]);
+
+                        let message = await client.query(`SELECT job_messages.*, user_profiles.avatar_url FROM job_messages LEFT JOIN users ON users.username = job_messages.job_message_creator LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id WHERE job_message_id = $1`, [newMessage.rows[0].job_message_id]);
+                        
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success', message: message.rows[0]}))
+                    } else {
+                        let error = new Error(`You're not authorized`);
+                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                        throw errObj;
+                    }
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => error.log(err, req, resp));
+        });
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
+    }
+});
 
 module.exports = app;

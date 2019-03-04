@@ -14,9 +14,11 @@ import Recaptcha from 'react-recaptcha';
 import InputWrapper from '../../utils/InputWrapper';
 import { isTyping } from '../../../actions/ConfigActions';
 
-var onloadCallback = function() {
+let onloadCallback = function() {
     console.log('Recaptcha ready!');
 }
+
+let recaptchaInstance;
 
 class Checkout extends Component {
     constructor(props) {
@@ -49,7 +51,7 @@ class Checkout extends Component {
     }
 
     componentDidMount() {
-        fetch.post('/api/get/payments')
+        fetch.post('/api/get/user/payments')
         .then(resp => {
             if (resp.data.status === 'success') {
                 let havePayments = false;
@@ -63,7 +65,7 @@ class Checkout extends Component {
                 this.setState({status: '', payments: resp.data.payments, havePayments: havePayments, usePayment: usePayment});
             }
         })
-        .catch(err => LogError(err, '/api/get/payments'));
+        .catch(err => LogError(err, '/api/get/user/payments'));
     }
     
     useDefaultAddress() {
@@ -106,9 +108,14 @@ class Checkout extends Component {
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+                recaptchaInstance.reset();
             }
         })
-        .catch(err => LogError(err, '/api/user/payment/submit'));
+        .catch(err => {
+            LogError(err, '/api/user/payment/submit');
+            recaptchaInstance.reset();
+            this.setState({status: ''});
+        });
     }
 
     set(key, val) {
@@ -194,7 +201,7 @@ class Checkout extends Component {
                             <select name='plan' id='choose-plan' onChange={(e) => this.setState({plan: e.target.value})}>
                                 <option value=''>Select a plan</option>
                                 <option value='30 Day Listing'>30 Day Listing - $8</option>
-                                {!this.props.user.is_subscribed ? <option value={process.env.REACT_ENV === 'development' ? 'plan_EVUbtmca9pryxy' : 'plan_EVTJiZUT4rVkCT'}>Recurring Listing - $8/month</option> : ''}
+                                {!this.props.user.is_subscribed ? <option value={process.env.REACT_ENV === 'production' ? 'plan_EVTJiZUT4rVkCT' : 'plan_EVUbtmca9pryxy'}>Recurring Listing - $8/month</option> : ''}
                             </select>
                         </InputWrapper>
                     </div>
@@ -209,9 +216,9 @@ class Checkout extends Component {
                 <div className='text-right mb-3'>Note: If you are subscribing to recurring listing, this will become your default payment</div>
 
                 <div className='checkout-buttons'>
-                    <Recaptcha sitekey='6Ld784QUAAAAAISqu_99k8_Qk7bHs2ud4cD7EBeI' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} />
+                    <Recaptcha sitekey='6Ld784QUAAAAAISqu_99k8_Qk7bHs2ud4cD7EBeI' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} ref={(el) => recaptchaInstance = el} />
     
-                    <SubmitButton type='button' loading={this.state.status === 'Sending'} onClick={() => this.props.dispatch(ShowConfirmation('An $8 charge will apply immediate to your credit card. Do you want to proceed?', false, {action: 'submit payment'}))} />
+                    <SubmitButton type='button' loading={this.state.status === 'Sending'} onClick={() => this.props.dispatch(ShowConfirmation(this.state.plan === '30 Day Listing' ? 'The specified payment method will be charged immediately. Do you want to proceed?' : `Are you sure you want to subscribe to this plan?`, this.state.plan !== '30 Day Listing' ? `If you have remaining days from a previous purchase, your subscription will begin when your previous purchase ends` : '', {action: 'submit payment'}))} />
                 </div>
             </div>
         );

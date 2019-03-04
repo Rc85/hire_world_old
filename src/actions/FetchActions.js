@@ -72,21 +72,23 @@ const UpdateSectorsError = (status) => {
 
 export const GetUserNotificationAndMessageCount = () => {
     return dispatch => {
-        fetch.get('/api/get/user/notification-and-message-count')
+        fetch.get('/api/get/user/notification-message-job-count')
         .then(resp => {
             if (resp.data.status === 'success') {
-                dispatch(UpdateUserNotificationAndMessageCount(resp.data.notifications, resp.data.messages));
+                dispatch(UpdateUserNotificationAndMessageCount(resp.data.notifications, resp.data.messages, resp.data.proposalCount, resp.data.estimateCount));
             }
         })
-        .catch(err => LogError(err, '/api/get/user/notification-and-message-count'));
+        .catch(err => LogError(err, '/api/get/user/notification-message-job-count'));
     }
 }
 
-const UpdateUserNotificationAndMessageCount = (notifications, messages) => {
+const UpdateUserNotificationAndMessageCount = (notifications, messages, proposals, estimates) => {
     return {
         type: 'UPDATE_NOTIFICATION_AND_MESSAGE_COUNT',
         notifications,
-        messages: messages
+        messages: messages,
+        proposals: proposals,
+        estimates: estimates
     }
 }
 

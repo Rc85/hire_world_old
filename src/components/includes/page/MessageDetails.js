@@ -64,7 +64,7 @@ class MessageDetails extends Component {
     reply(message) {
         this.setState({sendStatus: 'Sending'});
 
-        fetch.post('/api/message/reply', {message: message, id: this.props.conversation.conversation_id})
+        fetch.post('/api/conversation/reply', {message: message, id: this.props.conversation.conversation_id})
         .then(resp => {
             if (resp.data.status === 'success') {
                 let messages = [...this.state.messages];
@@ -72,20 +72,19 @@ class MessageDetails extends Component {
 
                 this.setState({sendStatus: 'send success', messages: messages});
             } else if (resp.data.status === 'error') {
-                this.setState({sendStatus: 'error'});
+                this.setState({sendStatus: 'send error'});
             }
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => {
-            this.setState({sendStatus: 'error'});
+            this.setState({sendStatus: ''});
             this.props.dispatch(Alert('error', 'An error occurred'));
-            LogError(err, '/api/message/submit');
+            LogError(err, '/api/conversation/submit');
         });
     }
     
     render() {
-        (this.state);
         let status;
 
         if (this.state.status === 'Loading Message') {
@@ -97,7 +96,7 @@ class MessageDetails extends Component {
                 {status}
                 {this.state.reply ? '' : <div id='reply-button' className='text-right mb-3'><button className='btn btn-primary btn-sm' onClick={() => this.setState({reply: true})}>Reply</button></div>}
 
-                <MessageSender id='reply-container' className={this.state.reply ? 'show' : ''} subject={this.state.messages.length > 0 ? this.props.conversation.conversation_subject : ''} send={(message) => this.reply(message)} status={this.state.sendStatus} cancel={this.state.reply ? () => this.setState({reply: false}) : ''} />
+                <MessageSender id='reply-container' className={this.state.reply ? 'show' : ''} subject={this.state.messages.length > 0 ? this.props.conversation.conversation_subject : ''} send={(message) => this.reply(message)} status={this.state.sendStatus} cancel={this.state.reply ? () => this.setState({reply: false}) : null} />
 
                 {this.state.messages.map((message, i) => {
                     let messageAuthor, messageType, approve, decline;

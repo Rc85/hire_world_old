@@ -141,21 +141,26 @@ app.post('/api/user/settings/email/change', (req, resp) => {
                 (async() => {
                     try {
                         await client.query('BEGIN');
-                        await client.query(`UPDATE users SET user_email = $1 WHERE user_id = $2`, [req.body.newEmail, req.session.user.user_id]);
 
-                        /* let user = await client.query(`SELECT users.username, users.user_email, users.account_type, users.user_status, users.is_subscribed, users.plan_id, users.user_last_login, users.user_level, users.subscription_end_date, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
-                        LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
-                        LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
-                        LEFT JOIN user_listings ON users.username = user_listings.listing_user
-                        WHERE users.user_id = $1`, [req.session.user.user_id]); */
+                        let authorized = await client.query(`SELECT user_email FROM users WHERE user_id = $1`, [req.session.user.user_id]);
 
-                        let user = await controller.session.retrieve(client, req.session.user.user_id);
+                        if (authorized.rows[0].user_email === req.body.newEmail) {
+                            let error = new Error(`That is already your email`);
+                            let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                            throw errObj;
+                        } else {
+                            await client.query(`UPDATE users SET user_email = $1 WHERE user_id = $2`, [req.body.newEmail, req.session.user.user_id]);
 
-                        await client.query('COMMIT')
-                        .then(async() => {
                             await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Changed email`, req.session.user.username, 'Account']);
-                            resp.send({status: 'success', statusMessage: 'Email saved', user: user});
-                        });
+
+                            await controller.email.confirmation.resend(client, req.body.newEmail);
+
+                            await client.query('COMMIT')
+                            .then(async() => {
+                                req.session = null;
+                                resp.send({status: 'success', statusMessage: 'Confirmation email sent'});
+                            });
+                        }
                     } catch (e) {
                         await client.query('ROLLBACK');
                         throw e;
@@ -164,8 +169,7 @@ app.post('/api/user/settings/email/change', (req, resp) => {
                     }
                 })()
                 .catch(err => {
-                    console.log(err);
-                    resp.send({status: 'error', statusMessage: 'An error occurred'});
+                    error.log(err, req, resp);
                 });
             }
         });

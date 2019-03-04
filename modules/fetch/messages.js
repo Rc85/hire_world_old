@@ -20,11 +20,11 @@ app.post('/api/get/messages/:type', async(req, resp) => {
 
                         let pinned = await client.query(`SELECT pinned_message FROM pinned_messages WHERE message_pinned_by = $1`, [req.session.user.username]);
                         let pinnedIds = [];
-                        let deleted = await client.query(`SELECT deleted_message FROM deleted_messages WHERE message_deleted_by = $1`, [req.session.user.username]);
+                        let deleted = await client.query(`SELECT deleted_convo FROM deleted_conversations WHERE convo_deleted_by = $1`, [req.session.user.username]);
                         let deletedIds = [];
 
                         for (let row of deleted.rows) {
-                            deletedIds.push(row.deleted_message);
+                            deletedIds.push(row.deleted_convo);
                         }
 
                         for (let row of pinned.rows) {
@@ -56,27 +56,9 @@ app.post('/api/get/messages/:type', async(req, resp) => {
                         ${pinnedMessageQuery}
                         AND NOT conversation_id = ANY($3)
                         AND conversation_status != 'Deleted'
+                        ORDER BY conversation_status = 'New' DESC, conversation_date DESC
                         LIMIT 25 OFFSET $2`;
-
-                        /* let queryString = `SELECT *,
-                            (SELECT COUNT(conversation_id) AS conversation_count FROM messages
-                            WHERE NOT conversation_id = ANY($3)
-                            AND ${messageQueryType}
-                            ${pinnedMessageQuery})
-                        FROM conversations
-                        LEFT JOIN
-                            (SELECT message_conversation_id, COUNT(message_id) AS unread_messages FROM messages
-                            LEFT JOIN conversations ON messages.message_conversation_id = conversations.conversation_id
-                            WHERE message_status = 'New'
-                            AND message_creator != $1
-                            GROUP BY message_conversation_id) AS unread ON unread.message_conversation_id = conversations.conversation_id
-                        WHERE ${messageQueryType}
-                        ${pinnedMessageQuery}
-                        AND NOT messages.message_id = ANY($3)
-                        AND messages.message_conversation_id IS NULL
-                        ORDER BY messages.message_date DESC
-                        LIMIT 25 OFFSET $2`; */
-
+                        
                         let messages = await client.query(queryString, params);
                         let messageCount = 0;
                         

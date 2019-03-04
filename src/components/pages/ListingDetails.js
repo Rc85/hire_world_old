@@ -43,13 +43,13 @@ class ListingDetails extends Component {
     send(message, subject) {
         this.setState({status: 'Sending'});
 
-        fetch.post('/api/message/submit', {subject: subject, message: message, listing: this.state.listing})
+        fetch.post('/api/conversation/submit', {subject: subject, message: message, listing: this.state.listing})
         .then(resp => {
             this.setState({status: resp.data.status});
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => LogError(err, '/api/message/submit'));
+        .catch(err => LogError(err, '/api/conversation/submit'));
     }
 
     saveListing() {
@@ -103,7 +103,7 @@ class ListingDetails extends Component {
                 inquire = <div>
                     <hr/>
 
-                    <MessageSender send={(message, subject) => this.send(message, subject)} status={this.state.status} />
+                    <MessageSender send={(message, subject) => this.send(message, subject)} status={this.state.status} withSubject />
                 </div>;
             }
         }
@@ -141,7 +141,7 @@ class ListingDetails extends Component {
         }
 
         if (this.state.status === 'access error') {
-            return <Redirect to='/error/500' />
+            return <Redirect to='/error/app/500' />
         } else if (this.state.status === 'Loading') {
             return <Loading size='7x' />
         } else {

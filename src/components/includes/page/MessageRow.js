@@ -9,10 +9,10 @@ class MessageRow extends Component {
     render() {
         return(
             <React.Fragment>
-                {this.props.author !== 'system' ? <div className={`message-row-username ${this.props.author === 'owner' ? 'right' : 'left'}`}><Username username={this.props.message.message_creator} color='highlight' right={this.props.author === 'owner'} /></div> : ''}
+                <div className={`message-row-username ${this.props.author === 'owner' ? 'left' : 'right'}`}><Username username={this.props.message.message_creator} color='highlight' right={this.props.author === 'owner'} /></div>
 
                 <div className={`message-row ${this.props.author}`}>
-                    {this.props.message.message_creator != 'System' ? <div className='message-row-profile-pic'><UserProfilePic url={this.props.message.avatar_url} /></div> : ''}
+                    <div className='message-row-profile-pic'><UserProfilePic url={this.props.message.avatar_url} /></div>
                     <div className='message-container'>
                         <div className={`message-row-body ${this.props.type}`}>
                             {this.props.message.message_status === 'New' && this.props.message.message_creator !== this.props.user.user.username ? <span className='new-message-status mini-badge mini-badge-success'>{this.props.message.message_status}</span> : ''}
@@ -22,7 +22,7 @@ class MessageRow extends Component {
                         </div>
         
                         <div className={`message-row-footer ${this.props.author}`}>
-                            {this.props.message.message_creator === 'System' || this.props.message.message_creator === this.props.user.user.username ? 'Sent' : 'Received'} {moment(this.props.message.message_date).fromNow()}
+                            <small>{this.props.message.message_creator === this.props.user.user.username ? 'Sent' : 'Received'} {moment(this.props.message.message_date).fromNow()}</small>
                         </div>
                     </div>
                 </div>

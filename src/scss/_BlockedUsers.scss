@@ -1,0 +1,19 @@
+.blocked-user-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.user-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    background-color: $theme-lightgrey;
+    border: 1px solid black;
+    width: 30%
+}
+
+.unblock-button {
+    color: $theme-green;
+    cursor: pointer;
+}

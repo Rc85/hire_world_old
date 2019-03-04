@@ -1,13 +1,15 @@
 const app = require('express').Router();
 const db = require('./db');
-const stripe = require('stripe')(process.env.NODE_ENV === 'development' ? process.env.DEV_STRIPE_API_KEY : process.env.STRIPE_API_KEY);
+const stripe = require('stripe')(process.env.STRIPE_API_KEY);
 const error = require('./utils/error-handler');
+
+stripe.setApiVersion('2019-02-19');
 
 app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
     let sig = req.headers['stripe-signature'];
 
     try {
-        let event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.NODE_ENV === 'development' ? process.env.DEV_STRIPE_RENEW_WEBHOOK_KEY : process.env.STRIPE_RENEW_WEBHOOK_KEY);
+        let event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.STRIPE_RENEW_WEBHOOK_KEY);
 
         let user = await db.query(`SELECT username FROM users WHERE stripe_id = $1`, [event.data.object.customer]);
 

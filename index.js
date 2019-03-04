@@ -4,14 +4,14 @@ const app = express();
 const bodyParser = require('body-parser');
 const http = require('http');
 const session = require('cookie-session');
-const pug = require('pug');
-const path = require('path');
+const controller = require('./modules/utils/controller');
 const server = http.createServer(app);
 const db = require('./modules/db');
 const cryptoJS = require('crypto-js');
 const sgMail = require('@sendgrid/mail');
 const error = require('./modules/utils/error-handler');
-let port = process.env.NODE_ENV === 'development' ? process.env.DEV_PORT : process.env.PORT;
+const request = require('request');
+let port = process.env.PORT;
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -85,12 +85,92 @@ app.use(require('./modules/api/messages'));
 app.use(require('./modules/api/jobs'));
 
 app.get('/', async(req, resp) => {
-    let announcements = await db.query(`SELECT * FROM announcements`);
+    /* let announcements = await db.query(`SELECT * FROM announcements`); */
 
-    resp.render('index', {user: req.session.user, announcements: announcements.rows});
+    resp.sendFile(__dirname + '/dist/app.html');
 });
 
-app.get('/pricing', async(req, resp) => {
+app.post('/api/resend-confirmation', async(req, resp) => {
+    request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.RECAPTCHA_SECRET, response: req.body.verified}}, async(err, res, body) => {
+        if (err) error.log(err, req, resp);
+
+        let response = JSON.parse(res.body);
+
+        if (response.success) {
+            db.connect((err, client, done) => {
+                if (err) console.log(err);
+
+                (async() => {
+                    try {
+                        client.query('BEGIN');
+
+                        let user = await client.query(`SELECT user_id, user_status FROM users WHERE user_email = $1`, [req.body.email]);
+
+                        if (user && user.rows.length === 1 && user.rows[0].user_status === 'Pending') {
+                            let regKeyString = await controller.email.confirmation.resend(req.body.email);
+
+                            await client.query(`UPDATE users SET registration_key = $1, reg_key_expire_date = current_timestamp + interval '1' day WHERE user_id = $2`, [regKeyString, user.rows[0].user_id])
+                        }
+
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success'}));
+                    } catch (e) {
+                        await client.query('ROLLBACK');
+                        throw e;
+                    } finally {
+                        done();
+                    }
+                })()
+                .catch(err => error.log(err, req, resp));
+            });
+        } else {
+            resp.send({status: 'error', statusMessage: `You're not human`});
+        }
+    });
+});
+
+app.post('/api/activate-account', async(req, resp) => {
+    let registrationKey = decodeURIComponent(req.body.key);
+
+    let user = await db.query(`SELECT username, registration_key, reg_key_expire_date, user_status, user_email, user_id FROM users WHERE registration_key = $1 AND user_status = 'Pending'`, [registrationKey])
+
+    if (user && user.rows.length === 1) {
+        if (new Date(user.rows[0].reg_key_expire_date) < new Date) {
+            resp.send({status: 'error', statusMessage: 'The link has expired'});
+        } else {
+            let decrypted = cryptoJS.AES.decrypt(registrationKey, 'activating account');
+
+            if (decrypted.toString(cryptoJS.enc.Utf8) === user.rows[0].user_email) {
+                await db.query(`UPDATE users SET user_status = 'Active' WHERE user_id = $1`, [user.rows[0].user_id])
+                .then(result => {
+                    if (result && result.rowCount === 1) {
+                        resp.send({status: 'success', statusMessage: `Your account has been activated`});
+                    }
+                })
+            } else {
+                resp.send({status: 'error', statusMessage: 'Failed to activated account. Please try again or contact an administrator.'})
+            }
+        }
+    } else {
+        resp.send({status: 'error', statusMessage: `The account requiring activation does not exist`});
+    }
+});
+
+app.post('/api/forgot-password', async(req, resp) => {
+    request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.RECAPTCHA_SECRET, response: req.body.verified}}, async(err, res, body) => {
+        if (err) error.log(err, req, resp);
+
+        let response = JSON.parse(res.body);
+
+        if (response.success) {
+            controller.email.password.reset(req.body.email);
+        } else {
+            resp.send({status: 'error', statusMessage: `You're not human`});
+        }
+    });
+})
+
+/* app.get('/pricing', async(req, resp) => {
     let promo = await db.query(`SELECT * FROM promotions WHERE promo_status = 'Active'`)
     .then(result => {
         if (result) {
@@ -126,61 +206,8 @@ app.get('/register/success', (req, resp) => {
     resp.render('response', {header: 'Registration Successful', message: 'A verification email has been sent. Please click the link provided to activate your account.'});
 });
 
-app.get('/activate-account', async(req, resp) => {
-    let registrationKey = req.query.key;
-
-    let user = await db.query(`SELECT * FROM users WHERE registration_key = $1 AND reg_key_expire_date > current_timestamp`, [registrationKey])
-
-    if (user && user.rows.length === 1) {
-        let decrypted = cryptoJS.AES.decrypt(registrationKey, 'registering for hireworld');
-
-        if (decrypted.toString(cryptoJS.enc.Utf8) === user.rows[0].user_email) {
-            await db.query(`UPDATE users SET user_status = 'Active' WHERE user_id = $1`, [user.rows[0].user_id]);
-            resp.render('response', {header: `Account Activated`, message: `You can now <a href='/app'>login</a> to your account`});
-        } else {
-            resp.render('response', {header: '404 Not Found', message: `The content you're looking for cannot be found.`});
-        }
-    } else {
-        resp.render('response', {header: 'Expired', message: 'The activation button you clicked on has expired.'});
-    }
-});
-
 app.get('/resend-confirmation', (req, resp) => {
     resp.render('resend');
-});
-
-app.post('/resend', async(req, resp) => {
-    let user = await db.query(`SELECT * FROM users WHERE user_email = $1`, [req.body.email]);
-
-    if (user && user.rows.length === 1) {
-        let encrypted = cryptoJS.AES.encrypt(req.body.email, 'registering for hireworld');
-        let regKeyString = encrypted.toString();
-        let registrationKey = encodeURIComponent(regKeyString);
-
-        await db.query(`UPDATE users SET registration_key = $1, reg_key_expire_date = current_timestamp + interval '1' day WHERE user_id = $2`, [regKeyString, user.rows[0].user_id]);
-
-        let message = {
-            to: req.body.email,
-            from: 'admin@hireworld.ca',
-            subject: 'Welcome to HireWorld',
-            templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
-            dynamicTemplateData: {
-                url: process.env.NODE_ENV === 'development' ? `${process.env.DEV_SITE_URL}` : `${process.env.SITE_URL}`,
-                regkey: registrationKey
-            },
-            trackingSettings: {
-                clickTracking: {
-                    enable: false
-                }
-            }
-        }
-
-        sgMail.send(message);
-
-        resp.render('response', {header: 'Email Sent', message: 'A new confirmation email has been sent. Check your email and activate your account now.'});
-    } else {
-        resp.render('response', {header: '404 Not Found', message: 'That email does not exist in our system.'});
-    }
 });
 
 app.get('/support', (req, resp) => {
@@ -226,7 +253,7 @@ app.post('/contact-form', (req, resp) => {
         console.log(err);
         resp.render('response', {header: '500 Internal Server Error', message: 'An error occurred while trying to deliver your message. Please try again later.'});
     });
-});
+}); */
 
 app.post('/api/site/review', (req, resp) => {
     db.query(`INSERT INTO site_review (reviewer, rating) VALUES ($1, $2)`, [req.session.user.username, req.body.stars])
@@ -243,9 +270,9 @@ app.post('/api/site/review', (req, resp) => {
     });
 });
 
-app.get(/^\/(app|app(\/)?.*)?/, (req, resp) => {
+/* app.get(/^\/(app|app(\/)?.*)?/, (req, resp) => {
     resp.sendFile(__dirname + '/dist/app.html');
-});
+}); */
 
 app.post('/api/pin', async(req, resp) => {
     if (req.session.user) {

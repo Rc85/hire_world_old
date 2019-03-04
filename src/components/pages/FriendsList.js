@@ -11,6 +11,7 @@ import TitledContainer from '../utils/TitledContainer';
 import UserProfilePic from '../includes/page/UserProfilePic';
 import { faBuilding, faIdCard } from '@fortawesome/free-regular-svg-icons';
 import { NavLink } from 'react-router-dom';
+import AlphaNumericFilter from '../utils/AlphaNumericFilter';
 
 class FriendsList extends Component {
     constructor(props) {
@@ -29,7 +30,7 @@ class FriendsList extends Component {
         if (prevState.offset !== this.state.offset) {
             this.setState({status: 'Loading'});
             
-            fetch.post('/api/user/get/friends', {letter: this.state.filtering, offset: this.state.offset})
+            fetch.post('/api/get/user/friends', {letter: this.state.filtering, offset: this.state.offset})
             .then(resp => {
                 if (resp.data.status === 'success') {
                     let friendsList = [...this.state.friends, ...resp.data.friends];
@@ -39,12 +40,12 @@ class FriendsList extends Component {
                     this.setState({status: 'error'});
                 }
             })
-            .catch(err => LogError(err, '/api/user/get/friends'));
+            .catch(err => LogError(err, '/api/get/user/friends'));
         }
     }
     
     componentDidMount() {
-        fetch.post('/api/user/get/friends', {letter: 'All', offset: this.state.offset})
+        fetch.post('/api/get/user/friends', {letter: 'All', offset: this.state.offset})
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({status: '', friends: resp.data.friends, totalFriends: resp.data.totalFriends});
@@ -97,17 +98,13 @@ class FriendsList extends Component {
             status = <Loading size='5x' />;
         }
 
-        let filter = ['#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '-', '_'];
-
         return(
             <section id='friends-list' className='main-panel'>
                 {status}
                 <TitledContainer title='Friends List' icon={<FontAwesomeIcon icon={faUserFriends} />} bgColor='lightblue'>
-                    <div id='friends-list-filter'>
-                        {filter.map((letter, i) => {
-                            return <div key={i} className={`friends-list-filter-button ${this.state.filtering === letter ? 'active' : ''}`} onClick={() => this.filter(letter)}>{letter}</div>
-                        })}
-                        <div className={`friends-list-filter-button ${this.state.filtering === 'All' ? 'active' : ''}`} onClick={() => this.filter('All')}>All</div>
+                    <div className='filter-container'>
+                        <AlphaNumericFilter filter={(letter) => this.filter(letter)} currentLetter={this.state.filtering} />
+                        <div className={`filter-button ${this.state.filtering === 'All' ? 'active' : ''}`} onClick={() => this.filter('All')}>All</div>
                     </div>
 
                     <div className='friend-list-container'>
@@ -122,13 +119,22 @@ class FriendsList extends Component {
 
                                     <div className='friend-panel-header-info'>
                                         <div className='friend-panel-header-container'>
-                                            <div><h5>{friend.listing_status && friend.listing_status === 'Active' ? <NavLink to={`/user/${friend.friend_user_2}`}>{friend.friend_user_2}</NavLink> : friend.friend_user_2}</h5></div>
+                                            <h5>{friend.listing_status && friend.listing_status === 'Active' ? <NavLink to={`/user/${friend.friend_user_2}`}>{friend.friend_user_2}</NavLink> : friend.friend_user_2}</h5>
                                             {friend.user_email ? <a href={`mailto:${friend.user_email}`}>{friend.user_email}</a> : ''}
                                             {friend.user_business_name ? <div><FontAwesomeIcon icon={faBuilding} className='text-special' /> <strong>{friend.user_business_name}</strong></div> : ''}
                                             {friend.user_title ? <div><FontAwesomeIcon icon={faIdCard} className='text-special' /> <strong>{friend.user_title}</strong></div> : ''}
                                         </div>
                                     </div>
                                 </div>
+
+                                {friend.connected_acct_status === 'Approved' || friend.listing_status === 'Active' ? 
+                                <div className='friend-panel-footer'>
+                                    <div className='text-right'>
+                                    {friend.listing_status === 'Active' ? <span className='mini-badge mini-badge-success ml-1'>Listed</span> : ''}
+                                    {friend.connected_acct_status === 'Approved' ? <span className='mini-badge mini-badge-success ml-1'>Connected</span> : ''}
+                                    </div>
+                                </div>
+                                : ''}
                             </div>
                         })}
                     </div>

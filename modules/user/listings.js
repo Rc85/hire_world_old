@@ -8,15 +8,23 @@ app.post('/api/listing/create', (req, resp) => {
         let title = req.body.listing_title.trim();
 
         if (validate.blankCheck.test(req.body.listing_purpose)) {
-            resp.send({status: 'error', statusMessage: 'Are you looking for work or to hire?'});
+            resp.send({status: 'error', statusMessage: 'Type of business required'});
+        } else if (req.body.listing_purpose !== 'Online' || req.body.listing_purpose !== 'Remote' || req.body.listing_purpose !== 'Local') {
+            resp.send({status: 'error', statusMessage: 'Unrecognized type of business'});
         } else if (validate.blankCheck.test(req.body.listing_title)) {
             resp.send({status: 'error', statusMessage: 'Title cannot be blank'});
         } else if (!validate.titleCheck.test(req.body.listing_title)) {
             resp.send({status: 'error', statusMessage: 'Invalid characters in title'});
+        } else if (req.body.listing_title.length > 60) {
+            resp.send({status: 'error', statusMessage: 'Title too long'});
         } else if (!validate.priceCheck.test(req.body.listing_price)) {
             resp.send({status: 'error', statusMessage: 'Invalid price format'});
         } else if (validate.blankCheck.test(req.body.listing_price_currency)) {
             resp.send({status: 'error', statusMessage: 'Enter a currency'});
+        } else if (!validate.currencyCheck.test(req.body.listing_price_currency)) {
+            resp.send({status: 'error', statusMessage: 'Unrecognized currency'});
+        } else if (typeof req.body.listing_negotiable !== 'boolean') {
+            resp.send({status: 'error', statusMessage: 'Must either be negotiable or non-negotiable'});
         } else {
             let price = 0;
 

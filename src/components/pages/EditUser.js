@@ -287,12 +287,12 @@ class EditUserField extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (prevState.edit !== this.state.edit) {
-            this.setState({value: this.props.field});
+            this.setState({value: this.props.field === null ? '' : this.props.field});
         }
     }
     
     componentDidMount() {
-        this.setState({value: this.props.field});
+        this.setState({value: this.props.field === null ? '' : this.props.field});
     }
 
     save(e) {

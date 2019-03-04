@@ -1,14 +1,15 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 
 const Footer = props => {
     return(
         <footer>
             <section id='footer'>
                 <div className='footer-links'>
-                    <div><a href='/tos'>Terms of Service</a></div>
-                    <div><a href='/privacy'>Privacy Policy</a></div>
-                    <div><a href='/about'>About</a></div>
-                    <div><a href='/contact'>Contact Us</a></div>
+                    <div><NavLink to='/faq'>FAQ</NavLink></div>
+                    <div><NavLink to='/tos'>Terms of Service</NavLink></div>
+                    <div><NavLink to='/privacy'>Privacy Policy</NavLink></div>
+                    <div><NavLink to='/about'>About</NavLink></div>
                 </div>
     
                 <div className='text-center'>Copyright © 2019 HireWorld. All rights reserved.</div>

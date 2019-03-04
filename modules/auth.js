@@ -11,113 +11,115 @@ const controller = require('./utils/controller');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.post('/api/auth/register', (req, resp) => {
-    request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.RECAPTCHA_SECRET, response: req.body['g-recaptcha-response']}}, (err, res, body) => {
+    request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.RECAPTCHA_SECRET, response: req.body.verified}}, (err, res, body) => {
         if (err) console.log(err);
 
         let response = JSON.parse(res.body);
 
         if (response.success) {
             if (req.body.agreed) {
-                if (req.body.legal) {
-                    if (!validate.usernameCheck.test(req.body.username)) {
-                        resp.send({status: 'error', statusMessage: 'Invalid username'});
-                    } else if (req.body.password !== req.body.confirmPassword) {
-                        resp.send({status: 'error', statusMessage: 'Passwords do not match'});
-                    } else if (!validate.passwordCheck.test(req.body.password)) {
-                        resp.send({status: 'error', statusMessage: 'Passwords too short or long'});
-                    } else if (req.body.email !== req.body.confirmEmail) {
-                        resp.send({status: 'error', statusMessage: 'Emails do not match'});
-                    } else if (!validate.emailCheck.test(req.body.email)) {
-                        resp.send({status: 'error', statusMessage: 'Invalid email format'});
-                    } else if (!validate.nameCheck.test(req.body.firstName)) {
-                        resp.send({status: 'error', statusMessage: 'Invalid first name'});
-                    } else if (!validate.nameCheck.test(req.body.lastName)) {
-                        resp.send({status: 'error', statusMessage: 'Invalid last name'});
-                    } else if (validate.blankCheck.test(req.body.firstName)) {
-                        resp.send({status: 'error', statusMessage: 'First name cannot be blank'});
-                    } else if (validate.blankCheck.test(req.body.lastName)) {
-                        resp.send({status: 'error', statusMessage: 'Last name cannot be blank'});
-                    } else if (validate.blankCheck.test(req.body.country)) {
-                        resp.send({status: 'error', statusMessage: 'Please select a country'});
-                    } else if (validate.blankCheck.test(req.body.region)) {
-                        resp.send({status: 'error', statusMessage: 'Please select a region'});
-                    } else if (validate.blankCheck.test(req.body.city)) {
-                        resp.send({status: 'error', statusMessage: 'Please enter your city name'});
-                    } else {
-                        bcrypt.hash(req.body.password, 10, (err, result) => {
+                if (req.body.username && !validate.usernameCheck.test(req.body.username)) {
+                    resp.send({status: 'error', statusMessage: 'Invalid username'});
+                } else if (req.body.password && req.body.password !== req.body.confirmPassword) {
+                    resp.send({status: 'error', statusMessage: 'Passwords do not match'});
+                } else if (req.body.confirmPassword && !validate.passwordCheck.test(req.body.password)) {
+                    resp.send({status: 'error', statusMessage: 'Passwords too short or long'});
+                } else if (req.body.confirmEmail && req.body.email !== req.body.confirmEmail) {
+                    resp.send({status: 'error', statusMessage: 'Emails do not match'});
+                } else if (req.body.email && !validate.emailCheck.test(req.body.email)) {
+                    resp.send({status: 'error', statusMessage: 'Invalid email format'});
+                } else if (req.body.firstName && !validate.nameCheck.test(req.body.firstName)) {
+                    resp.send({status: 'error', statusMessage: 'Invalid first name'});
+                } else if (req.body.lastName && !validate.nameCheck.test(req.body.lastName)) {
+                    resp.send({status: 'error', statusMessage: 'Invalid last name'});
+                } else if (req.body.firstName && validate.blankCheck.test(req.body.firstName)) {
+                    resp.send({status: 'error', statusMessage: 'First name cannot be blank'});
+                } else if (req.body.lastName && validate.blankCheck.test(req.body.lastName)) {
+                    resp.send({status: 'error', statusMessage: 'Last name cannot be blank'});
+                } else if (req.body.country && validate.blankCheck.test(req.body.country)) {
+                    resp.send({status: 'error', statusMessage: 'Please select a country'});
+                } else if (req.body.region && validate.blankCheck.test(req.body.region)) {
+                    resp.send({status: 'error', statusMessage: 'Please select a region'});
+                } else if (req.body.city && validate.blankCheck.test(req.body.city)) {
+                    resp.send({status: 'error', statusMessage: 'Please enter your city name'});
+                } else if (req.body.country && !validate.locationCheck.test(req.body.country)) {
+                    resp.send({status: 'error', statusMessage: 'Invalid country'});
+                } else if (req.body.region && !validate.locationCheck.test(req.body.region)) {
+                    resp.send({status: 'error', statusMessage: 'Invalid region'});
+                } else if (req.body.city && !validate.locationCheck.test(req.body.city)) {
+                    resp.send({status: 'error', statusMessage: 'Invalid city'});
+                } else {
+                    bcrypt.hash(req.body.password, 10, (err, result) => {
+                        if (err) console.log(err);
+
+                        db.connect((err, client, done) => {
                             if (err) console.log(err);
+                            
+                            (async() => {
+                                try {
+                                    await client.query(`BEGIN`);
 
-                            db.connect((err, client, done) => {
-                                if (err) console.log(err);
-                                
-                                (async() => {
-                                    try {
-                                        await client.query(`BEGIN`);
+                                    let encrypted = cryptoJS.AES.encrypt(req.body.email, 'registering for hireworld');
+                                    let regKeyString = encrypted.toString();
+                                    let registrationKey = encodeURIComponent(regKeyString);
 
-                                        let encrypted = cryptoJS.AES.encrypt(req.body.email, 'registering for hireworld');
-                                        let regKeyString = encrypted.toString();
-                                        let registrationKey = encodeURIComponent(regKeyString);
+                                    let user = await client.query(`INSERT INTO users (username, user_password, user_email, registration_key) VALUES ($1, $2, $3, $4) RETURNING user_id, username`, [req.body.username, result, req.body.email, regKeyString]);
 
-                                        let user = await client.query(`INSERT INTO users (username, user_password, user_email, registration_key) VALUES ($1, $2, $3, $4) RETURNING user_id, username`, [req.body.username, result, req.body.email, regKeyString]);
+                                    await client.query(`INSERT INTO user_profiles (user_profile_id, user_firstname, user_lastname, user_title, user_country, user_region, user_city) VALUES ($1, $2, $3, $4, $5, $6, $7)`, [user.rows[0].user_id, req.body.firstName, req.body.lastName, req.body.title, req.body.country, req.body.region, req.body.city]);
+                                    await client.query(`INSERT INTO user_settings (user_setting_id) VALUES ($1)`, [user.rows[0].user_id]);
 
-                                        await client.query(`INSERT INTO user_profiles (user_profile_id, user_firstname, user_lastname, user_title) VALUES ($1, $2, $3, $4)`, [user.rows[0].user_id, req.body.firstName, req.body.lastName, req.body.title]);
-                                        await client.query(`INSERT INTO user_settings (user_setting_id) VALUES ($1)`, [user.rows[0].user_id]);
-
-                                        let message = {
-                                            to: req.body.email,
-                                            from: 'admin@hireworld.ca',
-                                            subject: 'Welcome to HireWorld',
-                                            templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
-                                            dynamicTemplateData: {
-                                                url: process.env.NODE_ENV === 'development' ? `${process.env.DEV_SITE_URL}` : `${process.env.SITE_URL}`,
-                                                regkey: registrationKey
-                                            },
-                                            trackingSettings: {
-                                                clickTracking: {
-                                                    enable: false
-                                                }
+                                    let message = {
+                                        to: req.body.email,
+                                        from: 'admin@hireworld.ca',
+                                        subject: 'Welcome to HireWorld',
+                                        templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
+                                        dynamicTemplateData: {
+                                            url: process.env.SITE_URL,
+                                            regkey: registrationKey
+                                        },
+                                        trackingSettings: {
+                                            clickTracking: {
+                                                enable: false
                                             }
                                         }
-
-                                        sgMail.send(message);
-
-                                        await client.query(`COMMIT`)
-                                        .then(async() => {
-                                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Account created', user.rows[0].username, 'Account']);
-                                            resp.send({status: 'success', statusMessage: 'Registration successful. Please check your email to confirm your account'});
-                                        });
-                                    } catch (e) {
-                                        await client.query(`ROLLBACK`);
-                                        throw e;
-                                    } finally {
-                                        done();
-                                    }
-                                })()
-                                .catch(err => {
-                                     console.log(err);
-                                    
-                                    let message = `An error occurred`;
-                                    
-                                    if (err.code === '23505') {
-                                        if (err.constraint === 'unique_email') {
-                                            message = 'Email already taken';
-                                        } else if (err.constraint === 'unique_username') {
-                                            message = 'Username already taken';
-                                        }
-                                    } else if (err.code === '23502') {
-                                        message = 'All fields are required';
                                     }
 
-                                    resp.send({status: 'error', statusMessage: message});
-                                });
+                                    sgMail.send(message);
+
+                                    await client.query(`COMMIT`)
+                                    .then(async() => {
+                                        await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Account created', user.rows[0].username, 'Account']);
+                                        resp.send({status: 'success', statusMessage: 'Registration successful. Please check your email to confirm your account'});
+                                    });
+                                } catch (e) {
+                                    await client.query(`ROLLBACK`);
+                                    throw e;
+                                } finally {
+                                    done();
+                                }
+                            })()
+                            .catch(err => {
+                                    console.log(err);
+                                
+                                let message = `An error occurred`;
+                                
+                                if (err.code === '23505') {
+                                    if (err.constraint === 'unique_email') {
+                                        message = 'Email already taken';
+                                    } else if (err.constraint === 'unique_username') {
+                                        message = 'Username already taken';
+                                    }
+                                } else if (err.code === '23502') {
+                                    message = 'All fields are required';
+                                }
+
+                                resp.send({status: 'error', statusMessage: message});
                             });
                         });
-                    }
-                } else {
-                    resp.send({status: 'error', statusMessage: 'You must be 18 years or older'});
+                    });
                 }
             } else {
-                resp.send({status: 'error', statusMessage: 'You must agree to the terms of service'});
+                resp.send({status: 'error', statusMessage: 'Your agreement is required'});
             }
         } else {
             resp.send({status: 'error', statusMessage: 'You are not human'});
@@ -147,15 +149,13 @@ app.post('/api/auth/login', async(req, resp, next) => {
                             // If user is banned, deny access
                             if (auth.rows[0].user_status === 'Ban') {
                                 let error = new Error(`Your account has been permanently banned`);
-                                error.type = 'CUSTOM';
-                                error.status = 'access error';
-                                throw error;
+                                let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                                throw errObj
                             // if users haven't activated their account
                             } else if (auth.rows[0].user_status === 'Pending') {
                                 let error = new Error(`You need to activate your account`);
-                                error.type = 'CUSTOM';
-                                error.status = 'error';
-                                throw error;
+                                let errObj = {error: error, type: 'CUSTOM', stack: error.stack, status: 'access error'};
+                                throw errObj
                             // If user is temporarily banned, check if today is after ban date. If it is, set user status to 'Active'
                             } else if (auth.rows[0].user_status === 'Suspend') {
                                 if (today >= banEndDate) {

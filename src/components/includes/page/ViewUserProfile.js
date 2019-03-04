@@ -11,7 +11,7 @@ import { NavLink } from 'react-router-dom';
 import ViewUserSocialMedia from './ViewUserSocialMedia';
 
 const ViewUserProfile = props => {
-    let avatar, bio;
+    let avatar, bio, price;
 
     if (props.user) {
         avatar = <UserProfilePic url={props.user.avatar_url} editable={false}/>;
@@ -24,6 +24,22 @@ const ViewUserProfile = props => {
         bio = props.user.listing_detail;
     }
 
+    if (props.user.listing_price_type === 'To Be Discussed') {
+        price = <div className='d-flex-center mr-3 mb-1'><Tooltip text='Asking Price' placement='top'><FontAwesomeIcon icon={faDollarSign} className='text-special mr-2' /></Tooltip> <nobr>{props.user.listing_price_type}</nobr></div>;
+    } else {
+        if (props.user.listing_price !== '0') {
+            price = <React.Fragment>
+                <div className='d-flex-center mr-3 mb-1'>
+                    <Tooltip text='Asking Price' placement='top'><FontAwesomeIcon icon={faDollarSign} className='text-special mr-2' /></Tooltip> <nobr>{props.user.listing_price} / {props.user.listing_price_type} {props.user.listing_price_currency}</nobr>
+                </div>
+
+                <div className='d-flex-center mr-3 mb-1'>
+                    <Tooltip text='Negotiable' placement='top'><FontAwesomeIcon icon={faCommentsDollar} className='text-special mr-2' /></Tooltip> {props.user.listing_negotiable ? <span className='mini-badge mini-badge-success'>Negotiable</span> : <span className='mini-badge mini-badge-secondary'>Non-negotiable</span>}
+                </div>
+            </React.Fragment>;
+        }
+    }
+
     return(
         <div id='view-user-profile' className='mb-3'>
             <div id='view-user-header'>
@@ -33,7 +49,11 @@ const ViewUserProfile = props => {
                     </div>
     
                     <div id='view-user-title'>
-                        <h3>{props.user.user_title}</h3>
+                        <div className='d-flex-center'>
+                            <h3>{props.user.user_title}</h3>
+                            {props.user.connected_acct_status === 'Approved' ? <div className='connected-status mini-badge mini-badge-success'>Connected</div> : ''}
+                        </div>
+
                         <div id='view-user-rating' className='mb-3'><UserRating rating={props.stats.rating || 0} /> ({props.stats.job_count})</div>
 
                         <div id='view-user-listing-info'>
@@ -41,19 +61,20 @@ const ViewUserProfile = props => {
                                 <Tooltip text='Listed Under' placement='top'><FontAwesomeIcon icon={faListAlt} className='text-special mr-2' /></Tooltip> <NavLink to={`/sector/${props.user.listing_sector}`}>{props.user.listing_sector}</NavLink>
                             </div>
 
-                            <div className='d-flex-center mr-3 mb-1'>
-                                <Tooltip text='Asking Price' placement='top'><FontAwesomeIcon icon={faDollarSign} className='text-special mr-2' /></Tooltip> <nobr>{props.user.listing_price} / {props.user.listing_price_type} {props.user.listing_price_currency}</nobr>
-                            </div>
-
-                            <div className='d-flex-center mr-3 mb-1'>
-                                <Tooltip text='Negotiable' placement='top'><FontAwesomeIcon icon={faCommentsDollar} className='text-special mr-2' /></Tooltip> {props.user.listing_negotiable ? <span className='mini-badge mini-badge-success'>Negotiable</span> : <span className='mini-badge mini-badge-secondary'>Non-negotiable</span>}
-                            </div>
+                            {price}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <h4 className='d-flex-center'>{props.user.listing_title}</h4>
+            <h4 className='d-flex-between-center'>
+                <div className='view-user-listing-title'>{props.user.listing_title}</div>
+                <div className='view-user-listing-location'>
+                    {props.user.listing_local ? <span className='mini-badge mini-badge-orange'>Local</span> : ''}
+                    {props.user.listing_online ? <span className='mini-badge mini-badge-purple'>Online</span> : ''}
+                    {props.user.listing_remote ? <span className='mini-badge mini-badge-green'>Remote</span> : ''}
+                </div>
+            </h4>
 
             {/* <div>{props.user.listing_remote ? <span className='mini-badge mini-badge-orange'>Remote</span> : ''} {props.user.listing_local ? <span className='mini-badge mini-badge-purple'>Local</span> : ''}</div> */}
 

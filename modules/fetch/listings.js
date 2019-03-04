@@ -4,7 +4,9 @@ const error = require('../utils/error-handler');
 
 app.post('/api/get/listing', async(req, resp) => {
     if (req.session.user) {
-        await db.query(`SELECT * FROM user_listings WHERE listing_user = $1 AND listing_status != 'Delete'`, [req.session.user.username])
+        await db.query(`SELECT user_listings.*, users.connected_acct_status FROM user_listings
+        LEFT JOIN users ON users.username = user_listings.listing_user
+        WHERE listing_user = $1 AND listing_status != 'Delete'`, [req.session.user.username])
         .then(result => {
             let listing;
 
@@ -22,7 +24,21 @@ app.post('/api/get/listing', async(req, resp) => {
 });
 
 app.post('/api/get/listings', async(req, resp) => {
-    await db.query(`SELECT users.subscription_end_date, user_listings.*, user_profiles.user_title, user_reviews.rating, user_reviews.review_count, jobs.job_complete, user_profiles.avatar_url FROM user_listings
+    let orderBy = '';
+    let sectors = '';
+    let limit = '';
+    let params = [];
+
+    if (req.body.recent) {
+        orderBy = `listing_created_date DESC`;
+        limit = `LIMIT 5`;
+    } else {
+        orderBy = `listing_renewed_date DESC`;
+        sectors = `listing_sector = $1 AND`;
+        params = [req.body.sector];
+    }
+
+    await db.query(`SELECT users.subscription_end_date, user_listings.*, user_profiles.user_title, user_reviews.rating, user_reviews.review_count, jobs.job_complete, user_profiles.avatar_url, users.connected_acct_status FROM user_listings
     LEFT JOIN users ON users.username = user_listings.listing_user
     LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
     LEFT JOIN
@@ -32,8 +48,9 @@ app.post('/api/get/listings', async(req, resp) => {
         GROUP BY reviewing) AS user_reviews ON user_reviews.reviewing = user_listings.listing_user
     LEFT JOIN
         (SELECT job_user, COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Completed' GROUP BY job_user LIMIT 1) AS jobs ON jobs.job_user = user_listings.listing_user
-    WHERE listing_sector = $1 AND users.subscription_end_date > current_timestamp AND listing_status = 'Active'
-    ORDER BY listing_renewed_date DESC, listing_id`, [req.body.sector])
+    WHERE ${sectors} users.subscription_end_date > current_timestamp AND listing_status = 'Active'
+    ORDER BY ${orderBy}, listing_id
+    ${limit}`, params)
     .then(result => {
         if (result) {
             for (let row of result.rows) {

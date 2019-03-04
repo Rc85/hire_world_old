@@ -2,8 +2,9 @@ const app = require('express').Router();
 const db = require('../db');
 const moment = require('moment');
 const error = require('../utils/error-handler');
+const controller = require('../utils/controller');
 
-app.post('/api/message/submit', (req, resp) => {
+app.post('/api/conversation/submit', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
             if (err) console.log(err);
@@ -30,7 +31,7 @@ app.post('/api/message/submit', (req, resp) => {
                             if (allowMessaging) {
                                 let convoId = await client.query(`INSERT INTO conversations (conversation_starter, conversation_recipient, conversation_subject) VALUES ($1, $2, $3) RETURNING conversation_id`, [req.session.user.username, req.body.user, req.body.subject]);
 
-                                await client.query(`INSERT INTO messages (message_creator, message_conversation_id) VALUES ($1, $2)`, [req.session.user.username, convoId.rows[0].conversation_id]);
+                                await client.query(`INSERT INTO messages (message_creator, message_conversation_id, message_body) VALUES ($1, $2, $3)`, [req.session.user.username, convoId.rows[0].conversation_id, req.body.message]);
 
                                 await client.query('COMMIT')
                                 .then(() => {
@@ -61,15 +62,17 @@ app.post('/api/message/submit', (req, resp) => {
     }
 });
 
-app.post('/api/message/reply', (req, resp) => {
+app.post('/api/conversation/reply', (req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
             if (err) console.log(err);
 
             let blankCheck = /^\s*$/;
 
-            if (blankCheck.test(req.body.reply)) {
-                resp.send({status: 'send error', statusMessage: 'Message cannot be blank'});
+            if (!req.body.message) {
+                resp.send({status: 'error', statusMessage: 'Message cannot be blank'});
+            } else if (req.body.message && blankCheck.test(req.body.message)) {
+                resp.send({status: 'error', statusMessage: 'Message cannot be blank'});
             } else {
                 (async() => {
                     try {
@@ -113,30 +116,15 @@ app.post('/api/message/reply', (req, resp) => {
     }
 });
 
-/* app.post('/api/message/delete', async(req, resp) => {
+app.post('/api/conversation/delete', async(req, resp) => {
     if (req.session.user) {
-        let authorized = await db.query(`SELECT message_sender FROM messages WHERE message_id = $1`, [req.body.message_id]);
-
-        if (req.session.user.username === authorized.rows[0].message_sender) {
-            await db.query(`UPDATE messages SET message_status = 'Deleted' WHERE message_id = $1`, [req.body.message_id])
-            .then(result => {
-                if (result && result.rowCount === 1) {
-                    resp.send({status: 'success', statusMessage: 'Message deleted'});
-                } else {
-                    resp.send({status: 'error', statusMessage: 'The message does not exist'});
-                }
-            })
-            .catch(err => {
-                console.log(err);
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
-            });
-        } else {
-            resp.send({status: 'error', statusMessage: `You're not authorized`});
-        }
+        controller.conversations.delete(req.body.id, req, (status, statusMessage) => {
+            resp.send({status: status, statusMessage: statusMessage});
+        });
     }
 });
 
-app.post('/api/message/edit', (req, resp) => {
+/* app.post('/api/message/edit', (req, resp) => {
     if (req.session.user) {
         db.connect(async(err, client, done) => {
             if (err) console.log(err);

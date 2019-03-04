@@ -80,8 +80,49 @@ class Username extends Component {
         }
     }
 
+    friendUser(action) {
+        if (this.state.status !== 'Adding') {
+            this.setState({status: 'Adding'});
+
+            fetch.post('/api/user/friend', {user: this.state.user.username, action: action})
+            .then(resp => {
+                if (resp.data.status === 'success') {
+                    let user = {...this.state.user};
+                    let value;
+
+                    if (action === 'add') {
+                        value = '1';
+                    } else if (action === 'remove') {
+                        value = '0';
+                    }
+
+                    let userString = localStorage.getItem(this.state.user.username);
+                    let userObj = JSON.parse(userString);
+                    userObj.user.is_friend = value;
+
+                    localStorage.setItem(this.state.user.username, JSON.stringify({userObj}));
+                    user.is_friend = value;
+
+                    this.setState({status: '', user: user});
+                } else if (resp.data.status === 'error') {
+                    this.setState({status: ''});
+                }
+
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            });
+        }
+    }
+
     render() {
-        let popup;
+        let popup, icon;
+
+        if (this.state.status === 'Adding') {
+            icon = <FontAwesomeIcon icon={faCircleNotch} spin className='text-dark' />;
+        } else if (this.state.user.is_friend === '1') { 
+            icon = <FontAwesomeIcon icon={faUserMinus} className='text-alt-highlight mr-1' onClick={() => this.friendUser('remove')} />;
+        } else if (this.state.user.is_friend === '0') {
+            icon = <FontAwesomeIcon icon={faUserPlus} className='text-alt-highlight mr-1' onClick={() => this.friendUser('add')} />;
+        }
 
         if (this.props.menu.show && this.state.target === this.props.menu.id) {
             if (this.state.status === 'Loading') {
@@ -111,6 +152,8 @@ class Username extends Component {
                             <div className='username-popup-body-child'><FontAwesomeIcon icon={faCheckCircle} className='text-success mr-1' /> {this.state.user.job_complete}</div>
     
                             <div className='username-popup-body-child'><FontAwesomeIcon icon={faBan} className='text-danger mr-1' /> {this.state.user.job_abandoned}</div>
+
+                            <div className='username-popup-body-child'>{icon}</div>
                         </div>
                     </div>
                 </div>;
@@ -119,7 +162,7 @@ class Username extends Component {
 
         return (
             <div className='username-container'>
-                <div className={`username text-${this.props.color}`} onClick={(e) => this.togglePopup(e)} unselectable='on'>{this.props.username}</div>
+                <div className={`username text-${this.props.color ? this.props.color : 'white'}`} onClick={(e) => this.togglePopup(e)} unselectable='on'>{this.props.username}</div>
 
                 {popup}
             </div>

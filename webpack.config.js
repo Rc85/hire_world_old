@@ -47,7 +47,7 @@ module.exports = (env) => {
             },
             historyApiFallback: {
                 rewrites: [
-                    {from: /\/app\/*/, to: '/app.html'}
+                    {from: /\/*/, to: '/app.html'}
                 ]
             },
             setup (app) {

@@ -32,7 +32,7 @@ class ListSettings extends Component {
             showDetail: false,
             newSettings: {
                 listing_negotiable: false,
-                listing_price_type: 'Hour',
+                listing_price_type: 'To Be Discussed',
                 listing_id: null,
                 listing_renewed_date: null,
                 listing_created_date: null,
@@ -48,7 +48,7 @@ class ListSettings extends Component {
             },
             initialSettings: {
                 listing_negotiable: false,
-                listing_price_type: 'Hour',
+                listing_price_type: 'To Be Discussed',
                 listing_id: null,
                 listing_renewed_date: null,
                 listing_created_date: null,
@@ -146,7 +146,6 @@ class ListSettings extends Component {
     }
 
     render() {
-        (this.state);
         let status, sectors, renewButton, form;
 
         if (this.state.status === 'Loading') {
@@ -192,7 +191,7 @@ class ListSettings extends Component {
                                 }}>
                                     <div className='setting-field-container mb-3'>
                                         <InputWrapper label='List Title' id='listing-title' required>
-                                            <input type='text' value={this.state.newSettings.listing_title} onChange={(e) => this.setSetting('listing_title', e.target.value)} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                            <input type='text' value={this.state.newSettings.listing_title} onChange={(e) => this.setSetting('listing_title', e.target.value)} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} maxLength='60' placeholder='60 characters max' />
                                         </InputWrapper>
             
                                         <InputWrapper label='Type of Business' id='listing-location' required>
@@ -234,13 +233,9 @@ class ListSettings extends Component {
                                     </div>
                         
                                     <div className='setting-field-container mb-3'>
-                                        <InputWrapper label='Price Rate' id='listing-price'>
-                                            <input type='number' onChange={(e) => this.setSetting('listing_price', e.target.value)} value={this.state.newSettings.listing_price} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
-                                        </InputWrapper>
-                        
-                        
-                                        <InputWrapper label='Per' id='listing-price-type' required>
+                                        <InputWrapper label='Pay Frequency' id='listing-price-type' required>
                                             <select onChange={(e) => this.setSetting('listing_price_type', e.target.value)} value={this.state.newSettings.listing_price_type}>
+                                                <option value='To Be Discussed'>To Be Discussed</option>
                                                 <option value='Hour'>Hour</option>
                                                 <option value='Bi-weekly'>Bi-weekly</option>
                                                 <option value='Month'>Month</option>
@@ -249,16 +244,22 @@ class ListSettings extends Component {
                                             </select>
                                         </InputWrapper>
                         
-                                        <InputWrapper label='Currency' id='listing-price-currency' required>
-                                            <input type='text' onChange={(e) => this.setSetting('listing_price_currency', e.target.value)} value={this.state.newSettings.listing_price_currency} list='currency-list' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
-                                            <datalist id='currency-list'>
-                                                <option value='USD'>USD</option>
-                                                <option value='CAD'>CAD</option>
-                                                <option value='AUD'>AUD</option>
-                                                <option value='EUR'>EUR</option>
-                                                <option value='GBP'>GBP</option>
-                                            </datalist>
-                                        </InputWrapper>
+                                        {this.state.newSettings.listing_price_type !== 'To Be Discussed' ? <React.Fragment>
+                                            <InputWrapper label='Price Rate' id='listing-price'>
+                                                <input type='number' onChange={(e) => this.setSetting('listing_price', e.target.value)} value={this.state.newSettings.listing_price} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                            </InputWrapper>
+                            
+                                            <InputWrapper label='Currency' id='listing-price-currency' required>
+                                                <input type='text' onChange={(e) => this.setSetting('listing_price_currency', e.target.value)} value={this.state.newSettings.listing_price_currency} list='currency-list' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                                <datalist id='currency-list'>
+                                                    <option value='USD'>USD</option>
+                                                    <option value='CAD'>CAD</option>
+                                                    <option value='AUD'>AUD</option>
+                                                    <option value='EUR'>EUR</option>
+                                                    <option value='GBP'>GBP</option>
+                                                </datalist>
+                                            </InputWrapper>
+                                        </React.Fragment> : ''}
                                     </div>
                         
                                     <div className='d-flex-end-center mb-3'>

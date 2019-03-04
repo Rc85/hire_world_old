@@ -11,14 +11,12 @@
         width: 85%;
 
         .message-row-footer {
-            font-size: 0.8rem;
-        
             &.sender {
-                text-align: right;
+                text-align: left;
             }
         
             &.owner {
-                text-align: left;
+                text-align: right;
             }
         }
     }
@@ -33,7 +31,7 @@
         .new-message-status {
             position: absolute;
             top: -5px;
-            right: 10px;
+            left: 10px;
         }
 
         .message-body-text {
@@ -47,8 +45,6 @@
     }
 
     &.owner {
-        flex-direction: row-reverse;
-
         .message-row-body {
             background: linear-gradient(45deg, #a5dcff, #96d8fc);
             border-top-left-radius: 5px;
@@ -58,30 +54,13 @@
     }
 
     &.sender {
+        flex-direction: row-reverse;
+
         .message-row-body {
             background: linear-gradient(45deg, $theme-lightgrey, rgb(202, 202, 202));
             border-top-right-radius: 5px;
             border-bottom-left-radius: 5px;
             border-bottom-right-radius: 5px;
-        }
-    }
-
-    &.system {
-        flex-direction: row;
-        justify-content: center;
-        margin-bottom: 30px;
-
-        .message-row-body {
-            background-color: $theme-medgrey;
-            border-radius: 5px;
-
-            &.confirmation {
-                background: linear-gradient(45deg, rgb(255, 254, 234), rgb(255, 250, 209));
-            }
-
-            &.abandonment {
-                background: linear-gradient(45deg, rgb(255, 230, 230), rgb(250, 200, 200));
-            }
         }
     }
 }

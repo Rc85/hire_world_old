@@ -17,6 +17,8 @@ module.exports = {
 
         await db.query(`INSERT INTO error_log (error, error_url) VALUES ($1, $2) ON CONFLICT (error) DO UPDATE SET error_occurrence = error_log.error_occurrence + 1`, [err.stack, url ? url : req.url]);
 
-        resp.send({status: status, statusMessage: message});
+        if (resp) {
+            resp.send({status: status, statusMessage: message});
+        }
     }
 }

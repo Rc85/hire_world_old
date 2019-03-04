@@ -21,6 +21,7 @@
     grid-row-end: 3;
     grid-column-start: 2;
     grid-column-end: 3;
+    white-space: pre-line;
 }
 
 #view-user-header {
@@ -32,6 +33,16 @@
         align-items: flex-start;
         flex-grow: 1;
     }
+}
+
+.view-user-listing-title {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.view-user-listing-location {
+    white-space: nowrap;
 }
 
 #view-user-social-media {
@@ -64,4 +75,9 @@
 #view-user-listing-info {
     display: flex;
     align-items: flex-start;
+}
+
+.view-user-contact-field {
+    text-overflow: ellipsis;
+    overflow: hidden;
 }

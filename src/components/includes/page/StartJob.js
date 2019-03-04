@@ -4,14 +4,12 @@ import TextArea from '../../utils/TextArea';
 import InputWrapper from '../../utils/InputWrapper';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTimes, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Alert } from '../../../actions/AlertActions';
 import { connect } from 'react-redux';
 import SubmitButton from '../../utils/SubmitButton';
-
-const milestonesAllowed = 6;
-const conditionsAllowed = 5;
+import fetch from 'axios';
+import moment from 'moment';
+import { LogError } from '../../utils/LogError';
 
 class StartJob extends Component {
     constructor(props) {
@@ -21,20 +19,14 @@ class StartJob extends Component {
             status: '',
             descriptionLength: 10000,
             workDescription: '',
-            offerPrice: 0,
-            currency: '',
-            milestones: [
-                {
-                    description: '',
-                    paymentAmount: '',
-                    conditions: [null],
-                    dueDate: null
-                }
-            ]
+            workTitle: '',
+            workDueDate: moment(),
+            listingId: this.props.user.listing_id,
+            user: this.props.user.username
         }
     }
 
-    setOfferPrice(price) {
+    /* setOfferPrice(price) {
         let valCheck = /^[0-9]*(\.{1}[0-9]{1,2})?$/;
         if (!price) {
             this.setState({offerPrice: 0});
@@ -146,16 +138,28 @@ class StartJob extends Component {
 
         this.setState({milestones: milestones});
     }
+ */
+    submit() {
+        this.setState({status: 'Submitting'});
 
-    startJob() {
-        this.setState({status: 'Submitting Agreement'});
+        fetch.post('/api/job/create', this.state)
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({status: '', workDescription: '', workTitle: '', workDueDate: moment()});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
 
-        
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => {
+            LogError(err, '/api/job/create');
+            this.setState({status: ''});
+        });
     }
     
     render() {
-        (this.state);
-        let milestones = this.state.milestones.map((m, i) => {
+        /* let milestones = this.state.milestones.map((m, i) => {
             return <div key={i} className='simple-container mb-3'>
                 <div className='simple-container-title'>Milestone #{i + 1}</div>
 
@@ -185,45 +189,34 @@ class StartJob extends Component {
                     <DatePicker dropdownMode='select' onChange={(val) => this.setDueDate(i, val)} selected={this.state.milestones[i].dueDate} />
                 </InputWrapper>
             </div>;
-        });
+        }); */
 
         return (
             <div id='start-job' className={this.props.className ? this.props.className : ''}>
                 <form onSubmit={(e) => {
                     e.preventDefault();
-                    this.startJob()
+                    this.submit();
                 }}>
-                    <InputWrapper label='Work Description' required>
-                        <TextArea placeholder={`Describe the work as detail as possible`} onChange={(val) => this.setState({workDescription: val})} className='w-100' textAreaClassName='w-100' />
-                    </InputWrapper>
-
-                    <div className='character-count mb-3'>{this.state.workDescription.length} / {this.state.descriptionLength}</div>
-
                     <div className='setting-field-container mb-3'>
-                        <InputWrapper label='Total Offer Price' required>
-                            <input type='number' onChange={(e) => this.setOfferPrice(e.target.value)} />
+                        <InputWrapper label='Work Title' required>
+                            <input type='text' value={this.state.workTitle} onChange={(e) => this.setState({workTitle: e.target.value})} placeholder='Title to identify the job' />
                         </InputWrapper>
 
-                        <InputWrapper label='Currency' required>
-                            <input type='text' list='currency-list' onChange={(e) => this.setState({currency: e.target.value})} />
-                            <datalist id='currency-list'>
-                                <option value='AUD'>AUD</option>
-                                <option value='CAD'>CAD</option>
-                                <option value='EUR'>EUR</option>
-                                <option value='GBP'>GBP</option>
-                                <option value='USD'>USD</option>
-                            </datalist>
+                        <InputWrapper label='Expected Due Date' className='pb-1 pr-1 pl-1'>
+                            <DatePicker dropdownMode='select' onChange={(val) => this.setState({workDueDate: val})} selected={this.state.workDueDate} />
                         </InputWrapper>
                     </div>
 
-                    <div className='text-right mb-3'><button type='button' className='btn btn-primary' onClick={() => this.addMilestone()}><FontAwesomeIcon icon={faPlus} /> Add Milestone</button></div>
-    
-                    <div className='milestone-container mb-3'>
-                        {milestones}
+                    <div className='mb-3'>
+                        <InputWrapper label='Work Description' required>
+                            <TextArea value={this.state.workDescription} placeholder={`Describe the work as detail as possible`} onChange={(val) => this.setState({workDescription: val})} className='w-100' textAreaClassName='w-100' />
+                        </InputWrapper>
+
+                        <div className='character-count'>{this.state.workDescription.length} / {this.state.descriptionLength}</div>
                     </div>
 
                     <div className='text-right'>
-                        <SubmitButton type='submit' loading={this.state.status === 'Submitting Agreement'} />
+                        <SubmitButton type='submit' loading={this.state.status === 'Submitting'} />
                         <button type='button' className='btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button>
                     </div>
                 </form>

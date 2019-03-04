@@ -22,11 +22,11 @@ class Conversations extends Component {
             statusMessage: '',
             offset: 0,
             showing: 'all',
-            messages: [],
-            pinnedMessages: [],
+            conversations: [],
+            pinnedConversations: [],
             idToLoad: null,
             loadedConversation: {},
-            showMessageList: true
+            showConversationsList: true
         }
     }
     
@@ -52,7 +52,7 @@ class Conversations extends Component {
                         messageCount = resp.data.messageCount;
                     }
 
-                    this.setState({messages: resp.data.messages, status: '', messageCount: messageCount, pinnedMessages: resp.data.pinned, showMessageList: true});
+                    this.setState({conversations: resp.data.messages, status: '', messageCount: messageCount, pinnedConversations: resp.data.pinned, showConversationsList: true});
                 } else if (resp.data.status === 'error') {
                     this.setState({status: ''});
 
@@ -68,7 +68,7 @@ class Conversations extends Component {
     }
     
     componentDidMount() {
-        if (this.props.config.isMobile && this.state.showMessageList) {
+        if (this.props.config.isMobile && this.state.showConversationsList) {
             document.body.style.overflowY = 'hidden';
         }
 
@@ -82,7 +82,7 @@ class Conversations extends Component {
                     messageCount = resp.data.messageCount;
                 }
 
-                this.setState({messages: resp.data.messages, status: '', messageCount: messageCount, pinnedMessages: resp.data.pinned});
+                this.setState({conversations: resp.data.messages, status: '', messageCount: messageCount, pinnedConversations: resp.data.pinned});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
 
@@ -102,7 +102,7 @@ class Conversations extends Component {
         fetch.post('/api/pin', {id: id, type: 'message'})
         .then(resp => {
             if (resp.data.status === 'success') {
-                let pinned = this.state.pinnedMessages;
+                let pinned = this.state.pinnedConversations;
 
                 if (resp.data.action === 'pin') {
                     pinned.push(id);
@@ -110,7 +110,7 @@ class Conversations extends Component {
                     pinned.splice(pinned.indexOf(id), 1);
                 }
 
-                this.setState({status: '', pinnedMessages: pinned});
+                this.setState({status: '', pinnedConversations: pinned});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
 
@@ -123,20 +123,30 @@ class Conversations extends Component {
     loadMessage(id, i) {
         document.body.style.overflowY = '';
         
-        this.setState({loadedConversation: this.state.messages[i], idToLoad: id, showMessageList: false});
+        this.setState({loadedConversation: this.state.conversations[i], idToLoad: id, showConversationsList: false});
     }
 
-    /* appealAbandon(val) {
-        this.setState({status: 'Loading'});
+    delete(id, index) {
+        this.setState({status: 'Deleting'});
 
-        fetch.post('/api/jobs/appeal-abandon', {job_id: this.props.message.job_id, additional_info: val})
+        fetch.post('/api/conversation/delete', {id: id})
         .then(resp => {
-            this.setState({status: ''});
+            if (resp.data.status === 'success') {
+                let conversations = [...this.state.conversations];
+                conversations.splice(index, 1);
+
+                this.setState({status: '', conversations: conversations});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => LogError(err, '/api/jobs/appeal-abandon'));
-    } */
+        .catch(err => {
+            LogError(err, '/api/conversation/delete');
+            this.setState({status: ''});
+        });
+    }
 
     toggleMessageList(bool) {
         if (bool) {
@@ -145,11 +155,10 @@ class Conversations extends Component {
             document.body.style.overflowY = '';
         }
 
-        this.setState({showMessageList: bool})
+        this.setState({showConversationsList: bool})
     }
     
     render() {
-        (this.state);
         if (this.props.user.status === 'getting session') {
             return <Loading size='7x' />
         } else if (this.props.user.status === 'error') {
@@ -160,20 +169,20 @@ class Conversations extends Component {
             if (this.state.status === 'Loading') {
                 status = <Loading size='5x' />;
             } else if (this.state.status === 'access error') {
-                return <Redirect to='/error/500' />
+                return <Redirect to='/error/app/500' />
             }
 
-            let messages = this.state.messages.map((message, i) => {
+            let messages = this.state.conversations.map((message, i) => {
                 let pinned = false;
 
-                if (this.state.pinnedMessages.indexOf(message.conversation_id) >= 0) {
+                if (this.state.pinnedConversations.indexOf(message.conversation_id) >= 0) {
                     pinned = true;
                 }
 
-                return <ConversationRow key={i} user={this.props.user.user} message={message} pin={() => this.pinMessage(message.conversation_id)} pinned={pinned} load={(id) => this.loadMessage(id, i)} loadedId={this.state.loadedConversation.conversation_id} status={this.state.status} />
+                return <ConversationRow key={i} user={this.props.user.user} message={message} pin={() => this.pinMessage(message.conversation_id)} pinned={pinned} load={(id) => this.loadMessage(id, i)} loadedId={this.state.loadedConversation.conversation_id} status={this.state.status} delete={(id) => this.delete(id, i)} />
             });
 
-            if (this.state.messages.length > 0) {
+            if (this.state.conversations.length > 0) {
                 body = <React.Fragment>
                     <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
 
@@ -195,10 +204,10 @@ class Conversations extends Component {
                 <section id='inquiries'>
                     {status}
 
-                    <div id='message-list-toggle-up-down'><FontAwesomeIcon icon={this.state.showMessageList ? faChevronUp : faChevronDown} size='3x' onClick={() => this.toggleMessageList(!this.state.showMessageList)} /></div>
+                    <div id='message-list-toggle-up-down'><FontAwesomeIcon icon={this.state.showConversationsList ? faChevronUp : faChevronDown} size='3x' onClick={() => this.toggleMessageList(!this.state.showConversationsList)} /></div>
 
                     <div id='message-list-column-container'>
-                        <div id='message-list-column' className={this.state.showMessageList ? '' : 'hide'}>
+                        <div id='message-list-column' className={this.state.showConversationsList ? '' : 'hide'}>
                             <div id='message-list-main-column'>
                                 <div className='message-filter-buttons-container'>
                                     <button className={`btn ${this.state.showing === 'all' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'all'})}>All</button>
@@ -217,7 +226,7 @@ class Conversations extends Component {
                         </div>
                         
                         <div id='message-list-mini-column'>
-                            <FontAwesomeIcon icon={this.state.showMessageList ? faChevronLeft : faBars} size='2x' onClick={() => this.toggleMessageList(!this.state.showMessageList)} />
+                            <FontAwesomeIcon icon={this.state.showConversationsList ? faChevronLeft : faBars} size='2x' onClick={() => this.toggleMessageList(!this.state.showConversationsList)} />
                         </div>
                     </div>
 

@@ -44,7 +44,7 @@ class PaymentSettings extends Component {
             defaultAddress = true;
         }
 
-        fetch.post('/api/get/payments')
+        fetch.post('/api/get/user/payments')
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({status: '', payments: resp.data.payments, defaultSource: resp.data.defaultSource, defaultAddress: defaultAddress});
@@ -53,7 +53,7 @@ class PaymentSettings extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => LogError(err, '/api/get/payments'));
+        .catch(err => LogError(err, '/api/get/user/payments'));
     }
     
     async save() {

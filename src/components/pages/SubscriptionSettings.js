@@ -33,7 +33,7 @@ class SubscriptionSettings extends Component {
         }
     }
 
-    /* componentDidMount() {
+    componentDidMount() {
         fetch.post('/api/get/user/subscription')
         .then(resp => {
             if (resp.data.status === 'success') {
@@ -41,7 +41,7 @@ class SubscriptionSettings extends Component {
             }
         })
         .catch(err => LogError(err, '/api/get/user/subscription'));
-    } */
+    }
 
     cancelSubscription() {
         this.setState({status: 'Loading'});
@@ -116,7 +116,6 @@ class SubscriptionSettings extends Component {
                                 <div>
                                     <label htmlFor='price' className='mr-2'>Price: </label>
                                     {price}
-                                    <div><small className='text-dark'>Not including Stripe Fees</small></div>
                                 </div>
                             </div>
                         </div>
@@ -132,10 +131,10 @@ class SubscriptionSettings extends Component {
 
             return (
                 <section id='subscription-setting' className='main-panel'>
-                    <TitledContainer title='Purchase' bgColor='orange' icon={<FontAwesomeIcon icon={faShoppingCart} />} shadow>
+                    <TitledContainer title='Subscription' bgColor='orange' icon={<FontAwesomeIcon icon={faSyncAlt} />} shadow>
                         {subscriptionInfo}
         
-                        <StripeProvider apiKey={process.env.REACT_ENV === 'development' ? 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R' : 'pk_live_wJ7nxOazDSHu9czRrGjUqpep'}>
+                        <StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}>
                             <Elements>
                                 <Checkout user={this.props.user.user} />
                             </Elements>

@@ -9,8 +9,18 @@ import { connect } from 'react-redux';
 import ReviewButton from '../../utils/ReviewButton';
 import SubmitReview from './SubmitReview';
 import Username from './Username';
+import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 
 class ConversationRow extends Component {
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.confirm.data) {
+            if (nextProps.confirm.data.action === 'delete conversation' && nextProps.confirm.option && nextProps.confirm.data.id === this.props.message.conversation_id) {
+                this.props.delete(this.props.message.conversation_id);
+                this.props.dispatch(ResetConfirmation());
+            }
+        }
+    }
+    
     render() {
         let statusButton, pinnedButton, appealButton, review;
         
@@ -39,7 +49,7 @@ class ConversationRow extends Component {
                         {this.props.message.conversation_subject}
                     </div>
 
-                    <div className='inquiry-row-buttons'>{pinnedButton} <button className='btn btn-danger btn-sm'><FontAwesomeIcon icon={faTrash} /></button></div>
+                    <div className='inquiry-row-buttons'>{pinnedButton} <button className='btn btn-danger btn-sm' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to delete this message?', false, {action: 'delete conversation', id: this.props.message.conversation_id}))}><FontAwesomeIcon icon={faTrash} /></button></div>
                 </div>
 
                 <div className='inquiry-detail-row'>
@@ -66,7 +76,6 @@ class ConversationRow extends Component {
 
 ConversationRow.propTypes = {
     user: PropTypes.object,
-    stage: PropTypes.string,
     message: PropTypes.object,
     pin: PropTypes.func,
     pinned: PropTypes.bool
@@ -74,7 +83,8 @@ ConversationRow.propTypes = {
 
 const mapStateToProps = state => {
     return {
-        prompt: state.Prompt
+        prompt: state.Prompt,
+        confirm: state.Confirmation
     }
 }
 

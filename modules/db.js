@@ -5,7 +5,7 @@ let config = {
     database: process.env.PG_DATABASE,
     port: process.env.PG_PORT,
     user: process.env.PG_USER,
-    password: process.env.NODE_ENV === 'development' ? process.env.DEV_PG_PASSWORD : process.env.PG_PASSWORD,
+    password: process.env.PG_PASSWORD,
     max: 20,
     idleTimeoutMillis: 5000
 }

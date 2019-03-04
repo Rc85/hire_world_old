@@ -1,0 +1,13 @@
+.filter-button {
+    padding: 5px 10px;
+    background-color: $theme-lightgrey;
+    border: 1px solid black;
+    margin: 0 15px 5px 0;
+    color: black;
+    cursor: pointer;
+
+    &:hover, &.active {
+        background-color: $theme-highlight;
+        color: white;
+    }
+}

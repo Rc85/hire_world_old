@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import InputWrapper from '../../utils/InputWrapper';
 import SubmitButton from '../../utils/SubmitButton';
 import { isTyping } from '../../../actions/ConfigActions';
+import { NavLink } from 'react-router-dom';
 
 class LoginPanel extends Component {
     constructor(props) {
@@ -34,18 +35,18 @@ class LoginPanel extends Component {
             <div id='login-panel'>
                 <form onSubmit={(e) => this.handleLogin(e)}>
                     <InputWrapper label='Username' className='mb-3'>
-                        <input type='text' onChange={(e) => this.setState({username: e.target.value})} maxLength='15' />
+                        <input type='text' onChange={(e) => this.setState({username: e.target.value})} maxLength='25' />
                     </InputWrapper>
 
                     <InputWrapper label='Password' className='mb-1'>
                         <input type='password' onChange={(e) => this.setState({password: e.target.value})} minLength='6' maxLength='20' />
                     </InputWrapper>
 
-                    <div className='mb-3'>Forgot Password</div>
+                    <div className='mb-3'><NavLink to='/forgot-password'>Forgot Password</NavLink></div>
 
                     <div className='text-right'>
                         <SubmitButton type='submit' loading={this.state.status === 'Logging in'} value='Login' />
-                        <button type='button' className='btn btn-info' onClick={() => this.register()}>Register</button>
+                        <NavLink to='/register'><button type='button' className='btn btn-info'>Register</button></NavLink>
                     </div>
                 </form>
             </div>

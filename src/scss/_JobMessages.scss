@@ -1,0 +1,49 @@
+.job-message-row-container {
+    display: flex;
+    
+    .job-message {
+        position: relative;
+        color: black;
+        flex-grow: 1;
+        padding: 20px;
+        white-space: pre-line;
+        border-bottom-right-radius: 5px;
+        border-bottom-left-radius: 5px;
+
+        .job-message-status {
+            position: absolute;
+            top: -5px;
+            
+            &.left {
+                left: 15px;
+            }
+    
+            &.right {
+                right: 15px;
+            }
+        }
+    }
+
+
+    &.right {
+        flex-direction: row-reverse;
+
+        .job-message {
+            margin-right: 15px;
+            border-top-left-radius: 5px;
+            background: linear-gradient(45deg, $theme-lightgrey, rgb(202, 202, 202));
+        }
+    }
+
+    &.left {
+        .job-message {
+            margin-left: 15px;
+            border-top-right-radius: 5px;
+            background: linear-gradient(45deg, #a5dcff, #96d8fc);
+        }
+    }
+
+    .job-message-row-profile-pic {
+        width: 5%;
+    }
+}

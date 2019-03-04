@@ -1,7 +1,10 @@
 const app = require('express').Router();
 const db = require('../db');
 const error = require('../utils/error-handler');
-const stripe = require('stripe')(process.env.NODE_ENV === 'development' ? process.env.DEV_STRIPE_API_KEY : process.env.STRIPE_API_KEY)
+const stripe = require('stripe')(process.env.STRIPE_API_KEY);
+const controller = require('../utils/controller');
+
+stripe.setApiVersion('2019-02-19');
 
 app.post('/api/get/user', async(req, resp) => {
     db.connect((err, client, done) => {
@@ -15,6 +18,7 @@ app.post('/api/get/user', async(req, resp) => {
                     users.username,
                     users.user_email,
                     users.user_last_login,
+                    users.connected_acct_status,
                     user_profiles.*,
                     user_settings.hide_email,
                     user_settings.display_fullname,
@@ -139,7 +143,7 @@ app.post('/api/get/business_hours', async(req, resp) => {
     }
 });
 
-app.get('/api/get/user/notification-and-message-count', async(req, resp) => {
+app.get('/api/get/user/notification-message-job-count', async(req, resp) => {
     if (req.session.user) {
         let notifications = await db.query(`SELECT COUNT(notification_id) AS notification_count FROM notifications WHERE notification_recipient = $1 AND notification_status = 'New'`, [req.session.user.username]);
 
@@ -149,8 +153,12 @@ app.get('/api/get/user/notification-and-message-count', async(req, resp) => {
         AND (conversation_starter = $1 OR conversation_recipient = $1)
         AND message_status = 'New'`, [req.session.user.username]);
 
+        let proposalCount = await db.query(`SELECT COUNT(job_id) AS proposal_count FROM jobs WHERE job_user = $1 AND job_status = 'New'`, [req.session.user.username]);
+        let estimateCount = await db.query(`SELECT COUNT(job_id) AS estimate_count FROM jobs WHERE job_client = $1 AND job_status = 'Estimation'`, [req.session.user.username]);
+        let activeCount = await db.query(``)
+
         if (notifications && messages) {
-            resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0].message_count});
+            resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0].message_count, proposalCount: proposalCount.rows[0].proposal_count, estimateCount: estimateCount.rows[0].estimate_count});
         } else {
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         }
@@ -184,7 +192,7 @@ app.post('/api/get/user/notifications', async(req, resp) => {
     }
 });
 
-app.post('/api/get/payments', async(req, resp) => {
+app.post('/api/get/user/payments', async(req, resp) => {
     if (req.session.user) {
         let user = await db.query(`SELECT stripe_id FROM users WHERE username = $1`, [req.session.user.username])
 
@@ -267,7 +275,7 @@ app.post('/api/get/user/activities', (req, resp) => {
     }
 });
 
-app.post('/api/user/get/friends', async(req, resp) => {
+app.post('/api/get/user/friends', async(req, resp) => {
     if (req.session.user) {
         let filterValue = '';
         let filterString = '';
@@ -292,7 +300,7 @@ app.post('/api/user/get/friends', async(req, resp) => {
         OFFSET $2
         LIMIT 30`, [req.session.user.username, req.body.offset]);
 
-        await db.query(`SELECT friends.*, users.user_email, users.user_last_login, user_profiles.*, user_settings.hide_email, user_listings.listing_status FROM friends
+        await db.query(`SELECT friends.*, users.user_email, users.user_last_login, user_profiles.*, user_settings.hide_email, user_listings.listing_status, users.connected_acct_status FROM friends
         LEFT JOIN users ON friends.friend_user_2 = users.username
         LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
         LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
@@ -352,38 +360,16 @@ app.post('/api/get/user/minimal', async(req, resp) => {
     });
 });
 
-/* app.post('/api/get/user/job-years', async(req, resp) => {
-    await db.query(`SELECT DISTINCT DATE_PART('year', job_end_date) AS job_years FROM jobs WHERE job_user = $1 AND job_status IN ('Completed', 'Abandoned') ORDER BY job_years`, [req.body.user])
-    .then(result => {
-        if (result) {
-            let currentYear;
-            let years = [];
-
-            for (let year of result.rows) {
-                if (currentYear !== year.job_years) {
-                    years.push(year.job_years);
-                    currentYear = year.job_years;
-                }
+app.post('/api/get/user/blocked', async(req, resp) => {
+    if (req.session.user) {
+        await controller.retrieve.blockedUsers(req, (result) => {
+            if (result.status === 'success') {
+                resp.send({status: result.status, statusMessage: result.statusMessage, users: result.users, totalBlockedUsers: result.totalBlockedUsers});
+            } else if (result.status === 'error') {
+                error.log(result.error, req, resp);
             }
-
-            resp.send({status: 'success', years: years});
-        }
-    })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'Cannot retrieve work history'});
-    });
+        });
+    }
 });
-
-app.post('/api/get/user/work-history', async(req, resp) => {
-    await db.query(`SELECT * FROM jobs
-    WHERE job_user = $1 AND job_status IN ('Completed', 'Abandoned')
-    AND DATE_PART('year', job_end_date) = DATE_PART('year', TO_DATE($2, 'YYYY-MM-DD'))`, [req.body.user, req.body.date])
-    .then(result => {
-        if (result) {    
-            resp.send({status: 'success', history: result.rows});
-        }
-    });
-}); */
 
 module.exports = app;

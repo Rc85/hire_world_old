@@ -6,7 +6,6 @@ import { faSignOutAlt, faThList, faTimes, faBars, faBell, faUserCircle, faUserFr
 import { LogoutUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
 import LoginPanel from './LoginPanel';
-import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 import NotificationPanel from './NotificationPanel';
 import { ToggleMenu } from '../../../actions/MenuActions';
 
@@ -53,7 +52,7 @@ class BottomBar extends Component {
         let bottombarContent;
 
         let browseLink = <div className='bottombar-item'>
-            <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'><FontAwesomeIcon icon={faThList} /></div><strong onClick={() => this.setState({showSectors: true})}>Browse Listings</strong></div>
+            <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'><FontAwesomeIcon icon={faThList} /></div><strong onClick={() => this.setState({showSectors: true})}>Browse Sectors</strong></div>
         </div>;
 
         if (this.props.user.user) {
@@ -64,15 +63,7 @@ class BottomBar extends Component {
 
                         <div className='bottombar-sub-item-container'>
                             {item.items ? item.items.map((subItem, index) => {
-                                if (item.name === 'Jobs' || (item.name === 'Settings' && subItem.name === 'Connected')) {
-                                    if (this.props.user.user && this.props.user.user.connected_id) {
-                                        return <div key={index} className='bottombar-sub-item'><NavLink to={subItem.link}>{subItem.name}</NavLink></div>
-                                    } else {
-                                        return false
-                                    }
-                                } else {
-                                    return <div key={index} className='bottombar-sub-item'><NavLink to={subItem.link}>{subItem.name}</NavLink></div>
-                                }
+                                return <div key={index} className='bottombar-sub-item'><NavLink to={subItem.link}>{subItem.name}</NavLink></div>
                             }) : false}
                         </div>
                     </div>
@@ -110,7 +101,7 @@ class BottomBar extends Component {
                     <div id='bottombar-button-container'>
                         {this.props.user.user ?
                         <div id='bottombar-dashboard-buttons'>
-                            <NavLink to='/dashboard/edit'><FontAwesomeIcon icon={faUserCircle} size='2x' className='mr-2' /></NavLink>
+                            <NavLink to='/dashboard'><FontAwesomeIcon icon={faUserCircle} size='2x' className='mr-2' /></NavLink>
                             <NavLink to='/dashboard/friends'><FontAwesomeIcon icon={faUserFriends} size='2x' className='mr-2' /></NavLink>
                             <NavLink to='/dashboard/blocked-users'><FontAwesomeIcon icon={faUserSlash} size='2x' className='mr-2' /></NavLink>
                         </div>
@@ -120,8 +111,6 @@ class BottomBar extends Component {
                             <FontAwesomeIcon icon={faBell} size='2x' onClick={(e) => this.showNotificationPanel(e)} className={`mr-2 ${this.props.menu.id === 'notification-panel' && this.props.menu.show ? 'text-highlight' : ''}`} />
                             {parseInt(this.props.user.notifications) > 0 ? <span id='bottombar-notification-counter' className='mini-badge mini-badge-danger'>{this.props.user.notifications}</span> : ''}
                         </div> : ''}
-                        
-                        <a href='/faq'><FontAwesomeIcon icon={faQuestionCircle} size='2x' /></a>
 
                         <NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} />
                     </div>

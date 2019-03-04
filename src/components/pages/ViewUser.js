@@ -101,7 +101,7 @@ class ViewUser extends Component {
         if (blankCheck.test(review)) {
             this.props.dispatch(Alert('error', 'Review cannot be blank'));
         } else {
-            this.setState({status: 'Sending'});
+            this.setState({status: 'Submitting Review'});
 
             fetch.post('/api/review/submit', {review: review, star: star, reviewing: this.state.user.username, id: this.props.match.params.listing_id})
             .then(resp => {
@@ -131,7 +131,7 @@ class ViewUser extends Component {
     }
 
     submitReport() {
-        this.setState({status: 'Sending'});
+        this.setState({status: 'Submitting Report'});
 
         fetch.post('/api/report/submit', {id: this.props.match.params.listing_id, type: 'Listing', url: this.props.location.pathname, user: this.state.user.username})
         .then(resp => {
@@ -149,22 +149,22 @@ class ViewUser extends Component {
     }
 
     sendMessage(message, subject) {
-        this.setState({status: 'Sending', sendStatus: ''});
+        this.setState({sendStatus: 'Sending'});
 
-        fetch.post('/api/message/submit', {subject: subject, message: message, user: this.state.user.username})
+        fetch.post('/api/conversation/submit', {subject: subject, message: message, user: this.state.user.username})
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({status: '', sendStatus: 'send success'});
-            } else if (resp.data.status === 'error') {
-                this.setState({status: ''});
+            } else if (resp.data.status === 'send error') {
+                this.setState({status: '', sendStatus: ''});
             }
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => {
-            this.setState({status: ''});
+            this.setState({status: '', sendStatus: ''});
             this.props.dispatch(Alert('error', 'An error occurred'));
-            LogError(err, '/api/message/submit');
+            LogError(err, '/api/conversation/submit');
         });
     }
 
@@ -203,11 +203,10 @@ class ViewUser extends Component {
     }
 
     render() {
-        (this.state);
         let status, contacts, profile, reviews, submitReviewButton, reviewed, reportButton, message, friendIcon, businessHours, jobs, blockIcon;
 
         if (this.state.status === 'access error') {
-            return <Redirect to={`/error/user/404`} />
+            return <Redirect to={`/error/listing/404`} />
         } else if (this.state.status === 'Loading') {
             return <Loading size='7x' />;
         } else if (this.state.status === 'redirect') {
@@ -216,10 +215,6 @@ class ViewUser extends Component {
 
         if (this.state.reviews && this.props.user) {
             reviewed = this.state.reviews.findIndex(review => review.reviewer === this.props.user.username)
-        }
-
-        if (this.state.status === 'Sending') {
-            status = <Loading size='5x' />;
         }
 
         if (this.state.user) {
@@ -273,11 +268,11 @@ class ViewUser extends Component {
                         message = <React.Fragment>
                             <hr/>
 
-                            <MessageSender send={(message, subject) => this.sendMessage(message, subject)} status={this.state.sendStatus} className='mt-4' cancel={() => this.setState({message: ''})} />
+                            <MessageSender send={(message, subject) => this.sendMessage(message, subject)} status={this.state.sendStatus} className='mt-4' cancel={() => this.setState({message: ''})} withSubject />
                         </React.Fragment>
                         ;
                     }
-                } else if (this.state.message === 'start job') {
+                } else if (this.state.message === 'propose a job') {
                     message = <React.Fragment>
                         <hr/>
                         
@@ -299,7 +294,7 @@ class ViewUser extends Component {
                             {this.props.user && this.state.user && this.props.user.username !== this.state.user.username ?
                                 <div className='text-right'>
                                     {this.state.message != 'message' ? <button className='btn btn-primary' onClick={() => this.setState({message: 'message'})}>Message</button> : ''}
-                                    {this.state.message != 'start job' && this.props.user && this.props.user.connected_id ? <button className='btn btn-success' onClick={() => this.setState({message: 'start job'})}>Start A Job</button> : ''}
+                                    {this.state.message != 'propose a job' && this.state.user && this.state.user.connected_acct_status === 'Approved' ? <button className='btn btn-success' onClick={() => this.setState({message: 'propose a job'})}>Job Proposal</button> : ''}
                                 </div>
                             : ''}
 

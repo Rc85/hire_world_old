@@ -25,15 +25,15 @@ const ViewUserProfile = props => {
     }
 
     if (props.user.listing_price_type === 'To Be Discussed') {
-        price = <div className='d-flex-center mr-3 mb-1'><Tooltip text='Asking Price' placement='top'><FontAwesomeIcon icon={faDollarSign} className='text-special mr-2' /></Tooltip> <nobr>{props.user.listing_price_type}</nobr></div>;
+        price = <div className='view-user-listing-info-child'><Tooltip text='Asking Price' placement='top'><FontAwesomeIcon icon={faDollarSign} className='text-special mr-2' /></Tooltip> <nobr>{props.user.listing_price_type}</nobr></div>;
     } else {
         if (props.user.listing_price !== '0') {
             price = <React.Fragment>
-                <div className='d-flex-center mr-3 mb-1'>
+                <div className='view-user-listing-info-child'>
                     <Tooltip text='Asking Price' placement='top'><FontAwesomeIcon icon={faDollarSign} className='text-special mr-2' /></Tooltip> <nobr>{props.user.listing_price} / {props.user.listing_price_type} {props.user.listing_price_currency}</nobr>
                 </div>
 
-                <div className='d-flex-center mr-3 mb-1'>
+                <div className='view-user-listing-info-child'>
                     <Tooltip text='Negotiable' placement='top'><FontAwesomeIcon icon={faCommentsDollar} className='text-special mr-2' /></Tooltip> {props.user.listing_negotiable ? <span className='mini-badge mini-badge-success'>Negotiable</span> : <span className='mini-badge mini-badge-secondary'>Non-negotiable</span>}
                 </div>
             </React.Fragment>;
@@ -49,15 +49,15 @@ const ViewUserProfile = props => {
                     </div>
     
                     <div id='view-user-title'>
-                        <div className='d-flex-center'>
+                        <div className='view-user-title-child'>
                             <h3>{props.user.user_title}</h3>
                             {props.user.connected_acct_status === 'Approved' ? <div className='connected-status mini-badge mini-badge-success'>Connected</div> : ''}
                         </div>
 
-                        <div id='view-user-rating' className='mb-3'><UserRating rating={props.stats.rating || 0} /> ({props.stats.job_count})</div>
+                        <div id='view-user-rating' className='view-user-title-child'><UserRating rating={props.stats.rating || 0} /> ({props.stats.job_count})</div>
 
                         <div id='view-user-listing-info'>
-                            <div className='d-flex-center mr-3 mb-1'>
+                            <div className='view-user-listing-info-child'>
                                 <Tooltip text='Listed Under' placement='top'><FontAwesomeIcon icon={faListAlt} className='text-special mr-2' /></Tooltip> <NavLink to={`/sector/${props.user.listing_sector}`}>{props.user.listing_sector}</NavLink>
                             </div>
 
@@ -67,7 +67,7 @@ const ViewUserProfile = props => {
                 </div>
             </div>
 
-            <h4 className='d-flex-between-center'>
+            <h4 className='view-user-title-wrapper'>
                 <div className='view-user-listing-title'>{props.user.listing_title}</div>
                 <div className='view-user-listing-location'>
                     {props.user.listing_local ? <span className='mini-badge mini-badge-orange'>Local</span> : ''}
@@ -80,7 +80,7 @@ const ViewUserProfile = props => {
 
             <hr/>
             
-            <div id='view-user-details' className='mb-3'>{bio ? bio : ''}</div>
+            <div id='view-user-listing-details' className='mb-3'>{bio ? bio : ''}</div>
 
             <div className='text-right'>
                 <ViewUserSocialMedia user={props.user} />

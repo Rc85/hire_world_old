@@ -11,7 +11,7 @@ const InputWrapper = props => {
                 {props.required ? <label className='required-label'><span className='text-special'>*</span></label> : ''}
             </div>
 
-            {props.children}
+            <div className={`w-100 mr-1 mb-1 ml-1 ${props.childClassName}`}>{props.children}</div>
         </div>
     )
 }

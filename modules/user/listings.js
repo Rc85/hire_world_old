@@ -17,12 +17,18 @@ app.post('/api/listing/create', (req, resp) => {
             resp.send({status: 'error', statusMessage: 'Invalid characters in title'});
         } else if (req.body.listing_title.length > 60) {
             resp.send({status: 'error', statusMessage: 'Title too long'});
-        } else if (!validate.priceCheck.test(req.body.listing_price)) {
-            resp.send({status: 'error', statusMessage: 'Invalid price format'});
-        } else if (validate.blankCheck.test(req.body.listing_price_currency)) {
-            resp.send({status: 'error', statusMessage: 'Enter a currency'});
-        } else if (!validate.currencyCheck.test(req.body.listing_price_currency)) {
-            resp.send({status: 'error', statusMessage: 'Unrecognized currency'});
+        } else if (req.body.listing_price) {
+            if (!validate.priceCheck.test(req.body.listing_price)) {
+                resp.send({status: 'error', statusMessage: 'Invalid price format'});
+            } else if (validate.blankCheck.test(req.body.listing_price)) {
+                resp.send({status: 'error', statusMessage: 'Please enter a price or 0'});
+            }
+        } else if (req.body.listing_price_currency) {
+            if (validate.blankCheck.test(req.body.listing_price_currency)) {
+                resp.send({status: 'error', statusMessage: 'Enter a currency'});
+            }  else if (!validate.currencyCheck.test(req.body.listing_price_currency)) {
+                resp.send({status: 'error', statusMessage: 'Unrecognized currency'});
+            }
         } else if (typeof req.body.listing_negotiable !== 'boolean') {
             resp.send({status: 'error', statusMessage: 'Must either be negotiable or non-negotiable'});
         } else {
@@ -42,7 +48,7 @@ app.post('/api/listing/create', (req, resp) => {
                         let userListings = await client.query(`SELECT COUNT(listing_id) AS listing_count FROM user_listings WHERE listing_user = $1`, [req.session.user.username]);
 
                         if (user && user.rows[0].user_status === 'Active') {
-                            if (user && (user.rows[0].account_type === 'Listing' && parseInt(userListings.rows[0].listing_count) < 1) || user.rows[0].account_type === 'Recruiter') {
+                            if (user && (user.rows[0].account_type === 'Listing' && parseInt(userListings.rows[0].listing_count) < 1)) {
                                 let listing = await client.query('INSERT INTO user_listings (listing_title, listing_user, listing_sector, listing_price, listing_price_type, listing_price_currency, listing_negotiable, listing_detail, listing_purpose) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *', [title, req.session.user.username, req.body.listing_sector, price, req.body.listing_price_type, req.body.listing_price_currency.toUpperCase(), req.body.listing_negotiable, req.body.listing_detail, req.body.listing_purpose]);
 
                                 await client.query('COMMIT')
@@ -236,12 +242,20 @@ app.post('/api/listing/save', async(req, resp) => {
 
             if (validate.blankCheck.test(req.body.listing_title)) {
                 resp.send({status: 'error', statusMessage: 'Title cannot be blank'});
+            } else if (typeof req.body.listing_online !== 'boolean' || typeof req.body.listing_remote !== 'boolean' || typeof req.body.listing_local !== 'boolean') {
+                resp.send({status: 'error', statusMessage: 'That business type is not allowed'});
             } else if (!validate.titleCheck.test(req.body.listing_title)) {
                 resp.send({status: 'error', statusMessage: 'Invalid characters in title'});
-            } else if (!validate.priceCheck.test(req.body.listing_price)) {
-                resp.send({status: 'error', statusMessage: 'Invalid price format'});
-            } else if (validate.blankCheck.test(req.body.listing_price_currency)) {
-                resp.send({status: 'error', statusMessage: 'Enter a currency'});
+            } else if (req.body.listing_price_type !== 'To Be Discussed') {
+                if (!validate.priceCheck.test(req.body.listing_price)) {
+                    resp.send({status: 'error', statusMessage: 'Invalid price format'});
+                } else if (validate.blankCheck.test(req.body.listing_price_currency)) {
+                    resp.send({status: 'error', statusMessage: 'Enter a currency'});
+                }
+            } else if (typeof req.body.listing_negotiable !== 'boolean') {
+                resp.send({status: 'error', statusMessage: 'Choose either negotiable or non-negotiable'});
+            } else if (validate.blankCheck.test(req.body.listing_detail)) {
+                resp.send({status: 'error', statusMessage: 'Please describe your business or service'});
             } else {
                 let price = 0;
 

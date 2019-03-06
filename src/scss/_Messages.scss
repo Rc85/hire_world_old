@@ -150,7 +150,10 @@
     &.received { background-color: $theme-green; }
 }
 
-.inquiry-detail-type { padding: 5px; }
+.inquiry-detail-type {
+    padding: 5px;
+    display: flex;
+}
 
 .message-active-arrow {
     color: $theme-blue;

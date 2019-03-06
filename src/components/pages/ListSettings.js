@@ -25,7 +25,6 @@ class ListSettings extends Component {
     constructor(props) {
         super(props);
         
-        (this.props.sectors);
         this.state = {
             status: '',
             statusMessage: '',
@@ -36,7 +35,7 @@ class ListSettings extends Component {
                 listing_id: null,
                 listing_renewed_date: null,
                 listing_created_date: null,
-                listing_sector: '',
+                listing_sector: 'Agencies',
                 listing_price: '',
                 listing_price_currency: '',
                 listing_detail: '',
@@ -52,7 +51,7 @@ class ListSettings extends Component {
                 listing_id: null,
                 listing_renewed_date: null,
                 listing_created_date: null,
-                listing_sector: '',
+                listing_sector: 'Agencies',
                 listing_price: '',
                 listing_price_currency: '',
                 listing_detail: '',
@@ -65,7 +64,7 @@ class ListSettings extends Component {
             }
         }
     }
-    
+
     componentDidMount() {
         /* if (this.props.listing) {
             let initialSettings = {...this.state.initialSettings, ...this.props.listing};
@@ -96,7 +95,10 @@ class ListSettings extends Component {
         .then(resp => {
             if (resp.data.status === 'success') {
                 let initialSettings = {...this.state.newSettings, ...resp.data.listing};
+                let user = {...this.props.user.user};
+                user.listing_status = resp.data.listing.listing_status;
 
+                this.props.dispatch(UpdateUser(user));
                 this.setState({status: '', initialSettings: initialSettings, newSettings: initialSettings});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
@@ -227,7 +229,7 @@ class ListSettings extends Component {
                                     </div>
                         
                                     <div className='mb-3'>
-                                        <InputWrapper label='List Under' required>
+                                        <InputWrapper label='List Sector' required>
                                             <select onChange={(e) => this.setSetting('listing_sector', e.target.value)} value={this.state.newSettings.listing_sector}>{sectors}</select>
                                         </InputWrapper>
                                     </div>
@@ -271,7 +273,7 @@ class ListSettings extends Component {
                                     <div className='d-flex-end-center mb-3'>
                                         {this.props.create ? <SubmitButton type='submit' loading={this.props.status === 'Creating'} value='Create' /> : <SubmitButton type='submit' loading={this.state.status === 'Saving'} value='Save' disabled={disableSave} />}
                         
-                                        <button className='btn btn-secondary' onClick={() => this.setState({newSettings: this.state.initialSettings})}>Reset</button>
+                                        <button type='button' className='btn btn-secondary' onClick={() => this.setState({newSettings: this.state.initialSettings})}>Reset</button>
                                     </div>
                                 </form>
                             </div>
@@ -288,15 +290,7 @@ class ListSettings extends Component {
 }
 
 ListSettings.propTypes = {
-    user: PropTypes.object,
-    status: PropTypes.string
+    user: PropTypes.object
 };
 
-const mapStateToProps = state => {
-    return {
-        user: state.Login,
-        sectors: state.Sectors.sectors
-    }
-}
-
-export default withRouter(connect(mapStateToProps)(ListSettings));
+export default withRouter(connect()(ListSettings));

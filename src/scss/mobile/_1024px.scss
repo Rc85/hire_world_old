@@ -316,6 +316,21 @@
         }
     }
 
+    .view-user-title-child {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
+    #view-user-listing-info {
+        justify-content: space-around;
+
+        .view-user-listing-info-child {
+            margin-right: 0;
+            margin-bottom: 0;
+        }
+    }
+
     #view-user-social-media {
         display: flex;
         justify-content: center;
@@ -335,10 +350,6 @@
 
             .mr-5 { margin-right: 30px !important; }
         }
-    }
-
-    #view-user-listing-info {
-        flex-direction: column;
     }
     
     #view-user-profile-pic {
@@ -407,8 +418,16 @@
 
         &.show { transform: scaleY(1); }
     }
+
     .activity-timestamp {
         text-align: right;
         margin-top: 5px;
+    }
+
+    #friends-list {
+        .friend-panel {
+            width: 49%;
+            flex-basis: 49%;
+        }
     }
 }

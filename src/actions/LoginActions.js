@@ -5,6 +5,7 @@ import { GetSession } from './FetchActions';
 
 export const LoginUser = (data) => {
     return dispatch => {
+        document.body.style.overflow = 'auto';
         dispatch(LoginBegin('login begin'));
 
         return fetch.post('/api/auth/login', data)

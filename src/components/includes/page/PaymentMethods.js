@@ -66,8 +66,8 @@ class PaymentMethods extends Component {
 
         return (
             <div className='payment-method'>
-                <div className='d-flex-between-center mb-3'>
-                    <div className='d-flex-center'>
+                <div className='payment-method-container'>
+                    <div className='payment-method-detail-container'>
                         <div className='payment-brand'>{brand}</div>
         
                         <div className='payment-method-info'>

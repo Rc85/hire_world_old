@@ -1,4 +1,39 @@
 @media only screen and (max-width: 768px) {
+    #view-user-details-container {
+        grid-template-columns: 100%;
+    }
+
+    #view-user-details {
+        grid-row-start: 2;
+        grid-row-end: 3;
+        grid-column-start: 1;
+        grid-column-end: 2;
+    }
+
+    #view-user-details-container {
+        padding-right: 0;
+        margin-top: 0;
+    }
+
+    #view-user-main { margin-right: 0; }
+
+    /* #view-user-main, #view-user-details {
+        width: 100%;
+        flex-grow: 0;
+        margin-right: 0;
+    } */
+
+    #view-user-details { margin-top: 30px; }
+
+    #view-user-profile-pic {
+        width: 50%;
+        margin-right: 0px;
+    }
+
+    .view-user-title-wrapper {
+        display: block;
+    }
+
     #view-user-title {
         h3, #view-user-rating { text-align: center; }
     }
@@ -29,5 +64,9 @@
     .setting-container {
         .list-setting-container { margin-bottom: 30px; }
         .list-setting-container, .business-hours-setting-container { width: 100%; }
+    }
+
+    .user-container {
+        width: 49%;
     }
 }

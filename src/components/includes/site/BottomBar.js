@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink, withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faThList, faTimes, faBars, faBell, faUserCircle, faUserFriends, faUserSlash } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt, faThList, faTimes, faBars, faBell, faUserCircle, faUserFriends, faUserSlash, faHome } from '@fortawesome/free-solid-svg-icons';
 import { LogoutUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
 import LoginPanel from './LoginPanel';
@@ -51,10 +51,6 @@ class BottomBar extends Component {
     render() {
         let bottombarContent;
 
-        let browseLink = <div className='bottombar-item'>
-            <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'><FontAwesomeIcon icon={faThList} /></div><strong onClick={() => this.setState({showSectors: true})}>Browse Sectors</strong></div>
-        </div>;
-
         if (this.props.user.user) {
             bottombarContent = <React.Fragment>
                 {this.props.items.map((item, i) => {
@@ -82,7 +78,14 @@ class BottomBar extends Component {
             <div id='bottombar-container' className={`${this.props.config.isTyping ? 'hide' : ''}`}>
                 <div id='bottombar' className={!this.state.showMenu ? '' : 'expand'}>
                     <div className={`bottombar-item-container`}>
-                        {browseLink}
+                        <div className='bottombar-item'>
+                            <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'><FontAwesomeIcon icon={faHome} /></div><NavLink to='/'>Main</NavLink></div>
+                        </div>
+
+                        <div className='bottombar-item'>
+                            <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'><FontAwesomeIcon icon={faThList} /></div><strong onClick={() => this.setState({showSectors: true})}>Browse Sectors</strong></div>
+                        </div>
+
                         {bottombarContent}
                     </div>
 

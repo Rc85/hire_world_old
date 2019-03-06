@@ -25,8 +25,33 @@
                 border: 1px solid black;
             }
 
-            .friend-panel-header-info { flex-grow: 1; }
-            .friend-panel-header-container { padding: 0px 5px; }
+            .friend-panel-header-info {
+                flex-grow: 1;
+                overflow-x: hidden;
+            }
+
+            .friend-panel-header-container {
+                padding: 0px 5px;
+                text-overflow: ellipsis;
+                overflow-x: hidden;
+
+                h5 {
+                    text-overflow: ellipsis;
+                    overflow-x: hidden;
+                    white-space: nowrap;
+                    padding-right: 30px;
+                }
+
+                .friend-panel-header-child {
+                    text-overflow: ellipsis;
+                    overflow-x: hidden;
+                    white-space: nowrap;
+
+                    strong {
+                        white-space: nowrap;
+                    }
+                }
+            }
         }
 
         .friend-panel-body, .friend-panel-footer { padding: 0px 5px 5px 5px; }

@@ -2101,9 +2101,26 @@ footer {
 }
 #friends-list .friend-panel .friend-panel-header .friend-panel-header-info {
   flex-grow: 1;
+  overflow-x: hidden;
 }
 #friends-list .friend-panel .friend-panel-header .friend-panel-header-container {
   padding: 0px 5px;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+}
+#friends-list .friend-panel .friend-panel-header .friend-panel-header-container h5 {
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  white-space: nowrap;
+  padding-right: 30px;
+}
+#friends-list .friend-panel .friend-panel-header .friend-panel-header-container .friend-panel-header-child {
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  white-space: nowrap;
+}
+#friends-list .friend-panel .friend-panel-header .friend-panel-header-container .friend-panel-header-child strong {
+  white-space: nowrap;
 }
 #friends-list .friend-panel .friend-panel-body, #friends-list .friend-panel .friend-panel-footer {
   padding: 0px 5px 5px 5px;
@@ -2584,6 +2601,7 @@ footer {
 
 .inquiry-detail-type {
   padding: 5px;
+  display: flex;
 }
 
 .message-active-arrow {
@@ -2826,6 +2844,8 @@ footer {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
 }
 
 .listing-row-purpose {
@@ -3227,6 +3247,20 @@ footer {
 
 .payment-brand {
   margin-right: 30px;
+  align-self: center;
+}
+
+.payment-method-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+.payment-method-detail-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .checkout-buttons {
@@ -3349,6 +3383,9 @@ footer {
   grid-row-end: 3;
   grid-column-start: 2;
   grid-column-end: 3;
+}
+
+#view-user-listing-details {
   white-space: pre-line;
 }
 
@@ -3360,6 +3397,12 @@ footer {
   display: flex;
   align-items: flex-start;
   flex-grow: 1;
+}
+
+.view-user-title-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .view-user-listing-title {
@@ -3404,6 +3447,12 @@ footer {
 #view-user-listing-info {
   display: flex;
   align-items: flex-start;
+}
+#view-user-listing-info .view-user-listing-info-child {
+  display: flex;
+  justify-content: center;
+  margin-right: 30px;
+  margin-bottom: 5px;
 }
 
 .view-user-contact-field {
@@ -5053,6 +5102,20 @@ footer {
     align-items: center;
   }
 
+  .view-user-title-child {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+
+  #view-user-listing-info {
+    justify-content: space-around;
+  }
+  #view-user-listing-info .view-user-listing-info-child {
+    margin-right: 0;
+    margin-bottom: 0;
+  }
+
   #view-user-social-media {
     display: flex;
     justify-content: center;
@@ -5070,10 +5133,6 @@ footer {
   }
   #view-user-footer #view-user-stats .mr-5 {
     margin-right: 30px !important;
-  }
-
-  #view-user-listing-info {
-    flex-direction: column;
   }
 
   #view-user-profile-pic {
@@ -5151,8 +5210,51 @@ footer {
     text-align: right;
     margin-top: 5px;
   }
+
+  #friends-list .friend-panel {
+    width: 49%;
+    flex-basis: 49%;
+  }
 }
 @media only screen and (max-width: 768px) {
+  #view-user-details-container {
+    grid-template-columns: 100%;
+  }
+
+  #view-user-details {
+    grid-row-start: 2;
+    grid-row-end: 3;
+    grid-column-start: 1;
+    grid-column-end: 2;
+  }
+
+  #view-user-details-container {
+    padding-right: 0;
+    margin-top: 0;
+  }
+
+  #view-user-main {
+    margin-right: 0;
+  }
+
+  /* #view-user-main, #view-user-details {
+      width: 100%;
+      flex-grow: 0;
+      margin-right: 0;
+  } */
+  #view-user-details {
+    margin-top: 30px;
+  }
+
+  #view-user-profile-pic {
+    width: 50%;
+    margin-right: 0px;
+  }
+
+  .view-user-title-wrapper {
+    display: block;
+  }
+
   #view-user-title h3, #view-user-title #view-user-rating {
     text-align: center;
   }
@@ -5188,6 +5290,10 @@ footer {
   .setting-container .list-setting-container, .setting-container .business-hours-setting-container {
     width: 100%;
   }
+
+  .user-container {
+    width: 49%;
+  }
 }
 @media only screen and (max-width: 414px) {
   #dashboard-header .profile-pic-wrapper {
@@ -5207,13 +5313,9 @@ footer {
     width: 100%;
   }
 
-  .listing-row-main {
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
   .listing-row-main a {
     flex-direction: column;
-    align-items: flex-end;
+    align-items: flex-start;
   }
 
   .listing-row-title {
@@ -5226,6 +5328,7 @@ footer {
 
   .listing-row-rating {
     order: 3;
+    align-self: flex-end;
   }
 
   .listing-row-detail {
@@ -5244,6 +5347,11 @@ footer {
     display: none;
   }
 
+  #view-user-listing-info {
+    align-items: center;
+    flex-direction: column;
+  }
+
   .message-row.owner .message-row-profile-pic, .message-row.sender .message-row-profile-pic {
     display: none;
   }
@@ -5259,40 +5367,6 @@ footer {
   }
   #message-column #message-details #reply-container.show {
     display: block;
-  }
-
-  #view-user-details-container {
-    grid-template-columns: 100%;
-  }
-
-  #view-user-details {
-    grid-row-start: 2;
-    grid-row-end: 3;
-    grid-column-start: 1;
-    grid-column-end: 2;
-  }
-
-  #view-user-details-container {
-    padding-right: 0;
-    margin-top: 0;
-  }
-
-  #view-user-main {
-    margin-right: 0;
-  }
-
-  /* #view-user-main, #view-user-details {
-      width: 100%;
-      flex-grow: 0;
-      margin-right: 0;
-  } */
-  #view-user-details {
-    margin-top: 30px;
-  }
-
-  #view-user-profile-pic {
-    width: 50%;
-    margin-right: 0px;
   }
 
   .user-review-profile-pic {
@@ -5314,7 +5388,6 @@ footer {
   .user-review-container {
     flex-direction: column;
     margin: 0 0 30px 0;
-    padding: 0;
   }
 
   .user-review {
@@ -5370,6 +5443,22 @@ footer {
 
   .add-bank-button, .add-card-button {
     display: none !important;
+  }
+
+  .payment-brand {
+    display: none;
+  }
+
+  #friends-list .friend-panel {
+    width: 100%;
+    flex-basis: 100%;
+  }
+  #friends-list .friend-panel .friend-panel-header .friend-panel-profile-pic {
+    display: none;
+  }
+
+  .user-container {
+    width: 100%;
   }
 }
 @media only screen and (max-width: 375px) {
@@ -5457,19 +5546,18 @@ footer {
   #footer .footer-links {
     margin: 0 0 15px 0;
   }
+
+  .payment-method-container {
+    flex-direction: column;
+  }
+
+  .payment-methods-buttons {
+    align-self: flex-end;
+  }
 }
 @media only screen and (max-width: 360px) {
   .listing-row-title {
     margin-bottom: 5px;
-  }
-
-  .listing-row-main a {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .listing-row-rating {
-    align-self: flex-end;
   }
 }
 @media only screen and (max-width: 320px) {

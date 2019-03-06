@@ -17,12 +17,9 @@
     }
 
     .listing-row-main {
-        flex-wrap: wrap;
-        justify-content: space-between;
-
         a {
             flex-direction: column;
-            align-items: flex-end;
+            align-items: flex-start;
         }
     }
 
@@ -30,7 +27,10 @@
 
     .listing-row-purpose {order: 2;}
 
-    .listing-row-rating { order: 3; }
+    .listing-row-rating {
+        order: 3;
+        align-self: flex-end;
+    }
 
     .listing-row-detail { flex-direction: column; }
 
@@ -42,6 +42,11 @@
     }
 
     .listing-row-buttons { display: none; }
+
+    #view-user-listing-info {
+        align-items: center;
+        flex-direction: column;
+    }
 
     .message-row.owner, .message-row.sender {
         .message-row-profile-pic { display: none; }
@@ -64,37 +69,6 @@
             }
         }
     }
-    
-    #view-user-details-container {
-        grid-template-columns: 100%;
-    }
-
-    #view-user-details {
-        grid-row-start: 2;
-        grid-row-end: 3;
-        grid-column-start: 1;
-        grid-column-end: 2;
-    }
-
-    #view-user-details-container {
-        padding-right: 0;
-        margin-top: 0;
-    }
-
-    #view-user-main { margin-right: 0; }
-
-    /* #view-user-main, #view-user-details {
-        width: 100%;
-        flex-grow: 0;
-        margin-right: 0;
-    } */
-
-    #view-user-details { margin-top: 30px; }
-
-    #view-user-profile-pic {
-        width: 50%;
-        margin-right: 0px;
-    }
 
     .user-review-profile-pic {
         width: 100%;
@@ -114,7 +88,6 @@
     .user-review-container {
         flex-direction: column;
         margin: 0 0 30px 0;
-        padding: 0;
     }
 
     .user-review { width: 100%; }
@@ -157,4 +130,25 @@
 
     .add-bank-mobile-button, .add-card-mobile-button { display: inline-block !important; }
     .add-bank-button, .add-card-button { display: none !important; }
+
+    .payment-brand {
+        display: none;
+    }
+
+    #friends-list {
+        .friend-panel {
+            width: 100%;
+            flex-basis: 100%;
+
+            .friend-panel-header {
+                .friend-panel-profile-pic {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    .user-container {
+        width: 100%;
+    }
 }

@@ -34,35 +34,6 @@ app.post('/api/user/review/submit', (req, resp) => {
 
                             await client.query(`COMMIT`)
                             .then(() => resp.send({status: 'success', job: job.rows[0]}));
-                        /* } else if (req.body.message.job_id) {
-                            let reviewing;
-
-                            if (req.session.user.username === req.body.message.job_user) {
-                                reviewing = req.body.message.job_client;
-                            } else if (req.session.user.username === req.body.message.job_client) {
-                                reviewing = req.body.message.job_user;
-                            } else {
-                                throw new Error(`You're not authorized`);
-                            }
-
-                            await client.query(`INSERT INTO user_reviews (reviewer, reviewing, review, review_rating) VALUES ($1, $2, $3, $4)`, [req.session.user.username, reviewing, req.body.review, req.body.star]);
-
-                            let job = await client.query(`SELECT * FROM jobs
-                            LEFT JOIN user_reviews ON user_reviews.review_job_id = jobs.job_id
-                            WHERE jobs.job_id = $1 AND user_reviews.reviewer = $2`, [req.body.message.job_id, req.session.user.username]);
-
-                            await client.query(`COMMIT`)
-                            .then(() => resp.send({status: 'success', job: job.rows[0]}));
-                        } else {
-                            let review = await client.query(`INSERT INTO user_reviews (reviewer, reviewing, review, review_rating) VALUES ($1, $2, $3, $4) RETURNING *`, [req.session.user.username, req.body.reviewing, req.body.review, req.body.star]);
-
-                            if (review && review.rowCount === 1) {
-                                await client.query(`COMMIT`)
-                                .then(() => resp.send({status: 'success', statusMessage: 'Review submitted', review: review.rows[0]}));
-                            } else {
-                                throw new Error('Insert error');
-                            }
-                        } */
                     } else if (user && user.rows[0].user_status === 'Suspend') {
                         let error = new Error(`You're temporarily banned`);
                         error.type = 'CUSTOM';

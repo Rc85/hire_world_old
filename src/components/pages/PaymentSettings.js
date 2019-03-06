@@ -188,15 +188,15 @@ class PaymentSettings extends Component {
         
                         <div className='setting-field-container mb-3'>
                             <div className='setting-child three-quarter'>
-                                <InputWrapper label='Card Number' required className='pl-2 pb-2 pr-2'><CardNumberElement onReady={el => this.CardNumberElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
+                                <InputWrapper label='Card Number' required><CardNumberElement onReady={el => this.CardNumberElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
                             </div>
 
                             <div className='setting-child quarter'>
-                                <InputWrapper label='Expiry Date' required className='pl-2 pb-2 pr-2'><CardExpiryElement onReady={el => this.CardExpiryElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
+                                <InputWrapper label='Expiry Date' required><CardExpiryElement onReady={el => this.CardExpiryElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
                             </div>
         
                             <div className='setting-child quarter'>
-                                <InputWrapper label='CVC' required className='pl-2 pb-2 pr-2'><CardCVCElement onReady={el => this.CardCVCElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
+                                <InputWrapper label='CVC' required><CardCVCElement onReady={el => this.CardCVCElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
                             </div>
                         </div>
         

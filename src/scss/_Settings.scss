@@ -103,7 +103,24 @@
 .payment-icons { text-align: right; }
 
 .payment-icon { width: 100px; }
-.payment-brand { margin-right: 30px; }
+
+.payment-brand {
+    margin-right: 30px;
+    align-self: center;
+}
+
+.payment-method-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+.payment-method-detail-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;   
+}
 
 .checkout-buttons {
     display: flex;

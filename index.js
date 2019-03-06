@@ -84,7 +84,7 @@ app.use(require('./modules/fetch/configs'));
 app.use(require('./modules/api/messages'));
 app.use(require('./modules/api/jobs'));
 
-app.get('/', async(req, resp) => {
+app.get('/*', async(req, resp) => {
     /* let announcements = await db.query(`SELECT * FROM announcements`); */
 
     resp.sendFile(__dirname + '/dist/app.html');
@@ -130,6 +130,10 @@ app.post('/api/resend-confirmation', async(req, resp) => {
 });
 
 app.post('/api/activate-account', async(req, resp) => {
+    if (req.session.user) {
+        req.session = null;
+    }
+    
     let registrationKey = decodeURIComponent(req.body.key);
 
     let user = await db.query(`SELECT username, registration_key, reg_key_expire_date, user_status, user_email, user_id FROM users WHERE registration_key = $1 AND user_status = 'Pending'`, [registrationKey])

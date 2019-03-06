@@ -267,19 +267,19 @@ class ConnectedSettings extends Component {
 
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child' required>
-                        <InputWrapper label='Card Number' required className='pl-2 pb-2 pr-2'>
+                        <InputWrapper label='Card Number' required>
                             <CardNumberElement className='w-100' />
                         </InputWrapper>
                     </div>
 
                     <div className='setting-child one-third'>
-                        <InputWrapper label='Expiry Date' required className='pl-2 pb-2 pr-2'>
+                        <InputWrapper label='Expiry Date' required>
                             <CardExpiryElement className='w-100' />
                         </InputWrapper>
                     </div>
 
                     <div className='setting-child one-third'>
-                        <InputWrapper label='CVC' required className='pl-2 pb-2 pr-2'>
+                        <InputWrapper label='CVC' required>
                             <CardCVCElement className='w-100' />
                         </InputWrapper>
                     </div>

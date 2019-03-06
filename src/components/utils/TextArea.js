@@ -13,13 +13,13 @@ class TextArea extends Component {
                 id={this.props.textAreaId ? this.props.textAreaId : ''}
                 className={this.props.textAreaClassName ? this.props.textAreaClassName : ''}
                 rows={this.props.rows ? this.props.rows : 6}
-                value={this.props.value}
                 onChange={(e) => this.props.onChange(e.target.value)}
                 onFocus={() => this.props.dispatch(isTyping(true))}
                 onBlur={() => this.props.dispatch(isTyping(false))}
                 disabled={this.props.disabled}
                 autoFocus={this.props.autoFocus}
-                placeholder={this.props.placeholder}></textarea>
+                placeholder={this.props.placeholder}
+                defaultValue={this.props.defaultValue}></textarea>
             </div>
         )
     }

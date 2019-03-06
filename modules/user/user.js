@@ -538,14 +538,7 @@ app.post('/api/user/payment/add', (req, resp) => {
                     } else if (user && !user.rows[0].stripe_id) {
                         let customer = await stripe.customers.create({
                             source: req.body.token.id,
-                            email: user.rows[0].user_email,
-                            shipping: {
-                                address_line1: req.body.defaultAddress ? req.body.user.user_address : req.body.address_line1,
-                                address_city: req.body.defaultAddress ? req.body.user.user_city : req.body.address_city,
-                                address_state: req.body.defaultAddress ? req.body.user.user_region : req.body.address_state,
-                                address_country: req.body.defaultAddress ? req.body.user.user_country : req.body.address_country,
-                                address_zip: req.body.defaultAddress ? req.body.user.user_city_code : req.body.address_zip
-                            }
+                            email: user.rows[0].user_email
                         });
 
                         await client.query(`UPDATE users SET stripe_id = $1 WHERE username = $2`, [customer.id, req.session.user.username]);

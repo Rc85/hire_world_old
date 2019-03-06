@@ -189,7 +189,7 @@ class App extends Component {
 						<Route exact path='/dashboard/friends' render={() => <Pages.Dashboard user={this.props.user}><Pages.FriendsList user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/blocked-users' render={() => <Pages.Dashboard user={this.props.user}><Pages.BlockedUsers user={this.props.user} /></Pages.Dashboard>} />
 
-						<Route exact path='/dashboard/my-listing' render={() => <Pages.Dashboard user={this.props.user}><Pages.ListSettings user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/my-listing' render={() => <Pages.Dashboard user={this.props.user}><Pages.ListSettings user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
 	
 						<Route exact path='/dashboard/messages' render={() => <Pages.Dashboard user={this.props.user}><Pages.Conversations user={this.props.user} /></Pages.Dashboard>} />
 

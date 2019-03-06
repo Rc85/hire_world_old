@@ -71,7 +71,7 @@ class AccountSettings extends Component {
         
                         <hr/>
         
-                        <div className='d-flex-between-start mb-3'>
+                        <div className='setting-field-container mb-3'>
                             <div className='settings-col'><PasswordSettings /></div>
                             <div className='settings-col'><EmailSettings user={this.props.user.user} /></div>
                         </div>

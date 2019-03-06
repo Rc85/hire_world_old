@@ -123,11 +123,27 @@ class ViewUser extends Component {
         }
     }
 
-    editReview(review, index) {
-        let reviews = [...this.state.reviews];
-        reviews[index] = review;
+    editReview(message, review_id, star, index) {
+        let blankCheck = /^\s*$/;
 
-        this.setState({reviews: reviews});
+        this.setState({status: 'Sending'});
+
+        if (blankCheck.test(message)) {
+            this.props.dispatch(Alert('error', 'Review cannot be blank'));
+        } else {
+            fetch.post('/api/review/edit', {message: message, star: star, review_id: review_id})
+            .then(resp => {
+                if (resp.data.status === 'success') {
+                    let reviews = [...this.state.reviews];
+                    reviews[index] = resp.data.review;
+
+                    this.setState({status: '', reviews: reviews});
+                }
+                
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            })
+            .catch(err => LogError(err, '/api/review/edit'));
+        }
     }
 
     submitReport() {
@@ -232,7 +248,7 @@ class ViewUser extends Component {
 
                     if (this.state.reportedReviews.indexOf(review.review_id) >= 0) reported = true;
 
-                    return <ViewUserReview key={i} review={review} user={this.props.user} edit={(review) => this.editReview(review, i)} reported={reported} />
+                    return <ViewUserReview key={i} review={review} user={this.props.user} edit={(review, id, star) => this.editReview(review, id, star, i)} reported={reported} />
                 });
             } else {
                 reviews = <div className='text-center mt-5'>

@@ -161,7 +161,7 @@ class Username extends Component {
         }
 
         return (
-            <div className='username-container'>
+            <div className={`username-container ${this.props.className ? this.props.className : ''}`}>
                 <div className={`username text-${this.props.color ? this.props.color : 'white'}`} onClick={(e) => this.togglePopup(e)} unselectable='on'>{this.props.username}</div>
 
                 {popup}

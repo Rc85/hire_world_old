@@ -121,8 +121,8 @@ class FriendsList extends Component {
                                         <div className='friend-panel-header-container'>
                                             <h5>{friend.listing_status && friend.listing_status === 'Active' ? <NavLink to={`/user/${friend.friend_user_2}`}>{friend.friend_user_2}</NavLink> : friend.friend_user_2}</h5>
                                             {friend.user_email ? <a href={`mailto:${friend.user_email}`}>{friend.user_email}</a> : ''}
-                                            {friend.user_business_name ? <div><FontAwesomeIcon icon={faBuilding} className='text-special' /> <strong>{friend.user_business_name}</strong></div> : ''}
-                                            {friend.user_title ? <div><FontAwesomeIcon icon={faIdCard} className='text-special' /> <strong>{friend.user_title}</strong></div> : ''}
+                                            {friend.user_business_name ? <div className='friend-panel-header-child'><FontAwesomeIcon icon={faBuilding} className='text-special' /> <strong>{friend.user_business_name}</strong></div> : ''}
+                                            {friend.user_title ? <div className='friend-panel-header-child'><FontAwesomeIcon icon={faIdCard} className='text-special' /> <strong>{friend.user_title}</strong></div> : ''}
                                         </div>
                                     </div>
                                 </div>

@@ -21,6 +21,9 @@
     grid-row-end: 3;
     grid-column-start: 2;
     grid-column-end: 3;
+}
+
+#view-user-listing-details {
     white-space: pre-line;
 }
 
@@ -33,6 +36,12 @@
         align-items: flex-start;
         flex-grow: 1;
     }
+}
+
+.view-user-title-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .view-user-listing-title {
@@ -75,6 +84,13 @@
 #view-user-listing-info {
     display: flex;
     align-items: flex-start;
+
+    .view-user-listing-info-child {
+        display: flex;
+        justify-content: center;
+        margin-right: 30px;
+        margin-bottom: 5px;
+    }
 }
 
 .view-user-contact-field {

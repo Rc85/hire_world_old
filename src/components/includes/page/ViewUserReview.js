@@ -26,27 +26,6 @@ class ViewUserReview extends Component {
         }
     }
 
-    editReview(message, review_id, star) {
-        let blankCheck = /^\s*$/;
-
-        this.setState({status: 'Sending'});
-
-        if (blankCheck.test(message)) {
-            this.props.dispatch(Alert('error', 'Review cannot be blank'));
-        } else {
-            fetch.post('/api/review/edit', {message: message, star: star, review_id: review_id})
-            .then(resp => {
-                if (resp.data.status === 'success') {
-                    this.setState({status: '', editing: false});
-                    this.props.edit(resp.data.review);
-                }
-                
-                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-            })
-            .catch(err => LogError(err, '/api/review/edit'));
-        }
-    }
-
     submitReport() {
         this.setState({status: 'Sending'});
 
@@ -61,6 +40,11 @@ class ViewUserReview extends Component {
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => LogError(err, '/api/report/submit'));
+    }
+
+    edit(review, star) {
+        this.setState({editing: false});
+        this.props.edit(review, this.props.review.review_id, star);
     }
     
     render() {
@@ -91,7 +75,7 @@ class ViewUserReview extends Component {
         }
 
         if (this.state.editing) {
-            review = <SubmitReview submit={(review, star) => this.props.edit(review, this.props.review.review_id, star)} cancel={() => this.setState({editing: false})} review={this.props.review.review} stars={this.props.review.review_rating} show />;
+            review = <SubmitReview submit={(review, star) => this.edit(review, star)} cancel={() => this.setState({editing: false})} review={this.props.review} stars={this.props.review.review_rating} show />;
         } else {
             review = <div className='user-review'>
                 <div className='user-review-header'>

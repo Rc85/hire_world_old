@@ -64,7 +64,7 @@ const upload = multer({
                 return cb(new Error('File size exceeded'));
             }
         } else {
-            return cb(new Error('Cannot use that file'));
+            return cb(new Error('File type not supported'));
         }
     }
 });
@@ -76,12 +76,12 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
 
             let uploadProfilePic = upload.single('profile_pic');
 
-            (async() => {
-                try {
-                    uploadProfilePic(req, resp, async err => {
-                        if (err) {  
-                            throw err;
-                        } else {
+            uploadProfilePic(req, resp, async err => {
+                if (err) {
+                    resp.send({status: 'error', statusMessage: err.message});
+                } else {
+                    (async() => {
+                        try {
                             await client.query('BEGIN');
 
                             let filePath;
@@ -96,29 +96,19 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
 
                             await client.query(`UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2`, [filePath, req.session.user.user_id]);
 
-                            /* let user = await client.query(`SELECT users.username, users.user_email, users.account_type, users.user_status, users.is_subscribed, users.plan_id, users.user_last_login, users.user_level, users.subscription_end_date, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
-                            LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
-                            LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
-                            LEFT JOIN user_listings ON users.username = user_listings.listing_user
-                            WHERE users.user_id = $1`, [req.session.user.user_id]); */
-
                             let user = await controller.session.retrieve(client, req.session.user.user_id);
 
                             await client.query('COMMIT')
                             .then(() => resp.send({status: 'success', user: user}));
+                        } catch (e) {
+                            await client.query('ROLLBACK');
+                            throw e;
+                        } finally {
+                            done();
                         }
-                    });
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                    throw e;
-                } finally {
-                    done();
+                    })()
+                    .catch(err => error.log(err, req, resp));
                 }
-            })()
-            .catch(err => {
-                 console.log(err);
-                    resp.send({status: type, statusMessage: err.message});
-                //});
             });
         });
     }

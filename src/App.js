@@ -16,7 +16,7 @@ import { StripeProvider, Elements } from 'react-stripe-elements';
 import CheckoutConfirmation from './components/utils/CheckoutConfirmation';
 import fetch from 'axios';
 import { LogError } from './components/utils/LogError';
-import { isMobile, isTyping } from './actions/ConfigActions';
+import { IsMobile, IsTyping } from './actions/ConfigActions';
 import { ToggleMenu } from './actions/MenuActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
@@ -43,7 +43,7 @@ class App extends Component {
 	componentDidUpdate(prevProps, prevState) {
 		if (this.props.location.key !== prevProps.location.key) {
 			this.props.dispatch(GetUserNotificationAndMessageCount());
-			this.props.dispatch(isTyping(false));
+			this.props.dispatch(IsTyping(false));
 
 			fetch.post('/api/get/announcements')
 			.then(resp => {
@@ -73,16 +73,16 @@ class App extends Component {
 
 		window.addEventListener('resize', () => {
 			if (window.innerWidth > 1024) {
-				this.props.dispatch(isMobile(false));
+				this.props.dispatch(IsMobile(false));
 			} else {
-				this.props.dispatch(isMobile(true));
+				this.props.dispatch(IsMobile(true));
 			}
 		});
 
 		if (window.innerWidth > 1024) {
-			this.props.dispatch(isMobile(false));
+			this.props.dispatch(IsMobile(false));
 		} else {
-			this.props.dispatch(isMobile(true));
+			this.props.dispatch(IsMobile(true));
 		}
 
 		fetch.post('/api/get/announcements')

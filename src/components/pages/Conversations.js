@@ -31,6 +31,10 @@ class Conversations extends Component {
     }
     
     componentDidUpdate(prevProps, prevState) {
+        if (this.props.config.IsMobile && this.state.showConversationsList) {
+            document.body.style.overflowY = 'hidden';
+        }
+        
         if (prevState.showing !== this.state.showing || prevState.offset !== this.state.offset || prevProps.location.key !== this.props.location.key) {
             let idToLoad = this.state.idToLoad;
             let loadedConversation = {...prevState.loadedConversation};
@@ -68,10 +72,6 @@ class Conversations extends Component {
     }
     
     componentDidMount() {
-        if (this.props.config.isMobile && this.state.showConversationsList) {
-            document.body.style.overflowY = 'hidden';
-        }
-
         fetch.post(`/api/get/messages/${this.state.showing}`, {offset: this.state.offset})
         .then(resp => {
             if (resp.data.status === 'success') {
@@ -237,7 +237,7 @@ class Conversations extends Component {
                 <div id='message-column'>
                     {loadingMessageStatus}
                     {this.state.loadedConversation && this.state.loadedConversation.conversation_id ?
-                        <MessageDetails conversation={this.state.loadedConversation} user={this.props.user} />
+                        <MessageDetails key={this.state.idToLoad} conversation={this.state.loadedConversation} user={this.props.user} />
                     : <h1 className='load-message-text text-dark'>Select a message to display here</h1>}
                 </div>
             </section>

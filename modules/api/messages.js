@@ -90,7 +90,7 @@ app.post('/api/conversation/reply', (req, resp) => {
                                 WHERE messages.message_id = $1`, [message.rows[0].message_id]);
 
                                 await client.query('COMMIT')
-                                .then(() => resp.send({status: 'success', message: messageRow.rows[0]}));
+                                .then(() => resp.send({status: 'success', statusMessage: 'Message sent', message: messageRow.rows[0]}));
                             } else {
                                 let error = new Error(`You're not authorized`);
                                 let errObj = {error: error, type: 'CUSTOM', stack: error.stack};

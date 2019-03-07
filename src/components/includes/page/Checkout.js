@@ -12,7 +12,7 @@ import { GetSession } from '../../../actions/FetchActions';
 import AddressInput from './AddressInput';
 import Recaptcha from 'react-recaptcha';
 import InputWrapper from '../../utils/InputWrapper';
-import { isTyping } from '../../../actions/ConfigActions';
+import { IsTyping } from '../../../actions/ConfigActions';
 
 let onloadCallback = function() {
     console.log('Recaptcha ready!');
@@ -167,24 +167,24 @@ class Checkout extends Component {
                 </div>
 
                 <div className='setting-child mb-3'>
-                    <InputWrapper label='Name on Card'><input type='text' name='fullname' id='fullname' onChange={(e) => this.setState({name: e.target.value})} autoComplete='ccname' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
+                    <InputWrapper label='Name on Card'><input type='text' name='fullname' id='fullname' onChange={(e) => this.setState({name: e.target.value})} autoComplete='ccname' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} /></InputWrapper>
 
                     <label htmlFor='use-default-address'><input type='checkbox' name='use-default-address' id='use-default-address' checked={this.state.defaultAddress} onChange={() => this.useDefaultAddress()} /> Use address registered with this account</label>
                 </div>
 
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child'>
-                        <InputWrapper label='Credit Card Number' required><CardNumberElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
+                        <InputWrapper label='Credit Card Number' required><CardNumberElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} /></InputWrapper>
                     </div>
                 </div>
 
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child'>
-                        <InputWrapper label='Expiry Date' required><CardExpiryElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
+                        <InputWrapper label='Expiry Date' required><CardExpiryElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} /></InputWrapper>
                     </div>
 
                     <div className='setting-child'>
-                        <InputWrapper label='CVC' required><CardCVCElement className='w-100' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
+                        <InputWrapper label='CVC' required><CardCVCElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} /></InputWrapper>
                     </div>
                 </div>
             </React.Fragment>;

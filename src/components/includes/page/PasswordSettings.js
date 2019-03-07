@@ -6,7 +6,7 @@ import SubmitButton from '../../utils/SubmitButton';
 import Loading from '../../utils/Loading';
 import { LogError } from '../../utils/LogError';
 import InputWrapper from '../../utils/InputWrapper';
-import { isTyping } from '../../../actions/ConfigActions';
+import { IsTyping } from '../../../actions/ConfigActions';
 
 class PasswordSettings extends Component {
     constructor(props) {
@@ -58,19 +58,19 @@ class PasswordSettings extends Component {
                     <div className='mb-3'>
                         <div className='mb-3'>
                             <InputWrapper label='Current Password'>
-                                <input type={this.state.showPassword ? 'text' : 'password'} name='current_password' id='current-password' onChange={(e) => this.setState({currentPassword: e.target.value})} maxLength='15' value={this.state.currentPassword} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                <input type={this.state.showPassword ? 'text' : 'password'} name='current_password' id='current-password' onChange={(e) => this.setState({currentPassword: e.target.value})} maxLength='15' value={this.state.currentPassword} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                             </InputWrapper>
                         </div>
 
                         <div className='mb-3'>
                             <InputWrapper label='New Password'>
-                                <input type={this.state.showPassword ? 'text' : 'password'} name='new_password' id='new-password' onChange={(e) => this.setState({newPassword: e.target.value})} maxLength='15' value={this.state.newPassword} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                <input type={this.state.showPassword ? 'text' : 'password'} name='new_password' id='new-password' onChange={(e) => this.setState({newPassword: e.target.value})} maxLength='15' value={this.state.newPassword} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                             </InputWrapper>
                         </div>
 
                         <div className='mb-3'>
                             <InputWrapper label='Confirm Password'>
-                                <input type={this.state.showPassword ? 'text' : 'password'} name='confirm_password' id='confirm-password' onChange={(e) => this.setState({confirmPassword: e.target.value})} maxLength='15' value={this.state.confirmPassword} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                <input type={this.state.showPassword ? 'text' : 'password'} name='confirm_password' id='confirm-password' onChange={(e) => this.setState({confirmPassword: e.target.value})} maxLength='15' value={this.state.confirmPassword} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                             </InputWrapper>
                         </div>
                     </div>

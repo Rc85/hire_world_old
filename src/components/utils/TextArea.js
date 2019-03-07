@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { isTyping } from '../../actions/ConfigActions';
+import { IsTyping } from '../../actions/ConfigActions';
 
 class TextArea extends Component {
     render() {
@@ -14,8 +14,8 @@ class TextArea extends Component {
                 className={this.props.textAreaClassName ? this.props.textAreaClassName : ''}
                 rows={this.props.rows ? this.props.rows : 6}
                 onChange={(e) => this.props.onChange(e.target.value)}
-                onFocus={() => this.props.dispatch(isTyping(true))}
-                onBlur={() => this.props.dispatch(isTyping(false))}
+                onFocus={() => this.props.dispatch(IsTyping(true))}
+                onBlur={() => this.props.dispatch(IsTyping(false))}
                 disabled={this.props.disabled}
                 autoFocus={this.props.autoFocus}
                 placeholder={this.props.placeholder}

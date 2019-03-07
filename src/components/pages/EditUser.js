@@ -16,7 +16,7 @@ import { UpdateUser } from '../../actions/LoginActions';
 import InputWrapper from '../utils/InputWrapper';
 import { Alert } from '../../actions/AlertActions';
 import { faGithub, faFacebook, faTwitter, faInstagram, faLinkedin } from '@fortawesome/free-brands-svg-icons';
-import { isTyping } from '../../actions/ConfigActions';
+import { IsTyping } from '../../actions/ConfigActions';
 
 class EditUser extends Component {
     constructor(props) {
@@ -267,7 +267,7 @@ class EditUserField extends Component {
         let value;
         let input = <InputWrapper label={this.props.label}>
             <form onClick={(e) => e.stopPropagation()} onSubmit={(e) => this.save(e)} className='edit-user-field-form'>
-                <input type='text' onChange={(e) => this.setState({value: e.target.value})} placeholder={this.props.placeholder} maxLength={this.props.maxLength} value={this.state.value} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                <input type='text' onChange={(e) => this.setState({value: e.target.value})} placeholder={this.props.placeholder} maxLength={this.props.maxLength} value={this.state.value} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} autoFocus />
                 <div className='d-flex-end-center'>
                     <button type='submit' className='btn btn-primary btn-sm mr-1'>Save</button>
                     <button type='button' className='btn btn-secondary btn-sm mr-1' onClick={() => this.setState({edit: false})}>Cancel</button>
@@ -319,7 +319,7 @@ class EditUserSocialMedia extends Component {
             input = <div className='edit-user-field-container'>
                 <InputWrapper label={this.state.label}>
                     <form onSubmit={(e) => this.save(e)} className='edit-user-field-form'>
-                        <input type='text' value={this.state.value} onChange={(e) => this.setState({value: e.target.value})} value={this.state.value} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} placeholder='Enter URL' />
+                        <input type='text' value={this.state.value} onChange={(e) => this.setState({value: e.target.value})} value={this.state.value} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} placeholder='Enter URL' autoFocus />
                         <div className='d-flex-end-center'>
                             <button type='submit' className='btn btn-primary btn-sm mr-1'>Save</button>
                             <button type='button' className='btn btn-secondary btn-sm mr-1' onClick={() => this.setState({edit: false})}>Cancel</button>

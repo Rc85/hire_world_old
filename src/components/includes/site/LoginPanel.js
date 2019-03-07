@@ -4,7 +4,7 @@ import { LoginUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
 import InputWrapper from '../../utils/InputWrapper';
 import SubmitButton from '../../utils/SubmitButton';
-import { isTyping } from '../../../actions/ConfigActions';
+import { IsTyping, LoggingIn } from '../../../actions/ConfigActions';
 import { NavLink } from 'react-router-dom';
 import { strictEqual } from 'assert';
 
@@ -32,11 +32,11 @@ class LoginPanel extends Component {
                     this.props.dispatch(LoginUser(this.state));
                 }}>
                     <InputWrapper label='Username' className='mb-3'>
-                        <input type='text' onChange={(e) => this.setState({username: e.target.value})} maxLength='25' />
+                        <input type='text' onChange={(e) => this.setState({username: e.target.value})} maxLength='25' onFocus={() => this.props.dispatch(LoggingIn(true))} onBlur={() => this.props.dispatch(LoggingIn(false))} />
                     </InputWrapper>
 
                     <InputWrapper label='Password' className='mb-1'>
-                        <input type='password' onChange={(e) => this.setState({password: e.target.value})} minLength='6' maxLength='20' />
+                        <input type='password' onChange={(e) => this.setState({password: e.target.value})} minLength='6' maxLength='20' onFocus={() => this.props.dispatch(LoggingIn(true))} onBlur={() => this.props.dispatch(LoggingIn(false))} />
                     </InputWrapper>
 
                     <div className='mb-3'><NavLink to='/forgot-password'>Forgot Password</NavLink></div>

@@ -55,7 +55,7 @@ class BottomBar extends Component {
             bottombarContent = <React.Fragment>
                 {this.props.items.map((item, i) => {
                     return <div key={i} className='bottombar-item'>
-                        <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'>{item.icon}</div><NavLink to={item.link}>{item.name}</NavLink></div>
+                        <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'>{item.icon}</div><NavLink to={item.link}>{item.name}</NavLink> {parseInt(item.messageCount) > 0 ? <div className='bottombar-message-indicator'>{item.messageCount}</div> : ''}</div>
 
                         <div className='bottombar-sub-item-container'>
                             {item.items ? item.items.map((subItem, index) => {
@@ -75,7 +75,7 @@ class BottomBar extends Component {
         }
 
         return (
-            <div id='bottombar-container' className={`${this.props.config.isTyping ? 'hide' : ''}`}>
+            <div id='bottombar-container' className={`${this.props.config.IsTyping ? 'hide' : ''}`}>
                 <div id='bottombar' className={!this.state.showMenu ? '' : 'expand'}>
                     <div className={`bottombar-item-container`}>
                         <div className='bottombar-item'>
@@ -100,7 +100,7 @@ class BottomBar extends Component {
                     </div>
                 </div>
                 
-                <div className='bottombar-toggle-buttons'>
+                {!this.props.config.LoggingIn ? <div className='bottombar-toggle-buttons'>
                     <div id='bottombar-button-container'>
                         {this.props.user.user ?
                         <div id='bottombar-dashboard-buttons'>
@@ -118,8 +118,11 @@ class BottomBar extends Component {
                         <NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} />
                     </div>
 
-                    <FontAwesomeIcon icon={this.state.showBottomBar ? faTimes : faBars} size='2x' onClick={() => this.toggleMenu()} id='bottombar-toggle-button' />
-                </div>
+                    <div id='bottombar-toggle-button'>
+                        {(parseInt(this.props.user.estimates) > 0 || parseInt(this.props.user.messages) > 0 || parseInt(this.props.user.proposals) > 0) && !this.state.showMenu ? <div className='bottombar-message-indicator'></div> : ''}
+                        <FontAwesomeIcon icon={this.state.showBottomBar ? faTimes : faBars} size='2x' onClick={() => this.toggleMenu()} />
+                    </div>
+                </div> : ''}
             </div>
         );
     }

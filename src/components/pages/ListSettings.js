@@ -10,7 +10,7 @@ import InputWrapper from '../utils/InputWrapper';
 import TwoSidedCheckbox from '../utils/TwoSidedCheckbox';
 import TextArea from '../utils/TextArea';
 import SubmitButton from '../utils/SubmitButton';
-import { isTyping } from '../../actions/ConfigActions';
+import { IsTyping } from '../../actions/ConfigActions';
 import Tooltip from '../utils/Tooltip';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -195,7 +195,7 @@ class ListSettings extends Component {
                             }}>
                                 <div className='setting-field-container mb-3'>
                                     <InputWrapper label='List Title' id='listing-title' required>
-                                        <input type='text' value={this.state.newSettings.listing_title} onChange={(e) => this.setSetting('listing_title', e.target.value)} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} maxLength='60' placeholder='60 characters max' />
+                                        <input type='text' value={this.state.newSettings.listing_title} onChange={(e) => this.setSetting('listing_title', e.target.value)} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} maxLength='60' placeholder='60 characters max' />
                                     </InputWrapper>
         
                                     <InputWrapper label='Type of Business' id='listing-location' required>
@@ -250,11 +250,11 @@ class ListSettings extends Component {
                     
                                     {this.state.newSettings.listing_price_type !== 'To Be Discussed' ? <React.Fragment>
                                         <InputWrapper label='Price Rate' id='listing-price'>
-                                            <input type='number' onChange={(e) => this.setSetting('listing_price', e.target.value)} value={this.state.newSettings.listing_price} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                            <input type='number' onChange={(e) => this.setSetting('listing_price', e.target.value)} value={this.state.newSettings.listing_price} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                                         </InputWrapper>
                         
                                         <InputWrapper label='Currency' id='listing-price-currency' required>
-                                            <input type='text' onChange={(e) => this.setSetting('listing_price_currency', e.target.value)} value={this.state.newSettings.listing_price_currency} list='currency-list' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                            <input type='text' onChange={(e) => this.setSetting('listing_price_currency', e.target.value)} value={this.state.newSettings.listing_price_currency} list='currency-list' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                                             <datalist id='currency-list'>
                                                 <option value='USD'>USD</option>
                                                 <option value='CAD'>CAD</option>

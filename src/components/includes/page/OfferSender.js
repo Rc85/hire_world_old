@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import InputWrapper from '../../utils/InputWrapper';
 import Tooltip from '../../utils/Tooltip';
 import InputGroup from '../../utils/InputGroup';
-import { isTyping } from '../../../actions/ConfigActions';
+import { IsTyping } from '../../../actions/ConfigActions';
 
 class OfferSender extends Component {
     constructor(props) {
@@ -337,7 +337,7 @@ class OfferSender extends Component {
 
         if (this.state.offerType === 'Contract Term') {
             offerTypeSetting = <InputWrapper label='Term/Duration'>
-                <input type='text' name='term' placeholder='3 months, 1 year, etc.' onChange={(e) => this.setState({term: e.target.value})} disabled={this.state.confidential} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                <input type='text' name='term' placeholder='3 months, 1 year, etc.' onChange={(e) => this.setState({term: e.target.value})} disabled={this.state.confidential} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
             </InputWrapper>;
         } else if (this.state.offerType === 'Iteration') {
             offerTypeSetting = <InputWrapper label='Must Be Completed By:'>
@@ -381,9 +381,9 @@ class OfferSender extends Component {
                         <InputWrapper label='Offer Price'>
                             <span className='price-input-sign'>$</span>
 
-                            <input type='number' name='price' id='price-input' className='w-60' onChange={(e) => this.setOfferPrice(e.target.value)} disabled={this.state.confidential} value={this.state.price} min='0' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                            <input type='number' name='price' id='price-input' className='w-60' onChange={(e) => this.setOfferPrice(e.target.value)} disabled={this.state.confidential} value={this.state.price} min='0' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
     
-                            <input type='text' name='currency' id='currency-input' className='w-40' list='currency-list' maxLength='5' placeholder='Currency' style={{borderTopRightRadius: '0.25rem', borderBottomRightRadius: '0.25rem'}} onChange={(e) => this.setState({currency: e.target.value})} disabled={this.state.confidential} value={this.state.currency} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                            <input type='text' name='currency' id='currency-input' className='w-40' list='currency-list' maxLength='5' placeholder='Currency' style={{borderTopRightRadius: '0.25rem', borderBottomRightRadius: '0.25rem'}} onChange={(e) => this.setState({currency: e.target.value})} disabled={this.state.confidential} value={this.state.currency} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                             <datalist id='currency-list'>
                                 <option value='USD'>USD</option>
                                 <option value='CAD'>CAD</option>
@@ -471,7 +471,7 @@ const PaymentInput = props => {
 
             <div className='payment-input'>
                 <div>$</div>
-                <input type='number' value={isNaN(props.value) ? 0 : props.value} onChange={(e) => props.set(e.target.value)} disabled={!props.editable || props.disabled} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                <input type='number' value={isNaN(props.value) ? 0 : props.value} onChange={(e) => props.set(e.target.value)} disabled={!props.editable || props.disabled} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
             </div>
 
             <Tooltip text='Convert value from % to $' placement='left'><button className='btn btn-info' onClick={() => props.calculate()} disabled={props.disabled}>% to $</button></Tooltip>

@@ -71,7 +71,7 @@ class Admin extends Component {
 
         return(
             <section id='dashboard'>
-                {!this.props.config.isMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
+                {!this.props.config.IsMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
 
                 <div id='dashboard-main'>
                     {this.props.location.pathname.match(/^\/dashboard/) ? <div id='main-panel-bg'></div> : ''}

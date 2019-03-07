@@ -48,7 +48,7 @@ class Dashboard extends Component {
             }
 
             dashboard = <section id='dashboard'>
-                {!this.props.config.isMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
+                {!this.props.config.IsMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
 
                 <div id='dashboard-main'>
                     {this.props.location.pathname.match(/^\/dashboard\/edit$/) ? <div id='main-panel-bg'></div> : ''}
@@ -57,7 +57,7 @@ class Dashboard extends Component {
             </section>;
         } else if (this.props.user.status === 'access error') {
             dashboard = <section id='dashboard'>
-                {!this.props.config.isMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
+                {!this.props.config.IsMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
 
                 <div id='dashboard-main'>
                     <Response code={403} header={'Forbidden'} message={this.props.user.statusMessage}>{this.props.user.statusMessage === `You need to activate your account` ? <div><NavLink to='/resend'>Resend Confirmation Email</NavLink></div> : ''}</Response>
@@ -65,7 +65,7 @@ class Dashboard extends Component {
             </section>;
         } else {
             dashboard = <section id='dashboard'>
-                {!this.props.config.isMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
+                {!this.props.config.IsMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
 
                 <div id='dashboard-main'>
                     {this.props.children}

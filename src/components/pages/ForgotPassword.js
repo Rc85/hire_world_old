@@ -7,7 +7,7 @@ import { Alert } from '../../actions/AlertActions';
 import { LogError } from '../utils/LogError';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { isTyping } from '../../actions/ConfigActions';
+import { IsTyping } from '../../actions/ConfigActions';
 
 let onloadCallback = function() {
     return;
@@ -55,7 +55,7 @@ class ForgotPassword extends Component {
                     <div className='simple-container-title'>Reset Password</div>
 
                     <InputWrapper label='Email' required className='mb-3'>
-                        <input type='email' onChange={(e) => this.setState({email: e.target.value})} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                        <input type='email' onChange={(e) => this.setState({email: e.target.value})} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                     </InputWrapper>
 
                     <Recaptcha sitekey='6LdKOIIUAAAAAPRGJ4dDSoHfb1Dad0vxuD4s5gjG' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} />

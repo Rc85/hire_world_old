@@ -9,7 +9,7 @@ import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Tooltip from '../../utils/Tooltip';
 import InputWrapper from '../../utils/InputWrapper';
-import { isTyping } from '../../../actions/ConfigActions';
+import { IsTyping } from '../../../actions/ConfigActions';
 
 class EmailSettings extends Component {
     constructor(props) {
@@ -48,13 +48,13 @@ class EmailSettings extends Component {
                     <div className='mb-3'>
                         <div className='mb-3'>
                             <InputWrapper label='New Email'>
-                                <input type='email' name='new_email' id='new-email' onChange={(e) => this.setState({newEmail: e.target.value})} value={this.state.newEmail} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                <input type='email' name='new_email' id='new-email' onChange={(e) => this.setState({newEmail: e.target.value})} value={this.state.newEmail} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                             </InputWrapper>
                         </div>
 
                         <div className='mb-3'>
                             <InputWrapper label='Confirm Email'>
-                                <input type='email' name='confirm_email' id='confirm-email' onChange={(e) => this.setState({confirmEmail: e.target.value})} autoComplete='off' value={this.state.confirmEmail} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                <input type='email' name='confirm_email' id='confirm-email' onChange={(e) => this.setState({confirmEmail: e.target.value})} autoComplete='off' value={this.state.confirmEmail} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                             </InputWrapper>
                         </div>
                     </div>

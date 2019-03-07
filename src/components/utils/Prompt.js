@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { PromptReset, PromptSubmit } from '../../actions/PromptActions';
 import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';
-import { isTyping } from '../../actions/ConfigActions';
+import { IsTyping } from '../../actions/ConfigActions';
 
 class Prompt extends Component {
     constructor(props) {
@@ -38,7 +38,7 @@ class Prompt extends Component {
                                 this.props.dispatch(Alert('error', 'Please specify a reason'));
                             }
                         }
-                    }} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                    }} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
 
                     <div className='text-right'>
                         <button className='btn btn-primary mr-1' onClick={() => {

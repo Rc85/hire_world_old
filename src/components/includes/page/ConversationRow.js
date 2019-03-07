@@ -59,13 +59,13 @@ class ConversationRow extends Component {
                         <div className='inquiry-detail-type'>
                             {this.props.user && this.props.message.conversation_starter === this.props.user.username ? 
                             
-                            <React.Fragment>To <Username username={this.props.message.conversation_recipient} color='highlight' className='ml-1 mr-1' /> {moment(this.props.message.conversation_date).fromNow()}</React.Fragment> : 
+                            <React.Fragment>To <Username username={this.props.message.conversation_recipient} color='highlight' className='ml-1 mr-1' /><span className='hide-on-mobile'> {moment(this.props.message.conversation_date).fromNow()}</span></React.Fragment> : 
                             
-                            <React.Fragment>From <Username username={this.props.message.conversation_starter} color='highlight' className='ml-1 mr-1' /> {moment(this.props.message.conversation_date).fromNow()}</React.Fragment>}
+                            <React.Fragment>From <Username username={this.props.message.conversation_starter} color='highlight' className='ml-1 mr-1' /><span className='hide-on-mobile'> {moment(this.props.message.conversation_date).fromNow()}</span></React.Fragment>}
                         </div>
                     </div>
 
-                    <div className='inquiry-row-id'>Message ID: {this.props.message.conversation_id}</div>
+                    <div className='inquiry-row-id'><span className='hide-on-mobile'>Message </span>ID: {this.props.message.conversation_id}</div>
                 </div>
 
                 {this.props.loadedId === this.props.message.conversation_id ? <FontAwesomeIcon icon={faCaretRight} size='3x' className='message-active-arrow' /> : ''}

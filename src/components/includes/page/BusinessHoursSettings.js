@@ -11,7 +11,7 @@ import TitledContainer from '../../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBusinessTime } from '@fortawesome/free-solid-svg-icons';
 import InputGroup from '../../utils/InputGroup';
-import { isTyping } from '../../../actions/ConfigActions';
+import { IsTyping } from '../../../actions/ConfigActions';
 
 class BusinessHoursSettings extends Component {
     constructor(props) {
@@ -213,9 +213,9 @@ const HourSetters = props => {
     return(
         <div id={props.day} className='hour-container'>                      
             <InputGroup className='hour-container' label={props.day}>
-                <div className='start-time'><input type='text' onChange={(e) => props.startTime(e.target.value)} maxLength='15' defaultValue={props.startValue} onFocus={() => props.dispatch(isTyping(true))} onBlur={() => props.dispatch(isTyping(false))} /></div>
+                <div className='start-time'><input type='text' onChange={(e) => props.startTime(e.target.value)} maxLength='15' defaultValue={props.startValue} onFocus={() => props.dispatch(IsTyping(true))} onBlur={() => props.dispatch(IsTyping(false))} /></div>
                 <div className='hour-separator'>to</div>
-                <div className='end-time'><input type='text' onChange={(e) => props.endTime(e.target.value)} maxLength='15' defaultValue={props.endValue} onFocus={() => props.dispatch(isTyping(true))} onBlur={() => props.dispatch(isTyping(false))} /></div>
+                <div className='end-time'><input type='text' onChange={(e) => props.endTime(e.target.value)} maxLength='15' defaultValue={props.endValue} onFocus={() => props.dispatch(IsTyping(true))} onBlur={() => props.dispatch(IsTyping(false))} /></div>
             </InputGroup>
         </div>
     )

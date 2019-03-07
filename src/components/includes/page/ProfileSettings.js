@@ -9,7 +9,7 @@ import { ShowWarning } from '../../../actions/WarningActions';
 import { RegionDropdown, CountryDropdown } from 'react-country-region-selector';
 import InputWrapper from '../../utils/InputWrapper';
 import { LogError } from '../../utils/LogError';
-import { isTyping } from '../../../actions/ConfigActions';
+import { IsTyping } from '../../../actions/ConfigActions';
 
 class ProfileSettings extends Component {
     constructor(props) {
@@ -104,7 +104,7 @@ class ProfileSettings extends Component {
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child three-quarter'>
                         <InputWrapper label='Address'>
-                            <input type='text' onChange={(e) => this.setSettings({address: e.target.value})} value={this.state.settings.address} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                            <input type='text' onChange={(e) => this.setSettings({address: e.target.value})} value={this.state.settings.address} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                         </InputWrapper>
                         {/* <label htmlFor='user-address'>Address:</label>
                         
@@ -113,7 +113,7 @@ class ProfileSettings extends Component {
                     
                     <div className='setting-child quarter'>
                         <InputWrapper label='Postal/Zip Code'>
-                            <input type='text'onChange={(e) => this.setSettings({code: e.target.value})} value={this.state.settings.code} maxLength='7' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                            <input type='text'onChange={(e) => this.setSettings({code: e.target.value})} value={this.state.settings.code} maxLength='7' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                         </InputWrapper>
                         {/* <label htmlFor='postalzip'>Postal Code/Zip Code:</label>
                         <input type='text' name='postalzip' id='postalzip' onChange={(e) => this.setSettings({code: e.target.value})} defaultValue={this.initialSettings.code} /> */}
@@ -121,7 +121,7 @@ class ProfileSettings extends Component {
 
                     <div className='setting-child quarter'>
                         <InputWrapper label='Phone Number'>
-                            <input type='tel' onChange={(e) => this.setSettings({phone: e.target.value})} value={this.state.settings ? this.state.settings.phone : ''} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                            <input type='tel' onChange={(e) => this.setSettings({phone: e.target.value})} value={this.state.settings ? this.state.settings.phone : ''} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                         </InputWrapper>
                     </div>
                 </div>
@@ -146,7 +146,7 @@ class ProfileSettings extends Component {
 
                     <div className='setting-child three-quarter'>
                         <InputWrapper label='City'>
-                            <input type='text' onChange={(e) => this.setSettings({city: e.target.value})} defaultValue={this.state.settings.city} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                            <input type='text' onChange={(e) => this.setSettings({city: e.target.value})} defaultValue={this.state.settings.city} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                         </InputWrapper>
                         {/* <label htmlFor='city'>City:</label>
                         <input type='text' name='city' id='city=input' onChange={(e) => this.setSettings({city: e.target.value})} defaultValue={this.state.settings.city} /> */}

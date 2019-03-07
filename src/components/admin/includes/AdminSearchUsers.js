@@ -18,9 +18,9 @@ class AdminSearchUsers extends Component {
     }
     
     toggleSearch() {
-        if (this.props.config.isMobile && !this.state.show) {
+        if (this.props.config.IsMobile && !this.state.show) {
             document.body.style.overflowY = 'hidden';
-        } else if (this.props.config.isMobile && this.state.show) {
+        } else if (this.props.config.IsMobile && this.state.show) {
             document.body.style.overflowY = '';
         }
 

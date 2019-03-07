@@ -7,7 +7,7 @@ import InputWrapper from '../../utils/InputWrapper';
 import InputGroup from '../../utils/InputGroup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { isTyping } from '../../../actions/ConfigActions';
+import { IsTyping } from '../../../actions/ConfigActions';
 import { connect } from 'react-redux';
 
 const initialState = {
@@ -55,9 +55,9 @@ class SearchListing extends Component {
     }
 
     toggleSearch() {
-        if (this.props.config.isMobile && !this.state.show) {
+        if (this.props.config.IsMobile && !this.state.show) {
             document.body.style.overflowY = 'hidden';
-        } else if (this.props.config.isMobile && this.state.show) {
+        } else if (this.props.config.IsMobile && this.state.show) {
             document.body.style.overflowY = '';
         }
 
@@ -75,7 +75,7 @@ class SearchListing extends Component {
                             <div className='d-flex-between-start mb-3'>
                                 <div className='w-25'>
                                     <InputWrapper label='Profession Title'>
-                                        <input type='text' name='titles' id='title-list' list='list-of-titles' onChange={(e) => this.setState({title: e.target.value})} value={this.state.title} onKeyUp={(e) => this.getTitles(e.target.value)} placeholder='Enter a title to search' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                        <input type='text' name='titles' id='title-list' list='list-of-titles' onChange={(e) => this.setState({title: e.target.value})} value={this.state.title} onKeyUp={(e) => this.getTitles(e.target.value)} placeholder='Enter a title to search' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                                         <datalist id='list-of-titles'>
                                             {this.state.searchedTitles.map((title, i) => {
                                                 return <option key={i} value={title}>{title}</option>
@@ -110,7 +110,7 @@ class SearchListing extends Component {
             
                                         <div className='justify-content-center input-group-text-seperator'>$</div>
                                         
-                                        <input type='number' name='search-price' id='search-price'className='no-border-radius' onChange={(e) => this.setState({price: e.target.value})} value={this.state.price} placeholder='Price' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                        <input type='number' name='search-price' id='search-price'className='no-border-radius' onChange={(e) => this.setState({price: e.target.value})} value={this.state.price} placeholder='Price' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
             
                                         <div className='justify-content-center input-group-text-seperator'>/</div>
             
@@ -135,7 +135,7 @@ class SearchListing extends Component {
                                                 <option value='<'>&#60;</option>
                                             </select>
                                         
-                                            <input type='number' name='completed-jobs' id='completed-jobs'className='no-border-radius-left' onChange={(e) => this.setState({completedJobs: e.target.value})} value={this.state.completedJobs} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                            <input type='number' name='completed-jobs' id='completed-jobs'className='no-border-radius-left' onChange={(e) => this.setState({completedJobs: e.target.value})} value={this.state.completedJobs} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                                         </InputGroup>
                                     </div>
             
@@ -153,7 +153,7 @@ class SearchListing extends Component {
                                 </div>
             
                                 <div className='w-30'>
-                                    <InputWrapper label='City'><input type='text' name='city' id='search-city' onChange={(e) => this.setState({city: e.target.value})} value={this.state.city} placeholder='Your city' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} /></InputWrapper>
+                                    <InputWrapper label='City'><input type='text' name='city' id='search-city' onChange={(e) => this.setState({city: e.target.value})} value={this.state.city} placeholder='Your city' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} /></InputWrapper>
                                 </div>
                             </div>
             

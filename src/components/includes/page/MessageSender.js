@@ -4,7 +4,7 @@ import SubmitButton from '../../utils/SubmitButton';
 import { connect } from 'react-redux';
 import InputWrapper from '../../utils/InputWrapper';
 import TextArea from '../../utils/TextArea';
-import { isTyping } from '../../../actions/ConfigActions';
+import { IsTyping } from '../../../actions/ConfigActions';
 
 class MessageSender extends Component {
     constructor(props) {
@@ -16,11 +16,11 @@ class MessageSender extends Component {
         }
     }
     
-    componentDidUpdate(prevProps, prevState) {
+    /* componentDidUpdate(prevProps, prevState) {
         if (this.props.status !== prevProps.status && this.props.status === 'send success') {
             this.setState({status: '', subject: '', message: ''});
         }
-    }
+    } */
 
     send() {
         this.props.send(this.state.message, this.state.subject);
@@ -31,7 +31,7 @@ class MessageSender extends Component {
             <div id={this.props.id ? this.props.id : ''} className={`mb-3 ${this.props.className ? this.props.className : ''}`}>
                 {this.props.withSubject ? <div className='mb-1'>
                     <InputWrapper label='Subject' disabled={this.props.subject ? true : false}>
-                        <input type='text' className='message-subject' disabled={this.props.subject ? true : false} value={this.props.subject ? `RE: ${this.props.subject}` : this.state.subject} onChange={(e) => this.setState({subject: e.target.value})} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                        <input type='text' className='message-subject' disabled={this.props.subject ? true : false} value={this.props.subject ? `RE: ${this.props.subject}` : this.state.subject} onChange={(e) => this.setState({subject: e.target.value})} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                     </InputWrapper>
                 </div> : ''}
 

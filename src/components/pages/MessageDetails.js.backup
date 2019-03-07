@@ -441,12 +441,12 @@ class MessageDetails extends Component {
             if (this.props.job.job.job_stage === 'Active' && this.props.job.job && this.props.job.job.job_user === this.props.user.user.username) {
                 if (this.props.job.job.job_status !== 'Abandoning') {
                     completeButton = <Tooltip text='Request for job complete approval from other party' placement='bottom-right'>
-                        <button id='complete-job-button' className={`btn btn-success`} disabled={this.props.job.job.job_user_complete} onClick={() => this.props.dispatch(ShowConfirmation('Send request to complete this job?', false, {action: 'user complete job'}))}>{this.props.job.job.job_user_complete ? <span>{this.props.config.isMobile ? <FontAwesomeIcon icon={faCheck} /> : 'Sent'}</span> : <span>{this.props.config.isMobile ? <FontAwesomeIcon icon={faCheck} /> : 'Complete'}</span>}</button>
+                        <button id='complete-job-button' className={`btn btn-success`} disabled={this.props.job.job.job_user_complete} onClick={() => this.props.dispatch(ShowConfirmation('Send request to complete this job?', false, {action: 'user complete job'}))}>{this.props.job.job.job_user_complete ? <span>{this.props.config.IsMobile ? <FontAwesomeIcon icon={faCheck} /> : 'Sent'}</span> : <span>{this.props.config.IsMobile ? <FontAwesomeIcon icon={faCheck} /> : 'Complete'}</span>}</button>
                     </Tooltip>;
 
-                    incompleteButton = <Tooltip text='Abandoning a job will negatively impact your reputation' placement='bottom-right'><button id='abandon-job-button' className='btn btn-danger' onClick={() => this.props.dispatch(PromptOpen('Specify a reason to abandon this job', {id: this.props.job.job.job_id, action: 'abandon job'}))}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faBan} /> : 'Abandon'}</button></Tooltip>;
+                    incompleteButton = <Tooltip text='Abandoning a job will negatively impact your reputation' placement='bottom-right'><button id='abandon-job-button' className='btn btn-danger' onClick={() => this.props.dispatch(PromptOpen('Specify a reason to abandon this job', {id: this.props.job.job.job_id, action: 'abandon job'}))}>{this.props.config.IsMobile ? <FontAwesomeIcon icon={faBan} /> : 'Abandon'}</button></Tooltip>;
                 } else {
-                    incompleteButton = <Tooltip text={`You can cancel the abandon request if the other party haven't make a decision yet`} ><button id='abandon-job-button' className='btn btn-warning' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to cancel the Abandon request?`, false, {action: 'cancel abandon'}))}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faMinusCircle} /> : 'Cancel Abandon'}</button></Tooltip>
+                    incompleteButton = <Tooltip text={`You can cancel the abandon request if the other party haven't make a decision yet`} ><button id='abandon-job-button' className='btn btn-warning' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to cancel the Abandon request?`, false, {action: 'cancel abandon'}))}>{this.props.config.IsMobile ? <FontAwesomeIcon icon={faMinusCircle} /> : 'Cancel Abandon'}</button></Tooltip>
                 }
             }
             
@@ -456,12 +456,12 @@ class MessageDetails extends Component {
 
             if (this.props.job.job && (this.props.job.job.job_stage === 'Active' || this.props.job.job.job_stage === 'Inquire')) {
                 if (!this.state.send) {
-                    sendButton = <button id='message-reply-button' className='btn btn-primary' onClick={() => this.setState({send: true, makeOffer: false})}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faReply} /> : 'Reply'}</button>;
+                    sendButton = <button id='message-reply-button' className='btn btn-primary' onClick={() => this.setState({send: true, makeOffer: false})}>{this.props.config.IsMobile ? <FontAwesomeIcon icon={faReply} /> : 'Reply'}</button>;
                 } else {
                     sendMessage = <MessageSender send={(message) => this.send(message)} cancel={() => this.setState({send: !this.state.send})} status={this.state.status} statusMessage={this.state.statusMessage} subject={this.props.job.job.job_subject} autoFocus={true} />;
                 }
 
-                refreshButton = <button className='btn btn-info' onClick={() => this.props.refresh(this.props.job.job.job_id)}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faRedoAlt} /> : 'Refresh'}</button>;
+                refreshButton = <button className='btn btn-info' onClick={() => this.props.refresh(this.props.job.job.job_id)}>{this.props.config.IsMobile ? <FontAwesomeIcon icon={faRedoAlt} /> : 'Refresh'}</button>;
             }
 
             if (this.state.status === 'Sending') {
@@ -529,7 +529,7 @@ class MessageDetails extends Component {
             }
 
             if (this.props.job.job && this.props.job.job.job_stage === 'Inquire' && this.props.job.job.job_status !== 'Closed') {
-                closeButton = <button id='close-inquiry-button' className='btn btn-danger' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to close this inquiry?', 'No more messages can be sent or received afterwards for this inquiry.', {action: 'close inquiry'}))}>{this.props.config.isMobile ? <FontAwesomeIcon icon={faTimes} /> : 'Close'}</button>
+                closeButton = <button id='close-inquiry-button' className='btn btn-danger' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to close this inquiry?', 'No more messages can be sent or received afterwards for this inquiry.', {action: 'close inquiry'}))}>{this.props.config.IsMobile ? <FontAwesomeIcon icon={faTimes} /> : 'Close'}</button>
             }
         }
 

@@ -42,38 +42,36 @@ class Dashboard extends Component {
             ]}
         ];
 
-        if (this.props.user.status === 'get session success' && this.props.user.user) {
-            if (this.props.location.pathname.match(/^\/dashboard/)) {
-                dashboard = <Redirect to='/dashboard' />;
-            }
-
-            dashboard = <section id='dashboard'>
-                {!this.props.config.IsMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
-
-                <div id='dashboard-main'>
-                    {this.props.location.pathname.match(/^\/dashboard\/edit$/) ? <div id='main-panel-bg'></div> : ''}
-                    {this.props.children}
-                </div>
-            </section>;
-        } else if (this.props.user.status === 'access error') {
-            dashboard = <section id='dashboard'>
+        if (this.props.user.status === 'access error') {
+            return <section id='dashboard'>
                 {!this.props.config.IsMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
 
                 <div id='dashboard-main'>
                     <Response code={403} header={'Forbidden'} message={this.props.user.statusMessage}>{this.props.user.statusMessage === `You need to activate your account` ? <div><NavLink to='/resend'>Resend Confirmation Email</NavLink></div> : ''}</Response>
                 </div>
             </section>;
-        } else {
-            dashboard = <section id='dashboard'>
+        } else if (this.props.user.status === 'success' || this.props.user.status === 'error') {
+            return <section id='dashboard'>
                 {!this.props.config.IsMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
 
                 <div id='dashboard-main'>
-                    {this.props.children}
+                    <React.Fragment>
+                        {this.props.location.pathname.match(/^\/dashboard\/edit$/) ? <div id='main-panel-bg'></div> : ''}      
+                        {this.props.children}
+                    </React.Fragment>;
                 </div>
             </section>;
         }
 
-        return <React.Fragment>{dashboard}</React.Fragment>;
+        return (
+            <section id='dashboard'>
+                {!this.props.config.IsMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
+
+                <div id='dashboard-main'>
+                    <Loading size='7x' color='black' />
+                </div>
+            </section>
+        );
     }
 }
 

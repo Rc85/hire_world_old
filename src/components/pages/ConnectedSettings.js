@@ -235,315 +235,315 @@ class ConnectedSettings extends Component {
     }
     
     render() {
-        if (this.props.user.status === 'getting session') {
-            return <Loading size='7x' color='black' />;
-        } else if (this.props.user.status === 'error') {
+        if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         }
-        
+
         if (this.props.user.user) {
             if (!this.props.user.user.connected_id) {
                 return <NotConnected user={this.props.user} />;
             }
-        }
 
-        let verificationStatus, status, reviewStatus, financialForm;
+            let verificationStatus, status, reviewStatus, financialForm;
 
-        if (this.state.status === 'Fetching') {
-            status = <Loading size='5x' />;
-        }
-
-        if (this.state.user) {
-            if (this.state.user.connected_acct_status === 'Reviewing') {
-                reviewStatus = <div className='mini-badge mini-badge-warning ml-1'>Reviewing</div>;
-            } else if (this.state.user.connected_acct_status === 'Declined') {
-                reviewStatus = <div className='mini-badge mini-badge-danger ml-1'>Declined</div>;
-            } else if (this.state.user.connected_acct_status === 'Approved') {
-                reviewStatus  = <div className='mini-badge mini-badge-success ml-1'>Approved</div>;
+            if (this.state.status === 'Fetching') {
+                status = <Loading size='5x' />;
             }
-        }
 
-        if (this.state.accountType === 'debit') {
-            financialForm = <div className='mb-3'>
-                <div className='setting-field-container mb-3'>
-                    <InputWrapper label='Account Holder Name' required>
-                        <input type='text' onChange={(e) => this.setState({accountHolder: e.target.value})} />
-                    </InputWrapper>
-                </div>
+            if (this.state.user) {
+                if (this.state.user.connected_acct_status === 'Reviewing') {
+                    reviewStatus = <div className='mini-badge mini-badge-warning ml-1'>Reviewing</div>;
+                } else if (this.state.user.connected_acct_status === 'Declined') {
+                    reviewStatus = <div className='mini-badge mini-badge-danger ml-1'>Declined</div>;
+                } else if (this.state.user.connected_acct_status === 'Approved') {
+                    reviewStatus  = <div className='mini-badge mini-badge-success ml-1'>Approved</div>;
+                }
+            }
 
-                <div className='setting-field-container mb-3'>
-                    <div className='setting-child' required>
-                        <InputWrapper label='Card Number' required>
-                            <CardNumberElement className='w-100' />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-child one-third'>
-                        <InputWrapper label='Expiry Date' required>
-                            <CardExpiryElement className='w-100' />
+            if (this.state.accountType === 'debit') {
+                financialForm = <div className='mb-3'>
+                    <div className='setting-field-container mb-3'>
+                        <InputWrapper label='Account Holder Name' required>
+                            <input type='text' onChange={(e) => this.setState({accountHolder: e.target.value})} />
                         </InputWrapper>
                     </div>
 
-                    <div className='setting-child one-third'>
-                        <InputWrapper label='CVC' required>
-                            <CardCVCElement className='w-100' />
-                        </InputWrapper>
-                    </div>
-                </div>
-
-                <div className='text-right'>
-                    <SubmitButton type='submit' loading={this.state.status === 'Adding Financial Account'} value='Add' />
-                </div>
-            </div>
-        } else if (this.state.accountType === 'bank') {
-            let bankInfo;
-
-            if (this.state.accountCountry === 'CA') {
-                bankInfo = <div className='setting-field-container mb-3'>
-                    <div className='setting-child'>
-                        <InputWrapper label='Account Number' required>
-                            <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-child quarter'>
-                        <InputWrapper label='Transit Number' required>
-                            <input type='number' onChange={(e) => this.setRoutingNumber('routing', e.target.value)} maxLength='5' />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-child quarter'>
-                        <InputWrapper label='Institution Number' required>
-                            <input type='number' onChange={(e) => this.setRoutingNumber('branch', e.target.value)} maxLength='3' />
-                        </InputWrapper>
-                    </div>
-                </div>;
-            } else if (this.state.accountCountry === 'US') {
-                bankInfo = <div className='setting-field-container mb-3'>
-                    <div className='setting-child'>
-                        <InputWrapper label='Account Number' required>
-                            <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-child quarter'>
-                        <InputWrapper label='Routing Number' required>
-                            <input type='number' onChange={(e) => this.setState({accountRoutingNumber: e.target.value})} maxLength='9' />
-                        </InputWrapper>
-                    </div>
-                </div>;
-            } else if (this.state.accountCountry === 'AU') {
-                bankInfo = <div className='setting-field-container mb-3'>
-                    <div className='setting-child'>
-                        <InputWrapper label='Account Number' required>
-                            <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} minLength='6' maxLength='10' />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-child quarter'>
-                        <InputWrapper label='BSB' required>
-                            <input type='number' onChange={(e) => this.setSettings({accountRoutingNumber: e.target.value})} maxLength='6' />
-                        </InputWrapper>
-                    </div>
-                </div>;
-            } else if (this.state.accountCountry === 'BR') {
-                bankInfo = <div className='setting-field-container mb-3'>
-                    <div className='setting-child'>
-                        <InputWrapper label='Account Number' required>
-                            <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-child quarter'>
-                        <InputWrapper label='Bank Code' required>
-                            <input type='number' onChange={(e) => this.setRoutingNumber('routing', e.target.value)} maxLength='3' />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-child quarter'>
-                        <InputWrapper label='Branch Code' required>
-                            <input type='number' onChange={(e) => this.setRoutingNumber('branch', e.target.value)} maxLength='4' />
-                        </InputWrapper>
-                    </div>
-                </div>;
-            } else if (this.state.accountCountry === 'HK') {
-                bankInfo = <div className='setting-field-container mb-3'>
-                    <div className='setting-child'>
-                        <InputWrapper label='Account Number' required>
-                            <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} minLength='6' maxLength='9' />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-child quarter'>
-                        <InputWrapper label='Clearing Code' required>
-                            <input type='number' onChange={(e) => this.setRoutingNumber('routing', e.target.value)} maxLength='3' />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-child quarter'>
-                        <InputWrapper label='Branch Code' required>
-                            <input type='number' onChange={(e) => this.setRoutingNumber('branch', e.target.value)} maxLength='3' />
-                        </InputWrapper>
-                    </div>
-                </div>;
-            } else if (this.state.accountCountry === 'MX') {
-                bankInfo = <div className='setting-field-container mb-3'>
-                    <div className='setting-child'>
-                        <InputWrapper label='Account Number (CLABE)' required>
-                            <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} maxLength='18' />
-                        </InputWrapper>
-                    </div>
-                </div>;
-            } else if (this.state.accountCountry === 'NZ') {
-                bankInfo = <div className='setting-field-container mb-3'>
-                    <div className='setting-child'>
-                        <InputWrapper label='Account Number' required>
-                            <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} minLength='15' maxLength='16' />
-                        </InputWrapper>
-                    </div>
-                </div>;
-            } else if (this.state.accountCountry === 'GB') {
-                let bankType;
-
-                if (this.state.ukBankType === 'bank') {
-                    bankType = <div className='setting-field-container mb-3'>
-                        <div className='setting-child'>
-                            <InputWrapper label='Account Number' required>
-                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} maxLength='8' />
+                    <div className='setting-field-container mb-3'>
+                        <div className='setting-child' required>
+                            <InputWrapper label='Card Number' required>
+                                <CardNumberElement className='w-100' />
                             </InputWrapper>
                         </div>
 
-                        <div className='setting-child quarte'>
-                            <InputWrapper label='Sort Code' required>
-                                <input type='number' onChange={(e) => this.setState({accountRoutingNumber: e.target.value})} maxLength='6' />
+                        <div className='setting-child one-third'>
+                            <InputWrapper label='Expiry Date' required>
+                                <CardExpiryElement className='w-100' />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child one-third'>
+                            <InputWrapper label='CVC' required>
+                                <CardCVCElement className='w-100' />
+                            </InputWrapper>
+                        </div>
+                    </div>
+
+                    <div className='text-right'>
+                        <SubmitButton type='submit' loading={this.state.status === 'Adding Financial Account'} value='Add' />
+                    </div>
+                </div>
+            } else if (this.state.accountType === 'bank') {
+                let bankInfo;
+
+                if (this.state.accountCountry === 'CA') {
+                    bankInfo = <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <InputWrapper label='Account Number' required>
+                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='Transit Number' required>
+                                <input type='number' onChange={(e) => this.setRoutingNumber('routing', e.target.value)} maxLength='5' />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='Institution Number' required>
+                                <input type='number' onChange={(e) => this.setRoutingNumber('branch', e.target.value)} maxLength='3' />
                             </InputWrapper>
                         </div>
                     </div>;
-                } else if (this.state.ukBankType === 'iban') {
-                    bankType = <InputWrapper label='IBAN' className='pr-2 pb-2 pl-2'>
-                        <IbanElement className='w-100' supportedCountries={['SEPA']} />
-                    </InputWrapper>;
-                }
-                bankInfo = <div>
-                    <div className='mb-3'>The information required for UK-based bank accounts depends on the currency being used and the country of your Stripe account. EUR-denominated UK bank accounts and some countries that support UK-based GBP accounts may need to provide IBAN information instead of an account number and sort code.</div>
+                } else if (this.state.accountCountry === 'US') {
+                    bankInfo = <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <InputWrapper label='Account Number' required>
+                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} />
+                            </InputWrapper>
+                        </div>
 
-                    <div className='radio-container'>
-                        <label className={this.state.ukBankType === 'bank' ? 'active' : ''} onClick={() => this.setSettings({ukBankType: 'bank'})}>
-                            <div className='radio'>
-                                {this.state.ukBankType === 'bank' ? <div className='radio-selected'></div> : ''}
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='Routing Number' required>
+                                <input type='number' onChange={(e) => this.setState({accountRoutingNumber: e.target.value})} maxLength='9' />
+                            </InputWrapper>
+                        </div>
+                    </div>;
+                } else if (this.state.accountCountry === 'AU') {
+                    bankInfo = <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <InputWrapper label='Account Number' required>
+                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} minLength='6' maxLength='10' />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='BSB' required>
+                                <input type='number' onChange={(e) => this.setSettings({accountRoutingNumber: e.target.value})} maxLength='6' />
+                            </InputWrapper>
+                        </div>
+                    </div>;
+                } else if (this.state.accountCountry === 'BR') {
+                    bankInfo = <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <InputWrapper label='Account Number' required>
+                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='Bank Code' required>
+                                <input type='number' onChange={(e) => this.setRoutingNumber('routing', e.target.value)} maxLength='3' />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='Branch Code' required>
+                                <input type='number' onChange={(e) => this.setRoutingNumber('branch', e.target.value)} maxLength='4' />
+                            </InputWrapper>
+                        </div>
+                    </div>;
+                } else if (this.state.accountCountry === 'HK') {
+                    bankInfo = <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <InputWrapper label='Account Number' required>
+                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} minLength='6' maxLength='9' />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='Clearing Code' required>
+                                <input type='number' onChange={(e) => this.setRoutingNumber('routing', e.target.value)} maxLength='3' />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='Branch Code' required>
+                                <input type='number' onChange={(e) => this.setRoutingNumber('branch', e.target.value)} maxLength='3' />
+                            </InputWrapper>
+                        </div>
+                    </div>;
+                } else if (this.state.accountCountry === 'MX') {
+                    bankInfo = <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <InputWrapper label='Account Number (CLABE)' required>
+                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} maxLength='18' />
+                            </InputWrapper>
+                        </div>
+                    </div>;
+                } else if (this.state.accountCountry === 'NZ') {
+                    bankInfo = <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <InputWrapper label='Account Number' required>
+                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} minLength='15' maxLength='16' />
+                            </InputWrapper>
+                        </div>
+                    </div>;
+                } else if (this.state.accountCountry === 'GB') {
+                    let bankType;
+
+                    if (this.state.ukBankType === 'bank') {
+                        bankType = <div className='setting-field-container mb-3'>
+                            <div className='setting-child'>
+                                <InputWrapper label='Account Number' required>
+                                    <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} maxLength='8' />
+                                </InputWrapper>
                             </div>
-                            <span>Bank Account</span>
-                        </label>
 
-                        <label className={this.state.ukBankType === 'iban' ? 'active' : ''} onClick={() => this.setSettings({ukBankType: 'iban'})}>
-                            <div className='radio'>
-                                {this.state.ukBankType === 'iban' ? <div className='radio-selected'></div> : ''}
+                            <div className='setting-child quarte'>
+                                <InputWrapper label='Sort Code' required>
+                                    <input type='number' onChange={(e) => this.setState({accountRoutingNumber: e.target.value})} maxLength='6' />
+                                </InputWrapper>
                             </div>
-                            <span>IBAN</span>
-                        </label>
-                    </div>
-
-                    {bankType}
-                </div>;
-            } else if (['AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'GI', 'IE', 'IT', 'LU', 'NL', 'NO', 'PT', 'ES', 'SE', 'CH'].indexOf(this.state.accountCountry) >= 0) {
-                bankInfo = <div className='setting-field-container mb-3'>
-                    <div className='setting-child'>
-                        <InputWrapper label='IBAN' className='pr-2 pb-2 pl-2' required>
+                        </div>;
+                    } else if (this.state.ukBankType === 'iban') {
+                        bankType = <InputWrapper label='IBAN' className='pr-2 pb-2 pl-2'>
                             <IbanElement className='w-100' supportedCountries={['SEPA']} />
-                        </InputWrapper>
+                        </InputWrapper>;
+                    }
+                    bankInfo = <div>
+                        <div className='mb-3'>The information required for UK-based bank accounts depends on the currency being used and the country of your Stripe account. EUR-denominated UK bank accounts and some countries that support UK-based GBP accounts may need to provide IBAN information instead of an account number and sort code.</div>
+
+                        <div className='radio-container'>
+                            <label className={this.state.ukBankType === 'bank' ? 'active' : ''} onClick={() => this.setSettings({ukBankType: 'bank'})}>
+                                <div className='radio'>
+                                    {this.state.ukBankType === 'bank' ? <div className='radio-selected'></div> : ''}
+                                </div>
+                                <span>Bank Account</span>
+                            </label>
+
+                            <label className={this.state.ukBankType === 'iban' ? 'active' : ''} onClick={() => this.setSettings({ukBankType: 'iban'})}>
+                                <div className='radio'>
+                                    {this.state.ukBankType === 'iban' ? <div className='radio-selected'></div> : ''}
+                                </div>
+                                <span>IBAN</span>
+                            </label>
+                        </div>
+
+                        {bankType}
+                    </div>;
+                } else if (['AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'GI', 'IE', 'IT', 'LU', 'NL', 'NO', 'PT', 'ES', 'SE', 'CH'].indexOf(this.state.accountCountry) >= 0) {
+                    bankInfo = <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <InputWrapper label='IBAN' className='pr-2 pb-2 pl-2' required>
+                                <IbanElement className='w-100' supportedCountries={['SEPA']} />
+                            </InputWrapper>
+                        </div>
+                    </div>;
+                }
+
+                financialForm = <div className='mb-3'>
+                    <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <InputWrapper label='Account Holder Name' required>
+                                <input text='text' onChange={(e) => this.setState({accountHolder: e.target.value})} />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='Country' required>
+                                <CountryDropdown value={this.state.accountCountry === null ? '' : this.state.accountCountry} onChange={(val) => this.setState({accountCountry: val})} valueType='short' whitelist={supportedCountries} />
+                            </InputWrapper>
+                        </div>
                     </div>
-                </div>;
+
+                    {bankInfo}
+
+                    <div className='text-right'>
+                        <SubmitButton type='submit' loading={this.state.status === 'Adding Financial Account'} value='Add' />
+                    </div>
+                </div>
             }
 
-            financialForm = <div className='mb-3'>
-                <div className='setting-field-container mb-3'>
-                    <div className='setting-child'>
-                        <InputWrapper label='Account Holder Name' required>
-                            <input text='text' onChange={(e) => this.setState({accountHolder: e.target.value})} />
-                        </InputWrapper>
-                    </div>
+            if (this.state.individual.verification.status === 'unverified') {
+                verificationStatus = <div className='mini-badge mini-badge-warning ml-1'>Unverified</div>;
+            } else if (this.state.individual.verification.status === 'verified') {
+                verificationStatus = <div className='mini-badge mini-badge-success ml-1'>Verified</div>
+            }
 
-                    <div className='setting-child quarter'>
-                        <InputWrapper label='Country' required>
-                            <CountryDropdown value={this.state.accountCountry === null ? '' : this.state.accountCountry} onChange={(val) => this.setState({accountCountry: val})} valueType='short' whitelist={supportedCountries} />
-                        </InputWrapper>
-                    </div>
-                </div>
-
-                {bankInfo}
-
-                <div className='text-right'>
-                    <SubmitButton type='submit' loading={this.state.status === 'Adding Financial Account'} value='Add' />
-                </div>
-            </div>
-        }
-
-        if (this.state.individual.verification.status === 'unverified') {
-            verificationStatus = <div className='mini-badge mini-badge-warning ml-1'>Unverified</div>;
-        } else if (this.state.individual.verification.status === 'verified') {
-            verificationStatus = <div className='mini-badge mini-badge-success ml-1'>Verified</div>
-        }
-
-        return (
-            <section id='connected-settings' className='main-panel'>
-                {status}
-                
-                <TitledContainer title='Connected Settings' icon={<FontAwesomeIcon icon={faLink} />} shadow bgColor='lightblue'>
-                    <div className='account-id mb-3'>
-                        <h2>{this.state.id}</h2>
-                        <div className='d-flex'>
-                            {verificationStatus}
-                            {reviewStatus}
-                        </div>
-                    </div>
-
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-        
-                        this.addFinancialAccount();                
-                    }}>
-                        <div className='simple-container no-bg mb-3'>
-                            <div className='simple-container-title'>Financial</div>
-            
-                            <div className='text-right mb-3'>
-                                <button className='add-card-mobile-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'debit'})}><FontAwesomeIcon icon={faPlus} /> <FontAwesomeIcon icon={faCreditCard} /></button>
-                                <button className='add-bank-mobile-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'bank'})}><FontAwesomeIcon icon={faPlus} /> <FontAwesomeIcon icon={faUniversity} /></button>
-                                <button className='add-card-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'debit'})}>Add Debit Card</button>
-                                <button className='add-bank-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'bank'})}>Add Bank Account</button>
+            return (
+                <section id='connected-settings' className='main-panel'>
+                    {status}
+                    
+                    <TitledContainer title='Connected Settings' icon={<FontAwesomeIcon icon={faLink} />} shadow bgColor='lightblue'>
+                        <div className='account-id mb-3'>
+                            <h2>{this.state.id}</h2>
+                            <div className='d-flex'>
+                                {verificationStatus}
+                                {reviewStatus}
                             </div>
+                        </div>
+
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
             
-                            {financialForm}
-
-                            {this.state.external_accounts && this.state.external_accounts.data.length > 0 ? <React.Fragment>
-                                <hr/>
-
-                                <div className='financial-accounts'>
-                                    {this.state.external_accounts.data.map((account, i) => {
-                                        return <React.Fragment key={i}>
-                                            <FinancialAccountRow account={account} setDefault={() => this.setPaymentDefault(account.id, i)} delete={() => this.deletePayment(account.id, i)} />
-
-                                            {i + 1 !== this.state.external_accounts.data.length ? <hr /> : ''}
-                                        </React.Fragment>;
-                                    })}
+                            this.addFinancialAccount();                
+                        }}>
+                            <div className='simple-container no-bg mb-3'>
+                                <div className='simple-container-title'>Financial</div>
+                
+                                <div className='text-right mb-3'>
+                                    <button className='add-card-mobile-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'debit'})}><FontAwesomeIcon icon={faPlus} /> <FontAwesomeIcon icon={faCreditCard} /></button>
+                                    <button className='add-bank-mobile-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'bank'})}><FontAwesomeIcon icon={faPlus} /> <FontAwesomeIcon icon={faUniversity} /></button>
+                                    <button className='add-card-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'debit'})}>Add Debit Card</button>
+                                    <button className='add-bank-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'bank'})}>Add Bank Account</button>
                                 </div>
-                            </React.Fragment> : ''}
-                        </div>
-                    </form>
+                
+                                {financialForm}
 
-                    <form onSubmit={(e)=> {
-                        e.preventDefault();
-                        this.updatePersonal();
-                    }}>
-                        <ConnectedSettingsForm settings={this.state} user={this.props.user} set={(state) => this.setState(state)}/>
+                                {this.state.external_accounts && this.state.external_accounts.data.length > 0 ? <React.Fragment>
+                                    <hr/>
 
-                        <div className='text-right'>
-                            <SubmitButton type='submit' loading={this.state.status === 'Updating Personal'} value='Update' />
-                            <button className='btn btn-secondary' onClick={() => this.resetSettings()}>Reset</button>
-                        </div>
-                    </form>
-                </TitledContainer>
-            </section>
-        );
+                                    <div className='financial-accounts'>
+                                        {this.state.external_accounts.data.map((account, i) => {
+                                            return <React.Fragment key={i}>
+                                                <FinancialAccountRow account={account} setDefault={() => this.setPaymentDefault(account.id, i)} delete={() => this.deletePayment(account.id, i)} />
+
+                                                {i + 1 !== this.state.external_accounts.data.length ? <hr /> : ''}
+                                            </React.Fragment>;
+                                        })}
+                                    </div>
+                                </React.Fragment> : ''}
+                            </div>
+                        </form>
+
+                        <form onSubmit={(e)=> {
+                            e.preventDefault();
+                            this.updatePersonal();
+                        }}>
+                            <ConnectedSettingsForm settings={this.state} user={this.props.user} set={(state) => this.setState(state)}/>
+
+                            <div className='text-right'>
+                                <SubmitButton type='submit' loading={this.state.status === 'Updating Personal'} value='Update' />
+                                <button className='btn btn-secondary' onClick={() => this.resetSettings()}>Reset</button>
+                            </div>
+                        </form>
+                    </TitledContainer>
+                </section>
+            );
+        }
+        
+        return <Loading size='7x' color='black' />;
     }
 }
 

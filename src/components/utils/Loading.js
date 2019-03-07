@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 export default class Loading extends Component {
     render() {
         return(
-            <div className='loading-container' style={this.props.background ? {background: `rgba(0, 0, 0, 0.5)`} : {background: 'transparent'}}>
+            <div className={`loading-container ${this.props.className ? this.props.className : ''}`}>
                 <FontAwesomeIcon icon={faCircleNotch} size={this.props.size} spin color={this.props.color} />
             </div>
         )

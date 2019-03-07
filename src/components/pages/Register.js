@@ -52,6 +52,10 @@ class Register extends Component {
     }
     
     render() {
+        if (this.props.user.status === 'success' && this.props.user.user) {
+            return <Redirect to='/dashboard' />;
+        }
+
         if (this.state.status === 'Registered') {
             return <Redirect to='/registration/success' />;
         }

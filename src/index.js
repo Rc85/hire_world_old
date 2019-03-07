@@ -9,7 +9,11 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 
 const store = createStore(reducers, applyMiddleware(thunk));
-//store.subscribe(() => { console.log(store.getState()) });
+store.subscribe(() => {
+    if (process.env.REACT_ENV !== 'production') {
+        console.log(store.getState());
+    }
+});
 
 ReactDOM.render(
     <Provider store={store}>

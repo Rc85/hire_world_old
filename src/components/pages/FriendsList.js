@@ -95,63 +95,65 @@ class FriendsList extends Component {
     }
     
     render() {
-        if (this.props.user.status === 'getting session') {
-            return <Loading size='7x' color='black' />;
-        } else if (this.props.user.status === 'error') {
+        if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         }
 
-        let status;
+        if (this.props.user.user) {
+            let status;
 
-        if (this.state.status === 'Loading') {
-            status = <Loading size='5x' />;
-        }
+            if (this.state.status === 'Loading') {
+                status = <Loading size='5x' />;
+            }
 
-        return(
-            <section id='friends-list' className='main-panel'>
-                {status}
-                <TitledContainer title='Friends List' icon={<FontAwesomeIcon icon={faUserFriends} />} bgColor='lightblue'>
-                    <div className='filter-container'>
-                        <AlphaNumericFilter filter={(letter) => this.filter(letter)} currentLetter={this.state.filtering} />
-                        <div className={`filter-button ${this.state.filtering === 'All' ? 'active' : ''}`} onClick={() => this.filter('All')}>All</div>
-                    </div>
+            return(
+                <section id='friends-list' className='main-panel'>
+                    {status}
+                    <TitledContainer title='Friends List' icon={<FontAwesomeIcon icon={faUserFriends} />} bgColor='lightblue'>
+                        <div className='filter-container'>
+                            <AlphaNumericFilter filter={(letter) => this.filter(letter)} currentLetter={this.state.filtering} />
+                            <div className={`filter-button ${this.state.filtering === 'All' ? 'active' : ''}`} onClick={() => this.filter('All')}>All</div>
+                        </div>
 
-                    <div className='friend-list-container'>
-                        {this.state.friends.map((friend, i) => {
-                            return <div className='friend-panel' key={i}>
-                                <div className='friend-panel-buttons'>
-                                    {this.state.status === 'Removing' ? <FontAwesomeIcon icon={faCircleNotch} className='text-black' spin /> : <FontAwesomeIcon icon={faUserMinus} className='text-highlight' onClick={() => this.removeFriend(friend.friend_user_2, i)} />}
-                                </div>
+                        <div className='friend-list-container'>
+                            {this.state.friends.map((friend, i) => {
+                                return <div className='friend-panel' key={i}>
+                                    <div className='friend-panel-buttons'>
+                                        {this.state.status === 'Removing' ? <FontAwesomeIcon icon={faCircleNotch} className='text-black' spin /> : <FontAwesomeIcon icon={faUserMinus} className='text-highlight' onClick={() => this.removeFriend(friend.friend_user_2, i)} />}
+                                    </div>
 
-                                <div className='friend-panel-header'>
-                                    <div className='friend-panel-profile-pic'><UserProfilePic url={friend.avatar_url} square /></div>
+                                    <div className='friend-panel-header'>
+                                        <div className='friend-panel-profile-pic'><UserProfilePic url={friend.avatar_url} square /></div>
 
-                                    <div className='friend-panel-header-info'>
-                                        <div className='friend-panel-header-container'>
-                                            <h5>{friend.listing_status && friend.listing_status === 'Active' ? <NavLink to={`/user/${friend.friend_user_2}`}>{friend.friend_user_2}</NavLink> : friend.friend_user_2}</h5>
-                                            {friend.user_email ? <a href={`mailto:${friend.user_email}`}>{friend.user_email}</a> : ''}
-                                            {friend.user_business_name ? <div className='friend-panel-header-child'><FontAwesomeIcon icon={faBuilding} className='text-special' /> <strong>{friend.user_business_name}</strong></div> : ''}
-                                            {friend.user_title ? <div className='friend-panel-header-child'><FontAwesomeIcon icon={faIdCard} className='text-special' /> <strong>{friend.user_title}</strong></div> : ''}
+                                        <div className='friend-panel-header-info'>
+                                            <div className='friend-panel-header-container'>
+                                                <h5>{friend.listing_status && friend.listing_status === 'Active' ? <NavLink to={`/user/${friend.friend_user_2}`}>{friend.friend_user_2}</NavLink> : friend.friend_user_2}</h5>
+                                                {friend.user_email ? <a href={`mailto:${friend.user_email}`}>{friend.user_email}</a> : ''}
+                                                {friend.user_business_name ? <div className='friend-panel-header-child'><FontAwesomeIcon icon={faBuilding} className='text-special' /> <strong>{friend.user_business_name}</strong></div> : ''}
+                                                {friend.user_title ? <div className='friend-panel-header-child'><FontAwesomeIcon icon={faIdCard} className='text-special' /> <strong>{friend.user_title}</strong></div> : ''}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {friend.connected_acct_status === 'Approved' || friend.listing_status === 'Active' ? 
-                                <div className='friend-panel-footer'>
-                                    <div className='text-right'>
-                                    {friend.listing_status === 'Active' ? <span className='mini-badge mini-badge-success ml-1'>Listed</span> : ''}
-                                    {friend.connected_acct_status === 'Approved' ? <span className='mini-badge mini-badge-success ml-1'>Connected</span> : ''}
+                                    {friend.connected_acct_status === 'Approved' || friend.listing_status === 'Active' ? 
+                                    <div className='friend-panel-footer'>
+                                        <div className='text-right'>
+                                        {friend.listing_status === 'Active' ? <span className='mini-badge mini-badge-success ml-1'>Listed</span> : ''}
+                                        {friend.connected_acct_status === 'Approved' ? <span className='mini-badge mini-badge-success ml-1'>Connected</span> : ''}
+                                        </div>
                                     </div>
+                                    : ''}
                                 </div>
-                                : ''}
-                            </div>
-                        })}
-                    </div>
+                            })}
+                        </div>
 
-                    {parseInt(this.state.totalFriends) > 30 ? <div className='text-center'><button className='btn btn-primary btn-sm' onClick={() => this.setState({offset: this.state.offset + 30})}>Load more</button></div> : ''}
-                </TitledContainer>
-            </section>
-        )
+                        {parseInt(this.state.totalFriends) > 30 ? <div className='text-center'><button className='btn btn-primary btn-sm' onClick={() => this.setState({offset: this.state.offset + 30})}>Load more</button></div> : ''}
+                    </TitledContainer>
+                </section>
+            )
+        }
+
+        return <Loading size='7x' color='black' />;
     }
 }
 

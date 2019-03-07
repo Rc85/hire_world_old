@@ -316,7 +316,7 @@ app.post('/api/pin', async(req, resp) => {
                         action = 'pin';
                     }
 
-                    await client.query('COMMIt')
+                    await client.query('COMMIT')
                     .then(() => resp.send({status: 'success', pinnedDate: date, action: action}));
                 } catch (e) {
                     await client.query('ROLLBACK');

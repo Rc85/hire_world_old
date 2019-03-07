@@ -20,6 +20,10 @@
     justify-content: space-between;
     align-items: center;
 
+    &.start {
+        align-items: flex-start;
+    }
+
     > .setting-field-container {
         flex-grow: 1;
         flex-basis: 100%;
@@ -171,6 +175,11 @@
             color: $success
         }
     }
+}
+
+.toggler-container {
+    display: flex;
+    position: relative;
 }
 
 .account-id {

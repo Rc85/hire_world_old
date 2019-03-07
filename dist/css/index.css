@@ -1316,6 +1316,14 @@
   z-index: 9999;
 }
 
+.p-relative {
+  position: relative;
+}
+
+.p-absolute {
+  position: absolute;
+}
+
 .titled-container-parent {
   max-height: 300px;
   overflow-y: auto;
@@ -2497,6 +2505,7 @@ footer {
 }
 
 #message-list-column-container {
+  position: relative;
   width: 40%;
 }
 #message-list-column-container #message-list-column {
@@ -3189,6 +3198,9 @@ footer {
   justify-content: space-between;
   align-items: center;
 }
+.setting-field-container.start {
+  align-items: flex-start;
+}
 .setting-field-container > .setting-field-container {
   flex-grow: 1;
   flex-basis: 100%;
@@ -3341,6 +3353,11 @@ footer {
 }
 .radio-container label.active .radio {
   border: 5px solid #00c900;
+}
+
+.toggler-container {
+  display: flex;
+  position: relative;
 }
 
 .account-id {

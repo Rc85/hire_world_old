@@ -60,11 +60,11 @@ class SubscriptionSettings extends Component {
     }
     
     render() {
-        if (this.props.user.status === 'getting session') {
-            return <Loading size='7x' />
-        } else if (this.props.user.status === 'error') {
-            return <Redirect to='/' />;
-        } else if (this.props.user.status === 'get session success' && this.props.user.user) {
+        if (this.props.user.status === 'error') {
+            return <Redirect to='/error/app/401' />;
+        }
+
+        if (this.props.user.user) {
             let subscriptionInfo, unsubscribeButton, billingDate, nickname, price;
 
             if (this.props.user.user && this.props.user.user.is_subscribed) {
@@ -144,7 +144,7 @@ class SubscriptionSettings extends Component {
             )
         }
 
-        return <Redirect to='/' />;
+        return <Loading size='7x' color='black' />;
     }
 }
 

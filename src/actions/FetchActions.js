@@ -4,8 +4,6 @@ import { Alert } from './AlertActions';
 
 export const GetSession = () => {
     return dispatch => {
-        dispatch(GetSessionBegin('getting session'));
-
         return fetch.post('/api/auth/login')
         .then(resp => {
             if (resp.data.status === 'success') {
@@ -15,14 +13,6 @@ export const GetSession = () => {
             }
         })
         .catch(err => LogError(err, '/api/auth/login'));
-    }
-}
-
-const GetSessionBegin = status => {
-    return {
-        type: 'LOGIN_USER',
-        status,
-        statusMessage: ''
     }
 }
 

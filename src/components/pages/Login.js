@@ -8,7 +8,7 @@ import LoginPanel from '../includes/site/LoginPanel';
 
 class Login extends Component {
     render() {
-        if (this.props.user.status === 'get session success' && this.props.user.user) {
+        if (this.props.user.status === 'success' && this.props.user.user) {
             return <Redirect to='/dashboard/edit' />;
         } else if (this.props.user.status === 'getting session') {
             return <Loading size='7x' />;

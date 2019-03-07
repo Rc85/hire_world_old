@@ -63,39 +63,41 @@ class BlockedUsers extends Component {
     }
     
     render() {
-        if (this.props.user.status === 'getting session') {
-            return <Loading size='7x' color='black' />;
-        } else if (this.props.user.status === 'error') {
+        if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         }
-        
-        let status;
 
-        if (this.state.status === 'Fetching') {
-            status = <Loading size='5x' />;
+        if (this.props.user.user) {
+            let status;
+
+            if (this.state.status === 'Fetching') {
+                status = <Loading size='5x' />;
+            }
+
+            let users = this.state.users.map((user, i) => {
+                return <div key={i} className='user-container'>
+                    <Username username={user.blocked_user} color='highlight' />
+                    {this.state.status === 'Unblocking' ? <FontAwesomeIcon icon={faCircleNotch} spin className='text-dark' /> : <FontAwesomeIcon icon={faTimesCircle} className='unblock-button' onClick={() => this.unblockUser(user.blocked_user, i)} />}
+                </div>
+            });
+
+            return (
+                <section id='blocked-users' className='main-panel'>
+                    {status}
+                    <TitledContainer title='Blocked Users' icon={<FontAwesomeIcon icon={faUserSlash} />} bgColor='danger' shadow>
+                        <div className='filter-container'>
+                            <AlphaNumericFilter filter={(letter) => this.filter(letter)} currentLetter={this.state.filtering} />
+                        </div>
+
+                        <div className='blocked-user-container'>
+                            {users}
+                        </div>
+                    </TitledContainer>
+                </section>
+            );
         }
-
-        let users = this.state.users.map((user, i) => {
-            return <div key={i} className='user-container'>
-                <Username username={user.blocked_user} color='highlight' />
-                {this.state.status === 'Unblocking' ? <FontAwesomeIcon icon={faCircleNotch} spin className='text-dark' /> : <FontAwesomeIcon icon={faTimesCircle} className='unblock-button' onClick={() => this.unblockUser(user.blocked_user, i)} />}
-            </div>
-        });
-
-        return (
-            <section id='blocked-users' className='main-panel'>
-                {status}
-                <TitledContainer title='Blocked Users' icon={<FontAwesomeIcon icon={faUserSlash} />} bgColor='danger' shadow>
-                    <div className='filter-container'>
-                        <AlphaNumericFilter filter={(letter) => this.filter(letter)} currentLetter={this.state.filtering} />
-                    </div>
-
-                    <div className='blocked-user-container'>
-                        {users}
-                    </div>
-                </TitledContainer>
-            </section>
-        );
+        
+        return <Loading size='7x' color='black' />;
     }
 }
 

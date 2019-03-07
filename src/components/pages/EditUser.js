@@ -117,121 +117,122 @@ class EditUser extends Component {
     }
     
     render() {
-        if (this.props.user.status === 'getting session') {
-            return <Loading size='7x' color='black' />;
-        } else if (this.props.user.status === 'error') {
+        if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         }
 
-        
-        let notificationStatus, activityStatus;
+        if (this.props.user.user) {
+            let notificationStatus, activityStatus;
 
-        if (this.state.notificationStatus === 'Loading') {
-            notificationStatus = <Loading size='3x' />;
-        }
-
-        if (this.state.activityStatus === 'Loading') {
-            activityStatus = <Loading size='3x' />;
-        }
-
-        let notifications = this.state.notifications.map((n, i) => {
-            let type;
-
-            if (n.notification_type === 'Update') {
-                type = 'badge-info';
-            } else if (n.notification_type === 'Warning') {
-                type = 'badge-warning';
-            } else if (n.notification_type === 'Severe') {
-                type = 'badge-danger';
+            if (this.state.notificationStatus === 'Loading') {
+                notificationStatus = <Loading size='3x' />;
             }
 
-            return <div key={i}>
-                <div className='titled-container-row'>
-                    <div className='titled-container-row-title'>
-                        <div className='d-flex-start'>
-                            {n.notification_status === 'New' ? <small className='mini-badge mini-badge-success mr-1'>New</small> : ''}
-                            <small className={`mini-badge mini-${type} mr-1`}>{n.notification_type}</small>
-                        </div>
-                        <div dangerouslySetInnerHTML={{__html: n.notification_message}}></div>
-                    </div>
-                </div>
-
-                <div className='text-right'><small>{moment(n.notification_date).format('MM-DD-YYYY h:mm:ss A')}</small></div>
-
-                {i + 1 !== this.state.notifications.length ? <hr /> : ''}
-            </div>
-        });
-
-        let activities = this.state.activities.map((a, i) => {
-            let type;
-
-            if (a.activity_type === 'Account') {
-                type = 'badge-orange';
-            } else if (a.activity_type === 'Payment') {
-                type = 'badge-lime';
-            } else if (a.activity_type === 'Subscription') {
-                type = 'badge-pink';
-            } else if (a.activity_type === 'Job') {
-                type = 'badge-lightblue';
-            } else if (a.activity_type === 'Purchase') {
-                type = 'badge-purple';
+            if (this.state.activityStatus === 'Loading') {
+                activityStatus = <Loading size='3x' />;
             }
 
-            return <div key={i} className='titled-container-row'>
-                <div className='titled-container-row-title mb-1'>
-                    {a.activity_action}
-                </div>
+            let notifications = this.state.notifications.map((n, i) => {
+                let type;
 
-                <div className='titled-container-row-detail'>
-                    <div className='activity-badge'>
-                        <span className={`mini-badge mini-${type}`}>{a.activity_type}</span>
-                    </div>
+                if (n.notification_type === 'Update') {
+                    type = 'badge-info';
+                } else if (n.notification_type === 'Warning') {
+                    type = 'badge-warning';
+                } else if (n.notification_type === 'Severe') {
+                    type = 'badge-danger';
+                }
 
-                    <div className='activity-timestamp'>{moment(a.activity_date).format('MM-DD-YYYY h:mm:ss A')}</div>
-                </div>
-
-                {i + 1 !== this.state.activities.length ? <hr /> : ''}
-            </div>
-        });
-
-        return(
-            <section id='edit-user'>
-                <div id='dashboard-header'>
-                    <div className='dashboard-bar'>
-                        <div className='profile-pic-wrapper'><UserProfilePic url={this.props.user.user.avatar_url} editable bordered borderColor='transparent' /></div>
-
-                        <div id='dashboard-header-user-info'>
-                            <h1><NavLink to={`/user/${this.props.user.user.username}`}>{this.props.user.user.username}</NavLink></h1>
-
-                            <EditUserField field={this.props.user.user.user_business_name} save={(val) => this.saveField('business name', val)} placeholder='3 - 40 characters' maxLength='40' emptyString='Your company name here' label='Company Name' icon={<FontAwesomeIcon icon={faBuilding} className='text-special edit-user-field-icon' />} dispatch={this.props.dispatch} />
-
-                            <EditUserField field={this.props.user.user.user_title} save={(val) => this.saveField('user title', val)} placeholder='3 - 30 characters' maxLength='30' emptyString='Your profession title here' label='Profession Title' icon={<FontAwesomeIcon icon={faIdCard} className='text-special edit-user-field-icon' />} dispatch={this.props.dispatch} />
-
+                return <div key={i}>
+                    <div className='titled-container-row'>
+                        <div className='titled-container-row-title'>
+                            <div className='d-flex-start'>
+                                {n.notification_status === 'New' ? <small className='mini-badge mini-badge-success mr-1'>New</small> : ''}
+                                <small className={`mini-badge mini-${type} mr-1`}>{n.notification_type}</small>
+                            </div>
+                            <div dangerouslySetInnerHTML={{__html: n.notification_message}}></div>
                         </div>
                     </div>
 
-                    <EditUserSocialMedia user={this.props.user.user} save={(field, val) => this.saveField(field, val)} dispatch={this.props.dispatch} />
-                </div>
+                    <div className='text-right'><small>{moment(n.notification_date).format('MM-DD-YYYY h:mm:ss A')}</small></div>
 
-                <div id='dashboard-panel-container'>
-                    <div id='notifications-panel' className='dashboard-panel-half mb-5'>
-                        <TitledContainer title='Notifications' bgColor='purple' shadow scroll={this.state.notifications.length > 0 ? true : false} icon={<FontAwesomeIcon icon={faBell} />}>
-                            {notificationStatus}
-                            {this.state.notifications.length > 0 ? notifications : <h5 className='text-dark text-center'>No notifications</h5>}
-                            {!this.state.notificationsFetched ? <div className='load-more-button'><button className='btn btn-primary btn-sm' onClick={() => this.setState({notificationOffset: this.state.notificationOffset + 5})}>Load more</button></div> : ''}
-                        </TitledContainer>
+                    {i + 1 !== this.state.notifications.length ? <hr /> : ''}
+                </div>
+            });
+
+            let activities = this.state.activities.map((a, i) => {
+                let type;
+
+                if (a.activity_type === 'Account') {
+                    type = 'badge-orange';
+                } else if (a.activity_type === 'Payment') {
+                    type = 'badge-lime';
+                } else if (a.activity_type === 'Subscription') {
+                    type = 'badge-pink';
+                } else if (a.activity_type === 'Job') {
+                    type = 'badge-lightblue';
+                } else if (a.activity_type === 'Purchase') {
+                    type = 'badge-purple';
+                }
+
+                return <div key={i} className='titled-container-row'>
+                    <div className='titled-container-row-title mb-1'>
+                        {a.activity_action}
                     </div>
 
-                    <div id='activities-panel' className='dashboard-panel-half mb-5'>
-                        <TitledContainer title='Recent Activities' bgColor='orange' shadow scroll={this.state.activities.length > 0 ? true : false} icon={<FontAwesomeIcon icon={faListUl} />}>
-                            {activityStatus}
-                            {this.state.activities.length > 0 ? activities : <h5 className='text-dark text-center'>No activities</h5>}
-                            {!this.state.activitiesFetched ? <div className='load-more-button'><button className='btn btn-primary btn-sm' onClick={() => this.setState({activityOffset: this.state.activityOffset + 5})}>Load more</button></div> : ''}
-                        </TitledContainer>
+                    <div className='titled-container-row-detail'>
+                        <div className='activity-badge'>
+                            <span className={`mini-badge mini-${type}`}>{a.activity_type}</span>
+                        </div>
+
+                        <div className='activity-timestamp'>{moment(a.activity_date).format('MM-DD-YYYY h:mm:ss A')}</div>
                     </div>
+
+                    {i + 1 !== this.state.activities.length ? <hr /> : ''}
                 </div>
-            </section>
-        )
+            });
+
+            return(
+                <section id='edit-user'>
+                    <div id='dashboard-header'>
+                        <div className='dashboard-bar'>
+                            <div className='profile-pic-wrapper'><UserProfilePic url={this.props.user.user.avatar_url} editable bordered borderColor='transparent' /></div>
+
+                            <div id='dashboard-header-user-info'>
+                                <h1><NavLink to={`/user/${this.props.user.user.username}`}>{this.props.user.user.username}</NavLink></h1>
+
+                                <EditUserField field={this.props.user.user.user_business_name} save={(val) => this.saveField('business name', val)} placeholder='3 - 40 characters' maxLength='40' emptyString='Your company name here' label='Company Name' icon={<FontAwesomeIcon icon={faBuilding} className='text-special edit-user-field-icon' />} dispatch={this.props.dispatch} />
+
+                                <EditUserField field={this.props.user.user.user_title} save={(val) => this.saveField('user title', val)} placeholder='3 - 30 characters' maxLength='30' emptyString='Your profession title here' label='Profession Title' icon={<FontAwesomeIcon icon={faIdCard} className='text-special edit-user-field-icon' />} dispatch={this.props.dispatch} />
+
+                            </div>
+                        </div>
+
+                        <EditUserSocialMedia user={this.props.user.user} save={(field, val) => this.saveField(field, val)} dispatch={this.props.dispatch} />
+                    </div>
+
+                    <div id='dashboard-panel-container'>
+                        <div id='notifications-panel' className='dashboard-panel-half mb-5'>
+                            <TitledContainer title='Notifications' bgColor='purple' shadow scroll={this.state.notifications.length > 0 ? true : false} icon={<FontAwesomeIcon icon={faBell} />}>
+                                {notificationStatus}
+                                {this.state.notifications.length > 0 ? notifications : <h5 className='text-dark text-center'>No notifications</h5>}
+                                {!this.state.notificationsFetched ? <div className='load-more-button'><button className='btn btn-primary btn-sm' onClick={() => this.setState({notificationOffset: this.state.notificationOffset + 5})}>Load more</button></div> : ''}
+                            </TitledContainer>
+                        </div>
+
+                        <div id='activities-panel' className='dashboard-panel-half mb-5'>
+                            <TitledContainer title='Recent Activities' bgColor='orange' shadow scroll={this.state.activities.length > 0 ? true : false} icon={<FontAwesomeIcon icon={faListUl} />}>
+                                {activityStatus}
+                                {this.state.activities.length > 0 ? activities : <h5 className='text-dark text-center'>No activities</h5>}
+                                {!this.state.activitiesFetched ? <div className='load-more-button'><button className='btn btn-primary btn-sm' onClick={() => this.setState({activityOffset: this.state.activityOffset + 5})}>Load more</button></div> : ''}
+                            </TitledContainer>
+                        </div>
+                    </div>
+                </section>
+            )
+        }
+
+        return <Loading size='7x' color='black' />;
     }
 }
 

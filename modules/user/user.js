@@ -538,14 +538,24 @@ app.post('/api/user/payment/add', (req, resp) => {
                     } else if (user && !user.rows[0].stripe_id) {
                         let customer = await stripe.customers.create({
                             source: req.body.token.id,
-                            email: user.rows[0].user_email
+                            email: user.rows[0].user_email,
+                            shipping: {
+                                name: req.body.token.name,
+                                address: {
+                                    line1: req.body.token.address_line1,
+                                    city: req.body.token.address_city,
+                                    state: req.body.token.address_state,
+                                    country: req.body.token.address_country,
+                                    postal_code: req.body.token.adress_zip
+                                }
+                            }
                         });
 
                         await client.query(`UPDATE users SET stripe_id = $1 WHERE username = $2`, [customer.id, req.session.user.username]);
 
                         await client.query('COMMIT')
                         .then(async() => {
-                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a card ending in ${customer.sources.data.last4}`, req.session.user.username, 'Payment']);
+                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a card ending in ${customer.sources.data[customer.sources.data.length - 1].last4}`, req.session.user.username, 'Payment']);
                             resp.send({status: 'success', statusMessage: 'Card added', defaultSource: customer.default_source, card: customer.sources.data[0]});
                         });
                     }

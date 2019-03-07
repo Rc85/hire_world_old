@@ -63,6 +63,12 @@ class BlockedUsers extends Component {
     }
     
     render() {
+        if (this.props.user.status === 'getting session') {
+            return <Loading size='7x' color='black' />;
+        } else if (this.props.user.status === 'error') {
+            return <Redirect to='/error/app/401' />;
+        }
+        
         let status;
 
         if (this.state.status === 'Fetching') {

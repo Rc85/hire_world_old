@@ -93,7 +93,10 @@ class Conversations extends Component {
                 this.setState({status: resp.data.status});
             }
         })
-        .catch(err => LogError(err, `/api/get/messages/${this.state.showing}`));
+        .catch(err => {
+            LogError(err, `/api/get/messages/${this.state.showing}`);
+            this.setState({status: ''});
+        });
     }
 
     pinMessage(id) {
@@ -160,87 +163,85 @@ class Conversations extends Component {
     
     render() {
         if (this.props.user.status === 'getting session') {
-            return <Loading size='7x' />
+            return <Loading size='7x' color='black' />;
         } else if (this.props.user.status === 'error') {
-            return <Redirect to='/' />;
-        } else if (this.props.user.status === 'get session success' && this.props.user.user) {
-            let status, body, message, loadingMessageStatus;
+            return <Redirect to='/error/app/401' />;
+        }
+       
+        let status, body, message, loadingMessageStatus;
 
-            if (this.state.status === 'Loading') {
-                status = <Loading size='5x' />;
-            } else if (this.state.status === 'access error') {
-                return <Redirect to='/error/app/500' />
-            }
-
-            let messages = this.state.conversations.map((message, i) => {
-                let pinned = false;
-
-                if (this.state.pinnedConversations.indexOf(message.conversation_id) >= 0) {
-                    pinned = true;
-                }
-
-                return <ConversationRow key={i} user={this.props.user.user} message={message} pin={() => this.pinMessage(message.conversation_id)} pinned={pinned} load={(id) => this.loadMessage(id, i)} loadedId={this.state.loadedConversation.conversation_id} status={this.state.status} delete={(id) => this.delete(id, i)} />
-            });
-
-            if (this.state.conversations.length > 0) {
-                body = <React.Fragment>
-                    <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
-
-                    <div className='inquiry-rows'>{messages}</div>
-
-                    <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
-                </React.Fragment>;
-            } else {
-                body = <div className='text-center'>
-                    <h2 className='text-dark'>There are no messages</h2>
-                </div>;
-            }
-
-            if (this.state.status === 'suspended') {
-                message = <div className='alert alert-danger'>You cannot retrieve your messages at the moment.</div>
-            }
-
-            return (
-                <section id='inquiries'>
-                    {status}
-
-                    <div id='message-list-toggle-up-down'><FontAwesomeIcon icon={this.state.showConversationsList ? faChevronUp : faChevronDown} size='3x' onClick={() => this.toggleMessageList(!this.state.showConversationsList)} /></div>
-
-                    <div id='message-list-column-container'>
-                        <div id='message-list-column' className={this.state.showConversationsList ? '' : 'hide'}>
-                            <div id='message-list-main-column'>
-                                <div className='message-filter-buttons-container'>
-                                    <button className={`btn ${this.state.showing === 'all' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'all'})}>All</button>
-                                    <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received'})}>Received</button>
-                                    <button className={`btn ${this.state.showing === 'sent' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'sent'})}>Sent</button>
-                                    <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned'})}>Pinned</button>
-                                </div>
-                                
-                                {body}
-    
-                                {/* <div className='message-filter-buttons-container mt-3'>
-                                    <button className='close-message-column-button btn btn-light' onClick={() => this.toggleMessageList(false)}><FontAwesomeIcon icon={faChevronLeft} /></button>
-                                </div> */}
-                            </div>
-    
-                        </div>
-                        
-                        <div id='message-list-mini-column'>
-                            <FontAwesomeIcon icon={this.state.showConversationsList ? faChevronLeft : faBars} size='2x' onClick={() => this.toggleMessageList(!this.state.showConversationsList)} />
-                        </div>
-                    </div>
-
-                    <div id='message-column'>
-                        {loadingMessageStatus}
-                        {this.state.loadedConversation && this.state.loadedConversation.conversation_id ?
-                            <MessageDetails conversation={this.state.loadedConversation} user={this.props.user} />
-                        : <h1 className='load-message-text text-dark'>Select a message to display here</h1>}
-                    </div>
-                </section>
-            )
+        if (this.state.status === 'Loading') {
+            status = <Loading size='5x' />;
+        } else if (this.state.status === 'access error') {
+            return <Redirect to='/error/app/500' />
         }
 
-        return <Redirect to='/' />
+        let messages = this.state.conversations.map((message, i) => {
+            let pinned = false;
+
+            if (this.state.pinnedConversations.indexOf(message.conversation_id) >= 0) {
+                pinned = true;
+            }
+
+            return <ConversationRow key={i} user={this.props.user.user} message={message} pin={() => this.pinMessage(message.conversation_id)} pinned={pinned} load={(id) => this.loadMessage(id, i)} loadedId={this.state.loadedConversation.conversation_id} status={this.state.status} delete={(id) => this.delete(id, i)} />
+        });
+
+        if (this.state.conversations.length > 0) {
+            body = <React.Fragment>
+                <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
+
+                <div className='inquiry-rows'>{messages}</div>
+
+                <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
+            </React.Fragment>;
+        } else {
+            body = <div className='text-center'>
+                <h2 className='text-dark'>There are no messages</h2>
+            </div>;
+        }
+
+        if (this.state.status === 'suspended') {
+            message = <div className='alert alert-danger'>You cannot retrieve your messages at the moment.</div>
+        }
+
+        return (
+            <section id='inquiries'>
+                {status}
+
+                <div id='message-list-toggle-up-down'><FontAwesomeIcon icon={this.state.showConversationsList ? faChevronUp : faChevronDown} size='3x' onClick={() => this.toggleMessageList(!this.state.showConversationsList)} /></div>
+
+                <div id='message-list-column-container'>
+                    <div id='message-list-column' className={this.state.showConversationsList ? '' : 'hide'}>
+                        <div id='message-list-main-column'>
+                            <div className='message-filter-buttons-container'>
+                                <button className={`btn ${this.state.showing === 'all' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'all'})}>All</button>
+                                <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received'})}>Received</button>
+                                <button className={`btn ${this.state.showing === 'sent' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'sent'})}>Sent</button>
+                                <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned'})}>Pinned</button>
+                            </div>
+                            
+                            {body}
+
+                            {/* <div className='message-filter-buttons-container mt-3'>
+                                <button className='close-message-column-button btn btn-light' onClick={() => this.toggleMessageList(false)}><FontAwesomeIcon icon={faChevronLeft} /></button>
+                            </div> */}
+                        </div>
+
+                    </div>
+                    
+                    <div id='message-list-mini-column'>
+                        <FontAwesomeIcon icon={this.state.showConversationsList ? faChevronLeft : faBars} size='2x' onClick={() => this.toggleMessageList(!this.state.showConversationsList)} />
+                    </div>
+                </div>
+
+                <div id='message-column'>
+                    {loadingMessageStatus}
+                    {this.state.loadedConversation && this.state.loadedConversation.conversation_id ?
+                        <MessageDetails conversation={this.state.loadedConversation} user={this.props.user} />
+                    : <h1 className='load-message-text text-dark'>Select a message to display here</h1>}
+                </div>
+            </section>
+        )
     }
 }
 

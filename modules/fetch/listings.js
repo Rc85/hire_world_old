@@ -20,6 +20,8 @@ app.post('/api/get/listing', async(req, resp) => {
             console.log(err);
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
+    } else {
+        resp.send({status: 'not logged in'});
     }
 });
 

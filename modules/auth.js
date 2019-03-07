@@ -198,7 +198,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
                             return;
                         }    
                     } else {
-                        resp.send({status: 'not logged in'});
+                        resp.send({status: 'error', statusMessage: `You're not logged in`});
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
@@ -218,19 +218,19 @@ async(req, resp) => {
         let user = await controller.session.retrieve(false, req.session.user.user_id);
 
         if (user) {    
-            resp.send({status: 'get session success', user: user});
+            resp.send({status: 'success', user: user});
         } else {
-            resp.send({status: 'get session fail', statusMessage: `The user does not exist`});
+            resp.send({status: 'error', statusMessage: `The user does not exist`});
         }
     } else {
-        resp.send({status: 'get session fail', statusMessage: `You're not logged in`});
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
     }
 });
 
 app.post('/api/auth/logout', (req, resp) => {
     req.session = null;
 
-    resp.send({status: 'logged out'});
+    resp.send({status: 'error', statusMessage: `Logged out`});
 });
 
 module.exports = app;

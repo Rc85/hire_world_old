@@ -280,7 +280,7 @@ class ViewUser extends Component {
                 }
 
                 if (this.state.message === 'message') {
-                    if (this.state.user.username !== this.props.user.username && this.state.user.allow_messaging) {
+                    if (this.state.user.username !== this.props.user.username) {
                         message = <React.Fragment>
                             <hr/>
 
@@ -309,7 +309,7 @@ class ViewUser extends Component {
 
                             {this.props.user && this.state.user && this.props.user.username !== this.state.user.username ?
                                 <div className='text-right'>
-                                    {this.state.message != 'message' ? <button className='btn btn-primary' onClick={() => this.setState({message: 'message'})}>Message</button> : ''}
+                                    {this.state.message != 'message' && this.state.user.allow_messaging ? <button className='btn btn-primary' onClick={() => this.setState({message: 'message'})}>Message</button> : ''}
                                     {this.state.message != 'propose a job' && this.state.user && this.state.user.connected_acct_status === 'Approved' ? <button className='btn btn-success' onClick={() => this.setState({message: 'propose a job'})}>Job Proposal</button> : ''}
                                 </div>
                             : ''}

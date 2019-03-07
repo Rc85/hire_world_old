@@ -5,13 +5,14 @@ import { GetSession } from './FetchActions';
 
 export const LoginUser = (data) => {
     return dispatch => {
-        document.body.style.overflow = 'auto';
+        document.body.style.overflow = 'hidden';
         dispatch(LoginBegin('login begin'));
 
         return fetch.post('/api/auth/login', data)
         .then(resp => {
-            if (resp.data.status === 'get session success') {
-                dispatch(GetSession());
+            document.body.style.overflow = 'auto';
+            if (resp.data.status === 'success') {
+                dispatch(LoginSuccess(resp.data.status, resp.data.user));
             } else if (resp.data.status === 'error') {
                 dispatch(LoginError(resp.data.status, resp.data.statusMessage));
                 dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -19,7 +20,7 @@ export const LoginUser = (data) => {
                 dispatch(LoginError(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => LogError(err, '/api/auth/login'));
+        .catch(err => LogError(err, '/api/auth/login'));   
     }
 }
 
@@ -30,11 +31,20 @@ const LoginBegin = (status) => {
     }
 }
 
-const LoginError = (status, message) => {
+const LoginSuccess = (status, user) => {
+    return {
+        type: 'LOGIN_USER_UPDATE',
+        user,
+        status
+    }
+}
+
+const LoginError = (status, statusMessage) => {
     return {
         type: 'LOGIN_USER_ERROR',
         status,
-        message
+        statusMessage, 
+        user: null
     }
 }
 
@@ -42,7 +52,7 @@ export const LogoutUser = () => {
     return dispatch => {
         fetch.post('/api/auth/logout')
         .then(resp => {
-            if (resp.data.status === 'logged out') {
+            if (resp.data.status === 'error') {
                 dispatch(Logout(resp.data.status));
             }
         })

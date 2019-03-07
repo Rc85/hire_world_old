@@ -17,7 +17,7 @@ class Dashboard extends Component {
     }
     
     componentDidUpdate(prevProps, prevState) {
-        if (prevProps.user.status === 'access error' && prevProps.location.key !== this.props.location.key) {
+        if (prevProps.location.key !== this.props.location.key) {
             this.props.dispatch(GetSession());
         }
     }
@@ -42,9 +42,7 @@ class Dashboard extends Component {
             ]}
         ];
 
-        if (this.props.user.status === 'getting session') {
-            dashboard = <Loading size='7x' color='black' />;
-        } else if (this.props.user.status === 'get session success' && this.props.user.user) {
+        if (this.props.user.status === 'get session success' && this.props.user.user) {
             if (this.props.location.pathname.match(/^\/dashboard/)) {
                 dashboard = <Redirect to='/dashboard' />;
             }
@@ -65,7 +63,7 @@ class Dashboard extends Component {
                     <Response code={403} header={'Forbidden'} message={this.props.user.statusMessage}>{this.props.user.statusMessage === `You need to activate your account` ? <div><NavLink to='/resend'>Resend Confirmation Email</NavLink></div> : ''}</Response>
                 </div>
             </section>;
-        } else if (this.props.user.status === 'error' || this.props.user.status === 'not logged in') {
+        } else {
             dashboard = <section id='dashboard'>
                 {!this.props.config.isMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
 

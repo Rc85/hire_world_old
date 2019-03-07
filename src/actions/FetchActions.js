@@ -8,7 +8,7 @@ export const GetSession = () => {
 
         return fetch.post('/api/auth/login')
         .then(resp => {
-            if (resp.data.status === 'get session success') {
+            if (resp.data.status === 'success') {
                 dispatch(GetSessionSuccess(resp.data.status, resp.data.user));
             } else {
                 dispatch(GetSessionFail(resp.data.status, resp.data.statusMessage));
@@ -21,7 +21,8 @@ export const GetSession = () => {
 const GetSessionBegin = status => {
     return {
         type: 'LOGIN_USER',
-        status
+        status,
+        statusMessage: ''
     }
 }
 
@@ -29,7 +30,8 @@ const GetSessionSuccess = (status, user) => {
     return {
         type: 'LOGIN_USER_UPDATE',
         user,
-        status
+        status,
+        statusMessage: ''
     }
 }
 
@@ -37,7 +39,9 @@ const GetSessionFail = (status, message) => {
     return {
         type: 'LOGIN_USER_ERROR',
         message,
-        status
+        status,
+        statusMessage: '',
+        user: null
     }
 }
 

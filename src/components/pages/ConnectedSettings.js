@@ -235,6 +235,12 @@ class ConnectedSettings extends Component {
     }
     
     render() {
+        if (this.props.user.status === 'getting session') {
+            return <Loading size='7x' color='black' />;
+        } else if (this.props.user.status === 'error') {
+            return <Redirect to='/error/app/401' />;
+        }
+        
         if (this.props.user.user) {
             if (!this.props.user.user.connected_id) {
                 return <NotConnected user={this.props.user} />;

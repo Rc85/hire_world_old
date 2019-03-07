@@ -66,12 +66,6 @@ class ListSettings extends Component {
     }
 
     componentDidMount() {
-        /* if (this.props.listing) {
-            let initialSettings = {...this.state.initialSettings, ...this.props.listing};
-
-            this.setState({initialSettings: initialSettings, newSettings: initialSettings});
-        }
-        this.props.dispatch(GetSectors()); */
         this.setState({status: 'Loading'});
 
         fetch.post('/api/get/listing')
@@ -85,7 +79,10 @@ class ListSettings extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => LogError(err, '/api/get/listing'));
+        .catch(err => {
+            LogError(err, '/api/get/listing');
+            this.setState({status: ''});
+        });
     }
 
     saveSetting() {
@@ -148,6 +145,12 @@ class ListSettings extends Component {
     }
 
     render() {
+        if (this.props.user.status === 'getting session') {
+            return <Loading size='7x' color='black' />;
+        } else if (this.props.user.status === 'error') {
+            return <Redirect to='/error/app/401' />;
+        }
+
         let status, sectors, renewButton, form;
 
         if (this.state.status === 'Loading') {
@@ -173,119 +176,115 @@ class ListSettings extends Component {
         
         let disableSave = JSON.stringify(this.state.initialSettings) === JSON.stringify(this.state.newSettings);
 
-        if (this.props.user.user) {
-            return(
-                <section id='list-settings' className='main-panel'>
-                    <TitledContainer title='My Listing' bgColor='danger' icon={<FontAwesomeIcon icon={faListAlt} />} shadow>
-                        {status}
+        return(
+            <section id='list-settings' className='main-panel'>
+                <TitledContainer title='My Listing' bgColor='danger' icon={<FontAwesomeIcon icon={faListAlt} />} shadow>
+                    {status}
 
-                        <div className='setting-container'>
-                            <div className='list-setting-container'>
-                                <div className='d-flex-end-center'>
-                                    {renewButton}
-                                    <SlideToggle status={this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} />
-                                </div>
-        
-                                <form onSubmit={e => {
-                                    e.preventDefault();
-                                    
-                                    this.saveSetting();
-                                }}>
-                                    <div className='setting-field-container mb-3'>
-                                        <InputWrapper label='List Title' id='listing-title' required>
-                                            <input type='text' value={this.state.newSettings.listing_title} onChange={(e) => this.setSetting('listing_title', e.target.value)} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} maxLength='60' placeholder='60 characters max' />
-                                        </InputWrapper>
-            
-                                        <InputWrapper label='Type of Business' id='listing-location' required>
-                                            <div className='checkbox-label-container'>
-                                                <label className={`checkbox-label ${this.state.newSettings.listing_online ? 'active' : ''}`}>
-                                                    <input type='checkbox' value='Online' onChange={(e) => this.setSetting('listing_online', !this.state.newSettings.listing_online)} checked={this.state.newSettings.Listing_online} />
-                                                    
-                                                    <div className='checkbox-container'>
-                                                        <div className='checkbox'>{this.state.newSettings.listing_online ? <FontAwesomeIcon icon={faCheck} /> : ''}</div>
-                                                        <span className='checkbox-label-text'>Online</span>
-                                                    </div>
-                                                </label>
-
-                                                <label className={`checkbox-label ${this.state.newSettings.listing_remote ? 'active' : ''}`}>
-                                                    <input type='checkbox' value='Remote' onChange={(e) => this.setSetting('listing_remote', !this.state.newSettings.listing_remote)} checked={this.state.newSettings.listing_remote} />
-                                                    
-                                                    <div className='checkbox-container'>
-                                                        <div className='checkbox'>{this.state.newSettings.listing_remote ? <FontAwesomeIcon icon={faCheck} /> : ''}</div>
-                                                        <span className='checkbox-label-text'>Remote</span>
-                                                    </div>
-                                                </label>
-                        
-                                                <label className={`checkbox-label ${this.state.newSettings.listing_local ? 'active' : ''}`}>
-                                                    <input type='checkbox' value='Local' onChange={(e) => this.setSetting('listing_local', !this.state.newSettings.listing_local)} checked={this.state.newSettings.listing_local} />
-                                                    
-                                                    <div className='checkbox-container'>
-                                                        <div className='checkbox'>{this.state.newSettings.listing_local ? <FontAwesomeIcon icon={faCheck} /> : ''}</div>
-                                                        <span className='checkbox-label-text'>Local</span>
-                                                    </div>
-                                                </label>
-                                            </div>
-                                        </InputWrapper>
-                                    </div>
-                        
-                                    <div className='mb-3'>
-                                        <InputWrapper label='List Sector' required>
-                                            <select onChange={(e) => this.setSetting('listing_sector', e.target.value)} value={this.state.newSettings.listing_sector}>{sectors}</select>
-                                        </InputWrapper>
-                                    </div>
-                        
-                                    <div className='setting-field-container mb-3'>
-                                        <InputWrapper label='Pay Frequency' id='listing-price-type' required>
-                                            <select onChange={(e) => this.setSetting('listing_price_type', e.target.value)} value={this.state.newSettings.listing_price_type}>
-                                                <option value='To Be Discussed'>To Be Discussed</option>
-                                                <option value='Hour'>Hour</option>
-                                                <option value='Bi-weekly'>Bi-weekly</option>
-                                                <option value='Month'>Month</option>
-                                                <option value='Delivery'>Delivery</option>
-                                                <option value='One Time Payment'>One Time Payment</option>
-                                            </select>
-                                        </InputWrapper>
-                        
-                                        {this.state.newSettings.listing_price_type !== 'To Be Discussed' ? <React.Fragment>
-                                            <InputWrapper label='Price Rate' id='listing-price'>
-                                                <input type='number' onChange={(e) => this.setSetting('listing_price', e.target.value)} value={this.state.newSettings.listing_price} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
-                                            </InputWrapper>
-                            
-                                            <InputWrapper label='Currency' id='listing-price-currency' required>
-                                                <input type='text' onChange={(e) => this.setSetting('listing_price_currency', e.target.value)} value={this.state.newSettings.listing_price_currency} list='currency-list' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
-                                                <datalist id='currency-list'>
-                                                    <option value='USD'>USD</option>
-                                                    <option value='CAD'>CAD</option>
-                                                    <option value='AUD'>AUD</option>
-                                                    <option value='EUR'>EUR</option>
-                                                    <option value='GBP'>GBP</option>
-                                                </datalist>
-                                            </InputWrapper>
-                                        </React.Fragment> : ''}
-                                    </div>
-                        
-                                    <div className='d-flex-end-center mb-3'>
-                                        <TwoSidedCheckbox checkedText='Negotiable' uncheckedText='Non-negotiable' checked={this.state.newSettings.listing_negotiable} check={(bool) => this.setSetting('listing_negotiable', bool)} />
-                                    </div>
-                        
-                                    <TextArea label='Details' rows={10} className='mb-3' textAreaClassName='w-100' onChange={(val) => this.setSetting('listing_detail', val)} value={this.state.newSettings.listing_detail} />
-            
-                                    <div className='d-flex-end-center mb-3'>
-                                        {this.props.create ? <SubmitButton type='submit' loading={this.props.status === 'Creating'} value='Create' /> : <SubmitButton type='submit' loading={this.state.status === 'Saving'} value='Save' disabled={disableSave} />}
-                        
-                                        <button type='button' className='btn btn-secondary' onClick={() => this.setState({newSettings: this.state.initialSettings})}>Reset</button>
-                                    </div>
-                                </form>
+                    <div className='setting-container'>
+                        <div className='list-setting-container'>
+                            <div className='d-flex-end-center mb-3'>
+                                {renewButton}
+                                <SlideToggle status={this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} />
                             </div>
     
-                            <div className='business-hours-setting-container'><BusinessHoursSettings id={this.state.newSettings.listing_id} /></div>
-                        </div>
-                    </TitledContainer>
-                </section>
-            );
-        }
+                            <form onSubmit={e => {
+                                e.preventDefault();
+                                
+                                this.saveSetting();
+                            }}>
+                                <div className='setting-field-container mb-3'>
+                                    <InputWrapper label='List Title' id='listing-title' required>
+                                        <input type='text' value={this.state.newSettings.listing_title} onChange={(e) => this.setSetting('listing_title', e.target.value)} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} maxLength='60' placeholder='60 characters max' />
+                                    </InputWrapper>
+        
+                                    <InputWrapper label='Type of Business' id='listing-location' required>
+                                        <div className='checkbox-label-container'>
+                                            <label className={`checkbox-label ${this.state.newSettings.listing_online ? 'active' : ''}`}>
+                                                <input type='checkbox' value='Online' onChange={(e) => this.setSetting('listing_online', !this.state.newSettings.listing_online)} checked={this.state.newSettings.Listing_online} />
+                                                
+                                                <div className='checkbox-container'>
+                                                    <div className='checkbox'>{this.state.newSettings.listing_online ? <FontAwesomeIcon icon={faCheck} /> : ''}</div>
+                                                    <span className='checkbox-label-text'>Online</span>
+                                                </div>
+                                            </label>
 
-        return null;
+                                            <label className={`checkbox-label ${this.state.newSettings.listing_remote ? 'active' : ''}`}>
+                                                <input type='checkbox' value='Remote' onChange={(e) => this.setSetting('listing_remote', !this.state.newSettings.listing_remote)} checked={this.state.newSettings.listing_remote} />
+                                                
+                                                <div className='checkbox-container'>
+                                                    <div className='checkbox'>{this.state.newSettings.listing_remote ? <FontAwesomeIcon icon={faCheck} /> : ''}</div>
+                                                    <span className='checkbox-label-text'>Remote</span>
+                                                </div>
+                                            </label>
+                    
+                                            <label className={`checkbox-label ${this.state.newSettings.listing_local ? 'active' : ''}`}>
+                                                <input type='checkbox' value='Local' onChange={(e) => this.setSetting('listing_local', !this.state.newSettings.listing_local)} checked={this.state.newSettings.listing_local} />
+                                                
+                                                <div className='checkbox-container'>
+                                                    <div className='checkbox'>{this.state.newSettings.listing_local ? <FontAwesomeIcon icon={faCheck} /> : ''}</div>
+                                                    <span className='checkbox-label-text'>Local</span>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </InputWrapper>
+                                </div>
+                    
+                                <div className='mb-3'>
+                                    <InputWrapper label='List Sector' required>
+                                        <select onChange={(e) => this.setSetting('listing_sector', e.target.value)} value={this.state.newSettings.listing_sector}>{sectors}</select>
+                                    </InputWrapper>
+                                </div>
+                    
+                                <div className='setting-field-container mb-3'>
+                                    <InputWrapper label='Pay Frequency' id='listing-price-type' required>
+                                        <select onChange={(e) => this.setSetting('listing_price_type', e.target.value)} value={this.state.newSettings.listing_price_type}>
+                                            <option value='To Be Discussed'>To Be Discussed</option>
+                                            <option value='Hour'>Hour</option>
+                                            <option value='Bi-weekly'>Bi-weekly</option>
+                                            <option value='Month'>Month</option>
+                                            <option value='Delivery'>Delivery</option>
+                                            <option value='One Time Payment'>One Time Payment</option>
+                                        </select>
+                                    </InputWrapper>
+                    
+                                    {this.state.newSettings.listing_price_type !== 'To Be Discussed' ? <React.Fragment>
+                                        <InputWrapper label='Price Rate' id='listing-price'>
+                                            <input type='number' onChange={(e) => this.setSetting('listing_price', e.target.value)} value={this.state.newSettings.listing_price} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                        </InputWrapper>
+                        
+                                        <InputWrapper label='Currency' id='listing-price-currency' required>
+                                            <input type='text' onChange={(e) => this.setSetting('listing_price_currency', e.target.value)} value={this.state.newSettings.listing_price_currency} list='currency-list' onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                                            <datalist id='currency-list'>
+                                                <option value='USD'>USD</option>
+                                                <option value='CAD'>CAD</option>
+                                                <option value='AUD'>AUD</option>
+                                                <option value='EUR'>EUR</option>
+                                                <option value='GBP'>GBP</option>
+                                            </datalist>
+                                        </InputWrapper>
+                                    </React.Fragment> : ''}
+                                </div>
+                    
+                                <div className='d-flex-end-center mb-3'>
+                                    <TwoSidedCheckbox checkedText='Negotiable' uncheckedText='Non-negotiable' checked={this.state.newSettings.listing_negotiable} check={(bool) => this.setSetting('listing_negotiable', bool)} />
+                                </div>
+                    
+                                <TextArea label='Details' rows={10} className='mb-3' textAreaClassName='w-100' onChange={(val) => this.setSetting('listing_detail', val)} value={this.state.newSettings.listing_detail} />
+        
+                                <div className='d-flex-end-center mb-3'>
+                                    {this.props.create ? <SubmitButton type='submit' loading={this.props.status === 'Creating'} value='Create' /> : <SubmitButton type='submit' loading={this.state.status === 'Saving'} value='Save' disabled={disableSave} />}
+                    
+                                    <button type='button' className='btn btn-secondary' onClick={() => this.setState({newSettings: this.state.initialSettings})}>Reset</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div className='business-hours-setting-container'><BusinessHoursSettings id={this.state.newSettings.listing_id} /></div>
+                    </div>
+                </TitledContainer>
+            </section>
+        );
     }
 }
 

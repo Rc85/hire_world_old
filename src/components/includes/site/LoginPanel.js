@@ -6,6 +6,7 @@ import InputWrapper from '../../utils/InputWrapper';
 import SubmitButton from '../../utils/SubmitButton';
 import { isTyping } from '../../../actions/ConfigActions';
 import { NavLink } from 'react-router-dom';
+import { strictEqual } from 'assert';
 
 class LoginPanel extends Component {
     constructor(props) {
@@ -17,14 +18,7 @@ class LoginPanel extends Component {
             password: null
         }
     }
-    
-    handleLogin(e) {
-        e.preventDefault();
 
-        this.setState({status: 'Logging in'});
-
-        this.props.dispatch(LoginUser(this.state));
-    }
 
     register() {
         location.href = '/register';
@@ -33,7 +27,10 @@ class LoginPanel extends Component {
     render() {
         return (
             <div id='login-panel'>
-                <form onSubmit={(e) => this.handleLogin(e)}>
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    this.props.dispatch(LoginUser(this.state));
+                }}>
                     <InputWrapper label='Username' className='mb-3'>
                         <input type='text' onChange={(e) => this.setState({username: e.target.value})} maxLength='25' />
                     </InputWrapper>
@@ -45,7 +42,7 @@ class LoginPanel extends Component {
                     <div className='mb-3'><NavLink to='/forgot-password'>Forgot Password</NavLink></div>
 
                     <div className='text-right'>
-                        <SubmitButton type='submit' loading={this.state.status === 'Logging in'} value='Login' />
+                        <SubmitButton type='submit' loading={this.props.user.status === 'login begin'} value='Login' />
                         <NavLink to='/register'><button type='button' className='btn btn-info'>Register</button></NavLink>
                     </div>
                 </form>
@@ -58,4 +55,10 @@ LoginPanel.propTypes = {
 
 };
 
-export default connect()(LoginPanel);
+const mapStateToProps = state => {
+    return {
+        user: state.Login
+    }
+}
+
+export default connect(mapStateToProps)(LoginPanel);

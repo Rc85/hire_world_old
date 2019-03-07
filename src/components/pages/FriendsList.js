@@ -53,7 +53,10 @@ class FriendsList extends Component {
                 this.setState({status: 'error'});
             }
         })
-        .catch(err => LogError(err, '/api/user/get/friends'));
+        .catch(err => {
+            LogError(err, '/api/user/get/friends');
+            this.setState({status: ''});
+        });
     }
 
     removeFriend(user, index) {
@@ -92,6 +95,12 @@ class FriendsList extends Component {
     }
     
     render() {
+        if (this.props.user.status === 'getting session') {
+            return <Loading size='7x' color='black' />;
+        } else if (this.props.user.status === 'error') {
+            return <Redirect to='/error/app/401' />;
+        }
+
         let status;
 
         if (this.state.status === 'Loading') {

@@ -22,7 +22,7 @@ class PaymentSettings extends Component {
         
         this.state = {
             status: 'Loading',
-            defaultAddress: null,
+            defaultAddress: this.props.user.user && this.props.user.user.user_address && this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code,
             saveAddress: false,
             payments: [],
             name: ''
@@ -38,22 +38,19 @@ class PaymentSettings extends Component {
     }
     
     componentDidMount() {
-        let defaultAddress = false;
-
-        if (this.props.user.user && this.props.user.user.user_address && this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code) {
-            defaultAddress = true;
-        }
-
         fetch.post('/api/get/user/payments')
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', payments: resp.data.payments, defaultSource: resp.data.defaultSource, defaultAddress: defaultAddress});
+                this.setState({status: '', payments: resp.data.payments, defaultSource: resp.data.defaultSource, defaultAddress: this.state.defaultAddress});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => LogError(err, '/api/get/user/payments'));
+        .catch(err => {
+            LogError(err, '/api/get/user/payments');
+            this.setState({status: ''});
+        });
     }
     
     async save() {
@@ -155,6 +152,12 @@ class PaymentSettings extends Component {
     }
     
     render() {
+        if (this.props.user.status === 'getting session') {
+            return <Loading size='7x' color='black' />;
+        } else if (this.props.user.status === 'error') {
+            return <Redirect to='/error/app/401' />;
+        }
+
         let address, paymentMethods;
 
         if (!this.state.defaultAddress) {
@@ -167,57 +170,49 @@ class PaymentSettings extends Component {
             });
         }
 
-        if (this.props.user.status === 'getting session') {
-            return <Loading size='7x' />
-        } else if (this.props.user.status === 'error') {
-            return <Redirect to='/' />;
-        } else if (this.props.user.status === 'get session success' && this.props.user.user) {
-            return (
-                <section id='payment-settings' className='main-panel'>
-                    <TitledContainer title='Payment Settings' bgColor='green' icon={<FontAwesomeIcon icon={faCreditCard} />} shadow>
-                        <div className='payment-icons'>
-                            <img src='/images/powered_by_stripe.png' className='payment-icon mr-1' />
-                            <img src='/images/payment_methods.png' className='payment-icon' />
+        return (
+            <section id='payment-settings' className='main-panel'>
+                <TitledContainer title='Payment Settings' bgColor='green' icon={<FontAwesomeIcon icon={faCreditCard} />} shadow>
+                    <div className='payment-icons'>
+                        <img src='/images/powered_by_stripe.png' className='payment-icon mr-1' />
+                        <img src='/images/payment_methods.png' className='payment-icon' />
+                    </div>
+
+                    <div className='mobile-tooltip mb-3'>Your name on your profile will be used if left blank</div>
+                    
+                    <InputWrapper label='Name on Card' className='mb-3' required>
+                        <input type='text' name='name' id='nameOnCard' onChange={(e) => this.setState({name: e.target.value})} placeholder={this.props.config.isTyping ? '' : 'Your name on your profile will be used if left blank'} value={this.state.name} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
+                    </InputWrapper>
+    
+                    <div className='setting-field-container mb-3'>
+                        <div className='setting-child three-quarter'>
+                            <InputWrapper label='Card Number' required className='pl-1 pb-1 pr-1'><CardNumberElement onReady={el => this.CardNumberElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
                         </div>
 
-                        <div className='mobile-tooltip mb-3'>Your name on your profile will be used if left blank</div>
-                        
-                        <InputWrapper label='Name on Card' className='mb-3'>
-                            <input type='text' name='name' id='nameOnCard' onChange={(e) => this.setState({name: e.target.value})} placeholder={this.props.config.isTyping ? '' : 'Your name on your profile will be used if left blank'} value={this.state.name} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} />
-                        </InputWrapper>
-        
-                        <div className='setting-field-container mb-3'>
-                            <div className='setting-child three-quarter'>
-                                <InputWrapper label='Card Number' required><CardNumberElement onReady={el => this.CardNumberElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
-                            </div>
-
-                            <div className='setting-child quarter'>
-                                <InputWrapper label='Expiry Date' required><CardExpiryElement onReady={el => this.CardExpiryElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
-                            </div>
-        
-                            <div className='setting-child quarter'>
-                                <InputWrapper label='CVC' required><CardCVCElement onReady={el => this.CardCVCElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
-                            </div>
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='Expiry Date' required className='pl-1 pb-1 pr-1'><CardExpiryElement onReady={el => this.CardExpiryElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
                         </div>
-        
-                        <div className='setting-child mb-3'><label><input type='checkbox' name='default-address' id='useDefaultAddress' onClick={() => this.useDefaultAdress()} defaultChecked={this.state.defaultAddress} /> Use address registered with this account</label></div>
-        
-                        {address}
-        
-                        <div className='text-right'>
-                            <SubmitButton type='button' onClick={() => this.save()} loading={this.state.status === 'Adding'} value='Add Payment' />
-                            <button type='button' className='btn btn-secondary' onClick={() => this.clear()}>Clear</button>
+    
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='CVC' required className='pl-1 pb-1 pr-1'><CardCVCElement onReady={el => this.CardCVCElement = el} onFocus={() => this.props.dispatch(isTyping(true))} onBlur={() => this.props.dispatch(isTyping(false))} className='w-100' /></InputWrapper>
                         </div>
-        
-                        <hr/>
-        
-                        {paymentMethods}
-                    </TitledContainer>
-                </section>
-            )
-        }
-
-        return <Redirect to='/' />
+                    </div>
+    
+                    <div className='setting-child mb-3'><label><input type='checkbox' name='default-address' id='useDefaultAddress' onClick={() => this.useDefaultAdress()} defaultChecked={this.state.defaultAddress} /> Use address registered with this account</label></div>
+    
+                    {address}
+    
+                    <div className='text-right'>
+                        <SubmitButton type='button' onClick={() => this.save()} loading={this.state.status === 'Adding'} value='Add Payment' />
+                        <button type='button' className='btn btn-secondary' onClick={() => this.clear()}>Clear</button>
+                    </div>
+    
+                    <hr/>
+    
+                    {paymentMethods}
+                </TitledContainer>
+            </section>
+        )
     }
 }
 

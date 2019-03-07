@@ -47,70 +47,71 @@ class AccountSettings extends Component {
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
-        .catch(err => LogError(err, '/api/user/settings/change'));
+        .catch(err => {
+            LogError(err, '/api/user/settings/change');
+            this.setState({status: ''});
+        });
     }
 
-    render() {
+    render() { 
+        if (this.props.user.status === 'getting session') {
+            return <Loading size='7x' color='black' />;
+        } else if (this.props.user.status === 'error') {
+            return <Redirect to='/error/app/401' />;
+        }
+
         let status;
 
         if (this.state.status === 'Loading') {
             status = <Loading size='5x' />;
         }
+       
+        return(
+            <section id='user-settings' className='main-panel'>
+                {status}
 
-        if (this.props.user.status === 'getting session') {
-            return <Loading size='7x' />
-        } else if (this.props.user.status === 'error') {
-            return <Redirect to='/' />;
-        } else if (this.props.user.status === 'get session success' && this.props.user.user) {   
-            return(
-                <section id='user-settings' className='main-panel'>
-                    {status}
-
-                    <TitledContainer title='Account Settings' bgColor='orange' icon={<FontAwesomeIcon icon={faUserCircle} />} shadow>
-                        <ProfileSettings user={this.props.user} />
-        
-                        <hr/>
-        
-                        <div className='setting-field-container mb-3'>
-                            <div className='settings-col'><PasswordSettings /></div>
-                            <div className='settings-col'><EmailSettings user={this.props.user.user} /></div>
-                        </div>
-        
-                        <div className='setting-field-container mb-3'>
-                            <div className='settings-col'>
-                                <div className='setting-col-field mb-3'>
-                                    <label htmlFor='hideEmail'>Hide email:</label>
-        
-                                    <SlideToggle status={this.props.user.user && this.props.user.user.hide_email ? this.props.user.user.hide_email : false} id='hideEmail' onClick={() => this.saveSetting('hide_email')} />
-                                </div>
-        
-                                <div className='setting-col-field mb-3'>
-                                    <label htmlFor='displayFullName'>Show full name:</label>
-        
-                                    <SlideToggle status={this.props.user.user && this.props.user.user.display_fullname ? this.props.user.user.display_fullname : false} id='displayFullName' onClick={() => this.saveSetting('display_fullname')} />
-                                </div>
+                <TitledContainer title='Account Settings' bgColor='orange' icon={<FontAwesomeIcon icon={faUserCircle} />} shadow>
+                    <ProfileSettings user={this.props.user} />
+    
+                    <hr/>
+    
+                    <div className='setting-field-container mb-3'>
+                        <div className='settings-col'><PasswordSettings /></div>
+                        <div className='settings-col'><EmailSettings user={this.props.user.user} /></div>
+                    </div>
+    
+                    <div className='setting-field-container mb-3'>
+                        <div className='settings-col'>
+                            <div className='setting-col-field mb-3'>
+                                <label htmlFor='hideEmail'>Hide email:</label>
+    
+                                <SlideToggle status={this.props.user.user && this.props.user.user.hide_email ? this.props.user.user.hide_email : false} id='hideEmail' onClick={() => this.saveSetting('hide_email')} />
                             </div>
-        
-                            <div className='settings-col'>
-                                <div className='setting-col-field mb-3'>
-                                    <Tooltip text='You will receive email when you have new messages and when changes are made to your account.' placement='top'><label htmlFor='emailNotifications'>Email notifications: <FontAwesomeIcon icon={faQuestionCircle} id='email-notification-tips'  className='tooltip-icon' /></label></Tooltip>
-        
-                                    <SlideToggle status={this.props.user.user && this.props.user.user.email_notifications ? this.props.user.user.email_notifications : false} id='emailNotifications' onClick={() => this.saveSetting('email_notifications')} />
-                                </div>
-        
-                                <div className='setting-col-field mb-3'>
-                                    <label htmlFor='allowMessaging'>Block New Messages:</label>
-        
-                                    <SlideToggle status={this.props.user.user && this.props.user.user.allow_messaging ? this.props.user.user.allow_messaging : false} id='allowMessaging' onClick={() => this.saveSetting('allow_messaging')} />
-                                </div>
+    
+                            <div className='setting-col-field mb-3'>
+                                <label htmlFor='displayFullName'>Show full name:</label>
+    
+                                <SlideToggle status={this.props.user.user && this.props.user.user.display_fullname ? this.props.user.user.display_fullname : false} id='displayFullName' onClick={() => this.saveSetting('display_fullname')} />
                             </div>
                         </div>
-                    </TitledContainer>
-                </section>
-            )
-        }
-
-        return <Redirect to='/' />;
+    
+                        <div className='settings-col'>
+                            <div className='setting-col-field mb-3'>
+                                <Tooltip text='You will receive email when you have new messages and when changes are made to your account.' placement='top'><label htmlFor='emailNotifications'>Email notifications: <FontAwesomeIcon icon={faQuestionCircle} id='email-notification-tips'  className='tooltip-icon' /></label></Tooltip>
+    
+                                <SlideToggle status={this.props.user.user && this.props.user.user.email_notifications ? this.props.user.user.email_notifications : false} id='emailNotifications' onClick={() => this.saveSetting('email_notifications')} />
+                            </div>
+    
+                            <div className='setting-col-field mb-3'>
+                                <label htmlFor='allowMessaging'>Enable Messaging:</label>
+    
+                                <SlideToggle status={this.props.user.user && this.props.user.user.allow_messaging ? this.props.user.user.allow_messaging : false} id='allowMessaging' onClick={() => this.saveSetting('allow_messaging')} />
+                            </div>
+                        </div>
+                    </div>
+                </TitledContainer>
+            </section>
+        )
     }
 }
 

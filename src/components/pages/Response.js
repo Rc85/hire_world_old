@@ -30,7 +30,11 @@ class Response extends Component {
         let code, header, message;
 
         if (this.props.match.params.code) {
-            if (this.props.match.params.code === '404') {
+            if (this.props.match.params.code === '401') {
+                code = 403;
+                header = 'Unauthorized';
+                message = `You're not authorized to access this page`;
+            } else if (this.props.match.params.code === '404') {
                 code = 404;
                 header = 'Not Found';
                 message = `The page you're trying to access does not exist`;

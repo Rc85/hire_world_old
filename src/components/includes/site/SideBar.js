@@ -52,9 +52,9 @@ class SideBar extends Component {
             active={/^\/(browse|sector|user)/.test(this.props.location.pathname) || (this.props.menu.id === 'browse-menu' && this.props.menu.show)} />
         </div>;
 
-        if (this.props.user.status === 'getting session') {
+        /* if (this.props.user.status === 'getting session') {
             sidebarContent = <Loading size='5x' />;
-        } else if (this.props.user.status === 'get session success') {
+        } else  */if (this.props.user.user) {
             sidebarContent = <React.Fragment>
                 <div id='sidebar-buttons-container'>
                     <div><FontAwesomeIcon icon={faUserCircle} className='text-highlight mr-1' /> <NavLink to='/dashboard'>{this.props.user.user.username}</NavLink></div>
@@ -86,7 +86,7 @@ class SideBar extends Component {
                     </div>
                 </div>
             </React.Fragment>;
-        } else if (this.props.user.status === 'error' || this.props.user.status === 'not logged in' || this.props.user.status === 'access error') {
+        } else /* if (this.props.user.status === 'error' || this.props.user.status === 'not logged in' || this.props.user.status === 'access error') */ {
             sidebarContent = <React.Fragment>
                 <div id='sidebar-links'>
                     {browseLink}
@@ -103,7 +103,7 @@ class SideBar extends Component {
 
                 <div className='text-center'><NavLink to='/'><img src='/images/logo_xl.png' id='hireworld-logo' /></NavLink></div>
 
-                {sidebarContent}
+                <div id='sidebar-content'>{sidebarContent}</div>
             </section>
         );
     }

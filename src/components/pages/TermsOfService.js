@@ -39,7 +39,7 @@ const TermsOfService = props => {
                 <div className='mb-1'><a href='#business'>Conducting Business on HireWorld</a></div>
                 <div className='mb-1'><a href='#promotions'>Promotions</a></div>
                 <div className='mb-1'><a href='#fees'>Fees</a></div>
-                <div className='mb-1'><a href='#purchases'>Purchases and Subscriptions</a></div>
+                <div className='mb-1'><a href='#purchases'>Payments, Purchases, and Subscriptions</a></div>
                 <div className='mb-1'><a href='#refunds'>Refunds, Chargebacks, and Disputes</a></div>
                 <div className='mb-1'><a href='#content'>Content</a></div>
                 <div className='mb-1'><a href='#licensing'>Licensing and Ownership</a></div>
@@ -137,9 +137,9 @@ const TermsOfService = props => {
 
                 <hr/>
 
-                <h2 id='purchases'>Purchases and Subscriptions</h2>
+                <h2 id='purchases'>Payments, Purchases, and Subscriptions</h2>
 
-                <p>By making purchases and/or subscribing to a recurring payment plan at HireWorld, you hereby agree that the information that you provide upon making purchases or subscribing to a plan, will be sent and stored on <a href='https://stripe.com'>Stripe</a>. Furthermore, you acknowledge that you have read, understood, and agreed to <a href='https://stripe.com/privacy'>Stripe's Privacy Policy</a> in regards to what information they collect and how they are stored.</p>
+                <p>By adding a payment, making purchases and/or subscribing to a recurring payment plan at HireWorld, you hereby agree that the information provided by you upon making adding payment, making purchases or subscribing to a plan, will be sent and stored on <a href='https://stripe.com'>Stripe</a>. Furthermore, you acknowledge that you have read, understood, and agreed to <a href='https://stripe.com/privacy'>Stripe's Privacy Policy</a>.</p>
 
                 <p>You have all the rights to cancel your subscription at any time and the service will still be available to you for the remaining time that you paid for.</p>
 

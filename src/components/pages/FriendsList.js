@@ -10,7 +10,7 @@ import { LogError } from '../utils/LogError';
 import TitledContainer from '../utils/TitledContainer';
 import UserProfilePic from '../includes/page/UserProfilePic';
 import { faBuilding, faIdCard } from '@fortawesome/free-regular-svg-icons';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Redirect } from 'react-router-dom';
 import AlphaNumericFilter from '../utils/AlphaNumericFilter';
 
 class FriendsList extends Component {
@@ -97,6 +97,8 @@ class FriendsList extends Component {
     render() {
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
+        } else if (this.props.user.status === 'not logged in') {
+            return <Redirect to='/' />;
         }
 
         if (this.props.user.user) {

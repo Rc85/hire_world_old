@@ -145,6 +145,8 @@ class ListSettings extends Component {
     render() {
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
+        } else if (this.props.user.status === 'not logged in') {
+            return <Redirect to='/' />;
         }
 
         if (this.props.user.user) {

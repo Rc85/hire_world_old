@@ -14,6 +14,7 @@ import { CardNumberElement, CardCVCElement, CardExpiryElement, injectStripe, Iba
 import FinancialAccountRow from '../includes/page/FinancialAccountRow';
 import SubmitButton from '../utils/SubmitButton';
 import InputWrapper from '../utils/InputWrapper';
+import { Redirect } from 'react-router-dom';
 
 class ConnectedSettings extends Component {
     constructor(props) {
@@ -237,6 +238,8 @@ class ConnectedSettings extends Component {
     render() {
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
+        } else if (this.props.user.status === 'not logged in') {
+            return <Redirect to='/' />;
         }
 
         if (this.props.user.user) {

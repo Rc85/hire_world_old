@@ -11,6 +11,7 @@ import { faUserSlash, faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 import Loading from '../utils/Loading';
 import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';
+import { Redirect } from 'react-router-dom';
 
 class BlockedUsers extends Component {
     constructor(props) {
@@ -65,6 +66,8 @@ class BlockedUsers extends Component {
     render() {
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
+        } else if (this.props.user.status === 'not logged in') {
+            return <Redirect to='/' />;
         }
 
         if (this.props.user.user) {

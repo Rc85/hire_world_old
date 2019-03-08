@@ -4679,6 +4679,7 @@ footer {
 
 .profile-pic-container {
   border-radius: 100%;
+  height: 100%;
 }
 .profile-pic-container.bordered {
   padding: 5px;
@@ -4701,6 +4702,7 @@ footer {
 }
 .profile-pic.square {
   border-radius: 0;
+  height: 100%;
 }
 
 .profile-pic:after {

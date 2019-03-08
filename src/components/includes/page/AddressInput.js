@@ -25,14 +25,14 @@ const AddressInput = props => {
 
                 <div className='setting-child'>
                     <InputWrapper label='Country'>
-                        <CountryDropdown value={props.info.address_country} onChange={(val) => props.set('address_country', val)} />
+                        <CountryDropdown value={props.info.address_country} onChange={(val) => props.set('address_country', val)} valueType='short' />
                     </InputWrapper>
                 </div>
             </div>
 
             <div className='setting-field-container mb-3'>
                 <div className='setting-child'>
-                    <InputWrapper label='Region'><RegionDropdown value={props.info && props.info.address_state ? props.info.address_state : ''} country={props.info && props.info.address_country ? props.info.address_country : ''} onChange={(val) => props.set('address_state', val)} /></InputWrapper>
+                    <InputWrapper label='Region'><RegionDropdown value={props.info && props.info.address_state ? props.info.address_state : ''} country={props.info && props.info.address_country ? props.info.address_country : ''} onChange={(val) => props.set('address_state', val)} countryValueType='short' valueType='short' /></InputWrapper>
                 </div>
 
                 <div className='setting-child'>

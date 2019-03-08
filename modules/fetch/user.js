@@ -362,7 +362,7 @@ app.post('/api/get/user/minimal', async(req, resp) => {
 
 app.post('/api/get/user/blocked', async(req, resp) => {
     if (req.session.user) {
-        await controller.retrieve.blockedUsers(req, (result) => {
+        await controller.blockedUsers.retrieve(req, (result) => {
             if (result.status === 'success') {
                 resp.send({status: result.status, statusMessage: result.statusMessage, users: result.users, totalBlockedUsers: result.totalBlockedUsers});
             } else if (result.status === 'error') {

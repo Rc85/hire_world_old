@@ -100,14 +100,6 @@ class PaymentSettings extends Component {
         this.setState(obj);
     }
 
-    updateCard(index, card) {
-        let payments = [...this.state.payments];
-
-        payments[index] = card;
-
-        this.setState({payments: payments})
-    }
-
     useDefaultAdress() {
         if (!this.props.user.user.user_address && !this.props.user.user.user_city && !this.props.user.user.user_region && !this.props.user.user.user_country && !this.props.user.user.user_city_code) {
             this.props.dispatch(Alert('error', 'No address to use'));
@@ -150,6 +142,23 @@ class PaymentSettings extends Component {
         })
         .catch(err => LogError(err, '/api/user/payment/delete'));
     }
+
+    edit(data, index) {
+        this.setState({status: 'Editing'});
+
+         fetch.post('/api/user/payment/edit', data)
+        .then(resp => {
+            let payments = [...this.state.payments];
+
+            if (resp.data.status === 'success') {
+                payments[index] = resp.data.card;
+            }
+
+            this.setState({status: '', payments: payments});
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => LogError(err, '/api/user/payment/edit'));
+    }
     
     render() {
         if (this.props.user.status === 'error') {
@@ -165,7 +174,7 @@ class PaymentSettings extends Component {
 
             if (this.state.payments.length > 0) {
                 paymentMethods = this.state.payments.map((payment, i) => {
-                    return <PaymentMethods key={i} status={this.state.status} payment={payment} defaultSource={this.state.defaultSource} updateCard={(card) => this.updateCard(i, card)} setDefault={(id) => this.setDefault(id)} delete={(id) => this.delete(i, id)} />;
+                    return <PaymentMethods key={i} status={this.state.status} payment={payment} defaultSource={this.state.defaultSource} save={(data) => this.edit(data, i)} setDefault={(id) => this.setDefault(id)} delete={(id) => this.delete(i, id)} />;
                 });
             }
 

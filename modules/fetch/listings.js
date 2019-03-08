@@ -21,7 +21,7 @@ app.post('/api/get/listing', async(req, resp) => {
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         });
     } else {
-        resp.send({status: 'not logged in'});
+        resp.send({status: 'error', statusMessage: `You're not logged in`});
     }
 });
 

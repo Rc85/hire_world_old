@@ -577,12 +577,14 @@ app.post('/api/user/payment/edit', (req, resp) => {
 
                     let user = await client.query(`SELECT stripe_id FROM users WHERE username = $1`, [req.session.user.username]);
 
-                    let card = await stripe.customers.updateCard(user.rows[0].stripe_id, req.body.source, {
+                    let card = await stripe.customers.updateCard(user.rows[0].stripe_id, req.body.id, {
                         address_line1: req.body.address_line1,
                         address_city: req.body.address_city,
                         address_state: req.body.address_state,
                         address_country: req.body.address_country,
-                        address_zip: req.body.address_zip
+                        address_zip: req.body.address_zip,
+                        exp_month: req.body.card_exp_month,
+                        exp_year: req.body.card_exp_year
                     });
 
                     await client.query('COMMIT')
@@ -634,8 +636,8 @@ app.post('/api/user/payment/default', (req, resp) => {
                         });
                     } else if (user && !user.rows[0].stripe_id) {
                         let error = new Error(`You need to add a card`);
-                        error.type = 'CUSTOM';
-                        throw error;
+                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                        throw errObj;
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
@@ -644,16 +646,7 @@ app.post('/api/user/payment/default', (req, resp) => {
                     done();
                 }
             })()
-            .catch(err => {
-                 console.log(err);
-                let message = 'An error occurred';
-
-                if (err.type === 'CUSTOM') {
-                    message = err.message;
-                }
-
-                resp.send({status: 'error', statusMessage: message});
-            });
+            .catch(err => error.log(err, req, resp));
         });
     }
 });
@@ -676,7 +669,7 @@ app.post('/api/user/payment/delete', (req, resp) => {
                             let error = new Error(`This card cannot be deleted`);
                             error.type = 'CUSTOM';
                             throw error;
-                        } else if (customer.sources.data.length > 1) {
+                        } else if (!user.rows[0].is_subscribed && customer.sources.data.length > 0) {
                             card = await stripe.customers.deleteCard(user.rows[0].stripe_id, req.body.id);
 
                             if (card.deleted) {

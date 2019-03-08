@@ -10,6 +10,7 @@ import fetch from 'axios';
 import { connect } from 'react-redux';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
+import InputWrapper from '../../utils/InputWrapper';
 
 class PaymentMethods extends Component {
     constructor(props) {
@@ -22,35 +23,29 @@ class PaymentMethods extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    /* componentWillReceiveProps(nextProps) {
         if (nextProps.confirm.data && nextProps.confirm.data.id === this.props.payment.id) {
             if (nextProps.confirm.data.action === 'delete payment' && nextProps.confirm.option) {
                 this.props.delete(this.props.payment.id);
                 this.props.dispatch(ResetConfirmation());
             }
         }
+    } */
+
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.confirm.data) {
+            if (this.props.confirm.data.action === 'delete payment' && this.props.confirm.data.id === this.props.payment.id && this.props.confirm.option) {
+                this.props.delete(this.props.payment.id);
+                this.props.dispatch(ResetConfirmation());
+            }
+        }
     }
-    
+        
     set(key, val) {
         let obj = {};
         obj[key] = val;
 
         this.setState(obj);
-    }
-
-    save() {
-        fetch.post('/api/user/payment/edit', this.state)
-        .then(resp => {
-            if (resp.data.status === 'success') {
-                this.setState({status: '', edit: false});
-                this.props.updateCard(resp.data.card);
-            } else if (resp.data.status === 'error') {
-                this.setState({status: ''});
-            }
-
-            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-        })
-        .catch(err => LogError(err, '/api/user/payment/edit'));
     }
 
     render() {
@@ -88,8 +83,19 @@ class PaymentMethods extends Component {
                 {this.state.edit ? <div className='simple-container no-bg mb-5'>
                     <div className='simple-container-title'>Edit</div>
 
-                    <AddressInput saveable={false} info={this.state} set={(key, val) => this.set(key, val)} />
-                    <div className='text-right'><SubmitButton type='button' onClick={() => this.save()} loading={this.state.status === 'Loading' || this.props.status === 'Setting'} value='Save' /></div>
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        this.setState({edit: false});
+                        this.props.save(this.state);
+                    }}>
+                        <InputWrapper label='Card Expiry Date' className='mb-3'>
+                            <input type='number' onChange={(e) => this.setState({card_exp_month: e.target.value})} maxLength='2' placeholder='MM' />
+                            <input type='number' onChange={(e) => this.setState({card_exp_year: e.target.value})} maxLength='2' placeholder='YYYY' />
+                        </InputWrapper>
+    
+                        <AddressInput saveable={false} info={this.state} set={(key, val) => this.set(key, val)} />
+                        <div className='text-right'><SubmitButton type='submit' loading={this.state.status === 'Editing' || this.props.status === 'Setting'} value='Save' /></div>
+                    </form>
                 </div> : ''}
             </div>
         );

@@ -137,13 +137,6 @@ class App extends Component {
 	render() {
 		let confirmation, sectors, alerts, prompt, warning, login;
 
-		if (this.props.user.status === 'login begin') {
-			login = <div id='login-overlay'>
-				<div className='mb-3'><FontAwesomeIcon icon={faCircleNotch} size='7x' spin /></div>
-				<span>Authenticating...</span>
-			</div>
-		}
-
 		if (this.props.confirmation.status === true) {
 			confirmation = <Confirmation message={this.props.confirmation.message} note={this.props.confirmation.note} />;
 
@@ -186,7 +179,6 @@ class App extends Component {
 		return (
 			<React.Fragment>
 				<div className='col-container' onClick={(e) => this.toggleMenu(e)}>
-					{login}
 					{warning}
 					{prompt}
 					{confirmation}

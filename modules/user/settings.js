@@ -93,12 +93,10 @@ app.post('/api/user/settings/password/change', (req, resp) => {
                                         
                                         await client.query(`UPDATE users SET user_password = $1 WHERE user_id = $2`, [result, req.session.user.user_id]);
 
-                                        let user = controller.user.retrieve(req.session.user.user_id);
-
                                         await client.query('COMMIT')
                                         .then(async() => {
                                             await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Changed password`, req.session.user.username, 'Account']);
-                                            resp.send({status: 'success', statusMessage: 'Password saved', user: user.rows[0]});
+                                            resp.send({status: 'success', statusMessage: 'Password changed'});
                                         });
                                     });
                                 } else {

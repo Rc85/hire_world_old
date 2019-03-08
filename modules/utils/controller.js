@@ -115,11 +115,16 @@ module.exports = {
             }
         }
     },
-    retrieve: {
-        blockedUsers: async(req, callback) => {
+    user: {
+        retrieve: async(id) => {
+            
+        }
+    },
+    blockedUsers: {
+        retrieve: async(req, callback) => {
             let filterValue = '';
             let filterString = '';
-    
+
             if (req.body.letter !== 'All') {
                 if (req.body.letter === '#') {
                     filterValue = '0-9';
@@ -130,7 +135,7 @@ module.exports = {
                 } else if (/[a-zA-Z]/.test(req.body.letter)) {
                     filterValue = req.body.letter;
                 }
-    
+
                 filterString = `AND blocked_users.blocked_user ~ '^[${filterValue}${filterValue.toLowerCase()}]'`;
             }
 
@@ -139,7 +144,7 @@ module.exports = {
             ${filterString}
             OFFSET $2
             LIMIT 30`, [req.session.user.username, req.body.offset]);
-    
+
             await db.query(`SELECT blocked_user FROM blocked_users  
             WHERE blocking_user = $1
             ${filterString}

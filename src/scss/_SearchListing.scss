@@ -12,7 +12,16 @@
     
     #search-field-wrapper {
         height: 100%;
-        padding: 20px; 
+        padding: 20px;
+
+        .fg-1 {
+            flex-grow: 1;
+            margin-right: 30px;
+        }
+
+        #search-price, #completed-jobs {
+            flex-grow: 1;
+        }
     }
     
     &.hide { max-height: 0; }
@@ -26,17 +35,6 @@
     align-items: center;
     padding: 5px 0;
     cursor: pointer;
-}
-
-.input-group {
-    &.row {
-        #price-operator { flex-grow: 1; }
-        #search-price { flex-grow: 4; }
-        #price-type { flex-grow: 4; }
-
-        //#completed-jobs-ops { flex-grow: 1; }
-        #completed-jobs { flex-grow: 1; }
-    }
 }
 
 /* .input-group-text.seperator {

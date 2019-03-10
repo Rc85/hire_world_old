@@ -27,7 +27,7 @@ class FriendsList extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevState.offset !== this.state.offset) {
+        if (prevState.offset !== this.state.offset || prevState.filtering !== this.state.filtering) {
             this.setState({status: 'Loading'});
             
             fetch.post('/api/get/user/friends', {letter: this.state.filtering, offset: this.state.offset})
@@ -78,22 +78,6 @@ class FriendsList extends Component {
         .catch(err => LogError(err, '/api/user/friend'));
     }
 
-    filter(letter) {
-        if (this.state.filtering !== letter) {
-            this.setState({status: 'Loading'});
-
-            fetch.post('/api/user/get/friends', {letter: letter})
-            .then(resp => {
-                if (resp.data.status === 'success') {
-                    this.setState({status: '', filtering: letter, friends: resp.data.friends});
-                } else {
-                    this.setState({status: ''});
-                }
-            })
-            .catch(err => LogError(err, '/api/user/get/friends'));
-        }
-    }
-    
     render() {
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
@@ -113,7 +97,7 @@ class FriendsList extends Component {
                     {status}
                     <TitledContainer title='Friends List' icon={<FontAwesomeIcon icon={faUserFriends} />} bgColor='lightblue'>
                         <div className='filter-container'>
-                            <AlphaNumericFilter filter={(letter) => this.filter(letter)} currentLetter={this.state.filtering} />
+                            <AlphaNumericFilter filter={(letter) => this.setState({filtering: letter})} currentLetter={this.state.filtering} />
                             <div className={`filter-button ${this.state.filtering === 'All' ? 'active' : ''}`} onClick={() => this.filter('All')}>All</div>
                         </div>
 

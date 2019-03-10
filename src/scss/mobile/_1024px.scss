@@ -397,7 +397,7 @@
 
         .d-flex-between-center, .d-flex-between-start { flex-direction: column; }
 
-        .w-5, .w-10, .w-15, .w-25, .w-30, .w-45 {
+        [class^='w-'], .fg-1, .no-fg {
             width: 100% !important;
             margin-bottom: 30px;
         }
@@ -405,6 +405,10 @@
         #search-field-wrapper {
             max-height: calc(100vh - 90px);
             overflow-y: scroll;
+
+            .fg-1 {
+                margin-right: 0;
+            }
         }
     }
 
@@ -433,5 +437,13 @@
             width: 49%;
             flex-basis: 49%;
         }
+    }
+    
+    .filter-buttons {
+        display: none;
+    }
+    
+    .filter-dropdown {
+        display: block;
     }
 }

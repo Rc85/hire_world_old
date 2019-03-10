@@ -353,11 +353,13 @@ app.post('/api/saved_listings/unsave', (req, resp) => {
 }); */
 
 app.post('/api/filter/listings', async(req, resp) => {
+    // Never build/concatenate query string from req.body
     let whereArray = [`AND listing_sector = $1`];
     let params = [req.body.sector]
 
-    if (req.body.title) {
+    if (req.body.title && validate.userTitleCheck.test(req.body.title)) {
         params.push(`%${req.body.title}%`);
+        console.log(params);
 
         let index = params.length;
 
@@ -371,14 +373,46 @@ app.post('/api/filter/listings', async(req, resp) => {
     }
 
     if (req.body.price) {
-        whereArray.push(`AND listing_price ${req.body.priceOperator} ${req.body.price}`);
-        whereArray.push(`AND listing_price_type = '${req.body.priceType}'`);
+        params.push(req.body.price);
+        let index = params.length;
+
+        let priceOperator, priceType;
+
+        let priceTypeOperator = '=';
+
+        // Building operators to prevent SQL injection
+        if (req.body.priceOperator === '=') {
+            priceOperator = '=';
+        } else if (req.body.priceOperator === '>') {
+            priceOperator = '>';
+        } else if (req.body.priceOperator === '<') {
+            priceOperator = '<';
+        }
+
+        // Building operators to prevent SQL injection
+        if (req.body.priceType === 'Hour') {
+            priceType = 'Hourly';
+        } else if (req.body.priceType === 'Bi-weekly') {
+            priceType = 'Bi-weekly';
+        } else if (req.body.priceType === 'Monthly') {
+            priceType = 'Monthly';
+        } else if (req.body.priceType === 'Per Delivery') {
+            priceType = 'Per Delivery';
+        } else if (req.body.priceType === 'One Time Payment') {
+            priceType = 'One Time Payment';
+        } else if (!req.body.priceType) {
+            priceTypeOperator = 'SIMILAR TO';
+            priceType = '(Hourly|Bi-weekly|Monthly|Per Delivery|One Time Payment)';
+        }
+
+        whereArray.push(`AND listing_price ${priceOperator} $${index}`);
+        whereArray.push(`AND listing_price_type ${priceTypeOperator} '${priceType}'`);
     }
 
     if (req.body.completedJobs) {
         let operator;
 
-        // Hard coding operators to prevent SQL injection
+        // Building operators to prevent SQL injection
         if (req.body.completedJobsOp === '=') {
             operator = '=';
         } else if (req.body.completedJobsOp === '>=') {
@@ -430,7 +464,7 @@ app.post('/api/filter/listings', async(req, resp) => {
         whereArray.push(`AND user_city = $${index}`);
     }
 
-    let queryString = `SELECT user_listings.*, jobs.job_complete, jobs.job_abandoned, user_profiles.user_title, user_reviews.rating, user_reviews.review_count FROM user_listings
+    let queryString = `SELECT user_listings.*, jobs.job_complete, jobs.job_abandoned, user_profiles.*, user_reviews.rating, user_reviews.review_count FROM user_listings
     LEFT JOIN users ON users.username = user_listings.listing_user
     LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
     LEFT JOIN

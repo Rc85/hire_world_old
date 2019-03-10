@@ -24,6 +24,25 @@ class BlockedUsers extends Component {
         }
     }
     
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.offset !== this.state.offset || prevState.filtering !== this.state.filtering) {
+            this.setState({status: 'Fetching'});
+
+            fetch.post('/api/get/user/blocked', {letter: this.state.filtering, offset: this.state.offset})
+            .then(resp => {
+                if (resp.data.status === 'success') {
+                    this.setState({status: '', users: resp.data.users});
+                } else if (resp.data.status === 'error') {
+                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                }
+            })
+            .catch(err => {
+                LogError(err, '/api/get/user/blocked');
+                this.setState({status: ''});
+            });
+        }
+    }
+    
     componentDidMount() {
         this.setState({status: 'Fetching'});
 
@@ -62,7 +81,7 @@ class BlockedUsers extends Component {
             this.setState({status: ''});
         });
     }
-    
+
     render() {
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
@@ -89,7 +108,7 @@ class BlockedUsers extends Component {
                     {status}
                     <TitledContainer title='Blocked Users' icon={<FontAwesomeIcon icon={faUserSlash} />} bgColor='danger' shadow>
                         <div className='filter-container'>
-                            <AlphaNumericFilter filter={(letter) => this.filter(letter)} currentLetter={this.state.filtering} />
+                            <AlphaNumericFilter filter={(letter) => this.setState({filtering: letter})} currentLetter={this.state.filtering} />
                         </div>
 
                         <div className='blocked-user-container'>

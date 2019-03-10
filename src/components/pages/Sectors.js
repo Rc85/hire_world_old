@@ -78,7 +78,7 @@ class Sectors extends Component {
 
         return(
             <React.Fragment>
-                <SearchListing filter={(data) => this.filterListings(data)} />
+                <SearchListing filter={(data) => this.filterListings(data)} status={this.state.status} />
 
                 {status}
                 

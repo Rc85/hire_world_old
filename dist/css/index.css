@@ -1454,9 +1454,8 @@
 .input-group-container .input-group.row {
   align-items: center;
 }
-.input-group-container > select, .input-group-container input {
-  height: 100%;
-  width: 100%;
+.input-group-container select:not(:last-child), .input-group-container input:not(:last-child) {
+  margin-right: 15px;
 }
 .input-group-container input {
   border-left: 0;
@@ -1980,7 +1979,7 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
 
 #dashboard-header {
   color: white;
-  height: 350px;
+  margin-bottom: 60px;
   position: relative;
 }
 #dashboard-header #dashboard-header-user-info {
@@ -2181,9 +2180,16 @@ footer {
 }
 
 .filter-container {
+  margin-bottom: 60px;
+}
+
+.filter-buttons {
   display: flex;
   flex-wrap: wrap;
-  margin-bottom: 60px;
+}
+
+.filter-dropdown {
+  display: none;
 }
 
 #jobs-not-connected .terms {
@@ -2785,6 +2791,13 @@ footer {
   height: 100%;
   padding: 20px;
 }
+#search-field-container #search-field-wrapper .fg-1 {
+  flex-grow: 1;
+  margin-right: 30px;
+}
+#search-field-container #search-field-wrapper #search-price, #search-field-container #search-field-wrapper #completed-jobs {
+  flex-grow: 1;
+}
 #search-field-container.hide {
   max-height: 0;
 }
@@ -2797,19 +2810,6 @@ footer {
   align-items: center;
   padding: 5px 0;
   cursor: pointer;
-}
-
-.input-group.row #price-operator {
-  flex-grow: 1;
-}
-.input-group.row #search-price {
-  flex-grow: 4;
-}
-.input-group.row #price-type {
-  flex-grow: 4;
-}
-.input-group.row #completed-jobs {
-  flex-grow: 1;
 }
 
 /* .input-group-text.seperator {
@@ -3256,10 +3256,11 @@ footer {
 }
 
 .start-time, .end-time {
-  flex-grow: 5;
+  flex-grow: 1;
 }
 .start-time input, .end-time input {
   text-align: center;
+  width: 100%;
 }
 
 .hour-container {
@@ -3267,7 +3268,7 @@ footer {
 }
 
 .hour-separator {
-  flex-grow: 1;
+  margin: 0 15px 0 15px;
   text-align: center;
 }
 
@@ -5244,13 +5245,16 @@ footer {
   #search-field-container .d-flex-between-center, #search-field-container .d-flex-between-start {
     flex-direction: column;
   }
-  #search-field-container .w-5, #search-field-container .w-10, #search-field-container .w-15, #search-field-container .w-25, #search-field-container .w-30, #search-field-container .w-45 {
+  #search-field-container [class^=w-], #search-field-container .fg-1, #search-field-container .no-fg {
     width: 100% !important;
     margin-bottom: 30px;
   }
   #search-field-container #search-field-wrapper {
     max-height: calc(100vh - 90px);
     overflow-y: scroll;
+  }
+  #search-field-container #search-field-wrapper .fg-1 {
+    margin-right: 0;
   }
 
   #listings {
@@ -5279,6 +5283,14 @@ footer {
   #friends-list .friend-panel {
     width: 49%;
     flex-basis: 49%;
+  }
+
+  .filter-buttons {
+    display: none;
+  }
+
+  .filter-dropdown {
+    display: block;
   }
 }
 @media only screen and (max-width: 768px) {

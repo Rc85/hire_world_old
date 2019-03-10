@@ -75,9 +75,12 @@
 }
 
 .start-time, .end-time {
-    flex-grow: 5;
+    flex-grow: 1;
 
-    input { text-align: center }
+    input {
+        text-align: center;
+        width: 100%;
+    }
 }
 
 .hour-container {
@@ -86,7 +89,7 @@
 }
 
 .hour-separator {
-    flex-grow: 1;
+    margin: 0 15px 0 15px;
     text-align: center;
 }
 

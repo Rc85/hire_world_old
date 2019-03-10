@@ -33,9 +33,8 @@
         }
     }
 
-    > select, input {
-        height: 100%;
-        width: 100%;
+    select:not(:last-child), input:not(:last-child) {
+        margin-right: 15px;
     }
 
     input {

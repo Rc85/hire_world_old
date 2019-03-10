@@ -74,7 +74,14 @@
 }
 
 .filter-container {
+    margin-bottom: 60px;
+}
+
+.filter-buttons {
     display: flex;
     flex-wrap: wrap;
-    margin-bottom: 60px;
+}
+
+.filter-dropdown {
+    display: none;
 }

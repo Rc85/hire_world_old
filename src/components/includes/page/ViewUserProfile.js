@@ -56,12 +56,18 @@ const ViewUserProfile = props => {
 
                         <div id='view-user-rating' className='view-user-title-child'><UserRating rating={props.stats.rating || 0} /> ({props.stats.job_count})</div>
 
-                        <div id='view-user-listing-info'>
+                        <div id='view-user-listing-info' className='view-user-title-child'>
                             <div className='view-user-listing-info-child'>
                                 <Tooltip text='Listed Under' placement='top'><FontAwesomeIcon icon={faListAlt} className='text-special mr-2' /></Tooltip> <NavLink to={`/sector/${props.user.listing_sector}`}>{props.user.listing_sector}</NavLink>
                             </div>
 
                             {price}
+                        </div>
+
+                        <div className='view-user-listing-location view-user-title-child'>
+                            {props.user.listing_local ? <span className='mini-badge mini-badge-orange'>Local</span> : ''}
+                            {props.user.listing_online ? <span className='mini-badge mini-badge-purple'>Online</span> : ''}
+                            {props.user.listing_remote ? <span className='mini-badge mini-badge-green'>Remote</span> : ''}
                         </div>
                     </div>
                 </div>
@@ -69,11 +75,6 @@ const ViewUserProfile = props => {
 
             <h4 className='view-user-title-wrapper'>
                 <div className='view-user-listing-title'>{props.user.listing_title}</div>
-                <div className='view-user-listing-location'>
-                    {props.user.listing_local ? <span className='mini-badge mini-badge-orange'>Local</span> : ''}
-                    {props.user.listing_online ? <span className='mini-badge mini-badge-purple'>Online</span> : ''}
-                    {props.user.listing_remote ? <span className='mini-badge mini-badge-green'>Remote</span> : ''}
-                </div>
             </h4>
 
             {/* <div>{props.user.listing_remote ? <span className='mini-badge mini-badge-orange'>Remote</span> : ''} {props.user.listing_local ? <span className='mini-badge mini-badge-purple'>Local</span> : ''}</div> */}

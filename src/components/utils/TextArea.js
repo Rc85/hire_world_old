@@ -19,7 +19,8 @@ class TextArea extends Component {
                 disabled={this.props.disabled}
                 autoFocus={this.props.autoFocus}
                 placeholder={this.props.placeholder}
-                defaultValue={this.props.defaultValue}></textarea>
+                defaultValue={this.props.defaultValue}
+                value={this.props.value}></textarea>
             </div>
         )
     }

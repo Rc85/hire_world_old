@@ -76,40 +76,40 @@ class AccountSettings extends Component {
                         <div className='setting-field-container mb-3'>
                             <div className='settings-col'>
                                 <div className='setting-col-field mb-3'>
-                                    <label htmlFor='hideEmail'>Hide email:</label>
+                                    <label>Hide email:</label>
         
                                     <div className='d-flex'>
                                         {this.state.status === 'hide_email' ? <div className='p-relative mr-2'><Loading /></div> : ''}
-                                        <SlideToggle status={this.props.user.user && this.props.user.user.hide_email ? this.props.user.user.hide_email : false} id='hideEmail' onClick={() => this.saveSetting('hide_email')} />
+                                        <SlideToggle status={this.props.user.user && this.props.user.user.hide_email ? this.props.user.user.hide_email : false} onClick={() => this.saveSetting('hide_email')} />
                                     </div>
                                 </div>
         
                                 <div className='setting-col-field mb-3'>
-                                    <label htmlFor='displayFullName'>Show full name:</label>
+                                    <label>Show full name:</label>
         
                                     <div className='d-flex'>
                                         {this.state.status === 'display_fullname' ? <div className='p-relative mr-2'><Loading /></div> : ''}
-                                        <SlideToggle status={this.props.user.user && this.props.user.user.display_fullname ? this.props.user.user.display_fullname : false} id='displayFullName' onClick={() => this.saveSetting('display_fullname')} />
+                                        <SlideToggle status={this.props.user.user && this.props.user.user.display_fullname ? this.props.user.user.display_fullname : false} onClick={() => this.saveSetting('display_fullname')} />
                                     </div>
                                 </div>
                             </div>
         
                             <div className='settings-col'>
                                 <div className='setting-col-field mb-3'>
-                                    <Tooltip text='You will receive email when you have new messages and when changes are made to your account.' placement='top'><label htmlFor='emailNotifications'>Email notifications: <FontAwesomeIcon icon={faQuestionCircle} id='email-notification-tips'  className='tooltip-icon' /></label></Tooltip>
+                                    <Tooltip text='You will receive email when you have new messages and when changes are made to your account.' placement='top'><label>Email notifications: <FontAwesomeIcon icon={faQuestionCircle} id='email-notification-tips' className='tooltip-icon' /></label></Tooltip>
         
                                     <div className='d-flex'>
                                         {this.state.status === 'email_notifications' ? <div className='p-relative mr-2'><Loading /></div> : ''}
-                                        <SlideToggle status={this.props.user.user && this.props.user.user.email_notifications ? this.props.user.user.email_notifications : false} id='emailNotifications' onClick={() => this.saveSetting('email_notifications')} />
+                                        <SlideToggle status={this.props.user.user && this.props.user.user.email_notifications ? this.props.user.user.email_notifications : false} onClick={() => this.saveSetting('email_notifications')} />
                                     </div>
                                 </div>
         
                                 <div className='setting-col-field mb-3'>
-                                    <label htmlFor='allowMessaging'>Enable Messaging:</label>
+                                    <label>Enable Messaging:</label>
         
                                     <div className='d-flex'>
                                         {this.state.status === 'allow_messaging' ? <div className='p-relative mr-2'><Loading /></div> : ''}
-                                        <SlideToggle status={this.props.user.user && this.props.user.user.allow_messaging ? this.props.user.user.allow_messaging : false} id='allowMessaging' onClick={() => this.saveSetting('allow_messaging')} />
+                                        <SlideToggle status={this.props.user.user && this.props.user.user.allow_messaging ? this.props.user.user.allow_messaging : false} onClick={() => this.saveSetting('allow_messaging')} />
                                     </div>
                                 </div>
                             </div>

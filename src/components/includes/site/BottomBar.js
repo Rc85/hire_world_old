@@ -76,7 +76,7 @@ class BottomBar extends Component {
 
         return (
             <div id='bottombar-container' className={`${this.props.config.IsTyping ? 'hide' : ''}`}>
-                <div id='bottombar' className={!this.state.showMenu ? '' : 'expand'}>
+                <div id='bottombar' className={`${!this.state.showMenu ? '' : 'expand'} ${this.props.config.LoggingIn ? 'no-padding' : ''}`}>
                     <div className={`bottombar-item-container`}>
                         <div className='bottombar-item'>
                             <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'><FontAwesomeIcon icon={faHome} /></div><NavLink to='/'>Main</NavLink></div>

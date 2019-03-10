@@ -9,7 +9,7 @@
     //overflow: hidden;
     bottom: 0;
     z-index: 99;
-    width: 100vw;
+    width: 100%;
 
     .bottombar-message-indicator {
         background-color: $theme-special;
@@ -73,6 +73,10 @@
     padding-bottom: 55px;
 
     &.expand { height: 100vh; }
+
+    &.no-padding {
+        padding-bottom: 0;
+    }
 
     .bottombar-item-icon { margin-right: 15px; }
 

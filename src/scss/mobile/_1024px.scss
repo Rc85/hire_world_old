@@ -270,8 +270,7 @@
             .slider-container { align-self: flex-end; }
         }
     }
-
-    .tooltip-icon { display: none; }
+    
     .mobile-tooltip {
         display: block;
         font-size: 0.8rem;
@@ -319,11 +318,12 @@
     .view-user-title-child {
         display: flex;
         justify-content: center;
-        margin-bottom: 30px;
+        margin-bottom: 15px;
     }
 
     #view-user-listing-info {
         justify-content: space-around;
+        margin-bottom: 15px;
 
         .view-user-listing-info-child {
             margin-right: 0;
@@ -355,6 +355,10 @@
     #view-user-profile-pic {
         width: 50%;
         margin-right: 0px;
+    }
+
+    .view-user-listing-location {
+        text-align: center;
     }
 
     #view-user-details { margin-bottom: 30px; }

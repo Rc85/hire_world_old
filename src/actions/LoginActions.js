@@ -53,16 +53,17 @@ export const LogoutUser = () => {
         fetch.post('/api/auth/logout')
         .then(resp => {
             if (resp.data.status === 'error') {
-                dispatch(Logout(resp.data.status));
+                dispatch(Logout('not logged in'));
             }
         })
         .catch(err => LogError(err, '/api/auth/logout'));
     }
 }
 
-const Logout = () => {
+const Logout = (status) => {
     return {
-        type: 'LOGOUT_USER'
+        type: 'LOGOUT_USER',
+        status
     }
 }
 

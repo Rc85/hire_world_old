@@ -5,6 +5,13 @@ import { connect } from 'react-redux';
 import InputWrapper from '../../utils/InputWrapper';
 import TextArea from '../../utils/TextArea';
 import { IsTyping } from '../../../actions/ConfigActions';
+import Recaptcha from 'react-recaptcha';
+
+let recaptchaInstance;
+
+const onloadCallback = () => {
+    console.log('Recaptcha Ready!');
+}
 
 class MessageSender extends Component {
     constructor(props) {
@@ -12,38 +19,46 @@ class MessageSender extends Component {
         
         this.state = {
             subject: '',
-            message: '',
+            message: ''
         }
     }
     
-    /* componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps, prevState) {
         if (this.props.status !== prevProps.status && this.props.status === 'send success') {
             this.setState({status: '', subject: '', message: ''});
+            recaptchaInstance.reset();
         }
-    } */
+    }
 
-    send() {
-        this.props.send(this.state.message, this.state.subject);
+    verify(val) {
+        this.setState({verified: val});
     }
     
     render() {
         return (
             <div id={this.props.id ? this.props.id : ''} className={`mb-3 ${this.props.className ? this.props.className : ''}`}>
-                {this.props.withSubject ? <div className='mb-1'>
-                    <InputWrapper label='Subject' disabled={this.props.subject ? true : false}>
-                        <input type='text' className='message-subject' disabled={this.props.subject ? true : false} value={this.props.subject ? `RE: ${this.props.subject}` : this.state.subject} onChange={(e) => this.setState({subject: e.target.value})} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
-                    </InputWrapper>
-                </div> : ''}
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    this.props.send(this.state.message, this.state.verified, this.state.subject);
+                }}>
+                    {this.props.withSubject ? <div className='mb-1'>
+                        <InputWrapper label='Subject' disabled={this.props.subject ? true : false}>
+                            <input type='text' className='message-subject' disabled={this.props.subject ? true : false} value={this.props.subject ? `RE: ${this.props.subject}` : this.state.subject} onChange={(e) => this.setState({subject: e.target.value})} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
+                        </InputWrapper>
+                    </div> : ''}
+    
+                    <div className='mb-1'>
+                        <TextArea rows={10} className='w-100 mb-1' textAreaClassName='w-100' value={this.state.message} onChange={(val) => this.setState({message: val})} autoFocus={this.props.autoFocus} placeholder={this.props.placeholder} />
+                    </div>
 
-                <div className='mb-1'>
-                    <TextArea rows={10} className='w-100 mb-1' textAreaClassName='w-100' value={this.state.message} onChange={(val) => this.setState({message: val})} autoFocus={this.props.autoFocus} />
-                </div>
+                    <Recaptcha sitekey='6Lcmh5YUAAAAAE_juSp5QSZIFUrJVMxRCh6VmXIe' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} ref={(el) => recaptchaInstance = el} />
 
-                <div className='text-right'>
-                    <SubmitButton type='button' value='Send' loading={this.props.status === 'Sending'} onClick={() => this.send()} />
-                    {this.props.cancel ? <button className='message-cancel-button btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button> : ''}
-                    <button className='btn btn-secondary' onClick={() => this.setState({subject: '', message: ''})}>Clear</button>
-                </div>
+                    <div className='text-right'>
+                        <SubmitButton type='submit' value='Send' loading={this.props.status === 'Sending'} />
+                        {this.props.cancel ? <button className='message-cancel-button btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button> : ''}
+                        <button className='btn btn-secondary' onClick={() => this.setState({subject: '', message: ''})}>Clear</button>
+                    </div>
+                </form>
             </div>
         );
     }

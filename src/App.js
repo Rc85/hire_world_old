@@ -185,7 +185,7 @@ class App extends Component {
 	
 					<Switch>
 						<Route exact path='/' render={() => <Pages.Dashboard user={this.props.user}><Pages.Main user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
-						<Route exact path='/register' render={() => <Pages.Dashboard user={this.props.user}><Pages.Register /></Pages.Dashboard>} />
+						<Route exact path='/register' render={() => <Pages.Dashboard user={this.props.user}><Pages.Register user={this.props.user} /></Pages.Dashboard>} />
 	
 						<Route exact path='/dashboard' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/friends' render={() => <Pages.Dashboard user={this.props.user}><Pages.FriendsList user={this.props.user} /></Pages.Dashboard>} />

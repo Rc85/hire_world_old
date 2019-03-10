@@ -104,7 +104,7 @@ class Conversations extends Component {
     }
     
     pinMessage(id) {
-        this.setState({status: 'Loading'});
+        this.setState({status: `Pinning ${id}`});
 
         fetch.post('/api/pin', {id: id, type: 'message'})
         .then(resp => {
@@ -129,6 +129,9 @@ class Conversations extends Component {
 
     loadMessage(id, i) {
         document.body.style.overflowY = '';
+        let conversations = {...this.state.conversations};
+        conversations[i].conversation_status = 'Read';
+        conversations[i].unread_messages = 0;
         
         this.setState({loadedConversation: this.state.conversations[i], idToLoad: id, showConversationsList: false});
     }
@@ -143,6 +146,7 @@ class Conversations extends Component {
                 conversations.splice(index, 1);
 
                 this.setState({status: '', conversations: conversations});
+                this.props.dispatch(GetUserNotificationAndMessageCount());
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
             }
@@ -193,11 +197,11 @@ class Conversations extends Component {
 
             if (this.state.conversations.length > 0) {
                 body = <React.Fragment>
-                    <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
+                    <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={10} currentPage={this.state.offset / 10} onClick={(i) => this.setState({offset: i * 10})} />
 
                     <div className='inquiry-rows'>{messages}</div>
 
-                    <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
+                    <Pagination totalItems={parseInt(this.state.messageCount)} itemsPerPage={10} currentPage={this.state.offset / 10} onClick={(i) => this.setState({offset: i * 10})} />
                 </React.Fragment>;
             } else {
                 body = <div className='text-center'>
@@ -218,10 +222,10 @@ class Conversations extends Component {
                         <div id='message-list-column' className={this.state.showConversationsList ? '' : 'hide'}>
                             <div id='message-list-main-column'>
                                 <div className='message-filter-buttons-container'>
-                                    <button className={`btn ${this.state.showing === 'all' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'all'})}>All</button>
-                                    <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received'})}>Received</button>
-                                    <button className={`btn ${this.state.showing === 'sent' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'sent'})}>Sent</button>
-                                    <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned'})}>Pinned</button>
+                                    <button className={`btn ${this.state.showing === 'all' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'all', offset: 0})}>All</button>
+                                    <button className={`btn ${this.state.showing === 'received' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'received', offset: 0})}>Received</button>
+                                    <button className={`btn ${this.state.showing === 'sent' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'sent', offset: 0})}>Sent</button>
+                                    <button className={`btn ${this.state.showing === 'pinned' ? 'btn-info' : 'btn-secondary'}`} onClick={() => this.setState({showing: 'pinned', offset: 0})}>Pinned</button>
                                 </div>
                                 
                                 {body}

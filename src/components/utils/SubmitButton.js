@@ -18,7 +18,7 @@ export default class SubmitButton extends Component {
         }
 
         return(
-            <button type={this.props.type} id={this.props.id} className='btn btn-primary mr-1' disabled={this.props.loading || this.props.disabled} onClick={() => this.onClick()}>
+            <button type={this.props.type} id={this.props.id} className='btn btn-primary' disabled={this.props.loading || this.props.disabled} onClick={() => this.onClick()}>
                 {this.props.loading ? <FontAwesomeIcon icon={faCircleNotch} spin /> : value }
             </button>
         )

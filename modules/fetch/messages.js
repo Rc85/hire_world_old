@@ -45,7 +45,8 @@ app.post('/api/get/messages/:type', async(req, resp) => {
                         let queryString = `SELECT *,
                             (SELECT COUNT(conversation_id) AS conversation_count FROM conversations
                             WHERE ${messageQueryType}
-                            ${pinnedMessageQuery})
+                            ${pinnedMessageQuery}
+                            AND NOT conversation_id = ANY($3))
                         FROM conversations
                         LEFT JOIN
                             (SELECT message_conversation_id, COUNT(message_id) AS unread_messages FROM messages
@@ -57,13 +58,13 @@ app.post('/api/get/messages/:type', async(req, resp) => {
                         AND NOT conversation_id = ANY($3)
                         AND conversation_status != 'Deleted'
                         ORDER BY conversation_status = 'New' DESC, conversation_date DESC
-                        LIMIT 25 OFFSET $2`;
+                        LIMIT 10 OFFSET $2`;
                         
                         let messages = await client.query(queryString, params);
                         let messageCount = 0;
                         
                         if (messages.rows.length > 0) {
-                            messageCount = messages.rows[0].message_count;
+                            messageCount = messages.rows[0].conversation_count;
                         }
 
                         if (req.params.type === 'pinned') {
@@ -120,7 +121,7 @@ app.post('/api/get/message', async(req, resp) => {
                         ORDER BY messages.message_date DESC
                         LIMIT 25 OFFSET $2`, [req.body.message_id, req.body.offset]);
 
-                        await client.query(`UPDATE messages SET message_status = 'Read' WHERE message_conversation_id = $1 AND message_status = 'New'`, [req.body.message_id]);
+                        await client.query(`UPDATE messages SET message_status = 'Read' WHERE message_conversation_id = $1 AND message_status = 'New' AND message_creator != $2`, [req.body.message_id, req.session.user.username]);
 
                         await client.query('COMMIT')
                         .then(() => resp.send({status: 'success', conversation: conversation.rows[0], messages: messages.rows}));

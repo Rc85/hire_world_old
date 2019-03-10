@@ -1731,7 +1731,7 @@
   max-height: 100%;
   bottom: 0;
   z-index: 99;
-  width: 100vw;
+  width: 100%;
 }
 #bottombar-container .bottombar-message-indicator {
   background-color: #ED463D;
@@ -1790,6 +1790,9 @@
 }
 #bottombar.expand {
   height: 100vh;
+}
+#bottombar.no-padding {
+  padding-bottom: 0;
 }
 #bottombar .bottombar-item-icon {
   margin-right: 15px;
@@ -2316,10 +2319,6 @@ footer {
 
 #complete-job-button, #abandon-job-button, #message-reply-button, #message-hire-button, #message-offer-button {
   margin-right: 5px;
-}
-
-.message-cancel-button {
-  margin-left: 5px;
 }
 
 .message-subject {
@@ -3449,6 +3448,10 @@ footer {
   display: flex;
   align-items: flex-start;
   flex-grow: 1;
+}
+
+.view-user-title-child {
+  margin-bottom: 15px;
 }
 
 .view-user-title-wrapper {
@@ -5111,10 +5114,6 @@ footer {
     align-self: flex-end;
   }
 
-  .tooltip-icon {
-    display: none;
-  }
-
   .mobile-tooltip {
     display: block;
     font-size: 0.8rem;
@@ -5166,11 +5165,12 @@ footer {
   .view-user-title-child {
     display: flex;
     justify-content: center;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
   }
 
   #view-user-listing-info {
     justify-content: space-around;
+    margin-bottom: 15px;
   }
   #view-user-listing-info .view-user-listing-info-child {
     margin-right: 0;
@@ -5199,6 +5199,10 @@ footer {
   #view-user-profile-pic {
     width: 50%;
     margin-right: 0px;
+  }
+
+  .view-user-listing-location {
+    text-align: center;
   }
 
   #view-user-details {

@@ -16,7 +16,7 @@ export const Login = (state = loginInitialState, action) => {
         case 'UPDATE_NOTIFICATION_AND_MESSAGE_COUNT': return Object.assign({}, state, {notifications: action.notifications, messages: action.messages, proposals: action.proposals, estimates: action.estimates});
         case 'USER_UPDATE': return Object.assign({}, state, {user: action.user});
         case 'UPDATE_NOTIFICATIONS': return Object.assign({}, state, {notifications: action.notifications});
-        case 'LOGOUT_USER': return Object.assign({}, state, {status: 'not logged in', user: null});
+        case 'LOGOUT_USER': return Object.assign({}, state, {status: action.status, statusMessage: '', user: null, notifications: 0, messages: 0, proposals: 0, estimates: 0});
         default:
             return state;
     }

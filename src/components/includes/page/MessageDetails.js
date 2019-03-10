@@ -7,6 +7,7 @@ import { Alert } from '../../../actions/AlertActions';
 import { connect } from 'react-redux';
 import { LogError } from '../../utils/LogError';
 import Loading from '../../utils/Loading';
+import { GetUserNotificationAndMessageCount } from '../../../actions/FetchActions';
 
 class MessageDetails extends Component {
     constructor(props) {
@@ -48,7 +49,7 @@ class MessageDetails extends Component {
         fetch.post('/api/get/message', {message_id: this.props.conversation.conversation_id})
         .then(resp => {
             if (resp.data.status === 'success') {
-                window.scrollTo(0, 0);
+                this.props.dispatch(GetUserNotificationAndMessageCount());
                 this.setState({status: '', messages: resp.data.messages});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
@@ -62,10 +63,10 @@ class MessageDetails extends Component {
         });
     }
 
-    reply(message) {
+    reply(message, verified) {
         this.setState({sendStatus: 'Sending'});
 
-        fetch.post('/api/conversation/reply', {message: message, id: this.props.conversation.conversation_id})
+        fetch.post('/api/conversation/reply', {message: message, id: this.props.conversation.conversation_id, verified: verified})
         .then(resp => {
             if (resp.data.status === 'success') {
                 let messages = [...this.state.messages];
@@ -80,7 +81,7 @@ class MessageDetails extends Component {
         .catch(err => {
             this.setState({sendStatus: ''});
             this.props.dispatch(Alert('error', 'An error occurred'));
-            LogError(err, '/api/conversation/submit');
+            LogError(err, '/api/conversation/reply');
         });
     }
     
@@ -96,10 +97,10 @@ class MessageDetails extends Component {
                 {status}
                 {this.state.reply ? '' : <div id='reply-button' className='text-right mb-3'><button className='btn btn-primary btn-sm' onClick={() => this.setState({reply: true})}>Reply</button></div>}
 
-                <MessageSender key={this.state.messages.length} id='reply-container' className={this.state.reply ? 'show' : ''} subject={this.state.messages.length > 0 ? this.props.conversation.conversation_subject : ''} send={(message) => this.reply(message)} status={this.state.sendStatus} cancel={this.state.reply ? () => this.setState({reply: false}) : null} />
+                <MessageSender key={this.state.messages.length} id='reply-container' className={this.state.reply ? 'show' : ''} subject={this.state.messages.length > 0 ? this.props.conversation.conversation_subject : ''} send={(message, verified) => this.reply(message, verified)} status={this.state.sendStatus} cancel={this.state.reply ? () => this.setState({reply: false}) : null} placeholder='Type your reply here' />
 
                 {this.state.messages.map((message, i) => {
-                    let messageAuthor, messageType, approve, decline;
+                    let messageAuthor;
 
                     if (message.message_creator === this.props.user.user.username) {
                         messageAuthor = 'owner';

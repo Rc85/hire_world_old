@@ -13,10 +13,10 @@ const ListingRow = props => {
     let price;
 
     if (props.listing.listing_price_type === 'To Be Discussed') {
-        price = <React.Fragment><FontAwesomeIcon icon={faDollarSign} className='mr-1' /> {props.listing.listing_price_type}</React.Fragment>;
+        price = <div className='listing-row-detail-child'><FontAwesomeIcon icon={faDollarSign} className='mr-1' /> {props.listing.listing_price_type}</div>;
     } else {
         if (props.listing.listing_price !== '0') {
-            price = <React.Fragment><FontAwesomeIcon icon={faDollarSign} className='mr-1' /> {props.listing.listing_price} / {props.listing.listing_price_type} {props.listing.listing_price_currency}</React.Fragment>;
+            price = <div className='listing-row-detail-child'><FontAwesomeIcon icon={faDollarSign} className='mr-1' /> {props.listing.listing_price} / {props.listing.listing_price_type} {props.listing.listing_price_currency}</div>;
         }
     }
 
@@ -47,9 +47,7 @@ const ListingRow = props => {
                         <FontAwesomeIcon icon={faClock} className='text-special mr-1' /> {moment(props.listing.listing_created_date).format('MMM DD YYYY')}
                     </div>
     
-                    <div className='listing-row-detail-child'>
-                        {price}
-                    </div>
+                    {price}
     
                     <div className='listing-row-detail-child'>
                         <FontAwesomeIcon icon={faCheckCircle} className='text-success mr-1' /> <strong>{props.listing.job_complete}</strong> {parseInt(props.listing.job_complete) === 1 ? 'Job' : 'Jobs'} completed

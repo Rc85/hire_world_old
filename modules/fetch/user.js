@@ -145,17 +145,24 @@ app.post('/api/get/business_hours', async(req, resp) => {
 
 app.get('/api/get/user/notification-message-job-count', async(req, resp) => {
     if (req.session.user) {
+        let deletedConversationsArray = [];
+        let deletedConversations = await db.query(`SELECT deleted_convo FROM deleted_conversations WHERE convo_deleted_by = $1`, [req.session.user.username]);
+
+        for (let conversation of deletedConversations.rows) {
+            deletedConversationsArray.push(conversation.deleted_convo);
+        }
+        
         let notifications = await db.query(`SELECT COUNT(notification_id) AS notification_count FROM notifications WHERE notification_recipient = $1 AND notification_status = 'New'`, [req.session.user.username]);
 
-        let messages = await db.query(`SELECT COUNT(message_id) AS message_count FROM messages
+        let messages = await db.query(`SELECT COUNT(message_id) AS message_count FROM messages 
         LEFT JOIN conversations ON conversation_id = message_conversation_id
-        WHERE message_creator != $1
-        AND (conversation_starter = $1 OR conversation_recipient = $1)
-        AND message_status = 'New'`, [req.session.user.username]);
+        WHERE message_status = 'New'
+        AND message_creator != $1
+        AND (conversation_recipient = $1 OR conversation_starter = $1)
+        AND NOT conversation_id = ANY($2)`, [req.session.user.username, deletedConversationsArray]);
 
         let proposalCount = await db.query(`SELECT COUNT(job_id) AS proposal_count FROM jobs WHERE job_user = $1 AND job_status = 'New'`, [req.session.user.username]);
         let estimateCount = await db.query(`SELECT COUNT(job_id) AS estimate_count FROM jobs WHERE job_client = $1 AND job_status = 'Estimation'`, [req.session.user.username]);
-        let activeCount = await db.query(``)
 
         if (notifications && messages) {
             resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0].message_count, proposalCount: proposalCount.rows[0].proposal_count, estimateCount: estimateCount.rows[0].estimate_count});

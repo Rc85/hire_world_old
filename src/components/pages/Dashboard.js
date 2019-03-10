@@ -27,7 +27,7 @@ class Dashboard extends Component {
 
         let items = [
             {name: 'My Listing', link: '/dashboard/my-listing', active: /^\/dashboard\/my-listing/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faListAlt} />},
-            {name: 'Messages', link: '/dashboard/messages', active: /^\/dashboard\/messages/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCommentAlt} />, messageCount: parseInt(this.props.user.messages)},
+            {name: 'Conversations', link: '/dashboard/messages', active: /^\/dashboard\/messages/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCommentAlt} />, messageCount: parseInt(this.props.user.messages)},
             /* {name: 'Jobs', link: '/dashboard/jobs', active: /^\/dashboard\/jobs/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faBriefcase} />, messageCount: parseInt(this.props.user.proposals) + parseInt(this.props.user.estimates), items: [
                 {name: 'Opened', active: this.props.location.pathname === '/dashboard/jobs/opened', link: '/dashboard/jobs/opened', messageCount: parseInt(this.props.user.proposals) + parseInt(this.props.user.estimates)},
                 {name: 'Active', active: this.props.location.pathname === '/dashboard/jobs/active', link: '/dashboard/jobs/active'},

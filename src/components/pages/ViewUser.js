@@ -164,21 +164,21 @@ class ViewUser extends Component {
         .catch(err => LogError(err, '/api/report/submit'));
     }
 
-    sendMessage(message, subject) {
+    sendMessage(message, verified, subject) {
         this.setState({sendStatus: 'Sending'});
 
-        fetch.post('/api/conversation/submit', {subject: subject, message: message, user: this.state.user.username})
+        fetch.post('/api/conversation/submit', {subject: subject, message: message, user: this.state.user.username, verified: verified})
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({status: '', sendStatus: 'send success'});
-            } else if (resp.data.status === 'send error') {
-                this.setState({status: '', sendStatus: ''});
+            } else if (resp.data.status === 'send error' || resp.data.status === 'error') {
+                this.setState({status: '', sendStatus: resp.data.status});
             }
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => {
-            this.setState({status: '', sendStatus: ''});
+            this.setState({status: '', sendStatus: 'error'});
             this.props.dispatch(Alert('error', 'An error occurred'));
             LogError(err, '/api/conversation/submit');
         });
@@ -284,7 +284,7 @@ class ViewUser extends Component {
                         message = <React.Fragment>
                             <hr/>
 
-                            <MessageSender send={(message, subject) => this.sendMessage(message, subject)} status={this.state.sendStatus} className='mt-4' cancel={() => this.setState({message: ''})} withSubject />
+                            <MessageSender send={(message, verified, subject) => this.sendMessage(message, verified, subject)} status={this.state.sendStatus} className='mt-4' cancel={() => this.setState({message: ''})} withSubject />
                         </React.Fragment>
                         ;
                     }
@@ -362,7 +362,7 @@ class ViewUser extends Component {
                             <div className='mt-3'>
                                 <div className='text-right'>{submitReviewButton}</div>
             
-                                <SubmitReview submit={(review, star) => this.submitReview(review, star)} cancel={() => this.setState({submitReview: false })} className='mt-1' show={this.state.submitReview} placeholder='Please make your review relevant to the user AND his/her listing' />
+                                <SubmitReview submit={(review, star) => this.submitReview(review, star)} cancel={() => this.setState({submitReview: false })} className='mt-1' show={this.state.submitReview} />
                             </div>
             
                             <div id='user-reviews' className='mt-5'>

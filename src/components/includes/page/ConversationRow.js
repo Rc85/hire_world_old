@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThumbtack, faGavel, faEllipsisH, faCheck, faCaretRight, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faThumbtack, faGavel, faEllipsisH, faCheck, faCaretRight, faTrash, faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 import { PromptOpen, PromptReset } from '../../../actions/PromptActions';
 import { connect } from 'react-redux';
@@ -12,9 +12,9 @@ import Username from './Username';
 import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 
 class ConversationRow extends Component {
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.confirm.data) {
-            if (nextProps.confirm.data.action === 'delete conversation' && nextProps.confirm.option && nextProps.confirm.data.id === this.props.message.conversation_id) {
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.confirm.data) {
+            if (this.props.confirm.data.action === 'delete conversation' && this.props.confirm.option && this.props.confirm.data.id === this.props.message.conversation_id) {
                 this.props.delete(this.props.message.conversation_id);
                 this.props.dispatch(ResetConfirmation());
             }
@@ -24,10 +24,14 @@ class ConversationRow extends Component {
     render() {
         let statusButton, pinnedButton, appealButton, review;
         
-        if (this.props.pinned) {
-            pinnedButton = <button className='btn btn-yellow btn-sm' onClick={() => this.props.pin()}><FontAwesomeIcon icon={faThumbtack} /></button>
+        if (this.props.status === `Pinning ${this.props.message.conversation_id}`) {
+            pinnedButton = <button className='btn btn-grey btn-sm'><FontAwesomeIcon icon={faCircleNotch} spin /></button>;
         } else {
-            pinnedButton = <button className='btn btn-grey btn-sm' onClick={() => this.props.pin()}><FontAwesomeIcon icon={faThumbtack} /></button>
+            if (this.props.pinned) {
+                pinnedButton = <button className='btn btn-yellow btn-sm' onClick={() => this.props.pin()}><FontAwesomeIcon icon={faThumbtack} /></button>
+            } else {
+                pinnedButton = <button className='btn btn-grey btn-sm' onClick={() => this.props.pin()}><FontAwesomeIcon icon={faThumbtack} /></button>
+            }
         }
         
         if (this.props.user) {
@@ -42,14 +46,14 @@ class ConversationRow extends Component {
 
         return (
             <div className='inquiry-row'>
-                <div className='inquiry-main-row' title={this.props.message.conversation_subject}>
-                    <div className={`inquiry-row-text-wrapper ${this.props.loadedId === this.props.message.conversation_id ? 'active' : ''}`} onClick={() => this.props.load(this.props.message.conversation_id)}>
+                <div className='inquiry-main-row'>
+                    <div className={`inquiry-row-text-wrapper ${this.props.loadedId === this.props.message.conversation_id ? 'active' : ''}`} onClick={() => this.props.load(this.props.message.conversation_id)} title={this.props.message.conversation_subject}>
                         {statusButton}
 
                         {this.props.message.conversation_subject}
                     </div>
 
-                    <div className='inquiry-row-buttons'>{pinnedButton} <button className='btn btn-danger btn-sm' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to delete this message?', false, {action: 'delete conversation', id: this.props.message.conversation_id}))}><FontAwesomeIcon icon={faTrash} /></button></div>
+                    <div className='inquiry-row-buttons'>{pinnedButton} <button className='btn btn-danger btn-sm' onClick={() => this.props.dispatch(ShowConfirmation('Are you sure you want to delete this conversation?', false, {action: 'delete conversation', id: this.props.message.conversation_id}))}><FontAwesomeIcon icon={faTrash} /></button></div>
                 </div>
 
                 <div className='inquiry-detail-row'>
@@ -59,9 +63,9 @@ class ConversationRow extends Component {
                         <div className='inquiry-detail-type'>
                             {this.props.user && this.props.message.conversation_starter === this.props.user.username ? 
                             
-                            <React.Fragment>To <Username username={this.props.message.conversation_recipient} color='highlight' className='ml-1 mr-1' /><span className='hide-on-mobile'> {moment(this.props.message.conversation_date).fromNow()}</span></React.Fragment> : 
+                            <React.Fragment>With <Username username={this.props.message.conversation_recipient} color='highlight' className='ml-1 mr-1' /><span className='hide-on-mobile'></span></React.Fragment> : 
                             
-                            <React.Fragment>From <Username username={this.props.message.conversation_starter} color='highlight' className='ml-1 mr-1' /><span className='hide-on-mobile'> {moment(this.props.message.conversation_date).fromNow()}</span></React.Fragment>}
+                            <React.Fragment>With <Username username={this.props.message.conversation_starter} color='highlight' className='ml-1 mr-1' /><span className='hide-on-mobile'></span></React.Fragment>}
                         </div>
                     </div>
 

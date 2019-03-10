@@ -19,7 +19,10 @@ class LoginPanel extends Component {
         }
     }
 
-
+    componentWillUnmount() {
+        this.props.dispatch(LoggingIn(false));
+    }
+    
     register() {
         location.href = '/register';
     }

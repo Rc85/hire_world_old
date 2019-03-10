@@ -246,12 +246,10 @@ app.post('/api/listing/save', async(req, resp) => {
                 resp.send({status: 'error', statusMessage: 'That business type is not allowed'});
             } else if (!validate.titleCheck.test(req.body.listing_title)) {
                 resp.send({status: 'error', statusMessage: 'Invalid characters in title'});
-            } else if (req.body.listing_price_type !== 'To Be Discussed') {
-                if (!validate.priceCheck.test(req.body.listing_price)) {
-                    resp.send({status: 'error', statusMessage: 'Invalid price format'});
-                } else if (validate.blankCheck.test(req.body.listing_price_currency)) {
-                    resp.send({status: 'error', statusMessage: 'Enter a currency'});
-                }
+            } else if (req.body.listing_price_type !== 'To Be Discussed' && !validate.priceCheck.test(req.body.listing_price)) {
+                resp.send({status: 'error', statusMessage: 'Invalid price format'});
+            } else if (req.body.listing_price_type !== 'To Be Discussed' && validate.blankCheck.test(req.body.listing_price_currency)) {
+                resp.send({status: 'error', statusMessage: 'Enter a currency'});
             } else if (typeof req.body.listing_negotiable !== 'boolean') {
                 resp.send({status: 'error', statusMessage: 'Choose either negotiable or non-negotiable'});
             } else if (validate.blankCheck.test(req.body.listing_detail)) {

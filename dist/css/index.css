@@ -1395,7 +1395,7 @@
   height: 300px;
 }
 .titled-container .with-scroll {
-  overflow-y: scroll;
+  overflow-y: auto;
   height: 300px;
   padding-right: 20px;
 }

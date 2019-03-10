@@ -1979,12 +1979,12 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
 
 #dashboard-header {
   color: white;
-  margin-bottom: 60px;
+  margin-bottom: 100px;
   position: relative;
 }
 #dashboard-header #dashboard-header-user-info {
   flex-grow: 1;
-  margin-left: 17%;
+  margin-left: 16%;
 }
 #dashboard-header #dashboard-header-user-info a {
   color: #2988BC;
@@ -1995,6 +1995,7 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
 }
 #dashboard-header .profile-pic-wrapper {
   width: 15%;
+  max-width: 250px;
   position: absolute;
 }
 
@@ -2064,7 +2065,7 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
 
 #edit-user-social-media {
   position: relative;
-  margin-left: calc(17% + 20px);
+  margin-left: calc(16% + 20px);
 }
 #edit-user-social-media .edit-user-field-container {
   position: absolute;

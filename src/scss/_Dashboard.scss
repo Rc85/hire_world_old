@@ -43,12 +43,12 @@
 
 #dashboard-header {
     color: white;
-    margin-bottom: 60px;
+    margin-bottom: 100px;
     position: relative;
 
     #dashboard-header-user-info {
         flex-grow: 1;
-        margin-left: 17%;
+        margin-left: 16%;
 
         a { color: $theme-highlight; }
         
@@ -60,6 +60,7 @@
 
     .profile-pic-wrapper {
         width: 15%;
+        max-width: 250px;
         position: absolute;
     }
 }
@@ -117,7 +118,7 @@
 
 #edit-user-social-media {
     position: relative;
-    margin-left: calc(17% + 20px);
+    margin-left: calc(16% + 20px);
 
     .edit-user-field-container {
         position: absolute;

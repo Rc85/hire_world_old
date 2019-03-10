@@ -5,8 +5,7 @@ import ViewUserProfile from '../includes/page/ViewUserProfile';
 import { withRouter, Redirect } from 'react-router-dom';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
-import ViewUserReview from '../includes/page/ViewUserReview';
-import SubmitReview from '../includes/page/SubmitReview';
+import ViewUserReviews from '../includes/page/ViewUserReviews';
 import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle, faEye, faExclamationTriangle, faHeart, faCoins, faUserPlus, faUserMinus, faBan, faUser } from '@fortawesome/free-solid-svg-icons';
@@ -28,12 +27,8 @@ class ViewUser extends Component {
 
         this.state = {
             user: null,
-            reviews: [],
-            status: '',
-            submitReview: false,
-            review: '',
+            status: 'Loading',
             hours: {},
-            reportedReviews: [],
             userReported: false,
             isFriend: false,
             isBlocked: false,
@@ -64,7 +59,7 @@ class ViewUser extends Component {
             fetch.post('/api/get/user', {username: this.props.match.params.username, id: this.props.match.params.listing_id})
             .then(resp => {
                 if (resp.data.status === 'success') {
-                    this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported, isFriend: resp.data.isFriend, jobs: resp.data.jobs, isBlocked: resp.data.isBlocked});
+                    this.setState({user: resp.data.user, stats: resp.data.stats, hours: resp.data.hours, status: '', userReported: resp.data.userReported, isFriend: resp.data.isFriend, jobs: resp.data.jobs, isBlocked: resp.data.isBlocked});
                 } else if (resp.data.status === 'error') {
                     this.setState({status: ''});
                     this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -77,12 +72,10 @@ class ViewUser extends Component {
     }
     
     componentDidMount() {
-        this.setState({status: 'Loading'});
-
         fetch.post('/api/get/user', {username: this.props.match.params.username, id: this.props.match.params.listing_id})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({user: resp.data.user, reviews: resp.data.reviews, stats: resp.data.stats, hours: resp.data.hours, status: '', reportedReviews: resp.data.reports, userReported: resp.data.userReported, isFriend: resp.data.isFriend, jobs: resp.data.jobs, isBlocked: resp.data.isBlocked});
+                this.setState({user: resp.data.user, stats: resp.data.stats, hours: resp.data.hours, status: '', userReported: resp.data.userReported, isFriend: resp.data.isFriend, jobs: resp.data.jobs, isBlocked: resp.data.isBlocked});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -93,57 +86,6 @@ class ViewUser extends Component {
         .catch(err => {
             LogError(err, '/api/get/user')
         });
-    }
-
-    submitReview(review, star) {
-        let blankCheck = /^\s*$/;
-
-        if (blankCheck.test(review)) {
-            this.props.dispatch(Alert('error', 'Review cannot be blank'));
-        } else {
-            this.setState({status: 'Submitting Review'});
-
-            fetch.post('/api/review/submit', {review: review, star: star, reviewing: this.state.user.username, id: this.props.match.params.listing_id})
-            .then(resp => {
-                if (resp.data.status === 'success') {
-                    let reviews = [...this.state.reviews];
-
-                    if (resp.data.review) {
-                        reviews.unshift(resp.data.review);
-                    }
-
-                    this.setState({status: '', reviews: reviews, submitReview: false});
-                } else if (resp.data.status === 'error') {
-                    this.setState({status: ''});
-                }
-            
-                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-            })
-            .catch(err => LogError(err, '/api/review/submit'));
-        }
-    }
-
-    editReview(message, review_id, star, index) {
-        let blankCheck = /^\s*$/;
-
-        this.setState({status: 'Sending'});
-
-        if (blankCheck.test(message)) {
-            this.props.dispatch(Alert('error', 'Review cannot be blank'));
-        } else {
-            fetch.post('/api/review/edit', {message: message, star: star, review_id: review_id})
-            .then(resp => {
-                if (resp.data.status === 'success') {
-                    let reviews = [...this.state.reviews];
-                    reviews[index] = resp.data.review;
-
-                    this.setState({status: '', reviews: reviews});
-                }
-                
-                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-            })
-            .catch(err => LogError(err, '/api/review/edit'));
-        }
     }
 
     submitReport() {
@@ -219,7 +161,7 @@ class ViewUser extends Component {
     }
 
     render() {
-        let status, contacts, profile, reviews, submitReviewButton, reviewed, reportButton, message, friendIcon, businessHours, jobs, blockIcon;
+        let status, contacts, profile, reportButton, message, friendIcon, businessHours, jobs, blockIcon;
 
         if (this.state.status === 'access error') {
             return <Redirect to={`/error/listing/404`} />
@@ -227,10 +169,6 @@ class ViewUser extends Component {
             return <Loading size='7x' />;
         } else if (this.state.status === 'redirect') {
             return <Redirect to='/' />;
-        }
-
-        if (this.state.reviews && this.props.user) {
-            reviewed = this.state.reviews.findIndex(review => review.reviewer === this.props.user.username)
         }
 
         if (this.state.user) {
@@ -242,27 +180,7 @@ class ViewUser extends Component {
                 businessHours = <ViewUserBusinessHours hours={this.state.hours} />;
             }
 
-            if (this.state.reviews.length > 0) {
-                reviews = this.state.reviews.map((review, i) => {
-                    let reported = false;
-
-                    if (this.state.reportedReviews.indexOf(review.review_id) >= 0) reported = true;
-
-                    return <ViewUserReview key={i} review={review} user={this.props.user} edit={(review, id, star) => this.editReview(review, id, star, i)} reported={reported} />
-                });
-            } else {
-                reviews = <div className='text-center mt-5'>
-                    <h1 className='text-dark'>Not Yet Reviewed</h1>
-                </div>
-            }
-
-            if (!this.state.submitReview && this.props.user && this.state.user) {
-                if (this.props.user.username !== this.state.user.username && reviewed < 0) {
-                    submitReviewButton = <button className='btn btn-primary' onClick={() => this.setState({submitReview: true})}>Submit Review</button>;
-                }
-            }
-
-            if (this.props.user && this.props.user.username !== this.state.user.username) {
+            if (this.props.user.user && this.props.user.user.username !== this.state.user.username) {
                 if (!this.state.isFriend) {
                     friendIcon = <Tooltip text='Add to Friends List' placement='bottom-right'><FontAwesomeIcon icon={faUserPlus} className='text-alt-highlight' onClick={() => this.friendUser('add')} /></Tooltip>;
                 } else {
@@ -280,7 +198,7 @@ class ViewUser extends Component {
                 }
 
                 if (this.state.message === 'message') {
-                    if (this.state.user.username !== this.props.user.username) {
+                    if (this.state.user.username !== this.props.user.user.username) {
                         message = <React.Fragment>
                             <hr/>
 
@@ -307,7 +225,7 @@ class ViewUser extends Component {
                         {<TitledContainer title={this.state.user ? this.state.user.username : ''} bgColor='yellow' icon={<FontAwesomeIcon icon={faUserCircle} />} shadow>
                             {profile}
 
-                            {this.props.user && this.state.user && this.props.user.username !== this.state.user.username ?
+                            {this.props.user.user && this.state.user && this.props.user.user.username !== this.state.user.username ?
                                 <div className='text-right'>
                                     {this.state.message != 'message' && this.state.user.allow_messaging ? <button className='btn btn-primary' onClick={() => this.setState({message: 'message'})}>Message</button> : ''}
                                     {this.state.message != 'propose a job' && this.state.user && this.state.user.connected_acct_status === 'Approved' ? <button className='btn btn-success' onClick={() => this.setState({message: 'propose a job'})}>Job Proposal</button> : ''}
@@ -357,21 +275,7 @@ class ViewUser extends Component {
                         {jobs}
                     </div>
 
-                    <div id='user-reviews-container'>
-                        <div id='user-reviews-wrapper'>
-                            <div className='mt-3'>
-                                <div className='text-right'>{submitReviewButton}</div>
-            
-                                <SubmitReview submit={(review, star) => this.submitReview(review, star)} cancel={() => this.setState({submitReview: false })} className='mt-1' show={this.state.submitReview} />
-                            </div>
-            
-                            <div id='user-reviews' className='mt-5'>
-                                {reviews}
-                            </div>
-                        </div>
-
-                        <div className='user-reviews-placeholder-column'></div>
-                    </div>
+                    <ViewUserReviews username={this.props.match.params.username} user={this.props.user} listingId={this.props.match.params.listing_id} />
                 </div>
             </div>
         )
@@ -384,7 +288,7 @@ ViewUser.propTypes = {
 
 const mapStateToProps = state => {
     return {
-        user: state.Login.user,
+        user: state.Login,
         confirm: state.Confirmation
     }
 }

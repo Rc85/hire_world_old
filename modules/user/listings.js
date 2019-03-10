@@ -354,7 +354,7 @@ app.post('/api/saved_listings/unsave', (req, resp) => {
 
 app.post('/api/filter/listings', async(req, resp) => {
     // Never build/concatenate query string from req.body
-    let whereArray = [`AND listing_sector = $1`];
+    let whereArray = [`listing_sector = $1`];
     let params = [req.body.sector]
 
     if (req.body.title && validate.userTitleCheck.test(req.body.title)) {
@@ -363,13 +363,13 @@ app.post('/api/filter/listings', async(req, resp) => {
 
         let index = params.length;
 
-        whereArray.push(`AND user_title ILIKE $${index}`);
+        whereArray.push(`user_title ILIKE $${index}`);
     }
 
     if (req.body.rating !== 'Any') {
         params.push(req.body.rating);
         let index = params.length;
-        whereArray.push(`AND rating = $${index}`);
+        whereArray.push(`rating = $${index}`);
     }
 
     if (req.body.price) {
@@ -405,8 +405,8 @@ app.post('/api/filter/listings', async(req, resp) => {
             priceType = '(Hourly|Bi-weekly|Monthly|Per Delivery|One Time Payment)';
         }
 
-        whereArray.push(`AND listing_price ${priceOperator} $${index}`);
-        whereArray.push(`AND listing_price_type ${priceTypeOperator} '${priceType}'`);
+        whereArray.push(`listing_price ${priceOperator} $${index}`);
+        whereArray.push(`listing_price_type ${priceTypeOperator} '${priceType}'`);
     }
 
     if (req.body.completedJobs) {
@@ -429,7 +429,7 @@ app.post('/api/filter/listings', async(req, resp) => {
 
         let index = params.length;
 
-        whereArray.push(`AND job_complete ${operator} $${index}`);
+        whereArray.push(`job_complete ${operator} $${index}`);
     }
 
     if (req.body.noAbandonedJobs) {
@@ -437,7 +437,7 @@ app.post('/api/filter/listings', async(req, resp) => {
 
         let index = params.length;
 
-        whereArray.push(`AND (job_abandoned = $${index} OR job_abandoned IS NULL)`);
+        whereArray.push(`(job_abandoned = $${index} OR job_abandoned IS NULL)`);
     }
 
     if (req.body.country) {
@@ -445,7 +445,7 @@ app.post('/api/filter/listings', async(req, resp) => {
 
         let index = params.length;
 
-        whereArray.push(`AND user_country = $${index}`);
+        whereArray.push(`user_country = $${index}`);
     }
 
     if (req.body.region) {
@@ -453,7 +453,7 @@ app.post('/api/filter/listings', async(req, resp) => {
 
         let index = params.length;
 
-        whereArray.push(`AND user_region = $${index}`);
+        whereArray.push(`user_region = $${index}`);
     }
 
     if (req.body.city) {
@@ -461,7 +461,7 @@ app.post('/api/filter/listings', async(req, resp) => {
 
         let index = params.length;
 
-        whereArray.push(`AND user_city = $${index}`);
+        whereArray.push(`user_city = $${index}`);
     }
 
     let queryString = `SELECT user_listings.*, jobs.job_complete, jobs.job_abandoned, user_profiles.*, user_reviews.rating, user_reviews.review_count FROM user_listings
@@ -477,8 +477,22 @@ app.post('/api/filter/listings', async(req, resp) => {
             (SELECT COUNT(job_id) AS job_abandoned FROM jobs WHERE job_status = 'Abandoned')
         FROM jobs LIMIT 1) AS jobs ON jobs.job_user = user_listings.listing_user
     WHERE listing_status = 'Active'
-    ${whereArray.join(' ')}
+    AND ${whereArray.join(' AND ')}
     ORDER BY listing_renewed_date DESC, listing_id`;
+
+    let totalListings = await db.query(`SELECT COUNT(listing_id) AS count FROM user_listings
+    LEFT JOIN users ON users.username = user_listings.listing_user
+    LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
+    LEFT JOIN
+        (SELECT (SUM(review_rating) / COUNT(review_id)) AS rating, reviewing, COUNT(review_id) AS review_count FROM user_reviews
+        WHERE review_rating IS NOT NULL 
+        GROUP BY reviewing) AS user_reviews ON user_reviews.reviewing = user_listings.listing_user
+	LEFT JOIN
+        (SELECT job_user,
+            (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Completed'),
+            (SELECT COUNT(job_id) AS job_abandoned FROM jobs WHERE job_status = 'Abandoned')
+        FROM jobs LIMIT 1) AS jobs ON jobs.job_user = user_listings.listing_user
+    WHERE ${whereArray.join(' AND ')}`, params);
 
     await db.query(queryString, params)
     .then(result => {
@@ -489,7 +503,7 @@ app.post('/api/filter/listings', async(req, resp) => {
                 }
             }
 
-            resp.send({status: 'success', listings: result.rows});
+            resp.send({status: 'success', listings: result.rows, totalListings: totalListings.rows[0].count});
         }
     })
     .catch(err => {

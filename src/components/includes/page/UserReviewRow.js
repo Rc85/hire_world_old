@@ -14,7 +14,7 @@ import Tooltip from '../../utils/Tooltip';
 import Badge from '../../utils/Badge';
 import Username from './Username';
 
-class ViewUserReview extends Component {
+class UserReviewRow extends Component {
     constructor(props) {
         super(props);
         
@@ -54,7 +54,7 @@ class ViewUserReview extends Component {
             status = <Loading size='3x' />;
         }
 
-        if (this.props.user && this.props.user.username === this.props.review.reviewer) {
+        if (this.props.user.user && this.props.user.user.username === this.props.review.reviewer) {
             buttons = <FontAwesomeIcon icon={faEdit} onClick={() => this.setState({editing: true})} className='user-review-buttons' />;
             reviewer = true;
         } else {
@@ -68,16 +68,24 @@ class ViewUserReview extends Component {
             ]} className='badge-success text-black user-review-badge' />;
         }
 
-        if (this.props.user && this.props.review && this.props.review.reviewer !== this.props.user.username) {
+        if (this.props.user.user && this.props.review && this.props.review.reviewer !== this.props.user.user.username) {
             if (!this.state.reviewReported) {
                 reportButton = <Tooltip text='Report' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} size='sm' className='text-highlight' onClick={() => this.submitReport()} /></Tooltip>;
             }
         }
 
         if (this.state.editing) {
-            review = <SubmitReview submit={(review, star) => this.edit(review, star)} cancel={() => this.setState({editing: false})} review={this.props.review} stars={this.props.review.review_rating} show />;
+            review = <SubmitReview submit={(review, star) => this.edit(review, star)} cancel={() => this.setState({editing: false})} review={this.props.review} stars={this.props.review.review_rating} />;
         } else {
             review = <div className='user-review'>
+                <div className='user-review-body'>{this.props.review.review}</div>
+            </div>;
+        }
+
+        return(
+            <div className={`simple-container mb-3 ${this.props.review.reviewer === this.props.user.user.username ? 'bg-alt-highlight text-black' : ''}`}>
+                <div className='simple-container-title'>{this.props.review.reviewer}</div>
+
                 <div className='user-review-header'>
                     <div className='user-review-header-info'>
                         <div className='user-review-rating'>
@@ -92,30 +100,21 @@ class ViewUserReview extends Component {
                     {buttons}
                 </div>
 
-                <div className='user-review-body'>{this.props.review.review}</div>
-
-                <div className='user-review-footer'>
-                    {reportButton}
-                </div>
-            </div>;
-        }
-
-        return(
-            <React.Fragment>
                 <div className={`user-review-container ${reviewer ? 'user-review-owner' : ''}`}>
                     {status}
                     <div className='user-review-profile-pic'>
                         <div className='profile-pic' style={{background: `url(${this.props.review.avatar_url}) center top / cover`}}></div>
-                        <span><Username username={this.props.review.reviewer} color='highlight' /></span>
                     </div>
     
                     {review}
                 </div>
 
-                <hr className='user-review-separator' />
-            </React.Fragment>
+                <div className='user-review-footer'>
+                    {reportButton}
+                </div>
+            </div>
         )
     }
 }
 
-export default withRouter(connect()(ViewUserReview));
+export default withRouter(connect()(UserReviewRow));

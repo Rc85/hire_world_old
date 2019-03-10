@@ -16,19 +16,38 @@ class Sectors extends Component {
         super(props);
 
         this.state = {
-            sector: this.props.match.params.sector,
             status: 'Loading',
             statusMessage: '',
-            listings: []
+            totalListings: 0,
+            listings: [],
+            offset: 0
         }
     }
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.location.key !== this.props.location.key) {
+            this.setState({status: 'Loading'});
+
             fetch.post('/api/get/listings', {sector: this.props.match.params.sector})
             .then(resp => {
                 if (resp.data.status === 'success') {
-                    this.setState({status: '', sector: this.props.match.params.sector, listings: resp.data.listings});
+                    this.setState({status: '', listings: resp.data.listings});
+                } else if (resp.data.status === 'access error') {
+                    this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
+                }
+            })
+            .catch(err => LogError(err, '/api/get/listings'));
+        }
+
+        if (prevState.offset !== this.state.offset) {
+            this.setState({status: 'Loading'});
+
+            fetch.post('/api/get/listings', {sector: this.props.match.params.sector, offset: this.state.offset})
+            .then(resp => {
+                if (resp.data.status === 'success') {
+                    let listings = [...this.state.listings, ...resp.data.listings];
+
+                    this.setState({status: '', listings: listings});
                 } else if (resp.data.status === 'access error') {
                     this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
                 }
@@ -41,7 +60,7 @@ class Sectors extends Component {
         fetch.post('/api/get/listings', {sector: this.props.match.params.sector})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', listings: resp.data.listings});
+                this.setState({status: '', listings: resp.data.listings, totalListings: parseInt(resp.data.totalListings )});
             } else if (resp.data.status === 'access error') {
                 this.setState({status: resp.data.status, statusMessage: resp.data.statusMessage});
             }
@@ -56,7 +75,7 @@ class Sectors extends Component {
 
         fetch.post('/api/filter/listings', data)
         .then(resp => {
-            this.setState({status: '', listings: resp.data.listings});
+            this.setState({status: '', listings: resp.data.listings, totalListings: parseInt(resp.data.totalListings)});
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
@@ -83,10 +102,12 @@ class Sectors extends Component {
                 {status}
                 
                 <section id='listings' className='main-panel'>
-                    <TitledContainer title={this.state.sector} bgColor='primary' icon={<FontAwesomeIcon icon={faThList} />}shadow >
+                    <TitledContainer title={this.props.match.params.sector} bgColor='primary' icon={<FontAwesomeIcon icon={faThList} />}shadow >
                         <div className='listings-container'>
                             {listings}
                         </div>
+
+                        {this.state.totalListings > 25 ? <div className='text-center'><button className='btn btn-primary btn-sm' onClick={() => this.setState({offset: this.state.offset + 25})}>Load more</button></div> : ''}
                     </TitledContainer>
                 </section>
             </React.Fragment>

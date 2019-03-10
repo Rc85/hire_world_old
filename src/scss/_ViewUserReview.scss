@@ -11,20 +11,14 @@
     cursor: pointer;
 }
 
-.user-review-header {
-    margin-bottom: 60px;
-}
-
 .user-review-header, .user-review-header-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.user-review-owner {
-    border: 1px solid $theme-highlight;
-    background: $theme-lightblue-faded;
-    border-radius: 0.25rem;
+.user-review-header {
+    margin-bottom: 15px;
 }
 
 .user-review-body {
@@ -34,14 +28,11 @@
 .user-review-footer {
     display: flex;
     justify-content: flex-end;
-    margin-top: 60px;
 }
 
 .user-review-container {
     display: flex;
     align-items: flex-start;
-    margin: 0 0 60px 0;
-    padding: 15px;
 
     a { color: $theme-highlight }
     a:hover { text-decoration: underline }

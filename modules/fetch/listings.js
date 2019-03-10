@@ -30,6 +30,7 @@ app.post('/api/get/listings', async(req, resp) => {
     let sectors = '';
     let limit = '';
     let params = [];
+    let offset = '';
 
     if (req.body.recent) {
         orderBy = `listing_created_date DESC`;
@@ -39,6 +40,15 @@ app.post('/api/get/listings', async(req, resp) => {
         sectors = `listing_sector = $1 AND`;
         params = [req.body.sector];
     }
+
+    if (req.body.offset) {
+        params.push(req.body.offset);
+        let index = params.length;
+
+        offset = `OFFSET $${index}`;
+    }
+
+    let totalListings = await db.query(`SELECT COUNT(listing_id) AS count FROM user_listings WHERE listing_sector = $1`, [req.body.sector]);
 
     await db.query(`SELECT users.subscription_end_date, user_listings.*, user_profiles.user_title, user_reviews.rating, user_reviews.review_count, jobs.job_complete, user_profiles.avatar_url, users.connected_acct_status FROM user_listings
     LEFT JOIN users ON users.username = user_listings.listing_user
@@ -52,7 +62,7 @@ app.post('/api/get/listings', async(req, resp) => {
         (SELECT job_user, COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Completed' GROUP BY job_user LIMIT 1) AS jobs ON jobs.job_user = user_listings.listing_user
     WHERE ${sectors} users.subscription_end_date > current_timestamp AND listing_status = 'Active'
     ORDER BY ${orderBy}, listing_id
-    ${limit}`, params)
+    ${limit} ${offset}`, params)
     .then(result => {
         if (result) {
             for (let row of result.rows) {
@@ -61,7 +71,7 @@ app.post('/api/get/listings', async(req, resp) => {
                 }
             }
 
-            resp.send({status: 'success', listings: result.rows});
+            resp.send({status: 'success', listings: result.rows, totalListings: totalListings.rows[0].count});
         }
     })
     .catch(err => {

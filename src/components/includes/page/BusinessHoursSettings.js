@@ -36,17 +36,21 @@ class BusinessHoursSettings extends Component {
         }
     }
 
-    componentDidMount() {
-        fetch.post('/api/get/business_hours', {id: this.props.id})
-        .then(resp => {
-            if (resp.data.status === 'success') {
-                this.initialState = this.splitHours(resp.data.hours);
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.id !== this.props.id) {
+            fetch.post('/api/get/business_hours', {id: this.props.id})
+            .then(resp => {
+                console.log(resp);
+                if (resp.data.status === 'success') {
+                    this.initialState = this.splitHours(resp.data.hours);
 
-                this.setState(this.initialState);
-            }
-        })
-        .catch(err => LogError(err, '/api/get/business_hours'));
+                    this.setState(this.initialState);
+                }
+            })
+            .catch(err => LogError(err, '/api/get/business_hours'));
+        }
     }
+    
 
     splitHours(days) {
         let monStart, monEnd, tueStart, tueEnd, wedStart, wedEnd, thuStart, thuEnd, friStart, friEnd, satStart, satEnd, sunStart, sunEnd;
@@ -181,6 +185,7 @@ class BusinessHoursSettings extends Component {
     }
     
     render() {
+        console.log(this.state);
         return (
             <section id='business-hours-settings' className='mb-3'>
                 <div className='d-flex-between-center'>

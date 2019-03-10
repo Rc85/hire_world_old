@@ -98,7 +98,6 @@ class FriendsList extends Component {
                     <TitledContainer title='Friends List' icon={<FontAwesomeIcon icon={faUserFriends} />} bgColor='lightblue'>
                         <div className='filter-container'>
                             <AlphaNumericFilter filter={(letter) => this.setState({filtering: letter})} currentLetter={this.state.filtering} />
-                            <div className={`filter-button ${this.state.filtering === 'All' ? 'active' : ''}`} onClick={() => this.filter('All')}>All</div>
                         </div>
 
                         <div className='friend-list-container'>

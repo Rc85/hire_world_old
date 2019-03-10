@@ -124,7 +124,7 @@ class BlockedUsers extends Component {
 }
 
 BlockedUsers.propTypes = {
-
+    user: PropTypes.object
 };
 
 export default connect()(BlockedUsers);

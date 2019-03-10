@@ -3100,11 +3100,7 @@ footer {
 .submit-review-container {
   width: 100%;
   overflow: hidden;
-  max-height: 0;
   transition: max-height 0.05s ease-in-out;
-}
-.submit-review-container.show {
-  max-height: 400px;
 }
 .submit-review-container .submit-review {
   padding: 15px;
@@ -3534,20 +3530,14 @@ footer {
   cursor: pointer;
 }
 
-.user-review-header {
-  margin-bottom: 60px;
-}
-
 .user-review-header, .user-review-header-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.user-review-owner {
-  border: 1px solid #2988BC;
-  background: rgba(121, 154, 199, 0.25);
-  border-radius: 0.25rem;
+.user-review-header {
+  margin-bottom: 15px;
 }
 
 .user-review-body {
@@ -3557,14 +3547,11 @@ footer {
 .user-review-footer {
   display: flex;
   justify-content: flex-end;
-  margin-top: 60px;
 }
 
 .user-review-container {
   display: flex;
   align-items: flex-start;
-  margin: 0 0 60px 0;
-  padding: 15px;
 }
 .user-review-container a {
   color: #2988BC;

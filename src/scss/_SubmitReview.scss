@@ -5,12 +5,7 @@
 .submit-review-container {
     width: 100%;
     overflow: hidden;
-    max-height: 0;
     transition: max-height 0.05s ease-in-out;
-
-    &.show {
-        max-height: 400px;
-    }
 
     .submit-review {
         padding: 15px;

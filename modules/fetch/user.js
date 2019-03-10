@@ -46,10 +46,8 @@ app.post('/api/get/user', async(req, resp) => {
                     delete user.rows[0].hide_email;
                     delete user.rows[0].display_fullname;
                     
-                    let orderby = '';
-                    let reviewsParam, reports, reportedUser;
+                    let reportedUser;
                     let userIsReported = false;
-                    let reportedReviews = [];
                     let businessHours = {};
                     let isFriend = false;
                     let isBlocked = false;
@@ -66,35 +64,19 @@ app.post('/api/get/user', async(req, resp) => {
                     }
                     
                     if (req.session.user) {
-                        orderby = 'user_reviews.reviewer = $2 DESC, ';
-                        reviewsParam = [req.body.username, req.session.user.username];
-                        reports = await client.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2 AND report_status = 'Pending'`, [req.session.user.username, 'Review']);
                         reportedUser = await client.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2 AND reported_user = $3 AND report_status = 'Pending'`, [req.session.user.username, 'Listing', req.body.username]);
                         isFriend = await client.query(`SELECT * FROM friends WHERE friend_user_1 = $1 AND friend_user_2 = $2`, [req.session.user.username, req.body.username]);
                         isBlocked = await client.query(`SELECT * FROM blocked_users WHERE blocking_user = $1 AND blocked_user = $2`, [req.session.user.username, req.body.username]);
                         
-                        for (let report of reports.rows) {
-                            reportedReviews.push(report.reported_id);
-                        }
-
                         if (reportedUser && reportedUser.rows.length === 1) {
                             userIsReported = true;
                         }
-                    } else {
-                        reviewsParam = [req.body.username];
                     }
-
-                    let reviews = await client.query(`SELECT user_reviews.*, user_profiles.avatar_url, jobs.job_client, jobs.job_user FROM user_reviews
-                    LEFT JOIN users ON users.username = user_reviews.reviewer
-                    LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
-                    LEFT JOIN jobs ON user_reviews.review_job_id = jobs.job_id
-                    WHERE user_reviews.reviewing = $1 AND user_reviews.review IS NOT NULL AND user_reviews.review_status = 'Active'
-                    ORDER BY ${orderby}user_reviews.review_date DESC`, reviewsParam);
 
                     let stats = await client.query(`SELECT
                         (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Completed' AND job_user = $1),
                         (SELECT COUNT(job_id) AS job_abandon FROM jobs WHERE job_status = 'Abandoned' AND job_user = $1),
-                        (SELECT (SUM(review_rating) / COUNT(review_id)) AS rating FROM user_reviews WHERE reviewing = $1 AND review_rating IS NOT NULL),
+                        (SELECT ROUND((CAST(SUM(review_rating) AS decimal) / COUNT(review_id))) AS rating FROM user_reviews WHERE reviewing = $1 AND review_rating IS NOT NULL),
                         (SELECT COUNT(review_id) AS job_count FROM user_reviews WHERE review IS NOT NULL AND reviewing = $1 AND review_status = 'Active'),
                         user_view_count.view_count,
                         users.user_last_login FROM users
@@ -109,7 +91,7 @@ app.post('/api/get/user', async(req, resp) => {
                     await client.query(`INSERT INTO user_view_count (viewing_user, view_count) VALUES ($1, $2) ON CONFLICT (viewing_user) DO UPDATE SET view_count = user_view_count.view_count + 1`, [req.body.username, 1]);
 
                     await client.query('COMMIT')
-                    .then(() =>  resp.send({status: 'success', user: user.rows[0], reviews: reviews.rows, stats: stats.rows[0], hours: businessHours, reports: reportedReviews, userReported: userIsReported, isFriend: isFriend && isFriend.rows.length === 1, jobs: jobs.rows, isBlocked: isBlocked && isBlocked.rows.length === 1}));
+                    .then(() =>  resp.send({status: 'success', user: user.rows[0], stats: stats.rows[0], hours: businessHours, userReported: userIsReported, isFriend: isFriend && isFriend.rows.length === 1, jobs: jobs.rows, isBlocked: isBlocked && isBlocked.rows.length === 1}));
                 }  else {
                     let error = new Error(`That listing does not exist`);
                     let errObj = {error: error, type: 'CUSTOM', status: 'access error', stack: error.stack}
@@ -377,6 +359,34 @@ app.post('/api/get/user/blocked', async(req, resp) => {
             }
         });
     }
+});
+
+app.post('/api/get/reviews', async(req, resp) => {
+    let reviews = await db.query(`SELECT COUNT(review_id) AS count FROM user_reviews WHERE reviewing = $1`, [req.body.user]);
+    let reports = await db.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2 AND report_status = 'Pending'`, [req.session.user.username, 'Review']);
+    let reportedReviews = [];
+    let reviewed = await db.query(`SELECT reviewer FROM user_reviews WHERE reviewing = $1 AND reviewer = $2`, [req.body.user, req.session.user.username]);
+    let reviewSubmitted = reviewed.rows.length === 1;
+
+    for (let report of reports.rows) {
+        reportedReviews.push(report.reported_id);
+    }
+
+    await db.query(`SELECT user_reviews.*, user_profiles.avatar_url FROM user_reviews
+    LEFT JOIN users ON users.username = user_reviews.reviewer
+    LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+    WHERE user_reviews.reviewing = $1 AND user_reviews.review IS NOT NULL AND user_reviews.review_status = 'Active'
+    ORDER BY user_reviews.review_date DESC
+    LIMIT 25
+    OFFSET $2`, [req.body.user, req.body.offset])
+    .then(result => {
+        if (result) {
+            resp.send({status: 'success', reviews: result.rows, totalReviews: reviews.rows[0].count, reportedReviews: reportedReviews, reviewSubmitted: reviewSubmitted});
+        } else {
+            resp.send({status: 'error', statusMessage: 'Fail to retrieve reviews'});
+        }
+    })
+    .catch(err => error.log(err, req, resp));
 });
 
 module.exports = app;

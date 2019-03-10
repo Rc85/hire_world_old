@@ -14,6 +14,7 @@ module.exports = {
     locationCheck: /^[a-zA-Z0-9À-ž,'().\-\s]*$/,
     urlCheck: /^(http:\/\/|https:\/\/)?(www\.)?[a-zA-Z0-9\-]*.[a-zA-Z]{0,5}([a-zA-Z0-9\-\/]*)/,
     userTitleCheck: /^[a-zA-Z0-9À-ž,'().\-\s]{3,30}$/,
+    searchUserTitleCheck: /^[a-zA-Z0-9À-ž,'().\-\s]*$/,
     dobYearCheck: /^(1|2){1}[0-9]{3}$/,
     currencyCheck: /^[a-zA-Z]{3}$/
 }

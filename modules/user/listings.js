@@ -309,57 +309,13 @@ app.post('/api/listing/save', async(req, resp) => {
     }
 });
 
-/* app.post('/api/listing/save', (req, resp) => {
-    if (req.session.user) {
-        db.query(`INSERT INTO saved_listings (saved_listing_id, saved_listing_title, saved_by) VALUES ($1, $2, $3)`, [req.body.listing_id, req.body.listing_title, req.session.user.username])
-        .then(result => {
-            if (result && result.rowCount === 1) {
-                resp.send({status: 'success', statusMessage: 'Listing saved'});
-            }
-        })
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
-        });
-    }
-});
-
-app.post('/api/saved_listings/unsave', (req, resp) => {
-    if (req.session.user) {
-        db.connect((err, client, done) => {
-            if (err) console.log(err);
-
-            (async() => {
-                try {
-                    await client.query('BEGIN');
-
-                    await client.query(`DELETE FROM saved_listings WHERE saved_id = ANY($1) AND saved_by = $2`, [req.body.listings, req.session.user.username]);
-
-                    await client.query('COMMIT')
-                    .then(() => resp.send({status: 'success', statusMessage: 'Saved listing(s) deleted'}));
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                throw e;
-                } finally {
-                    done();
-                }
-            })()
-            .catch(err => {
-                console.log(err);
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
-            });
-        });
-    }
-}); */
-
 app.post('/api/filter/listings', async(req, resp) => {
     // Never build/concatenate query string from req.body
     let whereArray = [`listing_sector = $1`];
     let params = [req.body.sector]
 
-    if (req.body.title && validate.userTitleCheck.test(req.body.title)) {
+    if (req.body.title && validate.searchUserTitleCheck.test(req.body.title)) {
         params.push(`%${req.body.title}%`);
-        console.log(params);
 
         let index = params.length;
 

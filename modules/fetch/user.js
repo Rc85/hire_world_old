@@ -363,13 +363,22 @@ app.post('/api/get/user/blocked', async(req, resp) => {
 
 app.post('/api/get/reviews', async(req, resp) => {
     let reviews = await db.query(`SELECT COUNT(review_id) AS count FROM user_reviews WHERE reviewing = $1`, [req.body.user]);
-    let reports = await db.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2 AND report_status = 'Pending'`, [req.session.user.username, 'Review']);
-    let reportedReviews = [];
-    let reviewed = await db.query(`SELECT reviewer FROM user_reviews WHERE reviewing = $1 AND reviewer = $2`, [req.body.user, req.session.user.username]);
-    let reviewSubmitted = reviewed.rows.length === 1;
 
-    for (let report of reports.rows) {
-        reportedReviews.push(report.reported_id);
+    let reports, reviewed, reviewSubmitted;
+
+    if (req.session.user) {
+        reports = await db.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2 AND report_status = 'Pending'`, [req.session.user.username, 'Review']);
+        reviewed = await db.query(`SELECT reviewer FROM user_reviews WHERE reviewing = $1 AND reviewer = $2`, [req.body.user, req.session.user.username]);
+    }
+    
+    let reportedReviews = [];
+    
+    if (reports && reviewed) {
+        reviewSubmitted = reviewed.rows.length === 1;
+
+        for (let report of reports.rows) {
+            reportedReviews.push(report.reported_id);
+        }
     }
 
     await db.query(`SELECT user_reviews.*, user_profiles.avatar_url FROM user_reviews

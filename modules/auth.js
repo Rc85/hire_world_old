@@ -59,7 +59,7 @@ app.post('/api/auth/register', (req, resp) => {
                                 try {
                                     await client.query(`BEGIN`);
 
-                                    let encrypted = cryptoJS.AES.encrypt(req.body.email, 'registering for hireworld');
+                                    let encrypted = cryptoJS.AES.encrypt(req.body.email, process.env.ACTIVATE_ACCOUNT_SECRET);
                                     let regKeyString = encrypted.toString();
                                     let registrationKey = encodeURIComponent(regKeyString);
 
@@ -194,7 +194,7 @@ app.post('/api/auth/login', async(req, resp, next) => {
                             });
                         } else {
                             await client.query('ROLLBACK');
-                            resp.send({status: 'error', statusMessage: 'User not found'});
+                            resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
                             return;
                         }    
                     } else {

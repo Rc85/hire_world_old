@@ -142,7 +142,7 @@ app.post('/api/activate-account', async(req, resp) => {
         if (new Date(user.rows[0].reg_key_expire_date) < new Date) {
             resp.send({status: 'error', statusMessage: 'The link has expired'});
         } else {
-            let decrypted = cryptoJS.AES.decrypt(registrationKey, 'activating account');
+            let decrypted = cryptoJS.AES.decrypt(registrationKey, process.env.ACTIVATE_ACCOUNT_SECRET);
 
             if (decrypted.toString(cryptoJS.enc.Utf8) === user.rows[0].user_email) {
                 await db.query(`UPDATE users SET user_status = 'Active' WHERE user_id = $1`, [user.rows[0].user_id])

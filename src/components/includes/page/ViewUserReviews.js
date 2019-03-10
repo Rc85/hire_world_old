@@ -111,24 +111,26 @@ class ViewUserReviews extends Component {
 
                 <div className='mb-5'>{this.state.submitReview ? <SubmitReview cancel={() => this.setState({submitReview: false})} submit={(review, stars) => this.submitReview(review, stars)} /> : ''}</div>
 
-                <div className='mb-3'><Pagination totalItems={this.state.totalReviews} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} /></div>
+                {parseInt(this.state.reviews.length) > 0 ? <div className='mb-3'><Pagination totalItems={this.state.totalReviews} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} /></div> : ''}
 
                 <div className='user-reviews-container'>
-                    {this.state.reviews.map((review, i) => {
+                    {this.state.reviews.length > 0 ? this.state.reviews.map((review, i) => {
                         let reported = this.state.reportedReviews.indexOf(review.review_id) >= 0;
 
                         return <UserReviewRow key={review.review_id} review={review} user={this.props.user} edit={(review, id, star) => this.editReview(review, id, star, i)} reported={reported} />;
-                    })}
+                    }) : <h1 className='text-dark text-center'>No Reviews</h1>}
                 </div>
 
-                <Pagination totalItems={this.state.totalReviews} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} />
+                {parseInt(this.state.reviews.length) > 0 ? <Pagination totalItems={this.state.totalReviews} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} /> : ''}
             </div>
         );
     }
 }
 
 ViewUserReviews.propTypes = {
-
+    user: PropTypes.object,
+    username: PropTypes.string,
+    listingId: PropTypes.string
 };
 
 export default connect()(ViewUserReviews);

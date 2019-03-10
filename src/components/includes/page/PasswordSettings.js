@@ -35,11 +35,7 @@ class PasswordSettings extends Component {
     }
 
     render() {
-        let status, showHide;
-
-        if (this.state.status === 'Loading') {
-            status = <Loading size='3x' />;
-        }
+        let showHide;
 
         if (this.state.showPassword) {
             showHide = 'Hide';
@@ -49,7 +45,6 @@ class PasswordSettings extends Component {
 
         return(
             <div id='password-settings' className='position-relative mb-3'>
-                {status}
                 <div>
                     <div className='text-right'>
                         <span style={{fontWeight: 'bold', cursor: 'pointer'}} onClick={() => this.setState({showPassword: !this.state.showPassword})}>{showHide}</span>

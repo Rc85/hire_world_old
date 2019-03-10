@@ -44,7 +44,7 @@ module.exports = {
     email: {
         confirmation: {
             resend: async(email) => {
-                let encrypted = cryptoJS.AES.encrypt(email, 'activating account');
+                let encrypted = cryptoJS.AES.encrypt(email, process.env.ACTIVATE_ACCOUNT_SECRET);
                 let regKeyString = encrypted.toString();
                 let registrationKey = encodeURIComponent(regKeyString);
                 
@@ -67,31 +67,6 @@ module.exports = {
                 sgMail.send(message);
 
                 return regKeyString;
-            }
-        },
-        password: {
-            reset: async(email) => {
-                let encrypted = cryptoJS.AES.encrypt(email, 'resetting password');
-                let sessionKeyString = encrypted.toString();
-                let sessionKey = encodeURIComponent(sessionKeyString);
-                
-                let message = {
-                    to: email,
-                    from: 'admin@hireworld.ca',
-                    subject: 'Password Reset',
-                    templateId: 'd-d299977ec2404a5d9952b08a21576be5',
-                    dynamicTemplateData: {
-                        url: process.env.SITE_URL,
-                        key: sessionKey
-                    },
-                    trackingSettings: {
-                        clickTracking: {
-                            enable: false
-                        }
-                    }
-                }
-
-                sgMail.send(message);
             }
         }
     },

@@ -147,11 +147,11 @@ app.post('/api/user/settings/email/change', (req, resp) => {
                             let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
                             throw errObj;
                         } else {
-                            await client.query(`UPDATE users SET user_email = $1 WHERE user_id = $2`, [req.body.newEmail, req.session.user.user_id]);
+                            let regKey = await controller.email.confirmation.resend(req.body.newEmail);
+                           
+                            await client.query(`UPDATE users SET user_email = $1, user_status = 'Pending', registration_key = $3, reg_key_expire_date = current_timestamp + interval '1' day WHERE user_id = $2`, [req.body.newEmail, req.session.user.user_id, regKey]);
 
                             await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Changed email`, req.session.user.username, 'Account']);
-
-                            await controller.email.confirmation.resend(client, req.body.newEmail);
 
                             await client.query('COMMIT')
                             .then(async() => {

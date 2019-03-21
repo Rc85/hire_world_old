@@ -280,6 +280,8 @@ app.post('/api/user/profile/update', (req, resp) => {
                     column = 'user_instagram';
                 } else if (req.body.field === 'user website') {
                     column = 'user_website';
+                } else if (req.body.field === 'user linkedin') {
+                    column = 'user_linkedin';
                 }
             }
 

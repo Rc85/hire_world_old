@@ -17,7 +17,9 @@ const storage = multer.diskStorage({
         let dir = `./user_files/${req.session.user.user_id}`;
 
         if (!fs.existsSync(dir)) {
-            fs.mkdir(dir);
+            fs.mkdir(dir, err => {
+                console.log(err);
+            });
         }
 
         cb(null, dir);

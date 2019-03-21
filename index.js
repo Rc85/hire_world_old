@@ -52,7 +52,7 @@ app.use(/^\/(?!\/admin-panel).*/, async(req, resp, next) => {
     if (status.rows[0].config_status === 'Active') {
         next();
     } else {
-        resp.render('offline', {header: 'Site Offline', message: 'HireWorld has been brought down for maintenance, please check back later'});
+        resp.render('offline', {header: 'Site Offline', message: 'Hire World has been brought down for maintenance, please check back later'});
     }
 });
 
@@ -107,7 +107,27 @@ app.post('/api/resend-confirmation', async(req, resp) => {
                         let user = await client.query(`SELECT user_id, user_status FROM users WHERE user_email = $1`, [req.body.email]);
 
                         if (user && user.rows.length === 1 && user.rows[0].user_status === 'Pending') {
-                            let regKeyString = await controller.email.confirmation.resend(req.body.email);
+                            let encrypted = cryptoJS.AES.encrypt(email, process.env.ACTIVATE_ACCOUNT_SECRET);
+                            let regKeyString = encrypted.toString();
+                            let registrationKey = encodeURIComponent(regKeyString);
+                            
+                            let message = {
+                                to: email,
+                                from: 'admin@hireworld.ca',
+                                subject: 'Welcome to Hire World',
+                                templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
+                                dynamicTemplateData: {
+                                    url: process.env.SITE_URL,
+                                    regkey: registrationKey
+                                },
+                                trackingSettings: {
+                                    clickTracking: {
+                                        enable: false
+                                    }
+                                }
+                            }
+                            
+                            sgMail.send(message);
 
                             await client.query(`UPDATE users SET registration_key = $1, reg_key_expire_date = current_timestamp + interval '1' day WHERE user_id = $2`, [regKeyString, user.rows[0].user_id])
                         }

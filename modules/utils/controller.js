@@ -51,7 +51,7 @@ module.exports = {
                 let message = {
                     to: email,
                     from: 'admin@hireworld.ca',
-                    subject: 'Welcome to HireWorld',
+                    subject: 'Welcome to Hire World',
                     templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
                     dynamicTemplateData: {
                         url: process.env.SITE_URL,

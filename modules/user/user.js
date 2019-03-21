@@ -16,11 +16,11 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let dir = `./user_files/${req.session.user.user_id}`;
 
-        if (fs.existsSync(dir)) {
-            cb(null, dir);
-        } else {
-            return cb(new Error('Directory does not exist'));
+        if (!fs.existsSync(dir)) {
+            fs.mkdir(dir);
         }
+
+        cb(null, dir);
     },
     filename: (req, file, cb) => {
         let fileHash = Date.now();
@@ -407,7 +407,7 @@ app.post('/api/user/subscription/add', (req, resp) => {
                                         currency: 'cad',
                                         source: req.body.token.id,
                                         receipt_email: user.rows[0].user_email,
-                                        description: 'HireWorld 30 Day Listing'
+                                        description: 'Hire World 30 Day Listing'
                                     });
                                 } else if (user.rows[0].stripe_id && !user.rows[0].is_subscribed) {
                                     charge = await stripe.charges.create({

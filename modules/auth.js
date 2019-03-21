@@ -7,6 +7,7 @@ const sgMail = require('@sendgrid/mail');
 const error = require('./utils/error-handler');
 const request = require('request');
 const controller = require('./utils/controller');
+const fs = require('fs');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -71,7 +72,7 @@ app.post('/api/auth/register', (req, resp) => {
                                     let message = {
                                         to: req.body.email,
                                         from: 'admin@hireworld.ca',
-                                        subject: 'Welcome to HireWorld',
+                                        subject: 'Welcome to Hire World',
                                         templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
                                         dynamicTemplateData: {
                                             url: process.env.SITE_URL,
@@ -85,6 +86,10 @@ app.post('/api/auth/register', (req, resp) => {
                                     }
 
                                     sgMail.send(message);
+
+                                    fs.mkdir(`./user_files/${user.rows[0].user_id}`, err => {
+                                        console.log(err);
+                                    });
 
                                     await client.query(`COMMIT`)
                                     .then(async() => {

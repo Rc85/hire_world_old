@@ -107,12 +107,12 @@ app.post('/api/resend-confirmation', async(req, resp) => {
                         let user = await client.query(`SELECT user_id, user_status FROM users WHERE user_email = $1`, [req.body.email]);
 
                         if (user && user.rows.length === 1 && user.rows[0].user_status === 'Pending') {
-                            let encrypted = cryptoJS.AES.encrypt(email, process.env.ACTIVATE_ACCOUNT_SECRET);
+                            let encrypted = cryptoJS.AES.encrypt(req.body.email, process.env.ACTIVATE_ACCOUNT_SECRET);
                             let regKeyString = encrypted.toString();
                             let registrationKey = encodeURIComponent(regKeyString);
                             
                             let message = {
-                                to: email,
+                                to: req.body.email,
                                 from: 'admin@hireworld.ca',
                                 subject: 'Welcome to Hire World',
                                 templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',

@@ -16,13 +16,12 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let dir = `./user_files/${req.session.user.user_id}`;
 
-        if (!fs.existsSync(dir)) {
-            fs.mkdir(dir, err => {
-                console.log(err);
-            });
+        if (fs.existsSync(dir)) {
+            cb(null, dir);
+        } else {
+            fs.mkdirSync(dir);
+            cb(null, dir);
         }
-
-        cb(null, dir);
     },
     filename: (req, file, cb) => {
         let fileHash = Date.now();
@@ -79,6 +78,7 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
             let uploadProfilePic = upload.single('profile_pic');
 
             uploadProfilePic(req, resp, async err => {
+                console.log(req.headers);
                 if (err) {
                     resp.send({status: 'error', statusMessage: err.message});
                 } else {
@@ -507,61 +507,66 @@ app.post('/api/user/payment/add', (req, resp) => {
         db.connect((err, client, done) => {
             if (err) console.log(err);
 
-            (async() => {
-                try {
-                    await client.query('BEGIN');
+            if (req.body.error) {
+                req.body.error['stack'] = req.body.error.message;
+                error.log(req.body.error, req, resp);
+            } else {
+                (async() => {
+                    try {
+                        await client.query('BEGIN');
 
-                    let user = await client.query(`SELECT stripe_id, user_email FROM users WHERE username = $1`, [req.session.user.username]);
+                        let user = await client.query(`SELECT stripe_id, user_email FROM users WHERE username = $1`, [req.session.user.username]);
 
-                    if (req.body.saveAddress) {
-                        await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.address_line1, req.body.address_city, req.body.address_state, req.body.address_country, req.body.address_zip, req.session.user.user_id]);
-                    }
+                        if (req.body.saveAddress) {
+                            await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.address_line1, req.body.address_city, req.body.address_state, req.body.address_country, req.body.address_zip, req.session.user.user_id]);
+                        }
 
-                    if (user && user.rows[0].stripe_id) {
-                        let card = await stripe.customers.createSource(user.rows[0].stripe_id, {source: req.body.token.id});
+                        if (user && user.rows[0].stripe_id) {
+                            let card = await stripe.customers.createSource(user.rows[0].stripe_id, {source: req.body.token.id});
 
-                        let customer = await stripe.customers.retrieve(user.rows[0].stripe_id);
+                            let customer = await stripe.customers.retrieve(user.rows[0].stripe_id);
 
-                        await client.query('COMMIT')
-                        .then(async() => {
-                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a card ending in ${card.last4}`, req.session.user.username, 'Payment']);
-                            resp.send({status: 'success', card: card, defaultSource: customer.default_source});
-                        });
-                    } else if (user && !user.rows[0].stripe_id) {
-                        let customer = await stripe.customers.create({
-                            source: req.body.token.id,
-                            email: user.rows[0].user_email,
-                            shipping: {
-                                name: req.body.token.name,
-                                address: {
-                                    line1: req.body.token.address_line1,
-                                    city: req.body.token.address_city,
-                                    state: req.body.token.address_state,
-                                    country: req.body.token.address_country,
-                                    postal_code: req.body.token.adress_zip
+                            await client.query('COMMIT')
+                            .then(async() => {
+                                await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a card ending in ${card.last4}`, req.session.user.username, 'Payment']);
+                                resp.send({status: 'success', card: card, defaultSource: customer.default_source});
+                            });
+                        } else if (user && !user.rows[0].stripe_id) {
+                            let customer = await stripe.customers.create({
+                                source: req.body.token.id,
+                                email: user.rows[0].user_email,
+                                shipping: {
+                                    name: req.body.token.name,
+                                    address: {
+                                        line1: req.body.token.address_line1,
+                                        city: req.body.token.address_city,
+                                        state: req.body.token.address_state,
+                                        country: req.body.token.address_country,
+                                        postal_code: req.body.token.adress_zip
+                                    }
                                 }
-                            }
-                        });
+                            });
 
-                        await client.query(`UPDATE users SET stripe_id = $1 WHERE username = $2`, [customer.id, req.session.user.username]);
+                            await client.query(`UPDATE users SET stripe_id = $1 WHERE username = $2`, [customer.id, req.session.user.username]);
 
-                        await client.query('COMMIT')
-                        .then(async() => {
-                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a card ending in ${customer.sources.data[customer.sources.data.length - 1].last4}`, req.session.user.username, 'Payment']);
-                            resp.send({status: 'success', statusMessage: 'Card added', defaultSource: customer.default_source, card: customer.sources.data[0]});
-                        });
+                            await client.query('COMMIT')
+                            .then(async() => {
+                                await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a card ending in ${customer.sources.data[customer.sources.data.length - 1].last4}`, req.session.user.username, 'Payment']);
+                                resp.send({status: 'success', statusMessage: 'Card added', defaultSource: customer.default_source, card: customer.sources.data[0]});
+                            });
+                        }
+                    } catch (e) {
+                        await client.query('ROLLBACK');
+                        throw e;
+                    } finally {
+                        done();
                     }
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                    throw e;
-                } finally {
-                    done();
-                }
-            })()
-            .catch(err => {
-                 console.log(err);
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
-            });
+                })()
+                .catch(err => {
+                    console.log(err);
+                    resp.send({status: 'error', statusMessage: 'An error occurred'});
+                });
+            }
         });
     } else {
         resp.send({status: `You're not logged in`});

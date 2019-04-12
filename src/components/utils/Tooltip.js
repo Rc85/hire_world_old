@@ -15,14 +15,14 @@ class Tooltip extends Component {
         
         if (!this.props.hide && this.state.show) {
             tooltip = <div className={`tooltip ${!this.props.placement ? 'top' : this.props.placement}`}>
-                <div className='tooltip-text'>{this.props.text}</div>
+                <div className={`tooltip-text ${this.props.textColor ? this.props.textColor : ''} ${this.props.tooltipClassName ? this.props.tooltipClassName : ''}`}>{this.props.text}</div>
             </div>;
         }
 
         return (
             <div className={`tooltip-container ${this.props.className ? this.props.className : ''}`}>
                 {tooltip}
-                <div onMouseOver={() => this.setState({show: true})} onMouseOut={() => this.setState({show: false})}>{this.props.children}</div>
+                <div onMouseOver={() => this.setState({show: this.props.disabled ? false : true})} onMouseOut={() => this.setState({show: false})}>{this.props.children}</div>
             </div>
         );
     }

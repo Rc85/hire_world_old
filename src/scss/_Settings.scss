@@ -18,7 +18,7 @@
 .setting-field-container {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
 
     &.start {
         align-items: flex-start;
@@ -135,58 +135,13 @@
     align-items: flex-end;
 }
 
-.radio-container {
-    display: flex;
-    justify-content: space-around;
-
-    label {
-        display: block;
-        margin-bottom: 15px;
-        position: relative;
-        height: 45px;
-        display: flex;
-        align-items: center;
-        
-        input[type=radio] {
-            display: none;
-        }
-    
-        .radio {
-            width: 30px;
-            height: 30px;
-            border: 5px solid $theme-lightgrey;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            cursor: pointer;
-    
-            .radio-selected {
-                width: 14px;
-                height: 14px;
-                background-color: $success;
-                border-radius: 50%;
-            }
-        }
-    
-        &.active {
-            .radio {
-                border: 5px solid $success;
-            }
-    
-            color: $success
-        }
-    }
-}
-
 .toggler-container {
     display: flex;
     position: relative;
 }
 
 .account-id {
-    display: inline-flex;
+    display: flex;
     align-items: center;
 }
 

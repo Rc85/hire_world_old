@@ -70,7 +70,7 @@ class NotificationPanel extends Component {
                     notification_icon = <span className='mini-badge mini-badge-danger'>{n.notification_type}</span>;
                 }
 
-                return <div key={i} className={`${i !== this.state.notifications.length - 1 ? 'mb-3' : ''} keep-format`}>
+                return <div key={i} className={`${i !== this.state.notifications.length - 1 ? 'mb-3' : ''}`}>
                     <div className='mb-1' dangerouslySetInnerHTML={{__html: n.notification_message}}></div>
 
                     <div className='d-flex-between-center'>

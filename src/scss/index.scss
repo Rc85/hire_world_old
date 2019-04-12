@@ -3,7 +3,8 @@
 @import './utils/colors';
 @import './utils/widths';
 @import './utils/flex';
-@import './utils/margins-paddings';
+@import './utils/margins_paddings';
+@import './utils/flex_basis';
 @import './admin/Admin.scss';
 @import 'App';
 @import 'TitledContainer';
@@ -12,14 +13,36 @@
 @import 'TextArea';
 @import 'Tooltip';
 
+@import 'Alert';
+@import 'AlphaNumericFilter';
+@import 'Badge';
+@import 'Confirmation';
+@import 'DocumentUploader';
+@import 'LabelBadge';
+@import 'Loading';
+@import 'Menu';
+@import 'Pagination';
+@import 'RadioInput';
+@import 'ReviewButtonTooltip';
+@import 'StaticAlert';
+@import 'SimpleContainer';
+@import 'SlideToggle';
+@import 'Timeline';
+@import 'TwoSidedCheckbox';
+@import 'UserProfilePic';
+@import 'Username';
+
+@import 'ActiveJobDetails';
 @import 'BlockedUsers';
 @import 'BottomBar';
 @import 'Browse';
 @import 'BrowseMenu';
+@import 'Connected';
 @import 'Dashboard';
 @import 'Footer';
 @import 'Faq';
 @import 'FriendsList';
+@import 'OpenJobDetails';
 @import 'Jobs';
 @import 'JobMessages';
 @import 'Login';
@@ -27,7 +50,6 @@
 @import 'MessageDetails';
 @import 'Conversations';
 @import 'Messages';
-@import 'OpenedJobs';
 @import 'RegisterForm';
 @import 'ResendConfirmation';
 @import 'Response';
@@ -45,23 +67,8 @@
 @import 'ViewUser';
 @import 'ViewUserReview';
 
-@import 'Alert';
-@import 'AlphaNumericFilter';
-@import 'Badge';
-@import 'Confirmation';
-@import 'Loading';
-@import 'Menu';
-@import 'Pagination';
-@import 'RadioInput';
-@import 'ReviewButtonTooltip';
-@import 'StaticAlert';
-@import 'SimpleContainer';
-@import 'SlideToggle';
-@import 'Timeline';
-@import 'TwoSidedCheckbox';
-@import 'UserProfilePic';
-@import 'Username';
-
+@import 'mobile/2560px';
+@import 'mobile/1920px';
 @import 'mobile/1366px';
 @import 'mobile/1024px';
 @import 'mobile/768px';

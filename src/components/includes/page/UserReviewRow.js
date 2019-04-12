@@ -48,7 +48,8 @@ class UserReviewRow extends Component {
     }
     
     render() {
-        let buttons, badge, review, status, reviewer, reportButton;
+        console.log(this.props);
+        let buttons, badge, review, status, reviewer, reportButton, reviewUserType;
 
         if (this.state.status === 'Sending') {
             status = <Loading size='3x' />;
@@ -61,11 +62,9 @@ class UserReviewRow extends Component {
             reviewer = false;
         }
 
-        if (this.props.review.review_token) {
-            badge = <Badge items={[
-                {text: this.props.review.job_client === this.props.review.reviewer ? 'I Hired' : 'I Was Hired'},
-                {text: 'Job Complete Review'}
-            ]} className='badge-success text-black user-review-badge' />;
+        if (this.props.review.token_status) {
+            badge = <Badge text='Job Complete Verified' count={parseInt(this.props.review.review_count)} className='badge-primary user-review-badge' counterClassName='text-black' />
+            reviewUserType = this.props.review.job_client === this.props.review.reviewer ? <span className='mini-badge mini-badge-info ml-2'>I Hired</span> : <span className='mini-badge mini-badge-info ml-2'>I was Hired</span>;
         }
 
         if (this.props.user.user && this.props.review && this.props.review.reviewer !== this.props.user.user.username) {
@@ -83,7 +82,7 @@ class UserReviewRow extends Component {
         }
 
         return(
-            <div className={`simple-container mb-3 ${this.props.review.reviewer === this.props.user.user.username ? 'bg-alt-highlight text-black' : ''}`}>
+            <div className={`simple-container mb-3 ${this.props.user.user && this.props.review.reviewer === this.props.user.user.username ? 'bg-alt-highlight text-black' : ''}`}>
                 <div className='simple-container-title'>{this.props.review.reviewer}</div>
 
                 <div className='user-review-header'>
@@ -95,6 +94,8 @@ class UserReviewRow extends Component {
                         {badge}
                         
                         <small>Submitted on {moment(this.props.review.review_date).format('MMM DD YYYY')} {this.props.review.review_modified_date ? <span>(Edited)</span> : '' }</small>
+
+                        {reviewUserType}
                     </div>
 
                     {buttons}

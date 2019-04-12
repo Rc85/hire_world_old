@@ -39,6 +39,7 @@ class FinancialAccountRow extends Component {
             info = <div className='ml-2'>
                 <div className='mb-1'>
                     <strong>{this.props.account.brand} {this.props.account.funding.charAt(0).toUpperCase() + this.props.account.funding.substr(1)}</strong>
+                    <span className='mini-badge mini-badge-info ml-2'>{this.props.account.currency.toUpperCase()}</span>
                     {this.props.account.default_for_currency ? <span className='mini-badge mini-badge-success ml-2'>Default</span> : ''}
                 </div>
                 <div className='mb-1'>**** **** **** {this.props.account.last4}</div>
@@ -51,6 +52,7 @@ class FinancialAccountRow extends Component {
             info = <div className='ml-2'>
                 <div className='mb-1'>
                     <strong>{this.props.account.bank_name}</strong>
+                    <span className='mini-badge mini-badge-info ml-2'>{this.props.account.currency.toUpperCase()}</span>
                     {this.props.account.default_for_currency ? <span className='mini-badge mini-badge-success ml-2'>Default</span> : ''}
                 </div>
                 <div className='mb-1'>***** {this.props.account.last4}</div>

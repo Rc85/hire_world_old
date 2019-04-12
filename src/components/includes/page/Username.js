@@ -116,12 +116,14 @@ class Username extends Component {
     render() {
         let popup, icon;
 
-        if (this.state.status === 'Adding') {
-            icon = <FontAwesomeIcon icon={faCircleNotch} spin className='text-dark' />;
-        } else if (this.state.user.is_friend === '1') { 
-            icon = <FontAwesomeIcon icon={faUserMinus} className='text-alt-highlight mr-1' onClick={() => this.friendUser('remove')} />;
-        } else if (this.state.user.is_friend === '0') {
-            icon = <FontAwesomeIcon icon={faUserPlus} className='text-alt-highlight mr-1' onClick={() => this.friendUser('add')} />;
+        if (this.props.user.user) {
+            if (this.state.status === 'Adding') {
+                icon = <FontAwesomeIcon icon={faCircleNotch} spin className='text-dark' />;
+            } else if (this.state.user.is_friend === '1') { 
+                icon = <FontAwesomeIcon icon={faUserMinus} className='text-alt-highlight mr-1' onClick={() => this.friendUser('remove')} />;
+            } else if (this.state.user.is_friend === '0') {
+                icon = <FontAwesomeIcon icon={faUserPlus} className='text-alt-highlight mr-1' onClick={() => this.friendUser('add')} />;
+            }
         }
 
         if (this.props.menu.show && this.state.target === this.props.menu.id) {
@@ -176,7 +178,8 @@ Username.propTypes = {
 
 const mapStateToProps = state => {
     return {
-        menu: state.Menu
+        menu: state.Menu,
+        user: state.Login
     }
 }
 

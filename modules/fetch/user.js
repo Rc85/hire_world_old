@@ -74,7 +74,7 @@ app.post('/api/get/user', async(req, resp) => {
                     }
 
                     let stats = await client.query(`SELECT
-                        (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Completed' AND job_user = $1),
+                        (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Complete' AND (job_user = $1 OR job_client = $1)),
                         (SELECT COUNT(job_id) AS job_abandon FROM jobs WHERE job_status = 'Abandoned' AND job_user = $1),
                         (SELECT ROUND((CAST(SUM(review_rating) AS decimal) / COUNT(review_id))) AS rating FROM user_reviews WHERE reviewing = $1 AND review_rating IS NOT NULL),
                         (SELECT COUNT(review_id) AS job_count FROM user_reviews WHERE review IS NOT NULL AND reviewing = $1 AND review_status = 'Active'),
@@ -144,10 +144,28 @@ app.get('/api/get/user/notification-message-job-count', async(req, resp) => {
         AND NOT conversation_id = ANY($2)`, [req.session.user.username, deletedConversationsArray]);
 
         let proposalCount = await db.query(`SELECT COUNT(job_id) AS proposal_count FROM jobs WHERE job_user = $1 AND job_status = 'New'`, [req.session.user.username]);
-        let estimateCount = await db.query(`SELECT COUNT(job_id) AS estimate_count FROM jobs WHERE job_client = $1 AND job_status = 'Estimation'`, [req.session.user.username]);
+        let jobMessageCount = await db.query(`SELECT 
+            (
+                SELECT COUNT(job_message_id) AS opened_job_message_count FROM job_messages
+                LEFT JOIN jobs ON jobs.job_id = job_messages.job_message_parent_id
+                WHERE job_message_status = 'New' AND job_status IN ('New', 'Pending', 'Confirmed') AND job_message_creator != $1
+            ),
+            (
+                SELECT COUNT(job_message_id) AS active_job_message_count FROM job_messages
+                LEFT JOIN jobs ON jobs.job_id = job_messages.job_message_parent_id
+                WHERE job_message_status = 'New' AND job_status IN ('Active', 'Requesting Payment') AND job_message_creator != $1
+            )
+        FROM job_messages`, [req.session.user.username]);
+
+        if (jobMessageCount.rows.length === 0) {
+            jobMessageCount.rows[0] = {
+                opened_job_message_count: '0',
+                active_job_message_count: '0',
+            }
+        }
 
         if (notifications && messages) {
-            resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0].message_count, proposalCount: proposalCount.rows[0].proposal_count, estimateCount: estimateCount.rows[0].estimate_count});
+            resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0].message_count, proposalCount: proposalCount.rows[0].proposal_count, jobMessageCount: jobMessageCount.rows[0]});
         } else {
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         }
@@ -323,7 +341,7 @@ app.post('/api/get/user/friends', async(req, resp) => {
 
 app.post('/api/get/user/minimal', async(req, resp) => {
     await db.query(`SELECT users.username, users.user_email, us.hide_email, up.avatar_url, up.user_business_name, up.user_title, ul.listing_status,
-        (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Completed' AND job_user = $1),
+        (SELECT COUNT(job_id) AS job_complete FROM jobs WHERE job_status = 'Complete' AND (job_user = $1 OR job_client = $1)),
         (SELECT COUNT(job_id) AS job_abandoned FROM jobs WHERE job_status = 'Abandoned' AND job_user = $1),
         (SELECT COUNT(friend_id) AS is_friend FROM friends WHERE friend_user_1 = $2 AND friend_user_2 = $1),
         (SELECT COUNT(blocked_user_id) AS is_blocked FROM blocked_users WHERE blocking_user = $2 AND blocked_user = $1)
@@ -331,8 +349,9 @@ app.post('/api/get/user/minimal', async(req, resp) => {
     LEFT JOIN user_profiles AS up ON users.user_id = up.user_profile_id
     LEFT JOIN user_listings AS ul ON users.username = ul.listing_user
     LEFT JOIN user_settings AS us ON users.user_id = us.user_setting_id
-    WHERE users.username = $1`, [req.body.user, req.session.user.username])
+    WHERE users.username = $1`, [req.body.user, req.session.user ? req.session.user.username : null])
     .then(result => {
+        console.log(result.rows[0])
         if (result && result.rows.length === 1) {
             if (result.rows[0].hide_email) {
                 delete result.rows[0].user_email;
@@ -381,9 +400,10 @@ app.post('/api/get/reviews', async(req, resp) => {
         }
     }
 
-    await db.query(`SELECT user_reviews.*, user_profiles.avatar_url FROM user_reviews
+    await db.query(`SELECT DISTINCT user_reviews.*, user_profiles.avatar_url, review_tokens.token_status FROM user_reviews
     LEFT JOIN users ON users.username = user_reviews.reviewer
     LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+    LEFT JOIN review_tokens ON review_tokens.token_review_id = user_reviews.review_id
     WHERE user_reviews.reviewing = $1 AND user_reviews.review IS NOT NULL AND user_reviews.review_status = 'Active'
     ORDER BY user_reviews.review_date DESC
     LIMIT 25

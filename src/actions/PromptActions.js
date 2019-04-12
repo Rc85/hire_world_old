@@ -1,7 +1,8 @@
-export const PromptOpen = (text, data) => {
+export const PromptOpen = (text, value, data) => {
     return {
         type: 'OPEN_PROMPT',
         data,
+        value,
         text
     }
 }

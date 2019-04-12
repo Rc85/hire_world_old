@@ -8,7 +8,7 @@ export default class Alert extends Component {
 
     componentDidMount() {
         if (this.props.status !== null) {
-            setTimeout(() => {
+            this.timeout = setTimeout(() => {
                 this.props.unmount();
             }, 4000);
         }
@@ -31,7 +31,7 @@ export default class Alert extends Component {
         }
 
         return(
-            <div id='alert' className={alertClass}>
+            <div id='alert' className={alertClass} onMouseOver={() => clearTimeout(this.timeout)} onMouseOut={() => this.timeout = setTimeout(() => {this.props.unmount()}, 4000)}>
                 {message}
             </div>
         )

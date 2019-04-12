@@ -1,13 +1,60 @@
-#jobs-not-connected {
-    .terms {
-        background-color: $theme-lightgrey;
-        padding: 10px;
-        border-radius: 3px;
-        color: black;
-        font-size: 0.8rem;
-        line-height: 1.5;
-        margin-top: 30px;
+.job-row {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+    width: 100%;
+    background-color: $theme-lightgrey;
+    color: black;
 
-        a { color: $theme-highlight; }
+    .job-main-row, .job-info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
+
+    .job-main-row {
+        border-bottom: 1px solid black;
+        cursor: pointer;
+
+        .job-title, .job-status {
+            padding: 5px;
+        }
+
+        .job-title {
+            color: $theme-highlight;
+            font-weight: bold;
+        }
+        
+        &:hover {
+            background-color: $theme-highlight;
+
+            .job-title {
+                color: white;
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .job-info-row {
+        font-size: 0.8rem;
+
+        .job-info {
+            display: flex;
+
+            .job-info-item {
+                border-right: 1px solid black;
+            }
+        }
+
+        .job-info-item {
+            padding: 5px;
+
+        }
+    }
+}
+
+.job-details {
+    border-top: 1px solid black;
+    background-color: $theme-medgrey;
+    padding: 10px 20px 20px 20px;
 }

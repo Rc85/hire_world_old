@@ -16,7 +16,7 @@ const About = props => {
                 <div className='simple-container no-bg mb-5'>
                     <div className='simple-container-title'>Values</div>
 
-                    <p>At HireWorld, top quality service to our users is number one priority and we expect users to treat and respect each other as if they would to people in their real life. Each user's profile act as a business and identity to the user and it is important not to make false claims, defamation, and/or fraud against the user. Our support and management team are always on stand by to handle and investigate issues reported by our users. We believe that, a quick response and solution plays an important role in customer satisfaction.</p>
+                    <p>At Hire World, top quality service to our users is number one priority and we expect users to treat and respect each other as if they would to people in their real life. Each user's profile act as a business and identity to the user and it is important not to make false claims, defamation, and/or fraud against the user. Our support and management team are always on stand by to handle and investigate issues reported by our users. We believe that, a quick response and solution plays an important role in customer satisfaction.</p>
                 </div>
 
                 <div className='simple-container no-bg mb-5'>

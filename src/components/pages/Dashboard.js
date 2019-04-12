@@ -4,7 +4,7 @@ import Loading from '../utils/Loading';
 import PropTypes from 'prop-types';
 import SideBar from '../includes/site/SideBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faColumns, faCommentAlt, faCog, faShoppingCart, faSyncAlt, faBriefcase } from '@fortawesome/free-solid-svg-icons';
+import { faColumns, faCommentAlt, faCog, faShoppingCart, faSyncAlt, faBriefcase, faLink } from '@fortawesome/free-solid-svg-icons';
 import BottomBar from '../includes/site/BottomBar';
 import { connect } from 'react-redux';
 import { faListAlt } from '@fortawesome/free-regular-svg-icons';
@@ -28,17 +28,18 @@ class Dashboard extends Component {
         let items = [
             {name: 'My Listing', link: '/dashboard/my-listing', active: /^\/dashboard\/my-listing/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faListAlt} />},
             {name: 'Conversations', link: '/dashboard/messages', active: /^\/dashboard\/messages/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCommentAlt} />, messageCount: parseInt(this.props.user.messages)},
-            /* {name: 'Jobs', link: '/dashboard/jobs', active: /^\/dashboard\/jobs/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faBriefcase} />, messageCount: parseInt(this.props.user.proposals) + parseInt(this.props.user.estimates), items: [
-                {name: 'Opened', active: this.props.location.pathname === '/dashboard/jobs/opened', link: '/dashboard/jobs/opened', messageCount: parseInt(this.props.user.proposals) + parseInt(this.props.user.estimates)},
-                {name: 'Active', active: this.props.location.pathname === '/dashboard/jobs/active', link: '/dashboard/jobs/active'},
-                {name: 'Completed', active: this.props.location.pathname === '/dashboard/jobs/completed', link: '/dashboard/jobs/completed'},
+            {name: 'Jobs', link: '/dashboard/jobs', active: /^\/dashboard\/(jobs|job)/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faBriefcase} />, messageCount: parseInt(this.props.user.proposals) + parseInt(this.props.user.job_messages.opened_job_message_count) + parseInt(this.props.user.job_messages.active_job_message_count), items: [
+                {name: 'Opened', active: this.props.location.pathname === '/dashboard/jobs/opened', link: '/dashboard/jobs/opened', messageCount: parseInt(this.props.user.proposals) + parseInt(this.props.user.job_messages.opened_job_message_count)},
+                {name: 'Active', active: this.props.location.pathname === '/dashboard/jobs/active', link: '/dashboard/jobs/active', messageCount: parseInt(this.props.user.job_messages.active_job_message_count)},
+                {name: 'Completed', active: this.props.location.pathname === '/dashboard/jobs/complete', link: '/dashboard/jobs/complete'},
                 {name: 'Abandoned', active: this.props.location.pathname === '/dashboard/jobs/abandoned', link: '/dashboard/jobs/abandoned'}
-            ]}, */
-            /* {name: 'Subscription', link: '/dashboard/subscription/purchase', active: this.props.location.pathname === '/dashboard/subscription/purchase', icon: <FontAwesomeIcon icon={faSyncAlt} />}, */
+            ]},
+            {name: 'Connect', link: '/dashboard/connect', active: this.props.location.pathname === '/dashboard/connect', icon: <FontAwesomeIcon icon={faLink} />},
+            {name: 'Subscription', link: '/dashboard/subscription/purchase', active: this.props.location.pathname === '/dashboard/subscription/purchase', icon: <FontAwesomeIcon icon={faSyncAlt} />},
             {name: 'Settings', link: '/dashboard/settings/account', active: /^\/dashboard\/settings/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCog} />, items: [
                 {name: 'Account', active: this.props.location.pathname === '/dashboard/settings/account', link: '/dashboard/settings/account'},
                 {name: 'Payment', active: this.props.location.pathname === '/dashboard/settings/payment', link: '/dashboard/settings/payment'},
-                //{name: 'Connected', active: this.props.location.pathname === '/dashboard/settings/connected', link: '/dashboard/settings/connected'},
+                {name: 'Connected', active: this.props.location.pathname === '/dashboard/settings/connected', link: '/dashboard/settings/connected'}
             ]}
         ];
 

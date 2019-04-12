@@ -2,11 +2,14 @@ import React from 'react';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { NavLink } from 'react-router-dom';
 
 const Faq = props => {
     return(
         <section id='faq' className='main-panel'>
             <TitledContainer title='FAQ' shadow icon={<FontAwesomeIcon icon={faQuestionCircle} />} bgColor='danger'>
+                <div className='mb-3'>In this frequently asked questions, "service provider" and "Connected user" refers to a user providing a service and "client" refers to the user paying/hiring the service provider.</div>
+
                 <div id='questions' className='mb-5'>
                     <div className='mb-1'>
                         <a href='#one'>How do I identify a reputable user?</a>
@@ -21,7 +24,7 @@ const Faq = props => {
                     </div>
                     
                     <div className='mb-1'>
-                        <a href='#four'>How can I become a moderator/administrator for HireWorld?</a>
+                        <a href='#four'>How can I become a moderator/administrator for Hire World?</a>
                     </div>
                     
                     <div className='mb-1'>
@@ -29,7 +32,7 @@ const Faq = props => {
                     </div>
                     
                     <div className='mb-1'>
-                        <a href='#six'>Can I advertise other things on HireWorld other than my listing?</a>
+                        <a href='#six'>Can I advertise other things on Hire World other than my listing?</a>
                     </div>
                     
                     <div className='mb-1'>
@@ -49,7 +52,27 @@ const Faq = props => {
                     </div>
 
                     <div className='mb-1'>
-                        <a href='#eleven'>I purchased the 30 Day Listing plan and decided I want to subscribe, how will I be charged?</a>
+                        <a href='#eleven'>What is Connected and how does it work?</a>
+                    </div>
+
+                    <div className='mb-1'>
+                        <a href='#thirteen'>What happens if the Connected user does not complete a milestone within 90 days after the funds are deposited?</a>
+                    </div>
+
+                    <div className='mb-1'>
+                        <a href='#fourteen'>What is a Job Complete Verified review?</a>
+                    </div>
+
+                    <div className='mb-1'>
+                        <a href='#fifteen'>What if the deliverable does not satisfy the agreed milestone and/or conditions?</a>
+                    </div>
+
+                    <div className='mb-1'>
+                        <a href='#sixteen'>Why is it important to divide a job into small milestones? What if the job cannot be divided into many milestones?</a>
+                    </div>
+
+                    <div className='mb-1'>
+                        <a href='#seventeen'>What if the other party doesn't respond after accepting my deliverable?</a>
                     </div>
                 </div>
 
@@ -58,13 +81,13 @@ const Faq = props => {
                 <hr/>
 
                 <div id='question'>
-                    <div id='one' className='mb-5'>
+                    <div id='one' className='mb-3'>
                         <div className='mb-3'>
                             <strong>How do I identify a reputable user?</strong>
                         </div>
 
                         <div className='answer'>
-                            Reputable users can be identified by a combination of the following:
+                            Reputable service providers can be identified by a combination of the following:
     
                             <ul>
                                 <li>
@@ -72,19 +95,15 @@ const Faq = props => {
                                 </li>
         
                                 <li>
-                                    <strong>Rating</strong> - The 5 star rating given by other users.
+                                    <strong>Rating</strong> - The 5 star rating given by their client(s).
                                 </li>
         
                                 <li>
-                                    <strong>Reviews</strong> - Reviews from other users are the most significant factor to identity if a user is reputable.
-                                </li>
-        
-                                <li>
-                                    <strong>Medals</strong> - Medals are purchased and honored to the user by other users.
+                                    <strong>Reviews</strong> - Reviews from their client(s) are the most significant factor to identity if a service provider is reputable.
                                 </li>
                             </ul>
     
-                            Be aware that low numbers should be taken into consideration as users can create alternative accounts to give them the needed factors mentioned above. We monitor suspicious activity daily to try to prevent these actions.
+                            Be aware that low numbers should be taken into consideration as service providers can create alternate accounts to give them the needed factors mentioned above. We monitor suspicious activity daily to try to prevent these actions.
                         </div>
 
                         <div className='text-right'>
@@ -94,7 +113,7 @@ const Faq = props => {
 
                     <hr/>
                     
-                    <div id='two' className='mb-5'>
+                    <div id='two' className='mb-3'>
                         <div className='mb-3'>
                             <strong>Is it possible to create more than one listing?</strong>
                         </div>
@@ -110,13 +129,13 @@ const Faq = props => {
 
                     <hr/>
                     
-                    <div id='three' className='mb-5'>
+                    <div id='three' className='mb-3'>
                         <div className='mb-3'>
                             <strong>How do reports work?</strong>
                         </div>
 
                         <div className='answer'>
-                            Reports can be made against two things; Users and reviews. When you click the report button and specify a reason, a report is sent to the administration panel for investigation. Only one report per user can be made for each of the two mentioned until an administrator files your report.
+                            Reports can be made against two things; Service providers' profiles and reviews (more may be added in the future). When you click the report button and specify a reason, a report is sent to the administration panel for investigation. Only one report can be made by a user for each of the two mentioned until an administrator has reviewed and filed your report.
                         </div>
 
                         <div className='text-right'>
@@ -126,13 +145,13 @@ const Faq = props => {
 
                     <hr/>
                     
-                    <div id='four' className='mb-5'>
+                    <div id='four' className='mb-3'>
                         <div className='mb-3'>
-                            <strong>How can I become a moderator/administrator for HireWorld?</strong>
+                            <strong>How can I become a moderator/administrator for Hire World?</strong>
                         </div>
 
                         <div className='answer'>
-                            If you would like to volunteer as a moderator at HireWorld, you can contact us and our support team will be happy to assist you through the process. In the future, HireWorld may offer paid job opportunities for administrators.
+                            If you would like to volunteer as a moderator at Hire World, you can contact us and our support will be happy to assist you through the process. Moderator holds the privilege to send warnings to users in advance regarding their actions before it is reported by other users. In the future, Hire World may offer paid job opportunities for administrators. Administrators have access to the admin area where they can control a wide variety of things on Hire World.
                         </div>
 
                         <div className='text-right'>
@@ -142,13 +161,13 @@ const Faq = props => {
 
                     <hr/>
                     
-                    <div id='five' className='mb-5'>
+                    <div id='five' className='mb-3'>
                         <div className='mb-3'>
                             <strong>I received a warning, what does it mean and how does that affect me?</strong>
                         </div>
 
                         <div className='answer'>
-                            A warning to you is not publicly displayed, so it does not impact your reputation. A warning is simply just a warning to you. However, if you receive many warnings for the same reason, it may result in a temporary ban and being temporary banned repeatedly can result in a permanent ban.
+                            A warning to you is not publicly displayed, so it does not impact your reputation. A warning is simply just a warning to you. However, if you receive many warnings for the same reason, it may result in a temporary ban and being temporary banned repeatedly can result in a permanent ban. If you have email notifications turned on, you will receive an email regarding the warning.
                         </div>
 
                         <div className='text-right'>
@@ -158,13 +177,13 @@ const Faq = props => {
 
                     <hr/>
                     
-                    <div id='six' className='mb-5'>
+                    <div id='six' className='mb-3'>
                         <div className='mb-3'>
-                            <strong>Can I advertise other things on HireWorld other than my listing?</strong>
+                            <strong>Can I advertise other things on Hire World other than my listing?</strong>
                         </div>
 
                         <div className='answer'>
-                            Currently, HireWorld does not have an ad campaign. You can only advertise whatever you include in your listing details.
+                            Hire World does not have an ad campaign but may implement one in the future. Currently, you can only advertise whatever you include in your listing details.
                         </div>
 
                         <div className='text-right'>
@@ -174,7 +193,7 @@ const Faq = props => {
 
                     <hr/>
                     
-                    <div id='seven' className='mb-5'>
+                    <div id='seven' className='mb-3'>
                         <div className='mb-3'>
                             <strong>I was banned, what does it mean? What did I do? And is there a way to become unbanned?</strong>
                         </div>
@@ -186,9 +205,9 @@ const Faq = props => {
                                 <strong>Temporary Ban</strong> - Temporary ban are given with a reason. You may receive temporary bans for, and not limited to the following:
     
                                 <ul>
-                                    <li>You received many warnings for the same reason.</li>
-                                    <li>You were given a warning where you need to remove words/content that you submitted, but didn't do so in the given time.</li>
-                                    <li>Suspicious account activity.</li>
+                                    <li>You received many warnings for the same reason</li>
+                                    <li>You were given a warning where you need to remove words/content that you submitted, but didn't do so in the given time</li>
+                                    <li>Suspicious account activity</li>
                                     <li>Spams</li>
                                 </ul>
                             </div>
@@ -198,14 +217,12 @@ const Faq = props => {
 
                                 <ul>
                                     <li>Fraud activities</li>
-                                    <li>
-                                        You violated the Terms of Service that have zero-tolerance for. See the <a href='/tos'>Terms of Service</a> for more information.
-                                    </li>
-                                    <li>You have received multiple temporary bans already.</li>
+                                    <li>You violated the Terms of Service that have zero-tolerance for. See the <a href='/tos'>Terms of Service</a> for more information</li>
+                                    <li>You have received multiple temporary bans already</li>
                                 </ul>
                             </div>
                         
-                            Bans cannot be appealed. If you are temporary banned, you cannot use any of HireWorld's features. If you have an active listing, it will be deactivated and your messages will not be retrieved.
+                            Bans cannot be appealed. If you are temporary banned, you cannot use any of Hire World's features that requires login. If you have an active listing, it will be deactivated and your messages will not be retrieved.
                         </div>
 
                         <div className='text-right'>
@@ -215,13 +232,13 @@ const Faq = props => {
 
                     <hr/>
                     
-                    <div id='eight' className='mb-5'>
+                    <div id='eight' className='mb-3'>
                         <div className='mb-3'>
                             <strong>Why can't I submit more than one review?</strong>
                         </div>
 
                         <div className='answer'>
-                            We restrict one review per user so that a user does not get spammed with multiple ratings. Rating plays an important factor to a user reputation and we don't want anyone manipulating it. If you feel the user deserves more or less rating than you initial rated, you can always edit your review.
+                            We restrict one review per user so that a service provider does not get spammed with multiple ratings. Rating plays an important factor to a service provider's reputation and we don't want anyone manipulating it. If you feel the service provider deserves more or less rating than you initially rated, you can always edit your review.
                         </div>
 
                         <div className='text-right'>
@@ -231,7 +248,7 @@ const Faq = props => {
 
                     <hr/>
                     
-                    <div id='nine' className='mb-5'>
+                    <div id='nine' className='mb-3'>
                         <div className='mb-3'>
                             <strong>How do I hide my contact info and location?</strong>
                         </div>
@@ -247,13 +264,13 @@ const Faq = props => {
 
                     <hr/>
                     
-                    <div id='ten' className='mb-5'>
+                    <div id='ten' className='mb-3'>
                         <div className='mb-3'>
                             <strong>How do I delete my account?</strong>
                         </div>
 
                         <div className='answer'>
-                            We do not delete accounts entirely because often, accounts are tied to reviews that have impact on a user's reputation. However, you have full control of the personal information on your account to be displayed. Please see our <a href='/privacy'>Privacy Policy</a> regarding how data are handled at HireWorld.
+                            We do not delete accounts entirely because often, accounts are tied to reviews are important for a service provider's reputation as well as to others who would like to work with the service provider in the future. However, you have full control of the personal information on your account to be displayed and stored. Please see our <a href='/privacy'>Privacy Policy</a> regarding how data are handled at Hire World.
                         </div>
 
                         <div className='text-right'>
@@ -263,14 +280,106 @@ const Faq = props => {
                     
                     <hr/>
                     
-                    <div id='eleven' className='mb-5'>
+                    <div id='eleven' className='mb-3'>
                         <div className='mb-3'>
-                            <strong>I purchased 30 Day Listing and decided I want to subscribe, vice versa. How will I be charged?</strong>
+                            <strong>What is Connected and how does it work?</strong>
                         </div>
 
                         <div className='answer'>
-                            <p>When your purchase the 30 Days Listing plan and within those 30 days, you subscribe to the recurring plan, you will charged once the 30 days from your 30 Day Listing purchase is depleted.</p>
-                            <p>When you are subscribed, logically you will not need to purchase the 30 Days Listing plan and the system won't allow you to.</p>
+                            <p>Connected is a service powered by <a href='https://stripe.com/connect'>Stripe Connect</a> that ensures a service provider is paid when completing a job. The service is available to service providers working with clients who are cities or countries apart or service providers doing business with clients in-person but want to use Hire World to secure the payment.</p>
+
+                            <p>Connected users on Hire World will need a Connected account. Once that is created, verified by Stripe and approved by Hire World, users can start a job through the Connected user's profile. A job proposal with the work title and description is to be submitted by the client to the Connected user for review. The Connected user creates milestones, preferrably small milestones that can be completed within 90 days, and sends it back to the client. If the client agrees, the job will move to the active stage. During the active stage, whenever the Connected user completes a condition in the milestone, the condition should be checked off. This allows both parties to see the progress of the job. Only when all the conditions are completed, the Connected user can send a payment request to the client. If the client is satisfied, the client can release the agreed funds to the Connected user.</p>
+
+                            <p>Once all milestones are completed, the job will be completed and the client will have the chance to submit a Job Complete Verified review.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+                    
+                    <hr/>
+                    
+                    <div id='thirteen' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>What happens if the Connected user does not complete a milestone within 90 days after the funds are deposited?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>We will send a reminder by email to the Connected user 15 days prior to the 90 days is up regarding the funds status. If the Connected user does not complete the milestone or if the milestone is not paid within the 90, the funds will be refunded back to the client.</p>
+                            <p>If partial work is completed, we encourage clients to discuss with the Connected user and see if the two can agree upon a partial payment. If an agreement cannot be established, the job will be abandoned once the funds are refunded back to the client.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+                    
+                    <hr/>
+                    
+                    <div id='fourteen' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>What is a Job Complete Verified review?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>A Job Complete Verified review holds a badge indicating that the review was submitted after a job has been completed. If one does not exist already for a service provider, the client can submit a new rating and review. Each completed job holds a Job Complete Verified review. Submitting any subsequent review after the first one will overwrite the old one and add a +1 counter next to the badge to show that the client has complete that many jobs with the service provider.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+                    
+                    <hr/>
+                    
+                    <div id='fifteen' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>What if the deliverable does not satisfy the agreed milestone and/or conditions?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>We encourage clients to communicate with the Connected user and try to come to an agreement for a partial payment.</p>
+                            <p>If the Connected user does not agree to send a request for partial payment, clients have the option to file a case for Hire World to step in and investigate the issue.</p>
+                            <p>Keep in mind that filing a dispute doesn't not necessarily mean that it will favor the user that files it.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+
+                    <hr/>
+                    
+                    <div id='sixteen' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>Why is it important to divide a job into small milestones? What if the job cannot be divided into many milestones?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>Whether it's for the client or the Connected user, small milestones benefit both parties in events where scams are involved to reduce financial or work loss. We limit the milestone payment to $500 to protect both parties financial loss.</p>
+
+                            <p>As a Connected user, deliverable for a milestone should only equal up to the amount of the milestone, nothing more, nothing less. If the job cannot be divided into multiple small milestones, then the total of all milestone payments can only equal the total job price. For example, if the total job price is $2000, and you can only create two milestones for the job, we advise communicating with the client to agree on down payments or other strategies to satisfy the job. However, we are certain that if a job is priced $2000, it can be divided into at least 4 milestones.</p>
+
+                            <p>As a client, be aware when a Connected user is asking for down payments due to not being able to create more milestones. Clients can always suggest to the Connected user on creating milestones that the Connected user did not thought of. If clients agree to put a down payment to get the job down, down payments should not exceed 50% of the total job price.</p>
+
+                            <p>In the end, the strategy is yours to protect your losses.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+                    
+                    <hr/>
+                    
+                    <div id='seventeen' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>What if the other party doesn't respond after accepting my deliverable?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>You can file a case and we will investigate the issue. Keep in mind that it can as long as up to 5 days prior to the day the funds are refunded back to the client to reach a decision.</p>
                         </div>
 
                         <div className='text-right'>

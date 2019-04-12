@@ -10,6 +10,14 @@
     }
 }
 
+@mixin flex-basis {
+    @for $i from 0 through 100 {
+        .fb-#{$i} {
+            flex-basis: percentage($i / 100) !important;
+        }
+    }
+}
+
 @mixin margins-paddings {
     @for $i from 0 through 5 {
         @if $i == 0 {
@@ -132,18 +140,26 @@
         .badge.badge-#{$colorName} {
             color: white;
 
-            .badge-header {
+            
+
+            .badge-text {
                 background-color: $color;
-                width: 20px;
                 border-top-left-radius: 3px;
                 border-bottom-left-radius: 3px;
+                padding: 2px 5px;
+                border: 1px solid $color;
+                
+                &.no-counter {
+                    border-top-right-radius: 3px;
+                    border-bottom-right-radius: 3px;
+                }
             }
     
-            .badge-body {
+            .badge-counter {
                 border: 1px solid $color;
-                padding: 3px 5px;
-
-                &:last-child { border-left: 0; }
+                padding: 2px 5px;
+                border-top-right-radius: 3px;
+                border-bottom-right-radius: 3px;
             }
         }
 

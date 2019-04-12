@@ -42,6 +42,7 @@ class App extends Component {
 	
 	componentDidUpdate(prevProps, prevState) {
 		if (this.props.location.key !== prevProps.location.key) {
+			window.scrollTo(0, 0);
 			this.props.dispatch(GetUserNotificationAndMessageCount());
 			this.props.dispatch(IsTyping(false));
 
@@ -169,7 +170,7 @@ class App extends Component {
 		}
 
 		if (this.props.prompt.text) {
-			prompt = <Prompt text={this.props.prompt.text} data={this.props.prompt.data} />;
+			prompt = <Prompt text={this.props.prompt.text} data={this.props.prompt.data} value={this.props.prompt.value} />;
 		}
 
 		if (this.props.warning.message) {
@@ -195,29 +196,52 @@ class App extends Component {
 	
 						<Route exact path='/dashboard/messages' render={() => <Pages.Dashboard user={this.props.user}><Pages.Conversations user={this.props.user} /></Pages.Dashboard>} />
 
-						{/* <Route exact path='/dashboard/jobs' render={() => <Pages.Dashboard user={this.props.user}><Pages.JobSummary user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/dashboard/jobs/opened' render={() => <Pages.Dashboard user={this.props.user}><Pages.OpenedJobs user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/dashboard/jobs/:stage(active|completed|abandoned)' render={() => <Pages.Dashboard user={this.props.user}><Pages.Jobs user={this.props.user} /></Pages.Dashboard>} />
-						<Route exact path='/dashboard/job/details/:id' render={() => <Pages.Dashboard user={this.props.user}><Pages.JobDetails user={this.props.user} /></Pages.Dashboard>} /> */}
+						<Route exact path='/dashboard/jobs' render={() => <Pages.Dashboard user={this.props.user}><Pages.JobSummary user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/jobs/:stage(opened|active|complete|abandoned)' render={() => <Pages.Dashboard user={this.props.user}><Pages.Jobs user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/job/details/:stage(opened)/:id' render={() => <Pages.Dashboard user={this.props.user}><Pages.OpenJobDetails user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/job/details/:stage(active|complete|abandoned)/:id' render={() => <Pages.Dashboard user={this.props.user}><Pages.ActiveJobDetails user={this.props.user} /></Pages.Dashboard>} />
 	
 						<Route exact path='/dashboard/settings/account' render={() => <Pages.Dashboard user={this.props.user}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/settings/payment' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
-						{/* <Route exact path='/dashboard/settings/connected' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.ConnectedSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} /> */}
+						<Route exact path='/dashboard/connect' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.NotConnected user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+						<Route exact path='/dashboard/settings/connected' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.ConnectedSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
 						
-						{/* <Route exact path='/dashboard/subscription/purchase' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} /> */}
+						<Route exact path='/dashboard/subscription/purchase' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
 	
 						<Route exact path='/user/:username' render={() => <Pages.Dashboard user={this.props.user}><Pages.ViewUser user={this.props.user} /></Pages.Dashboard>} />
 		
 						<Route exact path='/sectors/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
 	
-						<Route exact path='/payment/success' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Thank You!'} message={`We really appreciate your business and hope you enjoy our service.`}><div className='mt-3'><NavLink to='/dashboard/my-listing'>Start listing now</NavLink></div></Pages.Response></Pages.Dashboard>} />
-						<Route exact path='/registration/success' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Registration Success!'} message='An confirmation email has been sent. Please click the link provided to activate your account'><NavLink to='/'>Back to main page</NavLink></Pages.Response></Pages.Dashboard>} />
-						<Route exact path='/subscription/cancelled' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Unsubscribed!'} message={'We hate to see you go. Please take a moment and give rate our service.'}><div className='d-flex-center-center'><ReviewHireWorld /></div></Pages.Response></Pages.Dashboard>} />
-						{/* <Route exact path='/account/created' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Account Created! But...'} message={'Your Connected account was successfully created and connected to our platform; however, it may not be verified yet.'}><div className='mt-3'>Please check the settings in your <NavLink to='/dashboard/settings/connected'>Connected Settings</NavLink>.</div></Pages.Response></Pages.Dashboard>} /> */}
+						<Route exact path='/payment/success' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Thank You!'}>
+							<React.Fragment><div className='mb-3'>We really appreciate your business and hope you will enjoy our service.</div><div><NavLink to='/dashboard/my-listing'>Start listing now</NavLink></div></React.Fragment>
+						</Pages.Response></Pages.Dashboard>} />
+
+						<Route exact path='/job/accepted' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Job Accepted!'}>
+							<React.Fragment><div className='mb-3'>The job has been moved to the <NavLink to='/dashboard/jobs/active'>active</NavLink> tab.</div></React.Fragment>
+						</Pages.Response></Pages.Dashboard>} />
+
+						<Route exact path='/registration/success' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Registration Success!'}>
+							<React.Fragment><div className='mb-3'>An confirmation email has been sent. Please click the link provided to activate your account</div><NavLink to='/'>Back to main page</NavLink></React.Fragment>
+						</Pages.Response></Pages.Dashboard>} />
+
+						<Route exact path='/subscription/cancelled' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Unsubscribed!'}>
+							<React.Fragment><div className='mb-3'>We hate to see you go. Please take a moment and give rate our service.</div><div className='d-flex-center-center'><ReviewHireWorld /></div></React.Fragment>
+						</Pages.Response></Pages.Dashboard>} />
+
+						<Route exact path='/account/created' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Account Created! But...'}>
+							<React.Fragment><div className='mb-3'>Your Connected account was successfully created and connected to our platform; however, it will be under review and may not be verified yet.</div><div>Please check the settings in your <NavLink to='/dashboard/settings/connected'>Connected Settings</NavLink> for your account status.</div></React.Fragment>
+						</Pages.Response></Pages.Dashboard>} />
+
+						<Route exact path='/connected/account/closed' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Account Closed!'}></Pages.Response></Pages.Dashboard>} />
+
+						<Route exact path='/job/confirmed' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Almost There!'}><div>Please click on the Confirm button in the email sent to <b>{this.props.user.user ? this.props.user.user.user_email : ''}</b> to proceed to the next step in starting a job.</div></Pages.Response></Pages.Dashboard>} />
 
 						<Route exact path='/resend' render={() => <Pages.Dashboard user={this.props.user}><Pages.ResendConfirmation /></Pages.Dashboard>} />
-						<Route exact path='/confirmation-sent' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Confirmation Email Sent!'} message='Please activate your account by clicking on the link in the email' /></Pages.Dashboard>} />
+
+						<Route exact path='/confirmation-sent' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Confirmation Email Sent!'}><div>Please activate your account by clicking on the link in the email</div></Pages.Response></Pages.Dashboard>} />
+
 						<Route exact path='/activate-account/:key' render={() => <Pages.Dashboard user={this.props.user}><Pages.ActivateAccount /></Pages.Dashboard>} />
+
 						<Route exact path='/forgot-password' render={() => <Pages.Dashboard user={this.props.user}><Pages.ForgotPassword /></Pages.Dashboard>} />
 
 						<Route exact path='/faq' render={() => <Pages.Dashboard user={this.props.user}><Pages.Faq /></Pages.Dashboard>} />
@@ -232,8 +256,7 @@ class App extends Component {
 						<Route exact path='/admin-panel/reports' render={() => <Admin.Admin><Admin.AdminReports user={this.props.user} /></Admin.Admin>} />
 						<Route exact path='/admin-panel/config' render={() => <Admin.Admin><Admin.AdminConfig user={this.props.user} /></Admin.Admin>} />
 	
-						<Route exact path='/error/app/:code?' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response /></Pages.Dashboard>} />
-						<Route exact path='/error/listing/404' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={404} header={'No Listings Found'} message={`The user does not have any active listings`}/></Pages.Dashboard>} />
+						<Route exact path='/error/:type/:code?' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response /></Pages.Dashboard>} />
 	
 						<Route render={() => <Redirect to='/error/app/404' />} />
 					</Switch>

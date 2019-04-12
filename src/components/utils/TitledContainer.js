@@ -12,6 +12,12 @@ class TitledContainer extends Component {
         }
     }
     
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.minimized !== this.props.minimized) {
+            this.setState({minimize: this.props.minimized});
+        }
+    }
+    
     render() {
         return(
             <div id={this.props.id} className={`titled-container ${this.props.shadow ? 'with-shadow' : ''} ${this.props.className ? this.props.className : ''} ${this.props.mini ? 'mini' : ''} ${this.props.borderColor ? this.props.borderColor: ''}`}>

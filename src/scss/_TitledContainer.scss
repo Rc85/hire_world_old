@@ -33,7 +33,7 @@
         top: -22px;
         margin-left: 10px;
         z-index: 1;
-        box-shadow: 10px 10px 10px $theme-lightblack;
+        box-shadow: 5px 5px 10px $theme-lightblack;
 
         .titled-container-icon {
             display: flex;
@@ -63,7 +63,7 @@
 
     hr { background-color: $theme-highlight; }
 
-    &.with-shadow { box-shadow: 10px 10px 10px $theme-lightblack; }
+    &.with-shadow { box-shadow: 5px 5px 10px $theme-lightblack; }
 
     &.fixed-height-300 { height: 300px; }
 

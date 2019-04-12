@@ -50,11 +50,10 @@
 }
 
 .listing-row-wrapper {
-    flex-grow: 1;
+    width: 97%;
     display: flex;
     flex-direction: column;
     text-overflow: ellipsis;
-    overflow-x: hidden;
 }
 
 .listing-row-purpose {

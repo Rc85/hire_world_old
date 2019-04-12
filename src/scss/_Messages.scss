@@ -65,11 +65,6 @@
         color: white;
         background-color: $theme-highlight;
         cursor: pointer;
-
-        /* .inquiry-row-text-wrapper {
-            color: white;
-            background-color: $theme-highlight;
-        } */
     }
     
     .inquiry-row-text {
@@ -118,17 +113,6 @@
     display: inline-flex;
     align-items: stretch;
     justify-content: space-between;
-
-    /* &:hover, &.active {
-        color: white;
-        background-color: $theme-highlight;
-        cursor: pointer;
-
-        .inquiry-row-text-wrapper {
-            color: white;
-            background-color: $theme-highlight;
-        }
-    } */
 }
 
 .inquiry-detail-row {
@@ -173,25 +157,3 @@
 #message-list-mini-column {
     display: none;
 }
-
-/* .user-message-subject {
-    text-overflow: ellipsis;
-    overflow-x: hidden;
-    white-space: nowrap;
-}
-
-.user-message-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    font-weight: bold;
-}
-
-.review-star {
-    color: $theme-darkgrey;
-    cursor: pointer;
-    
-    &:hover, &.active {
-        color: #ffc107;
-    }
-} */

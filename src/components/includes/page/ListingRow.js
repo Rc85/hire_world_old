@@ -8,6 +8,7 @@ import { faCheckCircle, faClock } from '@fortawesome/free-regular-svg-icons';
 import moment from 'moment';
 import UserProfilePic from '../page/UserProfilePic';
 import Tooltip from '../../utils/Tooltip';
+import Username from './Username';
 
 const ListingRow = props => {
     let price;
@@ -39,18 +40,18 @@ const ListingRow = props => {
     
                 <div className='listing-row-detail'>
                     <div className='listing-row-detail-child'>
-                        <FontAwesomeIcon icon={faUserCircle} className='text-special mr-1' /> {props.listing.listing_user} ({props.listing.user_title})
+                        <Username color='highlight' username={props.listing.listing_user} /> ({props.listing.user_title})
                         {props.listing.connected_acct_status === 'Approved' ? <div className='connected-status mini-badge mini-badge-success ml-1'>Connected</div> : ''}
                     </div>
     
                     <div className='listing-row-detail-child'>
-                        <FontAwesomeIcon icon={faClock} className='text-special mr-1' /> {moment(props.listing.listing_created_date).format('MMM DD YYYY')}
+                        {moment(props.listing.listing_created_date).format('MMM DD YYYY')}
                     </div>
     
                     {price}
     
                     <div className='listing-row-detail-child'>
-                        <FontAwesomeIcon icon={faCheckCircle} className='text-success mr-1' /> <strong>{props.listing.job_complete}</strong> {parseInt(props.listing.job_complete) === 1 ? 'Job' : 'Jobs'} completed
+                        <strong>{props.listing.job_complete}</strong> {parseInt(props.listing.job_complete) === 1 ? 'Job' : 'Jobs'} completed
                     </div>
                 </div>
             </div>

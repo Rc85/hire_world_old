@@ -1,8 +1,8 @@
 .static-alert {
     border-width: 1px;
     border-style: solid;
-    display: inline-flex;
-    align-items: center;
+    display: flex;
+    align-items: stretch;
     margin: 15px auto;
 
     &.static-alert-danger {
@@ -10,12 +10,32 @@
         background-color: #e6a8a8;
         color: #a54646;
 
-        .static-alert-icon {
+        .static-alert-icon-container {
             background-color: #a54646;
             color: #e6a8a8;
         }
     }
 
-    .static-alert-icon, .static-alert-text { padding: 10px; }
-    .static-alert-icon { height: 100%; }
+    &.static-alert-warning {
+        border-color: #dd9700;
+        background-color: #fff3cd;
+        color: #dd9700;
+
+        .static-alert-icon-container {
+            background-color: #dd9700;
+            color: #fff3cd;
+        }
+    }
+
+    .static-alert-icon-container, .static-alert-text {
+        padding: 10px;
+    }
+
+    .static-alert-icon-container {
+        display: flex;
+    }
+
+    .static-alert-icon {
+        align-self: center;
+    }
 }

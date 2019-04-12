@@ -4,6 +4,7 @@ import TextArea from '../../utils/TextArea';
 import { NavLink } from 'react-router-dom';
 import Rating from '../../utils/Rating';
 import SubmitButton from '../../utils/SubmitButton';
+import Username from './Username';
 
 class SubmitReview extends Component {
     constructor(props) {
@@ -26,14 +27,11 @@ class SubmitReview extends Component {
     render() {
         let authMessage;
 
-        if (this.props.message && this.props.message.review_token) {
-            authMessage = <div className='mb-3'>
-                <small><em>
-                    This review is for {this.props.user.username === this.props.message.job_client ? <NavLink to={`/user/${this.props.message.job_user}`}>{this.props.message.job_user}</NavLink> : <NavLink to={`/user/${this.props.message.job_client}`}>{this.props.message.job_client}</NavLink>} and will hold a <span className='mini-badge mini-badge-success'><em>Job Complete Verified</em></span> tag that verifies a job was successfully completed. See FAQs for more details.
-                </em></small>
+        if (this.props.review && this.props.review.token) {
+            authMessage = <div>
+                <span>This review is for {this.props.user.user && this.props.user.user.username === this.props.review.reviewer ? <Username username={this.props.review.reviewing} color='highlight' /> : <NavLink to={`/user/${this.props.review.reviewer}`}>{this.props.review.reviewer}</NavLink>} and will hold a <span className='mini-badge mini-badge-success'>Job Complete Verified</span> tag that indicates a job was successfully completed. See <NavLink to='/faq'>FAQs</NavLink> for more details.</span>
             </div>;
         }
-
         return (
             <div className={`submit-review-container`}>
                 <div className='submit-review'>
@@ -41,11 +39,15 @@ class SubmitReview extends Component {
                         {authMessage}
     
                         <Rating stars={this.state.stars} set={(stars) => this.setRating(stars)} />
-                    </div>
-    
-                    <TextArea label='Submit Review' defaultValue={this.state.review} onChange={(val) => this.setState({review: val})} textAreaClassName='w-100 mb-2' placeholder={this.props.placeholder} />
 
-                    <div className='text-right'><SubmitButton type='button' status={this.props.status} onClick={() => this.props.submit(this.state.review, this.state.stars)} /> <button className='btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button></div>
+                    </div>
+
+                    {this.props.review && this.props.review.review && this.props.review.review_rating && parseInt(this.props.review.review_count) > 1 && this.props.review.token_status === 'Valid' ?
+                    <div className='mb-3'><em>You already reviewed this user. By submitting another will, the rating and your review will be overwritten by this one and a +1 will be added to the counter in the review. The more pluses, the better!</em></div> : ''}
+    
+                    <TextArea defaultValue={this.state.review} onChange={(val) => this.setState({review: val})} textAreaClassName='w-100 mb-2' placeholder={this.props.placeholder} />
+
+                    <div className='text-right'><SubmitButton type='button' loading={this.props.status === 'Submitting Review'} onClick={() => this.props.submit(this.state.review, this.state.stars)} /> <button className='btn btn-secondary' onClick={() => this.props.cancel()}>Cancel</button></div>
                 </div>
             </div>
         );

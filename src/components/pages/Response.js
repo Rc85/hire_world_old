@@ -29,19 +29,37 @@ class Response extends Component {
     render() {
         let code, header, message;
 
-        if (this.props.match.params.code) {
-            if (this.props.match.params.code === '401') {
-                code = 403;
-                header = 'Unauthorized';
-                message = `You're not authorized to access this page`;
-            } else if (this.props.match.params.code === '404') {
+        if (this.props.match.params.type === 'app') {
+            if (this.props.match.params.code) {
+                if (this.props.match.params.code === '401') {
+                    code = 401;
+                    header = 'Unauthorized';
+                    message = `You're not authorized to access this page`;
+                } else if (this.props.match.params.code === '403') {
+                    code = 403;
+                    header = 'Forbidden';
+                    message = `You're not allowed to access this page`;
+                } else if (this.props.match.params.code === '404') {
+                    code = 404;
+                    header = 'Not Found';
+                    message = `The page you're trying to access does not exist`;
+                } else if (this.props.match.params.code === '500') {
+                    code = 500;
+                    header = 'Internal Server Error';
+                    message = `An error occurred while trying to process your request`;
+                }
+            }
+        } else if (this.props.match.params.type === 'listing') {
+            if (this.props.match.params.code === '404') {
                 code = 404;
-                header = 'Not Found';
-                message = `The page you're trying to access does not exist`;
-            } else if (this.props.match.params.code === '500') {
-                code = 500;
-                header = 'Internal Server Error';
-                message = `An error occurred while trying to process your request`;
+                header = 'No Listings Found';
+                message = `The user does not have any active listings`;
+            }
+        } else if (this.props.match.params.type === 'job') {
+            if (this.props.match.params.code === '404') {
+                code = 404;
+                header = 'No Job Found';
+                message = `The job in this stage does not exist. Check the other stages such as 'Active'`;
             }
         } else {
             code = this.props.code;
@@ -53,10 +71,8 @@ class Response extends Component {
             <div id='response' className='main-panel'>
                 <div className='text-center'>
                     <h3 className='mb-2'>{code !== 200 ? code : ''} {header}</h3>
-    
-                    <div dangerouslySetInnerHTML={{__html: message}}></div>
 
-                    {this.props.children ? this.props.children : ''}
+                    {this.props.children ? this.props.children : message}
                 </div>
             </div>
         )
@@ -65,8 +81,7 @@ class Response extends Component {
 
 Response.defaultProps = {
     code: 500,
-    header: 'Unknown Error',
-    message: 'An unknown error has occurred. Please contact the administrator with your previous actions and/or the page you were on.'
+    header: 'Unknown Error'
 }
 
 Response.propTypes = {

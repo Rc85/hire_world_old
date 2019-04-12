@@ -10,7 +10,7 @@ class Prompt extends Component {
         super(props);
         
         this.state = {
-            input: ''
+            input: this.props.value ? this.props.value : ''
         }
     }
 
@@ -25,17 +25,18 @@ class Prompt extends Component {
     }
     
     render() {
+        console.log(this.props);
         return (
             <div id='prompt-modal' className='full-black-overlay'>
                 <div className='modal-container w-25 rounded'>
-                    <div className='modal-text'>{this.props.text}</div>
+                    <div className='text-black'>{this.props.text}</div>
 
-                    <input type='text' name='prompt' id='prompt-input'className='mb-1' onChange={(e) => this.setState({input: e.target.value})} autoFocus='on' onKeyDown={(e) => {
+                    <input type={this.props.data.type ? this.props.data.type : 'text'} value={this.state.input} name='prompt' id='prompt-input'className='mb-1' onChange={(e) => this.setState({input: e.target.value})} autoFocus='on' onKeyDown={(e) => {
                         if (e.keyCode === 13) {
                             if (this.state.input) {
                                 this.props.dispatch(PromptSubmit(this.state.input, this.props.data));
                             } else {
-                                this.props.dispatch(Alert('error', 'Please specify a reason'));
+                                this.props.dispatch(Alert('error', 'Cannot be blank'));
                             }
                         }
                     }} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
@@ -45,7 +46,7 @@ class Prompt extends Component {
                             if (this.state.input) {
                                 this.props.dispatch(PromptSubmit(this.state.input, this.props.data));
                             } else {
-                                this.props.dispatch(Alert('error', 'Please specify a reason'));
+                                this.props.dispatch(Alert('error', 'Cannot be blank'));
                             }
                         }}>Submit</button>
                         <button className='btn btn-secondary' onClick={() => this.props.dispatch(PromptReset())}>Cancel</button>
@@ -58,6 +59,11 @@ class Prompt extends Component {
 
 Prompt.propTypes = {
     text: PropTypes.string.isRequired,
+    value: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+        PropTypes.object
+    ]),
     data: PropTypes.object
 };
 

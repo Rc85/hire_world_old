@@ -12,6 +12,9 @@
 # misc
 .DS_Store
 .env
+ultrahook
+/user_files
+/job_files
 
 npm-debug.log*
 yarn-debug.log*

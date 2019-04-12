@@ -1,6 +1,7 @@
 const app = require('express').Router();
 const db = require('./db');
 const stripe = require('stripe')(process.env.STRIPE_API_KEY);
+const util = require('util');
 const error = require('./utils/error-handler');
 
 stripe.setApiVersion('2019-02-19');
@@ -25,6 +26,17 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
         console.log(err);
         resp.status(400).end();
     }
+});
+
+app.post('/stripe-webhooks/connected', async(req, resp) => {
+    let sig = req.headers['stripe-signature'];
+    let event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.STRIPE_CONNECTED_WEBHOOK_KEY);
+
+    let user = await db.query(`SELECT username FROM users WHERE connected_id = $1`, [event.account]);
+
+    await db.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [user.rows[0].username, `Your connected account was updated`, 'Account']);
+
+    resp.json({received: true})
 });
 
 module.exports = app;

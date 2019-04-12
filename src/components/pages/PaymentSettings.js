@@ -15,6 +15,8 @@ import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
 import InputWrapper from '../utils/InputWrapper';
 import Loading from '../utils/Loading';
 import { IsTyping } from '../../actions/ConfigActions';
+import { CountryDropdown } from 'react-country-region-selector';
+import AddBankAccount from '../includes/page/AddBankAccount';
 
 class PaymentSettings extends Component {
     constructor(props) {
@@ -25,12 +27,18 @@ class PaymentSettings extends Component {
             defaultAddress: this.props.user.user && this.props.user.user.user_address && this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code,
             saveAddress: false,
             payments: [],
-            name: ''
+            name: '',
+            type: 'card',
+            accountBranchNumber: '',
+            accountHolder: '',
+            accountCountry: '',
+            accountNumber: '',
+            accountRoutingNumber: ''
         }
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevProps.user.user !== this.props.user.user) {
+        if (prevProps.user.user && this.props.user.user && prevProps.user.user !== this.props.user.user) {
             this.setState({
                 defaultAddress: this.props.user.user.user_address && this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code ? true : false
             });
@@ -40,8 +48,9 @@ class PaymentSettings extends Component {
     componentDidMount() {
         fetch.post('/api/get/user/payments')
         .then(resp => {
+            console.log(resp);
             if (resp.data.status === 'success') {
-                this.setState({status: '', payments: resp.data.payments, defaultSource: resp.data.defaultSource, defaultAddress: this.state.defaultAddress});
+                this.setState({status: '', payments: resp.data.payments, defaultSource: resp.data.defaultSource});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -56,7 +65,7 @@ class PaymentSettings extends Component {
     async save() {
         this.setState({status: 'Adding'});
 
-        let { token } = await this.props.stripe.createToken({
+        let token = await this.props.stripe.createToken({
             name: this.state.name ? this.state.name : `${this.props.user.user.user_firstname} ${this.props.user.user.user_lastname}`,
             address_line1: this.state.defaultAddress ? this.props.user.user.user_address : this.state.address_line1,
             address_city: this.state.defaultAddress ? this.props.user.user.user_city : this.state.address_city,
@@ -65,8 +74,7 @@ class PaymentSettings extends Component {
             address_country: this.state.defaultAddress ? this.props.user.user.user_country : this.state.address_country
         });
 
-        let data = {...this.state}
-        data['token'] = token;
+        let data = {...this.state.defaultAddress, ...this.state.saveAddress, ...token};
 
         fetch.post('/api/user/payment/add', data)
         .then(resp => {
@@ -159,6 +167,14 @@ class PaymentSettings extends Component {
         })
         .catch(err => LogError(err, '/api/user/payment/edit'));
     }
+
+    setRoutingNumber(type, val) {
+        if (type === 'branch') {
+            this.setState({accountBranchNumber: val});
+        } else if (type === 'routing') {
+            this.setState({accountRoutingNumber: val});
+        }
+    }
     
     render() {
         if (this.props.user.status === 'error') {
@@ -168,7 +184,7 @@ class PaymentSettings extends Component {
         }
 
         if (this.props.user.user) {
-            let address, paymentMethods;
+            let address, paymentMethods, paymentType;
 
             if (!this.state.defaultAddress) {
                 address = <AddressInput saveable={true} info={this.state} set={(key, val) => this.set(key, val)} />;
@@ -180,42 +196,64 @@ class PaymentSettings extends Component {
                 });
             }
 
+            let supportedCountries = ['AU', 'AT', 'BE', 'BR', 'CA', 'DK', 'FI', 'FR', 'DE', 'GI', 'HK', 'IE', 'IT', 'LU', 'MX', 'NL', 'NZ', 'NO', 'PT', 'ES', 'SE', 'CH', 'GB', 'US'];
+
+            if (this.state.type === 'card') {
+                paymentType = <React.Fragment>
+                    <div className='payment-icons'>
+                        <img src='/images/powered_by_stripe.png' className='payment-icon mr-1' />
+                        <img src='/images/payment_methods.png' className='payment-icon' />
+                    </div>
+
+                    <div className='mobile-tooltip mb-3'>Your name on your profile will be used if left blank</div>
+                    
+                    <InputWrapper label='Name on Card' className='mb-3' required>
+                        <input type='text' name='name' id='nameOnCard' onChange={(e) => this.setState({name: e.target.value})} placeholder={this.props.config.IsTyping ? '' : 'Your name on your profile will be used if left blank'} value={this.state.name} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
+                    </InputWrapper>
+
+                    <div className='setting-field-container mb-3'>
+                        <div className='setting-child three-quarter'>
+                            <InputWrapper label='Card Number' required className='pl-1 pb-1 pr-1'><CardNumberElement onReady={el => this.CardNumberElement = el} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} className='w-100' /></InputWrapper>
+                        </div>
+
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='Expiry Date' required className='pl-1 pb-1 pr-1'><CardExpiryElement onReady={el => this.CardExpiryElement = el} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} className='w-100' /></InputWrapper>
+                        </div>
+
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='CVC' required className='pl-1 pb-1 pr-1'><CardCVCElement onReady={el => this.CardCVCElement = el} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} className='w-100' /></InputWrapper>
+                        </div>
+                    </div>
+                </React.Fragment>;
+            } else if (this.state.type === 'bank') {
+                paymentType = <AddBankAccount
+                accountCountry={this.state.accountCountry}
+                setCountry={(val) => this.setState({accountCountry: val})}
+                setAccountNumber={(val) => this.setState({accountNumber: val})}
+                setRoutingNumber={(type, val) => this.setRoutingNumber(type, val)}
+                setAccountHolder={(val) => this.setState({accountHolder: val})}
+                supportedCountries={supportedCountries}
+                status={this.state.status} />;
+            }
+
             return (
                 <section id='payment-settings' className='main-panel'>
                     <TitledContainer title='Payment Settings' bgColor='green' icon={<FontAwesomeIcon icon={faCreditCard} />} shadow>
-                        <div className='payment-icons'>
-                            <img src='/images/powered_by_stripe.png' className='payment-icon mr-1' />
-                            <img src='/images/payment_methods.png' className='payment-icon' />
-                        </div>
-
-                        <div className='mobile-tooltip mb-3'>Your name on your profile will be used if left blank</div>
-                        
-                        <InputWrapper label='Name on Card' className='mb-3' required>
-                            <input type='text' name='name' id='nameOnCard' onChange={(e) => this.setState({name: e.target.value})} placeholder={this.props.config.IsTyping ? '' : 'Your name on your profile will be used if left blank'} value={this.state.name} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
-                        </InputWrapper>
-        
-                        <div className='setting-field-container mb-3'>
-                            <div className='setting-child three-quarter'>
-                                <InputWrapper label='Card Number' required className='pl-1 pb-1 pr-1'><CardNumberElement onReady={el => this.CardNumberElement = el} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} className='w-100' /></InputWrapper>
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            this.save();
+                        }}>
+                            {paymentType}
+            
+                            <div className='setting-child mb-3'><label><input type='checkbox' name='default-address' id='useDefaultAddress' onClick={() => this.useDefaultAdress()} defaultChecked={this.state.defaultAddress} /> Use address registered with this account</label></div>
+            
+                            {address}
+            
+                            <div className='text-right'>
+                                <SubmitButton type='submit' loading={this.state.status === 'Adding'} value='Add Payment' />
+                                <button type='button' className='btn btn-secondary' onClick={() => this.clear()}>Clear</button>
                             </div>
-
-                            <div className='setting-child quarter'>
-                                <InputWrapper label='Expiry Date' required className='pl-1 pb-1 pr-1'><CardExpiryElement onReady={el => this.CardExpiryElement = el} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} className='w-100' /></InputWrapper>
-                            </div>
-        
-                            <div className='setting-child quarter'>
-                                <InputWrapper label='CVC' required className='pl-1 pb-1 pr-1'><CardCVCElement onReady={el => this.CardCVCElement = el} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} className='w-100' /></InputWrapper>
-                            </div>
-                        </div>
-        
-                        <div className='setting-child mb-3'><label><input type='checkbox' name='default-address' id='useDefaultAddress' onClick={() => this.useDefaultAdress()} defaultChecked={this.state.defaultAddress} /> Use address registered with this account</label></div>
-        
-                        {address}
-        
-                        <div className='text-right'>
-                            <SubmitButton type='button' onClick={() => this.save()} loading={this.state.status === 'Adding'} value='Add Payment' />
-                            <button type='button' className='btn btn-secondary' onClick={() => this.clear()}>Clear</button>
-                        </div>
+                        </form>
         
                         <hr/>
         

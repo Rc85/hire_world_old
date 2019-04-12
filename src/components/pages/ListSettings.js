@@ -13,7 +13,7 @@ import SubmitButton from '../utils/SubmitButton';
 import { IsTyping } from '../../actions/ConfigActions';
 import Tooltip from '../utils/Tooltip';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 import TitledContainer from '../utils/TitledContainer';
 import { faListAlt } from '@fortawesome/free-regular-svg-icons';
 import SlideToggle from '../utils/SlideToggle';
@@ -74,7 +74,6 @@ class ListSettings extends Component {
                 this.setState({status: '', initialSettings: initialSettings, newSettings: initialSettings});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
-                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
         })
         .catch(err => {
@@ -116,7 +115,7 @@ class ListSettings extends Component {
         if (JSON.stringify(this.state.initialSettings) !== JSON.stringify(this.state.newSettings)) {
             this.props.dispatch(Alert('error', 'You must save your settings first'));
         } else {
-            this.setState({status: 'Loading'});
+            this.setState({status: 'Toggling'});
 
             fetch.post('/api/listing/toggle', {status: status})
             .then(resp => {
@@ -153,7 +152,7 @@ class ListSettings extends Component {
             let status, sectors, renewButton;
 
             if (this.state.status === 'Loading') {
-                status = <Loading size='7x' className='bg-blue' />;
+                status = <Loading size='7x' />;
             } else if (this.state.status === 'Unsubscribed') {
                 return <Redirect to='/subscription/cancelled' />;
             }
@@ -183,8 +182,12 @@ class ListSettings extends Component {
                         <div className='setting-container'>
                             <div className='list-setting-container'>
                                 <div className='d-flex-end-center mb-3'>
+                                    <div className='d-flex-center-center mr-1'>
+                                        {this.state.status === 'Toggling' ? <FontAwesomeIcon icon={faCircleNotch} spin className='mr-1' /> : ''}
+                                        <SlideToggle status={this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} />
+                                    </div>
+
                                     {renewButton}
-                                    <SlideToggle status={this.props.user.user.listing_status === 'Active'} onClick={() => this.toggleListing()} />
                                 </div>
         
                                 <form onSubmit={e => {

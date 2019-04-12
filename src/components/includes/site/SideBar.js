@@ -62,7 +62,7 @@ class SideBar extends Component {
                             <div><FontAwesomeIcon icon={faUserCircle} className='text-highlight mr-1' /> <NavLink to='/dashboard'>{this.props.user.user.username}</NavLink></div>
                             <div><NavLink to='/dashboard/friends'><FontAwesomeIcon icon={faUserFriends} className={this.props.location.pathname === '/dashboard/friends' ? 'text-highlight' : ''} /></NavLink></div>
                             <div><NavLink to='/dashboard/blocked-users'><FontAwesomeIcon icon={faUserSlash} /></NavLink></div>
-                            {this.props.user.user ? <React.Fragment><div className='notification-button-container sidebar-button' onClick={(e) => this.showNotificationPanel(e)}>{parseInt(this.props.user.notifications) > 0 ? <span className='notification-counter mini-badge mini-badge-danger'>{this.props.user.notifications}</span> : ''}<FontAwesomeIcon icon={faBell} size='lg' id='notification-icon'/><NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} user={this.props.user} /></div></React.Fragment> : ''}
+                            {this.props.user.user ? <React.Fragment><div className='notification-button-container' onClick={(e) => this.showNotificationPanel(e)}>{parseInt(this.props.user.notifications) > 0 ? <span className='notification-counter mini-badge mini-badge-danger'>{this.props.user.notifications}</span> : ''}<FontAwesomeIcon icon={faBell} size='lg' id='notification-icon'/><NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} user={this.props.user} /></div></React.Fragment> : ''}
                         </div>
 
                         <hr className='w-90' />
@@ -70,6 +70,10 @@ class SideBar extends Component {
                         <div id='sidebar-links'>
                             {browseLink}
                             {this.props.items.map((item, i) => {
+                                if (this.props.user.user && this.props.user.user.connected_id && item.name === 'Connect') {
+                                    return null;
+                                }
+                                
                                 return <div key={i} className='sidebar-link-container'>
                                     <Link
                                     name={item.name}
@@ -142,6 +146,10 @@ class Link extends Component {
 
         if (this.props.active && this.props.items) {
             subItems = this.props.items.map((item, i) => {
+                if (this.props.user.user && !this.props.user.user.connected_id && item.name === 'Connected') {
+                    return null;
+                }
+
                 return <NavLink key={i} to={item.link}><div className={`sidebar-sub-item ${item.active ? 'active' : ''}`}><div className='sidebar-sub-item-link'>{item.name}</div> {item.messageCount > 0 ? <span className='mini-badge mini-badge-danger'>{item.messageCount}</span> : ''}</div></NavLink>
             });
         }

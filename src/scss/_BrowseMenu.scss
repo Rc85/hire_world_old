@@ -4,12 +4,13 @@
     top: 0;
     height: 100vh;
     z-index: 3;
-    background-color: $theme-blue;
-    overflow: auto;
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.05s ease-in-out;
     padding-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
 
     &.show { transform: scaleX(1); }
 }
@@ -22,8 +23,5 @@
     
     &:hover, &.active {
         background: $theme-highlight;
-    }
-    &:not(:last-child) {
-        border-bottom: 0;
     }
 }

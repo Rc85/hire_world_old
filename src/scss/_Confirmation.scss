@@ -17,6 +17,10 @@
     max-width: 50%;
 
     button:first-child { margin-right: 5px; }
+
+    a {
+        color: $theme-highlight;
+    }
 }
 
 .modal-text {

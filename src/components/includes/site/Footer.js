@@ -12,7 +12,7 @@ const Footer = props => {
                     <div><NavLink to='/about'>About</NavLink></div>
                 </div>
     
-                <div className='text-center'>Copyright © 2019 HireWorld. All rights reserved.</div>
+                <div className='text-center'>Copyright © 2019 Hire World. All rights reserved.</div>
             </section>
         </footer>
     )

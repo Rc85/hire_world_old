@@ -8,9 +8,6 @@
         -webkit-user-select: none;     
         -moz-user-select: none;
         -ms-user-select: none;
-        text-overflow: ellipsis;
-        overflow-x: hidden;
-        white-space: nowrap;
 
         &:hover { text-decoration: underline; }
     }
@@ -65,7 +62,7 @@
 
                 .username-popup-body-child {
                     display: flex;
-                    width: 25%;
+                    margin-right: 15px;
                     justify-content: center;
                 }
             }

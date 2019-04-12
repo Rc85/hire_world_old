@@ -17,8 +17,8 @@ class MessageRow extends Component {
                         <div className={`message-row-body ${this.props.type}`}>
                             {this.props.message.message_status === 'New' && this.props.message.message_creator !== this.props.user.user.username ? <span className='new-message-status mini-badge mini-badge-success'>{this.props.message.message_status}</span> : ''}
                             {this.props.message.message_body}
-    
-                            {this.props.type === 'confirmation' || this.props.type === 'abandonment' ? <div className='message-row-buttons'><button className='btn btn-success' onClick={() => this.props.approve()}>Approve</button><button className='btn btn-danger' onClick={() => this.props.decline()}>Decline</button></div> : ''}
+
+                            <div className='text-right'><small className='text-dark'>Message ID: {this.props.message.message_id}</small></div>
                         </div>
         
                         <div className={`message-row-footer ${this.props.author}`}>

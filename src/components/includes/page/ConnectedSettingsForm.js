@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import InputWrapper from '../../utils/InputWrapper';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import { connect } from 'react-redux';
+import BirthdateInput from '../../utils/BirthdateInput';
+import { IsTyping } from '../../../actions/ConfigActions';
 
 class ConnectedSettingsForm extends Component {
     constructor(props) {
@@ -15,56 +17,44 @@ class ConnectedSettingsForm extends Component {
     
     render() {
         let supportedCountries = ['AT', 'AU', 'BE', 'CA', 'CH', 'DE', 'DK', 'ES', 'FI', 'FR', 'GB', 'IE', 'IT', 'LU', 'NL', 'NO', 'NZ', 'PT', 'SE', 'US'];
-        let beginningYear = 1900;
-        let currentYear = new Date().getFullYear();
-        let yearsToAdd = parseInt(currentYear) - beginningYear - 19;
-        let year = [];
-        let ssn, form;
+        let ssn, form, phone, mcc;
 
-        for (let i = 0; i < yearsToAdd; i++) {
-            let y = beginningYear + i;
-            year.push(y);
-        }
-
-        let years = year.map((y, i) => {
-            return <option key={i} value={y}>{y}</option>
-        });
-
-        let month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        let months = month.map((m, i) => {
-            return <option key={i} value={i + 1}>{m}</option>
-        });
-
-        let day = [];
-        let numOfDays = 0;
-
-        if (this.props.settings.individual.dob.month === 1 || this.props.settings.individual.dob.month === 3 || this.props.settings.individual.dob.month === 5 || this.props.settings.individual.dob.month === 7 || this.props.settings.individual.dob.month === 8 || this.props.settings.individual.dob.month === 10 || this.props.settings.individual.dob.month === 12) {
-            numOfDays = 31;
-        } else if (this.props.settings.individual.dob.month === 4 || this.props.settings.individual.dob.month === 6 || this.props.settings.individual.dob.month === 9 || this.props.settings.individual.dob.month === 11) {
-            numOfDays = 30;
-        } else if (this.props.settings.individual.dob.month === 2) {
-            if (this.props.settings.individual.dob.year) {
-                if (parseInt(this.props.settings.individual.dob.year) % 4 === 0) {
-                    numOfDays = 29;
-                } else {
-                    numOfDays = 28;
-                }
-            }
-        }
-
-        for (let i = 0; i < numOfDays; i++) {
-            day.push(i + 1);
-        }
-
-        let days = day.map((d, i) => {
-            return <option key={i} value={d}>{d}</option>
-        });
-
-        if (this.props.settings.country === 'US' || this.props.settings.country === 'CA') {
-            ssn = <div className='setting-field-container quarter'>
-                <InputWrapper label='SIN/SSN'>
-                    <input type='number' maxLength='9' onChange={(e) => this.setState({ssn: e.target.value === '' ? null : e.target.value})} />
+        if (this.props.settings.individual.address.country === 'US' || this.props.settings.individual.address.country === 'CA') {
+            ssn = <div className='setting-child'>
+                <InputWrapper label='SIN/SSN' required={!this.props.settings.individual.ssn_last_4_provided}>
+                    <input type='text' defaultValue={this.props.settings.individual.id_number === null ? '' : this.props.settings.individual.id_number} maxLength='9' onChange={(e) => this.setSettings({
+                        ...this.props.settings,
+                        ...{individual: {
+                            ...this.props.settings.individual,
+                            ...{id_number: e.target.value}
+                        }}
+                    })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required={!this.props.settings.individual.ssn_last_4_provided} />
                 </InputWrapper>
+            </div>;
+
+            phone = <div className='setting-child quarter'>
+                <InputWrapper label='Phone Number' required>
+                    <input type='text' defaultValue={this.props.settings.individual.phone === null ? '' : this.props.settings.individual.phone} onChange={(e) => this.setSettings({
+                        ...this.props.settings,
+                        ...{individual: {
+                            ...this.props.settings.individual,
+                            ...{phone: e.target.value}
+                        }}
+                    })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required /> 
+                </InputWrapper>
+            </div>;
+
+            mcc = <div className='setting-child quarter'>
+                <InputWrapper label='MCC' required>
+                    <input type='text' maxLength='4' defaultValue={this.props.settings.business_profile.mcc === null ? '' : this.props.settings.business_profile.mcc} onChange={(e) => this.setSettings({
+                        ...this.props.settings,
+                        ...{business_profile: {
+                            ...this.props.settings.business_profile,
+                            mcc: e.target.value
+                        }}
+                    })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required /> 
+                </InputWrapper>
+                <a href='https://stripe.com/docs/connect/setting-mcc#list'>What is this?</a>
             </div>;
         }
 
@@ -80,7 +70,7 @@ class ConnectedSettingsForm extends Component {
                                 ...this.props.settings.company,
                                 ...{name: e.target.value === '' ? null : e.target.value}
                             }}
-                        })} />
+                        })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
                     </InputWrapper>
                 </div>
 
@@ -92,7 +82,7 @@ class ConnectedSettingsForm extends Component {
                                 ...this.props.settings.company,
                                 ...{tax_id: e.target.value === '' ? null : e.target.value}
                             }}
-                        })} />
+                        })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
                     </InputWrapper>
 
                     <InputWrapper label='Company Phone Number'>
@@ -102,7 +92,7 @@ class ConnectedSettingsForm extends Component {
                                 ...this.props.settings.company,
                                 ...{phone: e.target.value === '' ? null : e.target.value}
                             }}
-                        })} />
+                        })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                     </InputWrapper>
                 </div>
 
@@ -148,7 +138,7 @@ class ConnectedSettingsForm extends Component {
                                     ...{city: e.target.value === '' ? null : e.target.value}
                                     }}
                                 }}
-                            })} />
+                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
                         </InputWrapper>
                     </div>
                 </div>
@@ -165,12 +155,12 @@ class ConnectedSettingsForm extends Component {
                                         ...{line1: e.target.value === '' ? null : e.target.value}
                                     }}
                                 }}
-                            })} />
+                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
                         </InputWrapper>
                     </div>
 
                     <div className='setting-child quarter'>
-                        <InputWrapper label='Postal/Zip Code'>
+                        <InputWrapper label='Postal/Zip Code' required>
                         <input type='text' value={this.props.settings.company.address.postal_code === null ? '' : this.props.settings.company.address.postal_code} onChange={(e) => this.setSettings({
                                 ...this.props.settings,
                                 ...{company: {
@@ -180,7 +170,7 @@ class ConnectedSettingsForm extends Component {
                                         ...{postal_code: e.target.value === '' ? null : e.target.value}
                                     }}
                                 }}
-                            })} />
+                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
                         </InputWrapper>
                     </div>
                 </div>
@@ -196,7 +186,7 @@ class ConnectedSettingsForm extends Component {
                                     ...{line2: e.target.value === '' ? null : e.target.value}
                                 }}
                             }}
-                        })} />
+                        })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                     </InputWrapper>
                 </div>
             </div>;
@@ -206,22 +196,24 @@ class ConnectedSettingsForm extends Component {
             <React.Fragment>
                 <div className='simple-container no-bg mb-3'>
                     <div className='radio-container mb-3'>
-                        <label className={this.props.settings.business_type === 'individual' ? 'active' : ''} onClick={() => this.setSettings({
+                        <label htmlFor='business_type_individual' className={this.props.settings.business_type === 'individual' ? 'active' : ''} onClick={() => this.setSettings({
                             ...this.props.settings,
                             ...{business_type: 'individual'}
                         })}>
                             <div className='radio'>
+                                <input type='radio' name='business_type' required id='business_type_individual' readOnly checked={this.props.settings.business_type === 'individual'} />
                                 {this.props.settings.business_type === 'individual' ? <div className='radio-selected'></div> : ''}
                             </div>
     
                             <span>Individual</span>
                         </label>
     
-                        <label className={this.props.settings.business_type === 'company' ? 'active' : ''} onClick={() => this.setSettings({
+                        <label htmlFor='business_type_company' className={this.props.settings.business_type === 'company' ? 'active' : ''} onClick={() => this.setSettings({
                             ...this.props.settings,
                             ...{business_type: 'company'}
                         })}>
                             <div className='radio'>
+                                <input type='radio' name='business_type' required id='business_type_company' readOnly checked={this.props.settings.business_type === 'company'} />
                                 {this.props.settings.business_type === 'company' ? <div className='radio-selected'></div> : ''}
                             </div>
     
@@ -239,17 +231,17 @@ class ConnectedSettingsForm extends Component {
                                     ...this.props.settings.individual,
                                     ...{first_name: e.target.value === '' ? null : e.target.value}
                                 }}
-                            })} />
+                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
                         </InputWrapper>
 
                         <InputWrapper label='Last Name' required>
-                            <input type='text' defaultValue={this.props.settings.individual.last_name === null ? '' : this.props.settings.individual.last_name} onChange={(e) => this.setState({
+                            <input type='text' defaultValue={this.props.settings.individual.last_name === null ? '' : this.props.settings.individual.last_name} onChange={(e) => this.setSettings({
                                 ...this.props.settings,
                                 ...{individual: {
                                     ...this.props.settings.individual,
                                     ...{last_name: e.target.value === '' ? null : e.target.value}
                                 }}
-                            })} />
+                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
                         </InputWrapper>
                     </div>
 
@@ -295,7 +287,7 @@ class ConnectedSettingsForm extends Component {
                                             ...{city: e.target.value}
                                         }}
                                     }}
-                                })} />
+                                })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
                             </InputWrapper>
                         </div>
                     </div>
@@ -312,7 +304,7 @@ class ConnectedSettingsForm extends Component {
                                             ...{line1: e.target.value}
                                         }}
                                     }}
-                                })} />
+                                })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
                             </InputWrapper>
                         </div>
 
@@ -327,88 +319,77 @@ class ConnectedSettingsForm extends Component {
                                             ...{postal_code: e.target.value}
                                         }}
                                     }}
-                                })} />
+                                })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
                             </InputWrapper>
                         </div>
                     </div>
 
                     <div className='setting-field-container mb-3'>
-                        <InputWrapper label='Address Line 2'>
-                            <input type='text' defaultValue={this.props.settings.individual.address.line2 === null ? '' : this.props.settings.individual.address.line2} onChange={(e) => this.setSettings({
+                        <div className='setting-child'>
+                            <InputWrapper label='Address Line 2'>
+                                <input type='text' defaultValue={this.props.settings.individual.address.line2 === null ? '' : this.props.settings.individual.address.line2} onChange={(e) => this.setSettings({
+                                    ...this.props.settings,
+                                    ...{individual: {
+                                        ...this.props.settings.individual,
+                                        ...{address: {
+                                            ...this.props.settings.individual.address,
+                                            ...{line2: e.target.value}
+                                        }}
+                                    }}
+                                })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
+                            </InputWrapper>
+                        </div>
+
+                        {phone}
+                    </div>
+
+                    <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <BirthdateInput year={this.props.settings.individual.dob.year} month={this.props.settings.individual.dob.month} day={this.props.settings.individual.dob.day}
+                            setYear={(val) => this.setSettings({
                                 ...this.props.settings,
                                 ...{individual: {
                                     ...this.props.settings.individual,
-                                    ...{address: {
-                                        ...this.props.settings.individual.address,
-                                        ...{line2: e.target.value}
+                                    ...{dob: {
+                                        ...this.props.settings.individual.dob,
+                                        ...{year: val}
                                     }}
                                 }}
-                            })} />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-field-container mb-3'>
-                        <div className='setting-child'>
-                            <InputWrapper label='Date of Birth' required>
-                                <select value={this.props.settings.individual.dob.year === null ? '' : this.props.settings.individual.dob.year} onChange={(e) => this.setSettings({
-                                    ...this.props.settings,
-                                    ...{individual: {
-                                        ...this.props.settings.individual,
-                                        ...{dob: {
-                                            ...this.props.settings.individual.dob,
-                                            ...{year: e.target.value}
-                                        }}
+                            })}
+                            setMonth={(val) => this.setSettings({
+                                ...this.props.settings,
+                                ...{individual: {
+                                    ...this.props.settings.individual,
+                                    ...{dob: {
+                                        ...this.props.settings.individual.dob,
+                                        ...{month: val}
                                     }}
-                                })}>
-                                    <option value='' disabled>Year</option>
-                                    {years.reverse()}
-                                </select>
-    
-                                <select value={this.props.settings.individual.dob.month === null ? '' : this.props.settings.individual.dob.month} onChange={(e) => this.setSettings({
-                                    ...this.props.settings,
-                                    ...{individual: {
-                                        ...this.props.settings.individual,
-                                        ...{dob: {
-                                            ...this.props.settings.individual.dob,
-                                            ...{month: e.target.value}
-                                        }}
+                                }}
+                            })}
+                            setDay={(val) => this.setSettings({
+                                ...this.props.settings,
+                                ...{individual: {
+                                    ...this.props.settings.individual,
+                                    ...{dob: {
+                                        ...this.props.settings.individual.dob,
+                                        ...{day: val}
                                     }}
-                                })}>
-                                    <option value='' disabled>Month</option>
-                                    {months}
-                                </select>
-    
-                                <select value={this.props.settings.individual.dob.day === null ? '' : this.props.settings.individual.dob.day} onChange={(e) => this.setSettings({
-                                    ...this.props.settings,
-                                    ...{individual: {
-                                        ...this.props.settings.individual,
-                                        ...{dob: {
-                                            ...this.props.settings.individual.dob,
-                                            ...{day: e.target.value}
-                                        }}
-                                    }}
-                                })}>
-                                    <option value='' disabled>Day</option>
-                                    {days}
-                                </select>
-                            </InputWrapper>
+                                }}
+                            })} required />
                         </div>
 
-                        <div className='setting-child'>
-                            <InputWrapper label='Phone Number'>
-                                <input type='tel' defaultValue={this.props.settings.individual.phone_number === null ? '' : this.props.settings.individual.phone_number} onChange={(e) => this.setSettings({
-                                    ...this.props.settings,
-                                    ...{individual: {
-                                        ...this.props.settings.individual,
-                                        ...{phone_number: e.target.value}
-                                    }}
-                                })} />
-                            </InputWrapper>
-                        </div>
+                        {ssn}
 
                         <div className='setting-child'>
-                            <InputWrapper label='Email'>
-                                <input type='email' defaultValue={this.props.settings.email === null ? '' : this.props.settings.email} onChange={(e) => this.setSettings({email: e.target.value})} />
+                            <InputWrapper label='Email' required={this.props.settings.individual.address.counter === 'US'}>
+                                <input type='email' defaultValue={this.props.settings.email === null ? '' : this.props.settings.email} onChange={(e) => this.setSettings({
+                                    ...this.props.settings,
+                                    email: e.target.value,
+                                    ...{individual: {
+                                        ...this.props.settings.individual,
+                                        email: e.target.value,
+                                    }}
+                                })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required={this.props.settings.individual.address.counter === 'US'} />
                             </InputWrapper>
                         </div>
                     </div>
@@ -425,20 +406,24 @@ class ConnectedSettingsForm extends Component {
                                     ...this.props.settings.business_profile,
                                     ...{name: e.target.value}
                                 }}
-                            })} />
+                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                         </InputWrapper>
                     </div>
 
                     <div className='setting-field-container mb-3'>
-                        <InputWrapper label='Business Description' required={this.props.settings.individual.address.country === 'US' || this.props.settings.company.address.country === 'US'}>
-                            <input type='text' defaultValue={this.props.settings.business_profile.product_description === null ? '' : this.props.settings.business_profile.product_description} onChange={(e) => this.setSettings({
-                                ...this.props.settings,
-                                ...{business_profile: {
-                                    ...this.props.settings.business_profile,
-                                    ...{product_description: e.target.value}
-                                }}
-                            })} />
-                        </InputWrapper>
+                        <div className='setting-child'>
+                            <InputWrapper label='Business Description' required={this.props.settings.individual.address.country === 'US' || this.props.settings.company.address.country === 'US'}>
+                                <input type='text' defaultValue={this.props.settings.business_profile.product_description === null ? '' : this.props.settings.business_profile.product_description} onChange={(e) => this.setSettings({
+                                    ...this.props.settings,
+                                    ...{business_profile: {
+                                        ...this.props.settings.business_profile,
+                                        ...{product_description: e.target.value}
+                                    }}
+                                })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required={this.props.settings.individual.address.country === 'US' || this.props.settings.company.address.country === 'US'} />
+                            </InputWrapper>
+                        </div>
+
+                        {mcc}
                     </div>
                 </div>
 

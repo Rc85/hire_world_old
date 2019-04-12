@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import fetch from 'axios';
-import { CardNumberElement, CardExpiryElement, CardCVCElement, injectStripe } from 'react-stripe-elements';
+import { injectStripe, Elements } from 'react-stripe-elements';
 import { LogError } from '../../utils/LogError';
 import SubmitButton from '../../utils/SubmitButton';
 import { Alert } from '../../../actions/AlertActions';
@@ -12,7 +12,7 @@ import { GetSession } from '../../../actions/FetchActions';
 import AddressInput from './AddressInput';
 import Recaptcha from 'react-recaptcha';
 import InputWrapper from '../../utils/InputWrapper';
-import { IsTyping } from '../../../actions/ConfigActions';
+import NewPaymentForm from './NewPaymentForm';
 
 let onloadCallback = function() {
     console.log('Recaptcha ready!');
@@ -32,8 +32,8 @@ class Checkout extends Component {
             plan: '',
             name: '',
             defaultAddress: this.props.user.user_address && this.props.user.user_city && this.props.user.user_region && this.props.user.user_country && this.props.user.user_city_code ? true : false,
+            payments: [],
             saveAddress: false,
-            havePayments: false,
             usePayment: ''
         }
         
@@ -54,15 +54,7 @@ class Checkout extends Component {
         fetch.post('/api/get/user/payments')
         .then(resp => {
             if (resp.data.status === 'success') {
-                let havePayments = false;
-                let usePayment = 'New';
-
-                if (resp.data.payments.length > 0) {
-                    havePayments = true;
-                    usePayment = false;
-                }
-
-                this.setState({status: '', payments: resp.data.payments, havePayments: havePayments, usePayment: usePayment});
+                this.setState({status: '', payments: resp.data.payments, usePayment: resp.data.payments.length > 0 || 'New'});
             }
         })
         .catch(err => LogError(err, '/api/get/user/payments'));
@@ -142,7 +134,7 @@ class Checkout extends Component {
             addressInput = <AddressInput info={this.state} saveable={true} set={(key, val) => this.set(key, val)} />;
         }
 
-        if (this.state.havePayments) {
+        if (this.state.payments.length > 0) {
             choosePaymentMethod = <div className='setting-child'>
                 <InputWrapper label='Payment Method' required>
                     <select name='payment-method' id='choose-payment-method' onChange={(e) => this.setState({usePayment: e.target.value})}>
@@ -160,34 +152,7 @@ class Checkout extends Component {
         if (this.state.status === 'Loading') {
             newPayment = <div className='position-relative'><Loading size='5x' /></div>;
         } else if (!this.state.havePayments || this.state.usePayment === 'New') {
-            newPayment = <React.Fragment>
-                <div className='setting-child payment-icons'>
-                    <img src='/images/powered_by_stripe.png' className='payment-icon mr-1' />
-                    <img src='/images/payment_methods.png' className='payment-icon' />
-                </div>
-
-                <div className='setting-child mb-3'>
-                    <InputWrapper label='Name on Card'><input type='text' name='fullname' id='fullname' onChange={(e) => this.setState({name: e.target.value})} autoComplete='ccname' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} /></InputWrapper>
-
-                    <label htmlFor='use-default-address'><input type='checkbox' name='use-default-address' id='use-default-address' checked={this.state.defaultAddress} onChange={() => this.useDefaultAddress()} /> Use address registered with this account</label>
-                </div>
-
-                <div className='setting-field-container mb-3'>
-                    <div className='setting-child'>
-                        <InputWrapper label='Credit Card Number' required><CardNumberElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} /></InputWrapper>
-                    </div>
-                </div>
-
-                <div className='setting-field-container mb-3'>
-                    <div className='setting-child'>
-                        <InputWrapper label='Expiry Date' required><CardExpiryElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} /></InputWrapper>
-                    </div>
-
-                    <div className='setting-child'>
-                        <InputWrapper label='CVC' required><CardCVCElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} /></InputWrapper>
-                    </div>
-                </div>
-            </React.Fragment>;
+            newPayment = <NewPaymentForm name={(val) => this.setState({name: val})} useDefaultAddress={() => this.useDefaultAddress()} />;
         }
 
         // live plan id plan_EFVAGdrFIrpHx5

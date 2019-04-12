@@ -18,8 +18,8 @@ import TitledContainer from '../utils/TitledContainer';
 import Tooltip from '../utils/Tooltip';
 import ViewUserJobActivities from '../includes/page/ViewUserJobActivities';
 import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
-import ViewUserStartJob from '../includes/page/StartJob';
-import StartJob from '../includes/page/StartJob';
+import ViewUserStartJob from '../includes/page/JobProposal';
+import JobProposal from '../includes/page/JobProposal';
 
 class ViewUser extends Component {
     constructor(props) {
@@ -160,6 +160,25 @@ class ViewUser extends Component {
         });
     }
 
+    submitProposal(data) {
+        this.setState({status: 'Submitting Proposal'});
+
+        fetch.post('/api/job/create', {...data, user: this.state.user.username})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({status: '', message: ''});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => {
+            LogError(err, '/api/job/create');
+            this.setState({status: ''});
+        });
+    }
+
     render() {
         let status, contacts, profile, reportButton, message, friendIcon, businessHours, jobs, blockIcon;
 
@@ -210,7 +229,7 @@ class ViewUser extends Component {
                     message = <React.Fragment>
                         <hr/>
                         
-                        <StartJob user={this.state.user} className='mt-4' cancel={() => this.setState({message: ''})} />
+                        <JobProposal className='mt-4' cancel={() => this.setState({message: ''})} submit={(data) => this.submitProposal(data)} status={this.state.status} />
                     </React.Fragment>;
                 }
             }
@@ -228,7 +247,7 @@ class ViewUser extends Component {
                             {this.props.user.user && this.state.user && this.props.user.user.username !== this.state.user.username ?
                                 <div className='text-right'>
                                     {this.state.message != 'message' && this.state.user.allow_messaging ? <button className='btn btn-primary' onClick={() => this.setState({message: 'message'})}>Message</button> : ''}
-                                    {this.state.message != 'propose a job' && this.state.user && this.state.user.connected_acct_status === 'Approved' ? <button className='btn btn-success' onClick={() => this.setState({message: 'propose a job'})}>Job Proposal</button> : ''}
+                                    {this.state.message != 'propose a job' && this.state.user && this.state.user.connected_acct_status === 'Approved' ? <button className='btn btn-success' onClick={() => this.setState({message: 'propose a job'})}>Start A Job</button> : ''}
                                 </div>
                             : ''}
 

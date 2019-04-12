@@ -44,7 +44,8 @@ Confirmation.propTypes = {
     message: PropTypes.string.isRequired,
     note: PropTypes.oneOfType([
         PropTypes.string,
-        PropTypes.bool
+        PropTypes.bool,
+        PropTypes.object
     ])
 }
 

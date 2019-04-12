@@ -143,6 +143,8 @@ class EditUser extends Component {
                     type = 'badge-warning';
                 } else if (n.notification_type === 'Severe') {
                     type = 'badge-danger';
+                } else if (n.notification_type === 'Job') {
+                    type = 'badge-primary';
                 }
 
                 return <div key={i}>
@@ -150,13 +152,15 @@ class EditUser extends Component {
                         <div className='titled-container-row-title'>
                             <div className='d-flex-start'>
                                 {n.notification_status === 'New' ? <small className='mini-badge mini-badge-success mr-1'>New</small> : ''}
-                                <small className={`mini-badge mini-${type} mr-1`}>{n.notification_type}</small>
                             </div>
                             <div dangerouslySetInnerHTML={{__html: n.notification_message}}></div>
                         </div>
                     </div>
 
-                    <div className='text-right'><small>{moment(n.notification_date).format('MM-DD-YYYY h:mm:ss A')}</small></div>
+                    <div className='d-flex-between-center'>
+                        <div className='mr-1'><small className={`mini-badge mini-${type} mr-1`}>{n.notification_type}</small></div>
+                        <div><small>{moment(n.notification_date).format('MM-DD-YYYY h:mm:ss A')}</small></div>
+                    </div>
 
                     {i + 1 !== this.state.notifications.length ? <hr /> : ''}
                 </div>
@@ -178,7 +182,7 @@ class EditUser extends Component {
                 }
 
                 return <div key={i} className='titled-container-row'>
-                    <div className='titled-container-row-title mb-1'>
+                    <div className='titled-container-row-title'>
                         {a.activity_action}
                     </div>
 

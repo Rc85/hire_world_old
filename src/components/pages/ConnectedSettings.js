@@ -7,7 +7,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLink, faPlus, faCreditCard, faUniversity } from '@fortawesome/free-solid-svg-icons';
 import Loading from '../utils/Loading';
 import ConnectedSettingsForm from '../includes/page/ConnectedSettingsForm';
-import NotConnected from '../includes/page/NotConnected';
 import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';
 import { CardNumberElement, CardCVCElement, CardExpiryElement, injectStripe, IbanElement } from 'react-stripe-elements';
@@ -15,6 +14,14 @@ import FinancialAccountRow from '../includes/page/FinancialAccountRow';
 import SubmitButton from '../utils/SubmitButton';
 import InputWrapper from '../utils/InputWrapper';
 import { Redirect } from 'react-router-dom';
+import DocumentUploader from '../utils/DocumentUploader';
+import { IsTyping } from '../../actions/ConfigActions';
+import LabelBadge from '../utils/LabelBadge';
+import StaticAlert from '../utils/StaticAlert';
+import AddBankAccount from '../includes/page/AddBankAccount';
+import { PromptOpen, PromptReset } from '../../actions/PromptActions';
+
+let financialResetButton;
 
 class ConnectedSettings extends Component {
     constructor(props) {
@@ -29,7 +36,7 @@ class ConnectedSettings extends Component {
             user: {},
             business_type: null,
             business_profile: {
-                business_name: null,
+                name: null,
                 product_description: null,
             },
             email: null,
@@ -50,9 +57,14 @@ class ConnectedSettings extends Component {
                 },
                 first_name: null,
                 last_name: null,
-                personal_id_number: null,
+                id_number: null,
                 phone_number: null,
                 verification: {
+                    requirements: {
+                        currently_due: [],
+                        eventually_due: [],
+                        past_due: []
+                    },
                     status: null
                 }
             },
@@ -76,7 +88,18 @@ class ConnectedSettings extends Component {
             accountNumber: '',
             accountRoutingNumber: '',
             accountCountry: '',
-            accountCurrency: 'usd'
+            accountCurrency: '',
+            documentFront: null,
+            documentBack: null
+        }
+    }
+    
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.prompt.data && this.props.prompt.data.action === 'close connected account') {
+            if (this.props.prompt.input !== prevProps.prompt.input) {
+                this.closeAccount();
+                this.props.dispatch(PromptReset());
+            }
         }
     }
     
@@ -85,6 +108,7 @@ class ConnectedSettings extends Component {
 
         fetch.post('/api/job/accounts/fetch')
         .then(resp => {
+            console.log(resp)
             if (resp.data.status === 'success') {
                 this.setState({status: '', ...resp.data.account, user: resp.data.user});
             } else if (resp.data.status === 'error' && resp.data.statusMessage === `You're not logged in`) {
@@ -99,63 +123,40 @@ class ConnectedSettings extends Component {
     }
 
     async addFinancialAccount() {
-        this.setState({status: 'Adding Financial Account'});
-
         let token;
 
-        if (this.state.accountType === 'debit') {
+        if (this.state.accountType === 'bank') {
+            token = await this.props.stripe.createToken('bank_account', {
+                country: this.state.accountCountry,
+                currency: this.state.accountCurrency,
+                routing_number: this.state.accountRoutingNumber,
+                account_number: this.state.accountNumber,
+                account_holder_name: this.state.accountHolder
+            });
+        } else {
             token = await this.props.stripe.createToken({
                 name: this.state.accountHolder,
                 currency: this.state.accountCurrency
             });
-        } else if (this.state.accountType === 'bank') {
-            if (['AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'GI', 'IE', 'IT', 'LU', 'NL', 'NO', 'PT', 'ES', 'SE', 'CH'].indexOf(this.state.accountCountry) >= 0) {
-                token = await this.props.stripe.createToken(iban, {
-                    currency: this.state.accountCurrency,
-                    account_holder_name: this.state.accountHolder
-                });
-            } else if (['AU', 'BR', 'CA', 'MX', 'HK', 'MX', 'NZ', 'US'].indexOf(this.state.accountCountry) >= 0) {
-                token = await this.props.stripe.createToken('bank_account', {
-                    country: this.state.accountCountry,
-                    currency: this.state.accountCurrency,
-                    routing_number: this.state.accountRoutingNumber,
-                    account_number: this.state.accountNumber,
-                    account_holder_name: this.state.accountHolder
-                });
-            } else if (this.state.accountCountry === 'GB') {
-                if (this.state.ukBankType === 'bank_account') {
-                    token = await this.props.stripe.createToken('bank account', {
-                        country: this.state.accountCountry,
-                        currency: this.state.accountCurrency,
-                        routing_number: this.state.accountRoutingNumber,
-                        account_number: this.state.accountNumber,
-                        account_holder_name: this.state.accountHolder
-                    });
-                } else if (this.state.ukBankType === 'iban') {
-                    token = await this.props.stripe.createToken(iban, {
-                        currency: this.state.accountCurrency,
-                        account_holder_name: this.state.accountHolder
-                    });
-                }
-            }
         }
+
+        this.setState({status: 'Adding Financial Account'});
 
         fetch.post('/api/job/account/payment/add', token)
         .then(resp => {
+            let state = {...this.state};
+            state.status = '';
+            
             if (resp.data.status === 'success') {
-                if (resp.data.status === 'success') {
-                    let state = {...this.state};
-                    state.external_accounts.data.unshift(resp.data.payment);
-    
-                    this.setState(state);
-                }
+                state.external_accounts.data.unshift(resp.data.payment);
             }
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-            this.setState({status: ''});
+            this.setState(state);
         })
         .catch(err => {
             LogError(err, '/api/job/account/payment/add');
+            this.props.dispatch(Alert('error', 'An error occurred'));
             this.setState({status: ''});
         });
     }
@@ -193,20 +194,19 @@ class ConnectedSettings extends Component {
 
         fetch.post('/api/job/account/payment/default', {id: id})
         .then(resp => {
-            if (resp.data.status === 'success') {
-                let state = {...this.state};
+            let state = {...this.state};
+            state.status = '';
 
+            if (resp.data.status === 'success') {
                 for (let payment of state.external_accounts.data) {
                     payment.default_for_currency = false;
                 }
 
                 state.external_accounts.data[index] = resp.data.payment;
-
-                this.setState(state);
             }
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
-            this.setState({status: ''});
+            this.setState(state);
         })
         .catch(err => {
             LogError(err, '/api/job/account/payment/default');
@@ -220,12 +220,12 @@ class ConnectedSettings extends Component {
         fetch.post('/api/job/account/payment/delete', {id: id})
         .then(resp => {
             let state = {...this.state};
+            state.status = '';
 
             if (resp.data.status === 'success') {
                 state.external_accounts.data.splice(index, 1);
             }
 
-            state.status = '';
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             this.setState(state);
         })
@@ -234,254 +234,264 @@ class ConnectedSettings extends Component {
             this.setState({status: ''});
         });
     }
+
+    uploadDocument() {
+        let data = new FormData();
+
+        if (this.state.documentBack && this.state.documentFront && this.state.documentBack.length === 0 && this.state.documentFront.length === 0) {
+            this.props.dispatch(Alert('error', 'No files to upload'));
+        } else {
+            this.setState({status: 'Uploading Document'});
+            
+            if (this.state.documentBack && this.state.documentFront.length === 1) {
+                data.set('front', this.state.documentFront[0]);
+            }
+
+            if (this.state.documentBack && this.state.documentBack.length === 1) {
+                data.set('back', this.state.documentBack[0]);
+            }
+
+            data.set('user', this.props.user.user.username);
+        }
+
+        let config = {
+            front: this.state.documentFront.length === 1 ? true : false,
+            back: this.state.documentBack.length === 1 ? true : false
+        }
+
+        fetch.post('/api/job/account/document/upload', data, config)
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({status: '', ...resp.data.account, documentFront: null, documentBack: null});
+            } else {
+                this.setState({status: ''});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => {
+            LogError(err, '/api/job/account/document/upload');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
+    }
+
+    closeAccount() {
+        this.setState({status: 'Closing Account'});
+
+        fetch.post('/api/job/account/close', {id: this.state.id, password: this.props.prompt.input, user: this.props.user.user.username})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({status: 'Closed'});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+        })
+        .catch(err => {
+            LogError(err, '/api/job/account/close');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
+    }
+
+    setCountry(val) {
+        this.branchNumber = '';
+        this.routingNumber = '';
+
+        if (this.state.accountCountry) {
+            if (['AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'GI', 'IE', 'IT', 'LU', 'NL', 'NO', 'PT', 'ES', 'SE', 'CH'].indexOf(val) >= 0 && this.state.accountType === 'bank') {
+                this.setState({accountCountry: val, accountType: 'sepa'});
+            } else if ((['CA', 'US', 'AU', 'NZ'].indexOf(val) >= 0 && this.state.accountType === 'sepa') || ['CA', 'US', 'AU', 'NZ'].indexOf(val) >= 0) {
+                this.setState({accountCountry: val, accountType: 'bank'});
+            } else if (val === 'GB') {
+                this.setState({accountCountry: val, accountType: 'bank'});
+            }
+        } else {
+            this.setState({accountCountry: val});
+        }
+    }
     
     render() {
+        console.log(this.state);
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
             return <Redirect to='/' />;
         }
 
-        if (this.props.user.user) {
-            if (!this.props.user.user.connected_id) {
-                return <NotConnected user={this.props.user} />;
-            }
+        if (this.state.status === 'Closed') {
+            return <Redirect to='/connected/account/closed' />;
+        }
 
-            let verificationStatus, status, reviewStatus, financialForm;
+        if (this.props.user.user) {
+            let verificationStatus, verificationStatusText, status, reviewStatus, financialForm, uploadForm, payoutStatus, payoutText, paymentText, paymentStatus, bankText, bankStatus;
+
+            let supportedCountries = ['AT', 'AU', 'BE', 'CA', 'CH', 'DE', 'DK', 'ES', 'FI', 'FR', 'GB', 'IE', 'IT', 'LU', 'NL', 'NO', 'NZ', 'PT', 'SE', 'US'];
 
             if (this.state.status === 'Fetching') {
                 status = <Loading size='5x' />;
             }
 
-            if (this.state.user) {
-                if (this.state.user.connected_acct_status === 'Reviewing') {
-                    reviewStatus = <div className='mini-badge mini-badge-warning ml-1'>Reviewing</div>;
-                } else if (this.state.user.connected_acct_status === 'Declined') {
-                    reviewStatus = <div className='mini-badge mini-badge-danger ml-1'>Declined</div>;
-                } else if (this.state.user.connected_acct_status === 'Approved') {
-                    reviewStatus  = <div className='mini-badge mini-badge-success ml-1'>Approved</div>;
-                }
-            }
-
             if (this.state.accountType === 'debit') {
                 financialForm = <div className='mb-3'>
-                    <div className='setting-field-container mb-3'>
-                        <InputWrapper label='Account Holder Name' required>
-                            <input type='text' onChange={(e) => this.setState({accountHolder: e.target.value})} />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-field-container mb-3'>
-                        <div className='setting-child' required>
-                            <InputWrapper label='Card Number' required>
-                                <CardNumberElement className='w-100' />
-                            </InputWrapper>
-                        </div>
-
-                        <div className='setting-child one-third'>
-                            <InputWrapper label='Expiry Date' required>
-                                <CardExpiryElement className='w-100' />
-                            </InputWrapper>
-                        </div>
-
-                        <div className='setting-child one-third'>
-                            <InputWrapper label='CVC' required>
-                                <CardCVCElement className='w-100' />
-                            </InputWrapper>
-                        </div>
-                    </div>
-
-                    <div className='text-right'>
-                        <SubmitButton type='submit' loading={this.state.status === 'Adding Financial Account'} value='Add' />
-                    </div>
-                </div>
-            } else if (this.state.accountType === 'bank') {
-                let bankInfo;
-
-                if (this.state.accountCountry === 'CA') {
-                    bankInfo = <div className='setting-field-container mb-3'>
-                        <div className='setting-child'>
-                            <InputWrapper label='Account Number' required>
-                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} />
-                            </InputWrapper>
-                        </div>
-
-                        <div className='setting-child quarter'>
-                            <InputWrapper label='Transit Number' required>
-                                <input type='number' onChange={(e) => this.setRoutingNumber('routing', e.target.value)} maxLength='5' />
-                            </InputWrapper>
-                        </div>
-
-                        <div className='setting-child quarter'>
-                            <InputWrapper label='Institution Number' required>
-                                <input type='number' onChange={(e) => this.setRoutingNumber('branch', e.target.value)} maxLength='3' />
-                            </InputWrapper>
-                        </div>
-                    </div>;
-                } else if (this.state.accountCountry === 'US') {
-                    bankInfo = <div className='setting-field-container mb-3'>
-                        <div className='setting-child'>
-                            <InputWrapper label='Account Number' required>
-                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} />
-                            </InputWrapper>
-                        </div>
-
-                        <div className='setting-child quarter'>
-                            <InputWrapper label='Routing Number' required>
-                                <input type='number' onChange={(e) => this.setState({accountRoutingNumber: e.target.value})} maxLength='9' />
-                            </InputWrapper>
-                        </div>
-                    </div>;
-                } else if (this.state.accountCountry === 'AU') {
-                    bankInfo = <div className='setting-field-container mb-3'>
-                        <div className='setting-child'>
-                            <InputWrapper label='Account Number' required>
-                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} minLength='6' maxLength='10' />
-                            </InputWrapper>
-                        </div>
-
-                        <div className='setting-child quarter'>
-                            <InputWrapper label='BSB' required>
-                                <input type='number' onChange={(e) => this.setSettings({accountRoutingNumber: e.target.value})} maxLength='6' />
-                            </InputWrapper>
-                        </div>
-                    </div>;
-                } else if (this.state.accountCountry === 'BR') {
-                    bankInfo = <div className='setting-field-container mb-3'>
-                        <div className='setting-child'>
-                            <InputWrapper label='Account Number' required>
-                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} />
-                            </InputWrapper>
-                        </div>
-
-                        <div className='setting-child quarter'>
-                            <InputWrapper label='Bank Code' required>
-                                <input type='number' onChange={(e) => this.setRoutingNumber('routing', e.target.value)} maxLength='3' />
-                            </InputWrapper>
-                        </div>
-
-                        <div className='setting-child quarter'>
-                            <InputWrapper label='Branch Code' required>
-                                <input type='number' onChange={(e) => this.setRoutingNumber('branch', e.target.value)} maxLength='4' />
-                            </InputWrapper>
-                        </div>
-                    </div>;
-                } else if (this.state.accountCountry === 'HK') {
-                    bankInfo = <div className='setting-field-container mb-3'>
-                        <div className='setting-child'>
-                            <InputWrapper label='Account Number' required>
-                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} minLength='6' maxLength='9' />
-                            </InputWrapper>
-                        </div>
-
-                        <div className='setting-child quarter'>
-                            <InputWrapper label='Clearing Code' required>
-                                <input type='number' onChange={(e) => this.setRoutingNumber('routing', e.target.value)} maxLength='3' />
-                            </InputWrapper>
-                        </div>
-
-                        <div className='setting-child quarter'>
-                            <InputWrapper label='Branch Code' required>
-                                <input type='number' onChange={(e) => this.setRoutingNumber('branch', e.target.value)} maxLength='3' />
-                            </InputWrapper>
-                        </div>
-                    </div>;
-                } else if (this.state.accountCountry === 'MX') {
-                    bankInfo = <div className='setting-field-container mb-3'>
-                        <div className='setting-child'>
-                            <InputWrapper label='Account Number (CLABE)' required>
-                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} maxLength='18' />
-                            </InputWrapper>
-                        </div>
-                    </div>;
-                } else if (this.state.accountCountry === 'NZ') {
-                    bankInfo = <div className='setting-field-container mb-3'>
-                        <div className='setting-child'>
-                            <InputWrapper label='Account Number' required>
-                                <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} minLength='15' maxLength='16' />
-                            </InputWrapper>
-                        </div>
-                    </div>;
-                } else if (this.state.accountCountry === 'GB') {
-                    let bankType;
-
-                    if (this.state.ukBankType === 'bank') {
-                        bankType = <div className='setting-field-container mb-3'>
-                            <div className='setting-child'>
-                                <InputWrapper label='Account Number' required>
-                                    <input type='number' onChange={(e) => this.setState({accountNumber: e.target.value})} maxLength='8' />
-                                </InputWrapper>
-                            </div>
-
-                            <div className='setting-child quarte'>
-                                <InputWrapper label='Sort Code' required>
-                                    <input type='number' onChange={(e) => this.setState({accountRoutingNumber: e.target.value})} maxLength='6' />
-                                </InputWrapper>
-                            </div>
-                        </div>;
-                    } else if (this.state.ukBankType === 'iban') {
-                        bankType = <InputWrapper label='IBAN' className='pr-2 pb-2 pl-2'>
-                            <IbanElement className='w-100' supportedCountries={['SEPA']} />
-                        </InputWrapper>;
-                    }
-                    bankInfo = <div>
-                        <div className='mb-3'>The information required for UK-based bank accounts depends on the currency being used and the country of your Stripe account. EUR-denominated UK bank accounts and some countries that support UK-based GBP accounts may need to provide IBAN information instead of an account number and sort code.</div>
-
-                        <div className='radio-container'>
-                            <label className={this.state.ukBankType === 'bank' ? 'active' : ''} onClick={() => this.setSettings({ukBankType: 'bank'})}>
-                                <div className='radio'>
-                                    {this.state.ukBankType === 'bank' ? <div className='radio-selected'></div> : ''}
-                                </div>
-                                <span>Bank Account</span>
-                            </label>
-
-                            <label className={this.state.ukBankType === 'iban' ? 'active' : ''} onClick={() => this.setSettings({ukBankType: 'iban'})}>
-                                <div className='radio'>
-                                    {this.state.ukBankType === 'iban' ? <div className='radio-selected'></div> : ''}
-                                </div>
-                                <span>IBAN</span>
-                            </label>
-                        </div>
-
-                        {bankType}
-                    </div>;
-                } else if (['AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'GI', 'IE', 'IT', 'LU', 'NL', 'NO', 'PT', 'ES', 'SE', 'CH'].indexOf(this.state.accountCountry) >= 0) {
-                    bankInfo = <div className='setting-field-container mb-3'>
-                        <div className='setting-child'>
-                            <InputWrapper label='IBAN' className='pr-2 pb-2 pl-2' required>
-                                <IbanElement className='w-100' supportedCountries={['SEPA']} />
-                            </InputWrapper>
-                        </div>
-                    </div>;
-                }
-
-                financialForm = <div className='mb-3'>
+                    <div className='mb-3'>Only Debit Mastercard or Visa Debit is acceptable as credit card payout is not available.</div>
+                    
                     <div className='setting-field-container mb-3'>
                         <div className='setting-child'>
                             <InputWrapper label='Account Holder Name' required>
-                                <input text='text' onChange={(e) => this.setState({accountHolder: e.target.value})} />
+                                <input type='text' onChange={(e) => this.setState({accountHolder: e.target.value})} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                             </InputWrapper>
                         </div>
 
                         <div className='setting-child quarter'>
-                            <InputWrapper label='Country' required>
-                                <CountryDropdown value={this.state.accountCountry === null ? '' : this.state.accountCountry} onChange={(val) => this.setState({accountCountry: val})} valueType='short' whitelist={supportedCountries} />
+                            <InputWrapper label='Currency' required>
+                                <input type='text' list='currency-list' onChange={(e) => this.setState({accountCurrency: e.target.value})} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
+                                <datalist id='currency-list'>
+                                    <option value='AUD'>AUD</option>
+                                    <option value='CAD'>CAD</option>
+                                    <option value='EUR'>EUR</option>
+                                    <option value='USD'>USD</option>
+                                </datalist>
                             </InputWrapper>
                         </div>
                     </div>
 
-                    {bankInfo}
+                    <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <InputWrapper label='Card Number' required className='pl-1 pb-1 pr-1'>
+                                <CardNumberElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child one-third'>
+                            <InputWrapper label='Expiry Date' required className='pl-1 pb-1 pr-1'>
+                                <CardExpiryElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child one-third'>
+                            <InputWrapper label='CVC' required className='pl-1 pb-1 pr-1'>
+                                <CardCVCElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
+                            </InputWrapper>
+                        </div>
+                    </div>
 
                     <div className='text-right'>
                         <SubmitButton type='submit' loading={this.state.status === 'Adding Financial Account'} value='Add' />
                     </div>
-                </div>
+                </div>;
+            } else if (this.state.accountType === 'bank' || this.state.accountType === 'sepa') {
+                financialForm = <AddBankAccount
+                accountCountry = {this.state.accountCountry}
+                setCountry = {(val) => this.setCountry(val)}
+                setAccountNumber = {(val) => this.setState({accountNumber: val})}
+                setRoutingNumber = {(type, val) => this.setRoutingNumber(type, val)}
+                setAccountHolder = {(val) => this.setState({accountHolder: val})}
+                setCurrency = {(val) => this.setState({accountCurrency: val})}
+                setUkBankType = {(val) => this.setState({ukBankType: val})}
+                supportedCountries = {supportedCountries}
+                status = {this.state.status}
+                ukBankType = {this.state.ukBankType} />;
             }
 
             if (this.state.individual.verification.status === 'unverified') {
-                verificationStatus = <div className='mini-badge mini-badge-warning ml-1'>Unverified</div>;
+                verificationStatus = 'secondary';
+                verificationStatusText = 'Unverified';
+
+                if (this.state.individual.verification.details_code === 'failed_other') {
+                    verificationStatus = 'danger';
+                    verificationStatusText = 'Failed';
+                }
             } else if (this.state.individual.verification.status === 'verified') {
-                verificationStatus = <div className='mini-badge mini-badge-success ml-1'>Verified</div>
+                verificationStatus = 'success';
+                verificationStatusText = 'Verified';
+            } else if (this.state.individual.verification.status === 'pending') {
+                verificationStatus = 'warning';
+                verificationStatusText = 'Pending';
+            }
+
+            if (this.state.charges_enabled) {
+                paymentStatus = 'success';
+                paymentText = 'Enabled';
+            } else {
+                paymentStatus = 'danger';
+                paymentText = 'Disabled';
+            }
+
+            if (this.state.payouts_enabled) {
+                payoutStatus = 'success';
+                payoutText = 'Enabled';
+            } else {
+                payoutStatus = 'danger';
+                payoutText = 'Disabled';
+            }
+
+            let bankAccountWarning;
+
+            if (this.state.requirements && (this.state.requirements.past_due.includes('external_account') || this.state.requirements.currently_due.includes('external_account') || this.state.requirements.eventually_due.includes('external_account'))) {
+                bankAccountWarning = <StaticAlert status='warning' text='A debit card or bank account is required' />;
+            }
+
+            if (this.state.user) {
+                if (this.state.user.connected_acct_status === 'Reviewing') {
+                    reviewStatus = 'warning';
+                } else if (this.state.user.connected_acct_status === 'Declined') {
+                    reviewStatus = 'danger';
+                } else if (this.state.user.connected_acct_status === 'Approved') {
+                    reviewStatus = 'success';
+                }
+            }
+
+            if (this.state.individual.address.country !== 'US' && this.state.individual.verification.status !== 'verified') {
+                uploadForm = <form onSubmit={(e) => {
+                    e.preventDefault();
+                    this.uploadDocument();
+                }}>
+                    <div className='simple-container no-bg'>
+                        <div className='simple-container-title'>Upload Document</div>
+                        <p>Document needs to be:</p>
+
+                        <ul>
+                            <li>Colored</li>
+                            <li>Smaller than 8000px by 8000px</li>
+                            <li>JPG or PNG</li>
+                            <li>Less than 5MB</li>
+                        </ul>
+
+                        <p>Note: If you're scanning a passport, you don't need to upload the back.</p>
+
+                        <div className='setting-field-container mb-3'>
+                            <InputWrapper label='Front'><DocumentUploader upload={(file) => this.setState({documentFront: file})} /></InputWrapper>
+                            <InputWrapper label='Back'><DocumentUploader upload={(file) => this.setState({documentBack: file})} /></InputWrapper>
+                        </div>
+
+                        <div className='text-right'>
+                            <SubmitButton type='submit' loading={this.state.status === 'Uploading Document'} value='Upload' />
+                            <button className='btn btn-secondary' type='reset'>Clear</button>
+                        </div>
+                    </div>
+                </form>;
+            }
+
+            let documentsRequired = false;
+            let documentsRequiredText;
+
+            if (this.state.individual.requirements) {
+                if (this.state.individual.requirements.currently_due.indexOf('verification.document') > -1 || this.state.individual.requirements.eventually_due.indexOf('verification.document') > -1 || this.state.individual.requirements.past_due.indexOf('verification.document') > -1) {
+                    documentsRequired = true;
+                    documentsRequiredText = 'Identification documents required';
+
+                    if (this.state.individual.verification.details_code === 'failed_other') {
+                        documentsRequiredText = <span>Document verification failed. Reasons may include:
+                            <ul>
+                                <li>Images are not clear</li>
+                                <li>Images are not legitimate</li>
+                                <li>Information on images do not match account information</li>
+                            </ul>
+                        </span>;
+                    }
+                }
             }
 
             return (
@@ -491,25 +501,30 @@ class ConnectedSettings extends Component {
                     <TitledContainer title='Connected Settings' icon={<FontAwesomeIcon icon={faLink} />} shadow bgColor='lightblue'>
                         <div className='account-id mb-3'>
                             <h2>{this.state.id}</h2>
-                            <div className='d-flex'>
-                                {verificationStatus}
-                                {reviewStatus}
-                            </div>
                         </div>
+
+                        <div className={`d-flex`}>
+                            <div className='mr-2'><LabelBadge label='Account' text={verificationStatusText} status={verificationStatus} /></div>
+                            <div className='mr-2'><LabelBadge label='Review' text={this.state.user.connected_acct_status} status={reviewStatus} /></div>
+                            <div className='mr-2'><LabelBadge label='Payments' text={paymentText} status={paymentStatus} /></div>
+                            <div className='mr-2'><LabelBadge label='Payout' text={payoutText} status={payoutStatus} /></div>
+                        </div>
+
+                        {documentsRequired ? <StaticAlert status='warning' text={documentsRequiredText} /> : ''}
+                        {bankAccountWarning}
 
                         <form onSubmit={(e) => {
                             e.preventDefault();
             
                             this.addFinancialAccount();                
                         }}>
-                            <div className='simple-container no-bg mb-3'>
-                                <div className='simple-container-title'>Financial</div>
+                            <div className='simple-container no-bg mt-4 mb-3'>
+                                <div className='simple-container-title'>Payout Accounts</div>
                 
                                 <div className='text-right mb-3'>
-                                    <button className='add-card-mobile-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'debit'})}><FontAwesomeIcon icon={faPlus} /> <FontAwesomeIcon icon={faCreditCard} /></button>
-                                    <button className='add-bank-mobile-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'bank'})}><FontAwesomeIcon icon={faPlus} /> <FontAwesomeIcon icon={faUniversity} /></button>
-                                    <button className='add-card-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'debit'})}>Add Debit Card</button>
-                                    <button className='add-bank-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'bank'})}>Add Bank Account</button>
+                                    <React.Fragment><button className='add-card-mobile-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'debit'})}><FontAwesomeIcon icon={faPlus} /> <FontAwesomeIcon icon={faCreditCard} /></button> <button className='add-bank-mobile-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'bank', accountCountry: ''})}><FontAwesomeIcon icon={faPlus} /> <FontAwesomeIcon icon={faUniversity} /></button></React.Fragment>
+                                    
+                                    <React.Fragment><button className='add-card-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'debit'})}>Add a Card</button> <button className='add-bank-button btn btn-info' type='button' onClick={() => this.setState({accountType: 'bank', accountCountry: ''})}>Add Bank Account</button></React.Fragment>
                                 </div>
                 
                                 {financialForm}
@@ -538,9 +553,12 @@ class ConnectedSettings extends Component {
 
                             <div className='text-right'>
                                 <SubmitButton type='submit' loading={this.state.status === 'Updating Personal'} value='Update' />
-                                <button className='btn btn-secondary' onClick={() => this.resetSettings()}>Reset</button>
+                                <button className='btn btn-secondary' type='button' onClick={() => this.resetSettings()}>Reset</button>
+                                <button className='btn btn-danger' type='button' onClick={() => this.props.dispatch(PromptOpen(`Password:`, '', {type: 'password', action: 'close connected account'}))} disabled={this.state.status === 'Closing Account'}>Close Account</button>
                             </div>
                         </form>
+
+                        {uploadForm}
                     </TitledContainer>
                 </section>
             );
@@ -554,4 +572,10 @@ ConnectedSettings.propTypes = {
 
 };
 
-export default connect()(injectStripe(ConnectedSettings));
+const mapStateToProps = state => {
+    return {
+        prompt: state.Prompt
+    }
+}
+
+export default connect(mapStateToProps)(injectStripe(ConnectedSettings));

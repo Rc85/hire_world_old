@@ -9,7 +9,7 @@ app.get('/api/admin/get-errors', async(req, resp) => {
             resp.send({status: 'success', errors: result.rows});
         }
     })
-    .catch(err => console.log(err));
+    .catch(err => error.log(err, req, resp));
 });
 
 module.exports = app;

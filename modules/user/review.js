@@ -2,11 +2,11 @@ const app = require('express').Router();
 const db = require('../db');
 const cryptoJs = require('crypto-js');
 const error = require('../utils/error-handler');
+const authenticate = require('../utils/auth');
 
-app.post('/api/authentic/review/submit', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/authentic/review/submit', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             (async() => {
                 try {
@@ -22,13 +22,13 @@ app.post('/api/authentic/review/submit', (req, resp) => {
                         let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
                         throw errObj;
                     } else if (authorized.rows[0].user_status === 'Active' && authorized.rows[0].reviewer === req.body.user && req.body.user === req.session.user.username) {
-                        console.log(req.body)
+                        
                         let decrypt = cryptoJs.AES.decrypt(req.body.token, process.env.REVIEW_TOKEN_SECRET);
                         let authenticated = decrypt.toString(cryptoJs.enc.Utf8);
                         let review;
 
                         if (authenticated === req.session.user.username) {
-                            review = await client.query(`UPDATE user_reviews SET review = $1, review_rating = $2, review_date = current_timestamp WHERE review_id = $3 RETURNING *`, [req.body.review, req.body.star, authorized.rows[0].review_id]);
+                            review = await client.query(`UPDATE user_reviews SET review = $1, review_rating = $2, review_date = current_timestamp, review_count = review_count + 1 WHERE review_id = $3 RETURNING *`, [req.body.review, req.body.star, authorized.rows[0].review_id]);
                             let token = await client.query(`UPDATE review_tokens SET token_status = 'Invalid', token_used_date = current_timestamp WHERE token_job_id = $1 RETURNING *`, [req.body.job_id]);
 
                             review.rows[0] = {...review.rows[0], ...token.rows[0]};
@@ -54,13 +54,11 @@ app.post('/api/authentic/review/submit', (req, resp) => {
             })()
             .catch(err => error.log(err, req, resp));
         });
-    }
 });
 
-app.post('/api/review/submit', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/review/submit', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             (async() => {
                 try {
@@ -99,15 +97,11 @@ app.post('/api/review/submit', (req, resp) => {
             })()
             .catch(err => error.log(err, req, resp));
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/review/edit', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/review/edit', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             (async() => {
                 try {
@@ -124,8 +118,8 @@ app.post('/api/review/edit', (req, resp) => {
                         .then(() => resp.send({status: 'success', statusMessage: 'Review updated', review: review.rows[0]}));
                     } else if (user && user.rows[0].user_status === 'Suspend') {
                         let error = new Error(`You're temporarily banned`);
-                        error.type = 'CUSTOM';
-                        throw error;
+                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};;
+                        throw errObj;
                     }
                 } catch (e) {
                     await client.query(`ROLLBACK`);
@@ -134,21 +128,8 @@ app.post('/api/review/edit', (req, resp) => {
                     done();
                 }
             })()
-            .catch(err => {
-                console.log(err);
-                
-                let message = 'An error occurred';
-
-                if (err.type === 'CUSTOM') {
-                    message = err.message;
-                }
-
-                resp.send({status: 'error', statusMessage: message});
-            });
+            .catch(err => error.log(err, req, resp));
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
 module.exports = app;

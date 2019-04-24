@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTimes } from '@fortawesome/pro-solid-svg-icons';
 import Dropzone from 'react-dropzone';
 import { connect } from 'react-redux';
 import Loading from '../../utils/Loading';

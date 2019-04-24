@@ -1,7 +1,7 @@
 import React from 'react';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { faQuestionCircle } from '@fortawesome/pro-solid-svg-icons';
 import { NavLink } from 'react-router-dom';
 
 const Faq = props => {
@@ -74,9 +74,13 @@ const Faq = props => {
                     <div className='mb-1'>
                         <a href='#seventeen'>What if the other party doesn't respond after accepting my deliverable?</a>
                     </div>
+
+                    <div className='mb-1'>
+                        <a href='#eighteen'>Why should I reject an applicant?</a>
+                    </div>
                 </div>
 
-                <div className='text-center'>If you have any other questions, please submit them to <a href='mailto:admin@hireworld.ca'>admin@hireworld.ca</a></div>
+                <div className='text-center'>If you have any other questions, please submit them to <a href='mailto:admin@hireworld.ca' rel='noopener noreferrer' target='_blank'>admin@hireworld.ca</a></div>
 
                 <hr/>
 
@@ -217,7 +221,7 @@ const Faq = props => {
 
                                 <ul>
                                     <li>Fraud activities</li>
-                                    <li>You violated the Terms of Service that have zero-tolerance for. See the <a href='/tos'>Terms of Service</a> for more information</li>
+                                    <li>You violated the Terms of Service that have zero-tolerance for. See the <NavLink to='/tos'>Terms of Service</NavLink> for more information</li>
                                     <li>You have received multiple temporary bans already</li>
                                 </ul>
                             </div>
@@ -270,7 +274,7 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            We do not delete accounts entirely because often, accounts are tied to reviews are important for a service provider's reputation as well as to others who would like to work with the service provider in the future. However, you have full control of the personal information on your account to be displayed and stored. Please see our <a href='/privacy'>Privacy Policy</a> regarding how data are handled at Hire World.
+                            We do not delete accounts entirely because often, accounts are tied to reviews are important for a service provider's reputation as well as to others who would like to work with the service provider in the future. However, you have full control of the personal information on your account to be displayed and stored. Please see our <NavLink to='/privacy'>Privacy Policy</NavLink> regarding how data are handled at Hire World.
                         </div>
 
                         <div className='text-right'>
@@ -286,7 +290,7 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            <p>Connected is a service powered by <a href='https://stripe.com/connect'>Stripe Connect</a> that ensures a service provider is paid when completing a job. The service is available to service providers working with clients who are cities or countries apart or service providers doing business with clients in-person but want to use Hire World to secure the payment.</p>
+                            <p>Connected is a service powered by <a href='https://stripe.com/connect' rel='noopener noreferrer' target='_blank'>Stripe Connect</a> that ensures a service provider is paid when completing a job. The service is available to service providers working with clients who are cities or countries apart or service providers doing business with clients in-person but want to use Hire World to secure the payment.</p>
 
                             <p>Connected users on Hire World will need a Connected account. Once that is created, verified by Stripe and approved by Hire World, users can start a job through the Connected user's profile. A job proposal with the work title and description is to be submitted by the client to the Connected user for review. The Connected user creates milestones, preferrably small milestones that can be completed within 90 days, and sends it back to the client. If the client agrees, the job will move to the active stage. During the active stage, whenever the Connected user completes a condition in the milestone, the condition should be checked off. This allows both parties to see the progress of the job. Only when all the conditions are completed, the Connected user can send a payment request to the client. If the client is satisfied, the client can release the agreed funds to the Connected user.</p>
 

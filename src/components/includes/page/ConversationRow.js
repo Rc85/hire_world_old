@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThumbtack, faGavel, faEllipsisH, faCheck, faCaretRight, faTrash, faCircleNotch } from '@fortawesome/free-solid-svg-icons';
+import { faThumbtack, faGavel, faEllipsisH, faCheck, faCaretRight, faTrash, faCircleNotch } from '@fortawesome/pro-solid-svg-icons';
 import moment from 'moment';
 import { PromptOpen, PromptReset } from '../../../actions/PromptActions';
 import { connect } from 'react-redux';

@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFolderOpen } from '@fortawesome/free-solid-svg-icons';
+import { faFolderOpen } from '@fortawesome/pro-solid-svg-icons';
+import { faFileSpreadsheet } from '@fortawesome/pro-solid-svg-icons';
 import fetch from 'axios';
 import { LogError } from '../utils/LogError';
 import JobRow from '../includes/page/JobRow';
@@ -43,7 +44,6 @@ class Jobs extends Component {
         
         fetch.post('/api/jobs/fetch', {stage: this.props.match.params.stage})
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', jobs: resp.data.jobs});
             } else if (resp.data.status === 'error') {
@@ -70,7 +70,7 @@ class Jobs extends Component {
 
             return (
                 <section id='opened-jobs' className='main-panel'>
-                    <TitledContainer title='Opened Jobs' icon={<FontAwesomeIcon icon={faFolderOpen} />} shadow bgColor='green'>
+                    <TitledContainer title='Proposals' icon={<FontAwesomeIcon icon={faFileSpreadsheet} />} shadow bgColor='green'>
                         {this.state.status === 'error' ? <span>An error occurred while retrieving the job list</span> : ''}
 
                         {jobs}

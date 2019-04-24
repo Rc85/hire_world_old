@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimesCircle } from '@fortawesome/free-regular-svg-icons';
+import { faTimesCircle } from '@fortawesome/pro-regular-svg-icons';
 import TitledContainer from '../utils/TitledContainer';
 import AlphaNumericFilter from '../utils/AlphaNumericFilter';
 import { LogError } from '../utils/LogError';
 import fetch from 'axios';
 import Username from '../includes/page/Username';
-import { faUserSlash, faCircleNotch } from '@fortawesome/free-solid-svg-icons';
+import { faUserSlash, faCircleNotch } from '@fortawesome/pro-solid-svg-icons';
 import Loading from '../utils/Loading';
 import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';

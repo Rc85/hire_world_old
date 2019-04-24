@@ -25,7 +25,6 @@ class Prompt extends Component {
     }
     
     render() {
-        console.log(this.props);
         return (
             <div id='prompt-modal' className='full-black-overlay'>
                 <div className='modal-container w-25 rounded'>

@@ -5,44 +5,32 @@ import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import TextArea from '../../utils/TextArea';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { Alert } from '../../../actions/AlertActions';
 import { connect } from 'react-redux';
-import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
+import { faQuestionCircle } from '@fortawesome/pro-regular-svg-icons';
 import Tooltip from '../../utils/Tooltip';
 import SubmitButton from '../../utils/SubmitButton';
 import { LogError } from '../../utils/LogError';
 import fetch from 'axios';
 import { NavLink } from 'react-router-dom';
-
-let resetButton;
+import MoneyFormatter from '../../utils/MoneyFormatter';
 
 class MilestoneCreator extends Component {
     constructor(props) {
         super(props);
-
-        this.initialState = {
-            status: '',
-            jobId: this.props.jobId || this.props.job.job_id,
-            totalPrice: this.props.job ? this.props.job.job_total_price : '',
-            currency: this.props.job ? this.props.job.job_price_currency : null,
-            milestones: this.props.milestones || [
-                {milestone_id: Date.now(), milestone_payment_amount: 0, milestone_due_date: null, conditions: [
-                    {condition_id: Date.now(), condition: null}
-                ]}
-            ]
-        }
         
         this.state = {
             status: '',
-            jobId: this.props.jobId || this.props.job.job_id,
+            jobId: this.props.job.job_id,
             totalPrice: this.props.job ? this.props.job.job_total_price : '',
             currency: this.props.job ? this.props.job.job_price_currency : null,
             milestones: this.props.milestones || [
                 {milestone_id: Date.now(), milestone_payment_amount: 0, milestone_due_date: null, conditions: [
                     {condition_id: Date.now(), condition: null}
                 ]}
-            ]
+            ],
+            details: this.props.job.job_details || ''
         };
     }
 
@@ -50,7 +38,7 @@ class MilestoneCreator extends Component {
         this.setState({status: 'Submitting'});
 
         let data = {...this.state}
-        data['job_modified_date'] = this.props.jobModifiedDate;
+        data['job_modified_date'] = this.props.job.job_modified_date;
 
         if (this.props.editing) {
             data['edit'] = true;
@@ -59,11 +47,11 @@ class MilestoneCreator extends Component {
         fetch.post('/api/job/agreement/submit', data)
         .then(resp => {
             if (resp.data.status === 'success') {
-                resetButton.click();
-
                 if (this.props.editing) {
                     this.props.cancel();
                 }
+
+                this.props.update(resp.data.job, resp.data.milestones);
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
             }
@@ -144,7 +132,6 @@ class MilestoneCreator extends Component {
         let totalMilestonePayment = this.state.milestones.reduce((sum, val) => {
             return parseFloat(sum) + parseFloat(val.milestone_payment_amount);
         }, 0);
-        console.log(totalMilestonePayment)
 
         let remainingFunds = totalPrice - totalMilestonePayment;
 
@@ -181,7 +168,7 @@ class MilestoneCreator extends Component {
         });
 
         return (
-            <div id='estimate-creator'>
+            <div id='estimate-creator mb-3'>
                 <form onSubmit={(e) => {
                     e.preventDefault();
                     this.submit();
@@ -206,7 +193,9 @@ class MilestoneCreator extends Component {
                         </div>
                     </div>
 
-                    <div className='d-flex-between-center'>
+                    <TextArea value={this.state.details} placeholder={`Add any other details such as specific agreements, terms, deadlines, etc. (Optional)`} onChange={(val) => this.setState({details: val})} className='w-100 mb-3' textAreaClassName='w-100' value={this.state.details} label='Details' />
+
+                    <div className='milestone-creator-details'>
                         <div className='d-flex-center'>
                             <button type='button' className='btn btn-primary mr-2' onClick={() => this.addMilestone()}>Add Milestone</button>
                             <Tooltip placement='right-bottom' text={<span>Notes:
@@ -219,7 +208,7 @@ class MilestoneCreator extends Component {
                             </span>}><FontAwesomeIcon icon={faQuestionCircle} size='lg' /></Tooltip>
                         </div>
 
-                        <div className='funds-remaining'>Remaining: ${remainingFunds}</div>
+                        <div className='funds-remaining'>Remaining: $<MoneyFormatter value={remainingFunds} /></div>
                     </div>
 
                     <div className='milestone-container mb-3'>
@@ -228,7 +217,6 @@ class MilestoneCreator extends Component {
 
                     <div className='text-right'>
                         <SubmitButton type='submit' loading={this.state.status === 'Submitting'} value={this.props.editing ? 'Save' : 'Submit'} />
-                        <button className='btn btn-secondary' type='reset' onClick={() => this.setState(this.initialState)} ref={e => resetButton = e}>Reset</button>
                         {this.props.editing ? <button className='btn btn-secondary' type='button' onClick={() => this.props.cancel()}>Cancel</button> : ''}
                     </div>
                 </form>

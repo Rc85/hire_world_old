@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faCaretUp } from '@fortawesome/pro-solid-svg-icons';
 import moment from 'moment';
 import Menu from '../../utils/Menu';
 import { ToggleMenu } from '../../../actions/MenuActions';

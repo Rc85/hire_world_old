@@ -5,13 +5,13 @@ const error = require('../utils/error-handler');
 const controller = require('../utils/controller');
 const sgMail = require('@sendgrid/mail');
 const request = require('request');
+const authenticate = require('../utils/auth');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-app.post('/api/conversation/submit', (req, resp) => {
-    if (req.session.user) {  
+app.post('/api/conversation/submit', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
             let blankCheck = /^\s*$/;
 
             if (blankCheck.test(req.body.subject) || blankCheck.test(req.body.message)) {
@@ -62,15 +62,11 @@ app.post('/api/conversation/submit', (req, resp) => {
                 });
             }
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/conversation/reply', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/conversation/reply', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             let blankCheck = /^\s*$/;
 
@@ -118,63 +114,12 @@ app.post('/api/conversation/reply', (req, resp) => {
                 });
             }
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/conversation/delete', async(req, resp) => {
-    if (req.session.user) {
-        controller.conversations.delete(req.body.id, req, (status, statusMessage) => {
-            resp.send({status: status, statusMessage: statusMessage});
-        });
-    }
+app.post('/api/conversation/delete', authenticate, async(req, resp) => {
+    controller.conversations.delete(req.body.id, req, (status, statusMessage) => {
+        resp.send({status: status, statusMessage: statusMessage});
+    });
 });
-
-/* app.post('/api/message/edit', (req, resp) => {
-    if (req.session.user) {
-        db.connect(async(err, client, done) => {
-            if (err) console.log(err);
-
-            (async() => {
-                try {
-                    await client.query('BEGIN');
-                    let authorized = await client.query(`SELECT message_sender FROM messages WHERE message_id = $1`, [req.body.message_id])
-
-                    if (req.session.user.username === authorized.rows[0].message_sender) {
-                        await client.query(`UPDATE messages SET message_body = $1, message_modified_date = current_timestamp WHERE message_id = $2`, [req.body.message, req.body.message_id]);
-                        
-                        let message = await client.query(`SELECT messages.*, user_profiles.avatar_url FROM messages LEFT JOIN users ON users.username = messages.message_sender LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id WHERE message_id = $1`, [req.body.message_id]);
-
-                        await client.query('COMMIT')
-                        .then(() => {
-                            resp.send({status: 'success', message: message.rows[0]});
-                        })
-                    } else {
-                        let error = new Error(`You're not authorized`);
-                        error.type = 'user_defined';
-                        throw error;
-                    }
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                    throw e;
-                } finally {
-                    done();
-                }
-            })()
-            .catch(err => {
-                console.log(err);
-
-                let message = 'An error occurred';
-
-                if (err.type === 'user_defined') {
-                    message = err.message;
-                }
-
-                resp.send({status: 'error', statusMessage: message});
-            });
-        });
-    }   
-}); */
 
 module.exports = app;

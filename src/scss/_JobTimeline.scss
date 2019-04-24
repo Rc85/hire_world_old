@@ -1,0 +1,156 @@
+#job-timeline {
+    width: 100%;
+}
+
+.job-timeline-container {
+    width: 45%;
+}
+
+#job-timeline-line {
+    width: 10px;
+    max-height: 0;
+    opacity: 0;
+    background-color: $theme-lightgrey;
+    position: absolute;
+    transform: translate(150%, 10px);
+    transition: all 0.25s ease-in-out;
+}
+
+#job-timeline-month-detail {
+    margin-top: 15px;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+
+    &.show {
+        opacity: 1;
+    }
+}
+
+#job-timeline-month-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.5s ease-in-out;
+    background-image: url('/images/timeline-line.gif');
+    background-repeat: repeat-y;
+    background-position: 15px 3px;
+    padding-top: 10px;
+
+    &.show {
+        max-height: 100%;
+        opacity: 1;
+        overflow: '';
+
+        #job-timeline-line {
+            max-height: 100%;
+            opacity: 1;
+        }
+    }
+}
+
+.job-timeline-month {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 15px;
+
+    &:last-child {
+        height: 40px;
+    }
+}
+
+.job-timeline-month-name {
+    @extend .job-timeline-month;
+    height: 206px;
+
+    span:first-child {
+        padding-top: 2px;
+    }
+}
+
+.job-timeline-month-job-div-container {
+    min-width: 200px;
+    max-width: 400px;
+    padding-left: 10px;
+    display: flex;
+    align-items: flex-start;
+
+    h5 {
+        display: flex;
+        align-items: center;
+        color: $theme-blue;
+    }
+}
+
+.job-timeline-month-job-div {
+    padding-left: 25px;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+
+    strong {
+        white-space: nowrap;
+        color: $theme-highlight;
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.job-timeline-detail-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.job-timeline-detail {
+    margin: 0 15px 5px 0;
+    width: 45%;
+
+    strong {
+        white-space: nowrap;
+    }
+}
+
+.job-timeline-jobs-list {
+    padding: 10px;
+    border: 1px solid $theme-highlight;
+    background: $theme-lightgrey;
+    flex-grow: 1;
+    margin-bottom: 5px;
+    max-width: 90%;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    color: black;
+}
+
+.job-timeline-job-dot {
+    width: 20px;
+    height: 20px;
+    background-color: $success;
+    border: 1px solid $theme-blue;
+    border-radius: 100%;
+    margin: 0 5px 0 0;
+}
+
+.job-timeline-month-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+    background-color: $theme-highlight;
+    margin-right: 15px;
+}
+
+.job-timeline-tooltip {
+    position: absolute;
+    border: 1px solid black;
+    background-color: $theme-lightgrey;
+    color: black;
+    padding: 20px;
+    white-space: nowrap;
+}

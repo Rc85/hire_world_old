@@ -5,7 +5,7 @@ import SubmitButton from '../../utils/SubmitButton';
 import { UpdateUser, LogoutUser } from '../../../actions/LoginActions';
 import fetch from 'axios';
 import { LogError } from '../../utils/LogError';
-import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
+import { faQuestionCircle } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Tooltip from '../../utils/Tooltip';
 import InputWrapper from '../../utils/InputWrapper';

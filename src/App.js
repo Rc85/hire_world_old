@@ -19,7 +19,9 @@ import { LogError } from './components/utils/LogError';
 import { IsMobile, IsTyping } from './actions/ConfigActions';
 import { ToggleMenu } from './actions/MenuActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
+import { faCircleNotch } from '@fortawesome/pro-solid-svg-icons';
+import GlobalLoading from './components/utils/GlobalLoading';
+import SelectionModal from './components/utils/SelectionModal';
 
 class App extends Component {
 	constructor(props) {
@@ -73,14 +75,14 @@ class App extends Component {
 		this.props.dispatch(GetUserNotificationAndMessageCount());
 
 		window.addEventListener('resize', () => {
-			if (window.innerWidth > 1024) {
+			if (window.innerWidth > 1366) {
 				this.props.dispatch(IsMobile(false));
 			} else {
 				this.props.dispatch(IsMobile(true));
 			}
 		});
 
-		if (window.innerWidth > 1024) {
+		if (window.innerWidth > 1366) {
 			this.props.dispatch(IsMobile(false));
 		} else {
 			this.props.dispatch(IsMobile(true));
@@ -136,7 +138,7 @@ class App extends Component {
 	}
 
 	render() {
-		let confirmation, sectors, alerts, prompt, warning, login;
+		let confirmation, sectors, alerts, prompt, warning, login, loading;
 
 		if (this.props.confirmation.status === true) {
 			confirmation = <Confirmation message={this.props.confirmation.message} note={this.props.confirmation.note} />;
@@ -150,12 +152,6 @@ class App extends Component {
 			sectors = this.props.sectors.map((sector, i) => {
 				return <Route key={i} path={`/sectors/${sector.sector.toLowerCase()}`} render={() => <Pages.Sectors name={sector.sector} />} />;
 			});
-		}
-
-		if (this.props.menu.open === 'main') {
-			this.menu = <BrowseMenu sectors={this.props.sectors} hide={false} />
-		} else {
-			this.menu = <BrowseMenu sectors={this.props.sectors} hide={true} />
 		}
 
 		if (this.props.alerts.length > 0) {
@@ -177,12 +173,24 @@ class App extends Component {
 			warning = <Warning message={this.props.warning.message} />;
 		}
 
+		if (this.props.loading.show) {
+			loading = <GlobalLoading text={this.props.loading.text} />;
+		}
+
+		let selection;
+
+		if (this.props.selection.text) {
+			selection = <SelectionModal selections={this.props.selection.selections} text={this.props.selection.text} />
+		}
+
 		return (
 			<React.Fragment>
 				<div className='col-container' onClick={(e) => this.toggleMenu(e)}>
 					{warning}
 					{prompt}
 					{confirmation}
+					{loading}
+					{selection}
 	
 					<Switch>
 						<Route exact path='/' render={() => <Pages.Dashboard user={this.props.user}><Pages.Main user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
@@ -192,7 +200,13 @@ class App extends Component {
 						<Route exact path='/dashboard/friends' render={() => <Pages.Dashboard user={this.props.user}><Pages.FriendsList user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/blocked-users' render={() => <Pages.Dashboard user={this.props.user}><Pages.BlockedUsers user={this.props.user} /></Pages.Dashboard>} />
 
-						<Route exact path='/dashboard/my-listing' render={() => <Pages.Dashboard user={this.props.user}><Pages.ListSettings user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/post/job' render={() => <Pages.Dashboard user={this.props.user}><Pages.PostJob user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/saved/jobs' render={() => <Pages.Dashboard user={this.props.user}><Pages.SavedPosts user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/posted/jobs' render={() => <Pages.Dashboard user={this.props.user}><Pages.PostedJobs user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/applied/jobs' render={() => <Pages.Dashboard user={this.props.user}><Pages.AppliedJobs user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/posted/job/details/:id' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditPostedJob user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
+
+						<Route exact path='/dashboard/profile' render={() => <Pages.Dashboard user={this.props.user}><Pages.Profile user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
 	
 						<Route exact path='/dashboard/messages' render={() => <Pages.Dashboard user={this.props.user}><Pages.Conversations user={this.props.user} /></Pages.Dashboard>} />
 
@@ -203,20 +217,21 @@ class App extends Component {
 	
 						<Route exact path='/dashboard/settings/account' render={() => <Pages.Dashboard user={this.props.user}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
 						<Route exact path='/dashboard/settings/payment' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
-						<Route exact path='/dashboard/connect' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.NotConnected user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+						<Route exact path='/dashboard/connect' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.Connect user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
 						<Route exact path='/dashboard/settings/connected' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.ConnectedSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
 						
-						<Route exact path='/dashboard/subscription/purchase' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/subscription' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
 	
 						<Route exact path='/user/:username' render={() => <Pages.Dashboard user={this.props.user}><Pages.ViewUser user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/job/:id' render={() => <Pages.Dashboard user={this.props.user}><Pages.ViewPostedJob user={this.props.user} /></Pages.Dashboard>} />
 		
-						<Route exact path='/sectors/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/sectors/:type/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
 	
 						<Route exact path='/payment/success' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Thank You!'}>
-							<React.Fragment><div className='mb-3'>We really appreciate your business and hope you will enjoy our service.</div><div><NavLink to='/dashboard/my-listing'>Start listing now</NavLink></div></React.Fragment>
+							<React.Fragment><div className='mb-3'>We really appreciate your business and hope you will enjoy our service.</div><div><NavLink to='/dashboard/profile'>Start listing now</NavLink></div></React.Fragment>
 						</Pages.Response></Pages.Dashboard>} />
 
-						<Route exact path='/job/accepted' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Job Accepted!'}>
+						<Route exact path='/connected/job/accepted' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Job Accepted!'}>
 							<React.Fragment><div className='mb-3'>The job has been moved to the <NavLink to='/dashboard/jobs/active'>active</NavLink> tab.</div></React.Fragment>
 						</Pages.Response></Pages.Dashboard>} />
 
@@ -234,7 +249,7 @@ class App extends Component {
 
 						<Route exact path='/connected/account/closed' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Account Closed!'}></Pages.Response></Pages.Dashboard>} />
 
-						<Route exact path='/job/confirmed' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Almost There!'}><div>Please click on the Confirm button in the email sent to <b>{this.props.user.user ? this.props.user.user.user_email : ''}</b> to proceed to the next step in starting a job.</div></Pages.Response></Pages.Dashboard>} />
+						<Route exact path='/connected/job/closed' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Job Closed!'}><div>The job is now closed</div></Pages.Response></Pages.Dashboard>} />
 
 						<Route exact path='/resend' render={() => <Pages.Dashboard user={this.props.user}><Pages.ResendConfirmation /></Pages.Dashboard>} />
 
@@ -278,7 +293,9 @@ const mapStateToProps = (state) => {
 		alerts: state.Alert.alerts,
 		prompt: state.Prompt,
 		warning: state.Warning,
-		menu: state.Menu
+		menu: state.Menu,
+		loading: state.Loading,
+		selection: state.Selection
 	}
 }
 

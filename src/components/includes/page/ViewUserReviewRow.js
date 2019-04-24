@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationTriangle, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle, faEdit } from '@fortawesome/pro-solid-svg-icons';
 import UserRating from './UserRating';
 import SubmitReview from './SubmitReview';
 import { Alert } from '../../../actions/AlertActions';
@@ -13,8 +13,10 @@ import { LogError } from '../../utils/LogError';
 import Tooltip from '../../utils/Tooltip';
 import Badge from '../../utils/Badge';
 import Username from './Username';
+import { ShowSelectionModal, ResetSelection, ResetSelectionConfirm } from '../../../actions/SelectModalActions';
+import { ShowLoading, HideLoading } from '../../../actions/LoadingActions';
 
-class UserReviewRow extends Component {
+class ViewUserReviewRow extends Component {
     constructor(props) {
         super(props);
         
@@ -26,20 +28,37 @@ class UserReviewRow extends Component {
         }
     }
 
-    submitReport() {
-        this.setState({status: 'Sending'});
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.selection.data.action) {
+            if (!prevProps.selection.selected && !this.props.selection.selected && this.props.selection.confirm) {
+                this.props.dispatch(Alert('error', 'Please select a reason'));
+                this.props.dispatch(ResetSelectionConfirm());
+            } else if (this.props.selection.confirm !== prevProps.selection.confirm) {
+                if (this.props.selection.data.action === 'report review' && this.props.selection.selected && this.props.selection.confirm && this.props.selection.data.id === this.props.review.review_id) {
+                    this.submitReport(this.props.selection.selected, this.props.selection.specified);
+                    this.props.dispatch(ResetSelection());
+                }
+            }
+        }
+    }
+    
+    submitReport(reason, specified) {
+        this.props.dispatch(ShowLoading('Sending report'));
 
-        fetch.post('/api/report/submit', {id: this.props.review.review_id, type: 'Review', url: this.props.location.pathname, user: this.props.review.reviewer})
+        fetch.post('/api/report/submit', {url: this.props.review.review_id, type: 'Review', reason: reason, specified: specified === '' ? null : specified})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', reviewReported: true});
-            } else if (resp.data.status === 'error') {
-                this.setState({status: ''});
+                this.setState({reviewReported: true});
             }
 
+            this.props.dispatch(HideLoading());
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => LogError(err, '/api/report/submit'));
+        .catch(err => {
+            LogError(err, '/api/report/submit');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
     }
 
     edit(review, star) {
@@ -48,7 +67,6 @@ class UserReviewRow extends Component {
     }
     
     render() {
-        console.log(this.props);
         let buttons, badge, review, status, reviewer, reportButton, reviewUserType;
 
         if (this.state.status === 'Sending') {
@@ -62,14 +80,15 @@ class UserReviewRow extends Component {
             reviewer = false;
         }
 
-        if (this.props.review.token_status) {
-            badge = <Badge text='Job Complete Verified' count={parseInt(this.props.review.review_count)} className='badge-primary user-review-badge' counterClassName='text-black' />
-            reviewUserType = this.props.review.job_client === this.props.review.reviewer ? <span className='mini-badge mini-badge-info ml-2'>I Hired</span> : <span className='mini-badge mini-badge-info ml-2'>I was Hired</span>;
+        if (this.props.review.token_review_id) {
+            badge = <Badge text='Job Complete Verified' count={parseInt(this.props.review.review_count)} className='badge-primary user-review-badge' />
         }
 
         if (this.props.user.user && this.props.review && this.props.review.reviewer !== this.props.user.user.username) {
             if (!this.state.reviewReported) {
-                reportButton = <Tooltip text='Report' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} size='sm' className='text-highlight' onClick={() => this.submitReport()} /></Tooltip>;
+                reportButton = <Tooltip text='Report' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} size='sm' className='view-button text-warning' onClick={() => this.props.dispatch(ShowSelectionModal(`Please select a reason`, ['Inappropriate', 'Spam', 'Defamation', 'Suspicious', 'Irrelevant'], {action: 'report review', id: this.props.review.review_id}))} /></Tooltip>;
+            } else {
+                reportButton = <Tooltip text='Reported' placement='left'><FontAwesomeIcon icon={faExclamationTriangle} size='sm' className='text-dark' /></Tooltip>;
             }
         }
 
@@ -94,8 +113,6 @@ class UserReviewRow extends Component {
                         {badge}
                         
                         <small>Submitted on {moment(this.props.review.review_date).format('MMM DD YYYY')} {this.props.review.review_modified_date ? <span>(Edited)</span> : '' }</small>
-
-                        {reviewUserType}
                     </div>
 
                     {buttons}
@@ -111,11 +128,17 @@ class UserReviewRow extends Component {
                 </div>
 
                 <div className='user-review-footer'>
-                    {reportButton}
+                    <div className='view-buttons'>{reportButton}</div>
                 </div>
             </div>
         )
     }
 }
 
-export default withRouter(connect()(UserReviewRow));
+const mapStateToProps = state => {
+    return {
+        selection: state.Selection
+    }
+}
+
+export default withRouter(connect(mapStateToProps)(ViewUserReviewRow));

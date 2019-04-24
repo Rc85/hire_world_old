@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter, Redirect } from 'react-router-dom';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileAlt, faComments, faCommentAlt } from '@fortawesome/free-solid-svg-icons';
+import { faFileAlt, faComments, faCommentAlt } from '@fortawesome/pro-solid-svg-icons';
 import { LogError } from '../utils/LogError';
 import fetch from 'axios';
 import moment from 'moment';
@@ -29,7 +29,7 @@ class ActiveJobDetails extends Component {
         super(props);
         
         this.state = {
-            status: '',
+            status: 'Fetching',
             sendStatus: '',
             job: {},
             messages: [],
@@ -38,12 +38,18 @@ class ActiveJobDetails extends Component {
         }
     }
     
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.confirm.data) {
+            if (this.props.confirm.data.action === 'close job' && this.props.confirm.option && this.props.confirm.option !== prevProps.confirm.option) {
+                this.requestCloseJob()
+                this.props.dispatch(ResetConfirmation());
+            }
+        }
+    }
+    
     componentDidMount() {
-        this.setState({status: 'Fetching'});
-
         fetch.post('/api/get/job/details', {id: this.props.match.params.id, stage: this.props.match.params.stage})
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', job: resp.data.job, messages: resp.data.messages, milestones: resp.data.milestones, review: resp.data.review});
             } else if (resp.data.status === 'error') {
@@ -105,19 +111,74 @@ class ActiveJobDetails extends Component {
             this.setState({sendStatus: ''});
         });
     }
+
+    requestCloseJob() {
+        this.setState({status: 'Requesting Close'});
+
+        fetch.post('/api/job/request/close', {user: this.props.user.user.username, job_id: this.state.job.job_id})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.changeJobStatus('Requesting Close');
+                this.setState({status: ''});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+        })
+        .catch(err => {
+            LogError(err, '/api/job/request/close');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
+    }
+
+    closeJob(action) {
+        let status;
+
+        if (action) {
+            status = 'Approving Close Request';
+        } else {
+            status = 'Declining Close Request';
+        }
+
+        this.setState({status: status});
+
+        fetch.post('/api/job/close', {user: this.props.user.user.username, job_id: this.state.job.job_id, action: action})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                if (resp.data.closed) {
+                    this.setState({status: 'Job Closed'});
+                } else {
+                    this.setState({status: ''});
+                    this.changeJobStatus('Active');
+                }
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+        })
+        .catch(err => {
+            LogError(err, '/api/job/close');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
+    }
     
     render() {
-        console.log(this.state)
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
             return <Redirect to='/' />;
         }
 
-        if (this.state.status === 'error') {
+        if (this.state.status === 'Fetching') {
+            return <Loading size='7x' color='black' />;
+        } else if (this.state.status === 'error') {
             return <Redirect to='/error/app/500' />;
         } else if (!this.state.job) {
             return <Redirect to='/error/job/404' />;
+        } else if (this.state.status === 'Job Closed') {
+            return <Redirect to='/connected/job/closed' />;
         }
 
         if (this.props.user.user) {
@@ -135,6 +196,8 @@ class ActiveJobDetails extends Component {
                 jobStatus = <span className='mini-badge mini-badge-info ml-1'>Awaiting Funds...</span>;
             } else if (this.state.job.job_status === 'Active') {
                 jobStatus = <span className='mini-badge mini-badge-warning ml-1'>In Progress</span>;
+            } else if (this.state.job.job_status === 'Requesting Close') {
+                jobStatus = <span className='mini-badge mini-badge-danger ml-1'>Requesting Close...</span>;    
             } else if (this.state.job.job_status === 'Complete') {
                 jobStatus = <span className='mini-badge mini-badge-success ml-1'>Complete</span>;
             } else if (this.state.job.job_status === 'Abandoned') {
@@ -147,7 +210,7 @@ class ActiveJobDetails extends Component {
 
             return (
                 <section id='job-details-container' className='main-panel'>
-                    <TitledContainer title='Job Details' shadow bgColor='purple' icon={<FontAwesomeIcon icon={faFileAlt} />} id='job-details' minimizable minimized={this.state.job.job_status && (this.state.job.job_status === 'Complete' || this.state.job.job_status === 'Abandoned')} className='mb-5'>
+                    <TitledContainer title='Job Details' shadow bgColor='purple' icon={<FontAwesomeIcon icon={faFileAlt} />} id='job-details' minimizable className='mb-5'>
                         <div className='job-details-header'>
                             <div className='d-flex-center'>
                                 <h2>{this.state.job.job_title}</h2>
@@ -155,14 +218,26 @@ class ActiveJobDetails extends Component {
                             </div>
                         </div>
 
-                        <div className='job-details-subheader'>
-                            <Username username={this.props.user.user && this.props.user.user.username === this.state.job.job_user ? this.state.job.job_client : this.state.job.job_user} color='alt-highlight' />
+                        <div className='job-details-subheader mb-3'>
+                            <div className='d-flex'>
+                                <div className='mr-2'><Username username={this.props.user.user && this.props.user.user.username === this.state.job.job_user ? this.state.job.job_client : this.state.job.job_user} color='alt-highlight' /></div>
+                                <div className='mr-2'><strong>Created on:</strong> {moment(this.state.job.job_created_date).format('MM-DD-YYYY')}</div>
+                                {moment(this.state.job.job_due_date).isValid() ? <div className='mr-2'><strong>Expected on:</strong> {moment(this.state.job.job_due_date).format('MM-DD-YYYY')}</div> : ''}
+                            </div>
+
+                            {this.props.user.user && this.props.user.user.username === this.state.job.job_user && this.state.job.job_status !== 'Requesting Close' ? <SubmitButton type='button' loading={this.state.status === 'Requesting Close'} value='Close Job' bgColor='danger' onClick={() => this.props.dispatch(ShowConfirmation(`This will send a request to the other party to close the job, proceed?`, false, {action: 'close job'}))} /> : ''}
                         </div>
 
-                        <div className='job-details-dates'>
-                            <div className='mr-2'><strong>Job Created Date:</strong> {moment(this.state.job.job_created_date).format('MM-DD-YYYY')}</div>
-                            <div className='mr-2'><strong>Expected Delivery Date:</strong> {moment(this.state.job.job_due_date).format('MM-DD-YYYY')}</div>
-                        </div>
+                        {this.state.job.job_status === 'Requesting Close' && this.props.user.user && this.props.user.user.username === this.state.job.job_client ? <div className='simple-container no-bg mb-3'>
+                            <div className='simple-container-title'>Confirmation</div>
+
+                            <div className='mb-3'>The other party has requested to close this job. Refer to <NavLink to='/faq'>FAQ</NavLink> for more details on closing a job.</div>
+
+                            <div className='text-right'>
+                                <SubmitButton type='button' loading={this.state.status === 'Approving Close Request'} value={'Approve'} onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to approve this request?`, false, {action: 'close job', id: this.state.job.job_id}))} bgColor='success' />
+                                <SubmitButton type='button' loading={this.state.status === 'Declining Close Request'} value={'Decline'} onClick={() => this.closeJob(false)} bgColor='danger' />
+                            </div>
+                        </div> : ''}
 
                         {this.props.user.user && this.props.user.user.username === this.state.job.job_client ? <div id='milestone-tracker'>
                             {this.state.milestones.map((milestone, i) => {

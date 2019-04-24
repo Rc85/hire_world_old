@@ -1,0 +1,50 @@
+.job-post-row {
+    border: 1px solid black;
+    background-color: $theme-lightgrey;
+    margin-bottom: 30px;
+}
+
+.job-post-main-row {
+    width: 100%;
+    border-bottom: 1px solid black;
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.job-post-toggler {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 10%;
+}
+
+.job-post-title-container {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    width: 90%;
+}
+
+.job-post-title {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    color: black;
+
+    a {
+        color: $theme-highlight;
+    }
+}
+
+.job-post-detail-row {
+    display: flex;
+}
+
+.job-post-detail {
+    padding: 4px 10px;
+    border-right: 1px solid black;
+    font-size: 0.8rem;
+    color: black;
+}

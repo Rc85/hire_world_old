@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationTriangle, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle, faExclamationCircle } from '@fortawesome/pro-solid-svg-icons';
 
 const StaticAlert = props => {
     let icon;

@@ -30,6 +30,13 @@
     justify-content: flex-end;
 }
 
+.user-reviews-container {
+    .simple-container {
+        background-color: $theme-blue;
+        color: white;
+    }
+}
+
 .user-review-container {
     display: flex;
     align-items: flex-start;

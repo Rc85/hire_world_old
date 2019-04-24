@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '../../../node_modules/@fortawesome/react-fontawesome';
-import { faCircleNotch } from '../../../node_modules/@fortawesome/free-solid-svg-icons';
+import { faCircleNotch } from '../../../node_modules/@fortawesome/pro-solid-svg-icons';
 import AdminSectorsList from './includes/AdminSectorsList';
 import { Alert } from '../../actions/AlertActions';
 import fetch from 'axios';

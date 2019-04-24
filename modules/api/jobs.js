@@ -14,13 +14,13 @@ const bcrypt = require('bcrypt');
 const util = require('util');
 const formidable = require('formidable');
 const http = require('http');
+const authenticate = require('../utils/auth');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 stripe.setApiVersion('2019-02-19');
 
-app.post('/api/job/accounts/create', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/accounts/create', authenticate, (req, resp) => {
         let supportedCountries = ['AT', 'AU', 'BE', 'CA', 'CH', 'DE', 'DK', 'ES', 'FI', 'FR', 'GB', 'IE', 'IT', 'LU', 'NL', 'NO', 'NZ', 'PT', 'SE', 'US'];
         
         if ((req.body.firstname && !validate.nameCheck.test(req.body.firstname) || (req.body.lastname && !validate.nameCheck.test(req.body.lastname)))) {
@@ -50,16 +50,16 @@ app.post('/api/job/accounts/create', (req, resp) => {
         } else if (!req.body.tosAgree && !req.body.stripeAgree) {
             resp.send({status: 'error', statusMessage: 'You must agree to all the terms'});
         } else {
-            request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.JOB_ACCOUNT_RECAPTCHA_SECRET, response: req.body.verified}}, (err, res, body) => {
-                if (err) console.log(err);
+            request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.RECAPTCHA_SECRET, response: req.body.verified}}, (err, res, body) => {
+                if (err) error.log(err, req, resp);
 
                 let response = JSON.parse(res.body);
 
-                console.log(req.body);
+                
 
                 if (response.success) {
                     db.connect((err, client, done) => {
-                        if (err) console.log(err);
+                        if (err) error.log(err, req, resp);
 
                         (async() => {
                             try {
@@ -127,13 +127,15 @@ app.post('/api/job/accounts/create', (req, resp) => {
                                                 statement_descriptor: 'Hire World Job Payout',
                                                 schedule: {
                                                     interval: 'manual'
-                                                }
+                                                },
+                                                debit_negative_balances: false
                                             }
                                         }
                                     }
 
                                     if (req.body.individual.address.country === 'US' || req.body.company.address.country === 'US') {
                                         accountObj['requested_capabilities'] = ['card_payments'];
+                                        accountObj.business_profile['mcc'] = req.body.business_profile.mcc;
                                     }
 
                                     if (req.body.individual.phone) {
@@ -143,6 +145,7 @@ app.post('/api/job/accounts/create', (req, resp) => {
                                     await stripe.accounts.create(accountObj)
                                     .then(async account => {
                                         await client.query(`UPDATE users SET connected_id = $1 WHERE username = $2`, [account.id, req.session.user.username]);
+                                        await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [req.session.user.username, `Connected account created`, 'Account']);
                                     })
                                     .catch(err => {
                                         throw err;
@@ -169,13 +172,10 @@ app.post('/api/job/accounts/create', (req, resp) => {
                 }
             });
         }
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/account/update', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/account/update', authenticate, async(req, resp) => {
+        // need user validation
         delete req.body.ukBankType;
         delete req.body.useDefault;
         delete req.body.accountHolder;
@@ -242,40 +242,44 @@ app.post('/api/job/account/update', async(req, resp) => {
         } else if (!user.rows[0].connected_id) {
             resp.send({status: 'error', statusMessage: `Connected account does not exist`});
         }
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/account/payment/add', async(req, resp) => {
-    if (req.session.user) {
-        let user = await db.query(`SELECT connected_id FROM users WHERE username = $1`, [req.session.user.username]);
+app.post('/api/job/account/payment/add', authenticate, async(req, resp) => {
+        let user = await db.query(`SELECT username, connected_id FROM users WHERE username = $1`, [req.body.user]);
 
-        if (user && user.rows[0].connected_id) {
-            console.log(req.body);
-            if (req.body.token) {
-                await stripe.accounts.createExternalAccount(user.rows[0].connected_id, {
-                    external_account: req.body.token.id,
-                    default_for_currency: true
-                })
-                .then(payment => {
-                    console.log(payment);
-                    resp.send({status: 'success', statusMessage: 'Payment account added', payment: payment})
-                })
-                .catch(err => error.log(err, req, resp));
+        if (user && user.rows[0].username === req.session.user.username) {
+            if (user.rows[0].connected_id) {
+                
+                if (req.body.token) {
+                    await stripe.accounts.createExternalAccount(user.rows[0].connected_id, {
+                        external_account: req.body.token.id,
+                        default_for_currency: true
+                    })
+                    .then(async(account) => {
+                        if (account.object === 'bank_account') {
+                            await db.query(`UPDATE users SET has_connected_bank_acct = true WHERE username = $1`, [user.rows[0].username]);
+                        }
+
+                        await db.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [req.session.user.username, account.object === 'bank_account' ? `Added a bank account to Connected account` : `Added a card ending in ${account.last4} to Connected account`, 'Connected']);
+                        await stripe.accounts.listExternalAccounts(user.rows[0].connected_id)
+                        .then(accounts => {
+                            resp.send({status: 'success', statusMessage: 'Payment account added', accounts: accounts.data});
+                        })
+                        .catch(err => error.log(err,req, resp));
+                    })
+                    .catch(err => error.log(err, req, resp));
+                } else {
+                    resp.send({status: 'error', statusMessage: `Error in provided financial information`});
+                }
             } else {
-                resp.send({status: 'error', statusMessage: `Error in provided financial information`});
+                resp.send({status: 'error', statusMessage: `Connected account does not exist`});
             }
         } else {
-            resp.send({status: 'error', statusMessage: `Connected account does not exist`});
+            resp.send({status: 'error', statusMessage: `You're not authorized`});
         }
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/account/payment/default', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/account/payment/default', authenticate, async(req, resp) => {
         let user = await db.query(`SELECT connected_id FROM users WHERE username = $1`, [req.session.user.username]);
 
         if (user && user.rows[0].connected_id) {
@@ -287,13 +291,9 @@ app.post('/api/job/account/payment/default', async(req, resp) => {
         } else {
             resp.send({status: 'error', statusMessage: `Connected account does not exist`});
         }
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/account/payment/delete', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/account/payment/delete', authenticate, async(req, resp) => {
         let user = await db.query(`SELECT connected_id FROM users WHERE username = $1`, [req.session.user.username]);
 
         if (user && user.rows[0].connected_id) {
@@ -309,13 +309,9 @@ app.post('/api/job/account/payment/delete', async(req, resp) => {
         } else {
             resp.send({status: 'error', statusMessage: `Connected account does not exist`});
         }
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/create', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/create', authenticate, async(req, resp) => {
         let dueDate = new Date(req.body.workDueDate);
 
         if (!validate.titleCheck.test(req.body.workTitle)) {
@@ -328,7 +324,11 @@ app.post('/api/job/create', async(req, resp) => {
             resp.send({status: 'error', statusMessage: `Invalid due date`});
         } else {
             let query;
-            let offerPrice = parseFloat(req.body.offerPrice).toFixed(2);
+            let offerPrice = 0;
+            
+            if (req.body.offerPrice) {
+                offerPrice = parseFloat(req.body.offerPrice).toFixed(2);
+            }
 
             if (req.body.job_id) {
                 query = `UPDATE jobs SET job_title = $1, job_offer_price = $2, job_price_currency = $3, job_description = $4, job_due_date = $5, job_modified_date = current_timestamp WHERE job_id = $6 RETURNING *`;
@@ -350,15 +350,11 @@ app.post('/api/job/create', async(req, resp) => {
                 error.log(err, req, resp);
             });
         }
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/submit/message', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/submit/message', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             (async() => {
                 try {
@@ -387,14 +383,11 @@ app.post('/api/job/submit/message', (req, resp) => {
             })()
             .catch(err => error.log(err, req, resp));
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        console.log(req.headers);
+        
         let dir = `./user_files/${req.session.user.user_id}`;
         let documentDir = `${dir}/documents`;
 
@@ -412,7 +405,7 @@ const storage = multer.diskStorage({
         }
     },
     filename: (req, file, cb) => {
-        console.log(req.headers)
+        
         let extension = path.extname(file.originalname);
         let dir = `./user_files/${req.session.user.user_id}/documents`;
 
@@ -430,7 +423,7 @@ const upload = multer({
         fileSize: 5000000
     },
     fileFilter: (req, file, cb) => {
-        console.log(req.headers)
+        
         let extension = path.extname(file.originalname);
         let extCheck = /.(jpg|png)$/;
         let filesize = parseInt(req.headers['content-length']);
@@ -440,7 +433,7 @@ const upload = multer({
             if (filesize < 5000000) {
                 if (!fs.existsSync(dir)) {
                     fs.mkdir(dir, (err) => {
-                        if (err) console.log(err);
+                        if (err) error.log(err, req, resp);
                     });
                 }
 
@@ -454,14 +447,13 @@ const upload = multer({
     }
 });
 
-app.post('/api/job/account/document/upload', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/account/document/upload', authenticate, async(req, resp) => {
         let user = await db.query(`SELECT user_id, connected_id FROM users WHERE username = $1`, [req.session.user.username]);
         let uploadFiles;
 
-        if (req.headers.front & req.headers.back) {
+        if (req.headers.front === 'true' & req.headers.back === 'true') {
             uploadFiles = upload.fields([{name: 'front'}, {name: 'back'}]);
-        } else if (req.headers.front && !req.headers.back) {
+        } else if (req.headers.front === 'true' && req.headers.back === 'false') {
             uploadFiles = upload.single('front');
         }
 
@@ -469,8 +461,6 @@ app.post('/api/job/account/document/upload', async(req, resp) => {
             if (err) {
                 error.log(err, req, resp);
             } else {
-                
-
                 fs.readdir(`user_files/${user.rows[0].user_id}/documents`, async(err, files) => {
                     let front = await stripe.fileUploads.create({
                         purpose: 'identity_document',
@@ -511,17 +501,14 @@ app.post('/api/job/account/document/upload', async(req, resp) => {
                 });
             }
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/agreement/submit', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/agreement/submit', authenticate, (req, resp) => {
         let validMilestonePrices = true;
         let milestonePriceLimitExceeded = false;
         let validMilestoneDates = true;
         let totalMilestonePrice = 0;
+        let validConditions = true;
 
         if (!validate.priceCheck.test(req.body.totalPrice)) {
             resp.send({status: 'error', statusMessage: 'Invalid total price'});
@@ -541,15 +528,29 @@ app.post('/api/job/agreement/submit', (req, resp) => {
                 }
 
                 totalMilestonePrice += parseFloat(milestone.milestone_payment_amount);
+
+                for (let condition of milestone.conditions) {
+                    if (validate.blankCheck.test(condition.condition)) {
+                        validConditions = false;
+                        break;
+                    } else if (!validate.titleCheck.test(condition.condition)) {
+                        validConditions = false;
+                        break;
+                    }
+                }
             }
         }
 
-        if (!validMilestonePrices) {
+        if (req.body.milestones.length === 0) {
+            resp.send({status: 'error', statusMessage: 'At least one milestone is required'});
+        } else if (!validConditions) {
+            resp.send({status: 'error', statusMessage: 'Condition cannot be blank'});
+        } else if (!validMilestonePrices) {
             resp.send({status: 'error', statusMessage: 'Invalid milestone price'});
         } else if (!validMilestoneDates) {
             resp.send({status: 'error', statusMessage: 'Invalid delivery date'});
         } else if (milestonePriceLimitExceeded) {
-            resp.send({status: 'error', statusMessage: 'Milestone payment limit exceeded'});
+            resp.send({status: 'error', statusMessage: 'Max. milestone payment is $500'});
         } else if (parseFloat(req.body.totalPrice) - totalMilestonePrice < 0) {
             resp.send({status: 'error', statusMessage: `Total milestone payment cannot exceed total price`});
         } else if (parseFloat(req.body.totalPrice) - totalMilestonePrice > 0) {
@@ -557,6 +558,8 @@ app.post('/api/job/agreement/submit', (req, resp) => {
         } else {
             db.connect((err, client, done) => {
                 if (err) error.log(err, req);
+
+                
 
                 (async() => {
                     try {
@@ -567,32 +570,51 @@ app.post('/api/job/agreement/submit', (req, resp) => {
                         let clientDate = new Date(req.body.job_modified_date);
                         let jobDate = new Date(authorized.rows[0].job_modified_date);
 
-                        if (clientDate.toString() !== jobDate.toString()) {
+                        if (clientDate.getTime() - jobDate.getTime() !== 0) {
                             let error = new Error(`Job modified, please reload`);
                             let errObj = {error: error, type: 'CUSTOM', stack: error};
                             throw errObj;
                         } else if (authorized.rows[0].job_user === req.session.user.username) {
-                            let job = await client.query(`UPDATE jobs SET job_total_price = $1, job_price_currency = $2, job_status = 'Pending', job_modified_date = current_timestamp WHERE job_id = $3 RETURNING job_client`, [req.body.totalPrice, req.body.currency.toUpperCase(), req.body.jobId]);
+                            let job = await client.query(`UPDATE jobs SET job_total_price = $1, job_price_currency = $2, job_status = 'Pending', job_modified_date = current_timestamp, job_details = $4 WHERE job_id = $3 RETURNING *`, [req.body.totalPrice, req.body.currency.toUpperCase(), req.body.jobId, req.body.details]);
 
-                            let milestones = await client.query(`DELETE FROM job_milestones WHERE milestone_job_id = $1`, [req.body.jobId]);
-                            let milestoneIds = milestones.rows.map((milestone, i) => {
-                                return milestone.milestone_id;
-                            });
+                            await client.query(`DELETE FROM job_milestones WHERE milestone_job_id = $1`, [req.body.jobId]);
 
-                            await client.query(`DELETE FROM milestone_conditions WHERE condition_parent_id = ANY($1)`, [milestoneIds]);
+                            for (let obj of req.body.milestones) {
+                                let milestone = await client.query(`INSERT INTO job_milestones (milestone_job_id, milestone_payment_amount, milestone_due_date) VALUES ($1, $2, $3) RETURNING milestone_id`, [req.body.jobId, obj.milestone_payment_amount, obj.milestone_due_date]);
 
-                            for (let milestone of req.body.milestones) {
-                                let inserted = await client.query(`INSERT INTO job_milestones (milestone_job_id, milestone_payment_amount, milestone_due_date) VALUES ($1, $2, $3) RETURNING milestone_id`, [req.body.jobId, milestone.milestone_payment_amount, milestone.milestone_due_date]);
-
-                                for (let condition of milestone.conditions) {
-                                    await client.query(`INSERT INTO milestone_conditions (condition_parent_id, condition) VALUES ($1, $2)`, [inserted.rows[0].milestone_id, condition.condition]);
+                                for (let condition of obj.conditions) {
+                                    await client.query(`INSERT INTO milestone_conditions (condition_parent_id, condition) VALUES ($1, $2)`, [milestone.rows[0].milestone_id, condition.condition]);
                                 }
                             }
 
-                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [job.rows[0].job_client, req.body.edit ? `Details for a job has been modified [ID: ${req.body.jobId}]`: `You received details a job [ID: ${req.body.jobId}]`, 'Job']);
+                            let milestones = await client.query(`WITH 
+                                milestones AS (
+                                    SELECT jm.*, JSON_AGG(mc.*)
+                                    FROM job_milestones AS jm
+                                    LEFT JOIN milestone_conditions AS mc
+                                    ON jm.milestone_id = mc.condition_parent_id
+                                    GROUP BY jm.milestone_id
+                                ),
+                                files AS (
+                                    SELECT jm.*, JSON_AGG(f.*)
+                                    FROM job_milestones AS jm
+                                    LEFT JOIN milestone_files AS f
+                                    ON jm.milestone_id = f.file_milestone_id
+                                    GROUP BY jm.milestone_id
+                                )
+                            SELECT jms.*, JSON_AGG(ms.*) AS conditions, JSON_AGG(ft.*) AS files
+                            FROM job_milestones AS jms
+                            LEFT JOIN milestones AS ms
+                            ON jms.milestone_id = ms.milestone_id
+                            LEFT JOIN files AS ft
+                            ON jms.milestone_id = ft.milestone_id
+                            WHERE jms.milestone_job_id = $1
+                            ORDER BY jms.milestone_id`, [job.rows[0].job_id]);
+
+                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [job.rows[0].job_client, req.body.edit ? `Details for a job has been modified [ID: ${req.body.jobId}]`: `You received details a job [ID: ${req.body.jobId}]`, 'Update']);
 
                             await client.query('COMMIT')
-                            .then(() => resp.send({status: 'success', statusMessage: req.body.edit ? 'Job details updated' : 'Job details sent'}));
+                            .then(() => resp.send({status: 'success', statusMessage: req.body.edit ? 'Job details updated' : 'Job details sent', job: job.rows[0], milestones: milestones.rows}));
                         } else {
                             let error = new Error(`You're not authorized`);
                             let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
@@ -608,17 +630,13 @@ app.post('/api/job/agreement/submit', (req, resp) => {
                 .catch(err => error.log(err, req, resp));
             });
         }
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/decline', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/decline', authenticate, async(req, resp) => {
         let authorized = await db.query(`SELECT job_user, job_client FROM jobs WHERE job_id = $1`, [req.body.id]);
 
         if (authorized.rows[0].job_user === req.session.user.username || authorized.rows[0].job_client === req.session.user.username) {
-            await db.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3), ($4, $2, $3)`, [authorized.rows[0].job_user, `Job ID ${req.body.id} has been declined`, 'Job', authorized.rows[0].job_client]);
+            await db.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3), ($4, $2, $3)`, [authorized.rows[0].job_user, `Job ID ${req.body.id} has been declined`, 'Update', authorized.rows[0].job_client]);
 
             await db.query(`UPDATE jobs SET job_status = 'Declined' WHERE job_id = $1`, [req.body.id])
             .then(result => {
@@ -632,98 +650,11 @@ app.post('/api/job/decline', async(req, resp) => {
         } else {
             resp.send({status: 'error', statusMessage: `You're not authorized`});
         }
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/accept', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/condition/update', authenticate, async(req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
-
-            console.log(req.body);
-
-            (async() => {
-                try {
-                    await client.query('BEGIN');
-
-                    let authorized = await client.query(`SELECT jobs.job_user, jobs.job_client, jobs.job_title, jobs.job_price_currency, jobs.job_modified_date, job_milestones.*, users.connected_id FROM jobs
-                    LEFT JOIN job_milestones ON job_milestones.milestone_job_id = jobs.job_id
-                    LEFT JOIN users ON users.username = jobs.job_user
-                    WHERE job_id = $1
-                    ORDER BY milestone_id`, [req.body.job.job_id]);
-                    let clientDate = new Date(req.body.job.job_modified_date).getTime()
-                    let modifiedDate = authorized.rows[0].job_modified_date.getTime()
-
-                    if (clientDate !== modifiedDate) {
-                        let error = new Error('Job modified. Please go back and review');
-                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
-                        throw errObj;
-                    }
-
-                    if (authorized.rows[0].job_client === req.body.user && req.body.user === req.session.user.username) {
-                        let user = await client.query(`SELECT users.stripe_id, users.user_email FROM jobs LEFT JOIN users ON users.username = jobs.job_client WHERE job_id = $1`, [req.body.job.job_id]);
-
-                        for (let milestone of authorized.rows) {
-                            if (milestone.milestone_due_date) {
-                                await client.query(`INSERT INTO user_events (event_name, event_date, event_owner, event_type, event_reference_id) VALUES ($1, $2, $3, $4, $5)`, [`A milestone [ID: ${milestone.milestone_id}] is expected to be delivered`, milestone.milestone_due_date, authorized.rows[0].job_user, 'Job', milestone.milestone_job_id]);
-                            }
-                        }
-
-                        let amount = parseFloat(authorized.rows[0].milestone_payment_amount) * 100;
-                        let clientFee = Math.round(amount * 0.05);
-                        let userFee = Math.round(amount * 0.10);
-                        let chargeAmount = amount + clientFee;
-
-                        let chargeObj = {
-                            amount: chargeAmount,
-                            application_fee_amount: userFee + clientFee,
-                            currency: authorized.rows[0].job_price_currency.toLowerCase(),
-                            description: `Funds for job ID: ${req.body.job.job_id} [${authorized.rows[0].job_title}]`,
-                            on_behalf_of: authorized.rows[0].connected_id,
-                            transfer_data: {
-                                destination: authorized.rows[0].connected_id
-                            },
-                            source: req.body.token.id,
-                            receipt_email: user.rows[0].user_email,
-                            expand: ['transfer.destination_payment.balance_transaction']
-                        }
-
-                        if (user.rows[0].stripe_id) {
-                            chargeObj['customer'] = user.rows[0].stripe_id
-                        }
-
-                        // NOTE: expand transfer.destination_payment next time you make a charge
-                        let charge = await stripe.charges.create(chargeObj);
-                        console.log(util.inspect(charge, false, null, true));
-
-                        await client.query(`UPDATE job_milestones SET milestone_status = 'In Progress', charge_id = $2, milestone_fund_due_date = to_timestamp($5) + interval '90 days', milestone_start_date = to_timestamp($3), balance_txn_id = $4, milestone_payment_after_fees = $6 WHERE milestone_id = $1`, [authorized.rows[0].milestone_id, charge.id, charge.created, charge.balance_transaction, charge.created, charge.transfer.destination_payment.balance_transaction.net]);
-                        await client.query(`UPDATE jobs SET job_status = 'Active' WHERE job_id = $1`, [req.body.job.job_id]);
-                        await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`An amount of $${amount / 100} was charged on card ending with ${charge.payment_method_details.card.last4}`, authorized.rows[0].job_client, 'Payment']);
-                        await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, `Job ID ${req.body.job.job_id} has been accepted and funds has been transferred to your connected account`, 'Job']);
-
-                        await client.query('COMMIT')
-                        .then(() => resp.send({status: 'success'}));
-                    }
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                    throw e;
-                } finally {
-                    done();
-                }
-            })()
-            .catch(err => {
-                error.log(err, req, resp);
-            });
-        });
-    }
-});
-
-app.post('/api/job/condition/update', async(req, resp) => {
-    if (req.session.user) {
-        db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
             (async() => {
                 try {
                     await client.query('BEGIN');
@@ -739,13 +670,13 @@ app.post('/api/job/condition/update', async(req, resp) => {
                         }
 
                         let milestone = await client.query(`SELECT * FROM job_milestones WHERE milestone_id = $1`, [req.body.milestone_id]);
-                        console.log(req.body);
+                        
 
                         if (milestone.rows[0].milestone_status !== 'Complete' && milestone.rows[0].milestone_status !== 'Abandoned') {
                             let milestoneObj;
 
                             if (req.body.action === 'uncheck') {
-                                await client.query(`UPDATE jobs SET job_status = 'Active' WHERE job_id = $1`, [req.body.job_id]);
+                                await client.query(`UPDATE jobs SET job_status = 'Active', job_modified_date = current_timestamp WHERE job_id = $1`, [req.body.job_id]);
                                 milestoneObj = await client.query(`UPDATE job_milestones SET milestone_status = 'In Progress' WHERE milestone_id = $1 RETURNING *`, [req.body.milestone_id]);
                             } else if (req.body.action === 'check') {
                                 milestoneObj = await client.query(`SELECT * FROM job_milestones WHERE milestone_id = $1`, [req.body.milestone_id]);
@@ -776,13 +707,9 @@ app.post('/api/job/condition/update', async(req, resp) => {
             })()
             .catch(err => error.log(err, req, resp));
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/account/close', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/account/close', authenticate, async(req, resp) => {
         if (!req.body.password) {
             resp.send({status: 'error', statusMessage: 'Password required'});
         } else {
@@ -802,7 +729,7 @@ app.post('/api/job/account/close', async(req, resp) => {
 
                             if (account && account.deleted) {
                                 await db.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Connected account deleted', authorized.rows[0].username, 'Account']);
-                                await db.query(`UPDATE jobs SET job_status = 'Declined' WHERE job_user = $1 AND job_status IN ('Open', 'New', 'Pending', 'Confirmed')`)
+                                await db.query(`UPDATE jobs SET job_status = 'Declined' WHERE job_user = $1 AND job_status IN ('Open', 'New', 'Pending', 'Confirmed')`, [req.session.user.username]);
                                 await db.query(`UPDATE users SET connected_id = null, connected_acct_status = 'Reviewing' WHERE username = $1`, [authorized.rows[0].username])
                                 .then(result => {
                                     if (result && result.rowCount === 1) {
@@ -820,15 +747,11 @@ app.post('/api/job/account/close', async(req, resp) => {
                 resp.send({status: 'error', statusMessage: `You're not authorized`});
             }
         }
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/payment/request', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/payment/request', authenticate, async(req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             (async() => {
                 try {
@@ -839,7 +762,7 @@ app.post('/api/job/payment/request', async(req, resp) => {
                     if (authorized.rows[0].job_user === req.session.user.username) {
                         await client.query(`UPDATE jobs SET job_status = 'Requesting Payment' WHERE job_id = $1`, [authorized.rows[0].job_id]);
                         let milestone = await client.query(`UPDATE job_milestones SET milestone_status = 'Requesting Payment', requested_payment_amount = $2 WHERE milestone_id = $1 RETURNING *`, [req.body.milestone_id, req.body.amount]);
-                        await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `You received a payment request for a milestone in Job ID: ${authorized.rows[0].job_id}`, 'Job']);
+                        await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `You received a payment request for a milestone in Job ID: ${authorized.rows[0].job_id}`, 'Update']);
 
                         let conditions = await client.query(`SELECT * FROM milestone_conditions WHERE condition_parent_id = $1`, [req.body.milestone_id]);
                         let balance = await stripe.balance.retrieveTransaction(authorized.rows[0].balance_txn_id, {expand: ['source.transfer.destination_payment.balance_transaction']});
@@ -865,29 +788,43 @@ app.post('/api/job/payment/request', async(req, resp) => {
             })()
             .catch(err => error.log(err, req, resp));
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/pay', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/pay', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
-            console.log(req.body);
-
-        
             (async() => {
                 try {
                     await client.query('BEGIN');
 
-                    let authorized = await client.query(`SELECT jobs.job_id, jobs.job_user, jobs.job_client, jobs.job_price_currency, job_milestones.balance_txn_id, users.connected_id, job_milestones.charge_id, job_milestones.requested_payment_amount, job_milestones.milestone_payment_after_fees FROM job_milestones
+                    let authorized = await client.query(`SELECT 
+                        jobs.job_id, jobs.job_user, 
+                        jobs.job_client, 
+                        jobs.job_price_currency, 
+                        jobs.job_modified_date,
+                        job_milestones.balance_txn_id, 
+                        job_milestones.charge_id, 
+                        job_milestones.requested_payment_amount, 
+                        job_milestones.milestone_payment_after_fees, 
+                        job_milestones.user_app_fee, 
+                        job_milestones.client_app_fee, 
+                        job_milestones.charge_id,
+                        job_milestones.milestone_payment_amount,
+                        users.connected_id
+                    FROM job_milestones
                     LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
                     LEFT JOIN users ON users.username = jobs.job_user
                     WHERE milestone_id = $1`, [req.body.milestone_id]);
 
-                    if (authorized.rows[0].job_client === req.session.user.username) {
+                    let clientDate = new Date(req.body.job_modified_date).getTime();
+                    let serverDate = new Date(authorized.rows[0].job_modified_date).getTime();
+
+                    if (clientDate - serverDate !== 0) {
+                        let error = new Error(`Job has been modified`);
+                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                        throw errObj;
+                    } else if (authorized.rows[0].job_client === req.session.user.username) {
                         let conditions = await client.query(`SELECT * FROM milestone_conditions WHERE condition_parent_id = $1`, [req.body.milestone_id]);
                         let conditionsComplete = true;
 
@@ -899,26 +836,48 @@ app.post('/api/job/pay', (req, resp) => {
                         }
 
                         if (conditionsComplete) {
-                            let amount;
-                            
-                            if (authorized.rows[0].requested_payment_amount) {
-                                amount = Math.round(parseFloat(authorized.rows[0].requested_payment_amount) * 100);
-                            } else {
-                                amount = authorized.rows[0].milestone_payment_after_fees;
-                            }
-
                             let balance = await stripe.balance.retrieveTransaction(authorized.rows[0].balance_txn_id, {expand: ['source.transfer.destination_payment.balance_transaction']});
+                            let amount = balance.source.transfer.destination_payment.balance_transaction.net; // Amount after all fees
+                            let totalAmount = Math.round(parseFloat(authorized.rows[0].milestone_payment_amount) * 100); // Amount before all fees
+                            let requestedAmount = Math.round(parseFloat(authorized.rows[0].requested_payment_amount) * 100);
+                            let payment = requestedAmount;
+                            let userFee;
 
+                            if (requestedAmount !== amount) {
+                                // Although 15% was taken from the total charge, if a partial payment is to be made, we take 15% of the partial payment
+                                userFee = Math.round(requestedAmount * 0.15);
+                                payment = requestedAmount - userFee;
+                                await client.query(`UPDATE job_milestones SET user_app_fee = $1 WHERE milestone_id = $2`, [userFee, req.body.milestone_id]);
+
+                                let refundAppFee = Math.round(parseFloat(authorized.rows[0].user_app_fee) * 100) - userFee;
+
+                                await stripe.applicationFees.createRefund(balance.source.application_fee, {amount: refundAppFee})
+                                .catch(err => error.log(err, req, resp));
+                            }
+                             
                             let payout = await stripe.payouts.create({
-                                amount: amount,
+                                amount: payment,
                                 currency: balance.source.transfer.destination_payment.balance_transaction.currency
                             }, {stripe_account: authorized.rows[0].connected_id})
-                            .catch(err => console.log(err));
-                            console.log(payout);
+                            .catch(err => error.log(err, req, resp));
+                            
 
-                            let milestone = await client.query(`UPDATE job_milestones SET milestone_status = 'Complete', payout_id = $2, milestone_completed_date = current_timestamp WHERE milestone_id = $1 RETURNING *`, [req.body.milestone_id, payout.id]);
-                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, `A milestone in Job ID: ${authorized.rows[0].job_id} has been completed`, 'Job']);
-                            await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, `A ${amount !== balance.source.transfer.destination_payment.balance_transaction.net ? 'partial' : ''} payment amount of $${amount / 100} has been paid to you for completing a milestone in Job ID: ${authorized.rows[0].job_id}`, 'Payment'])
+                            //let remainingBalance = (amount - payment) - (totalAmount - requestedAmount);
+
+                            if (requestedAmount !== amount) {
+                                // Refund the remainder to the customer
+                                // Problem here is that we cannot cover the negative balance in connected account using connected reserves
+                                // And by refunding the application fee, an amount lesser than the userFee comes out of our platform into the connected account
+                                await stripe.refunds.create({
+                                    charge: authorized.rows[0].charge_id,
+                                    amount: totalAmount - requestedAmount,
+                                    reason: 'requested_by_customer',
+                                    reverse_transfer: true
+                                })
+                                .catch(err => error.log(err, req, resp));
+                            }
+
+                            let milestone = await client.query(`UPDATE job_milestones SET milestone_status = 'Complete', payout_id = $2, milestone_completed_date = current_timestamp, payout_amount = $3, payout_currency = $4, payout_txn_id = $5, payout_date = to_timestamp($6), payout_status = $7, payout_destination = $8, payout_arrival_date = to_timestamp($9) WHERE milestone_id = $1 RETURNING *`, [req.body.milestone_id, payout.id, (payout.amount / 100).toFixed(2), payout.currency, payout.balance_transaction, payout.created, payout.status, payout.destination, payout.arrival_date]);
 
                             let milestones = await client.query(`SELECT milestone_status FROM job_milestones WHERE milestone_job_id = $1`, [authorized.rows[0].job_id]);
                             let jobComplete = true;
@@ -936,13 +895,19 @@ app.post('/api/job/pay', (req, resp) => {
                                 let encrypt = cryptoJs.AES.encrypt(authorized.rows[0].job_client, process.env.REVIEW_TOKEN_SECRET);
                                 let reviewToken = encrypt.toString();
 
-                                review = await client.query(`INSERT INTO user_reviews (reviewer, reviewing, review_job_id) VALUES ($1, $2, $3) ON CONFLICT (reviewer, reviewing) DO UPDATE SET review_count = user_reviews.review_count + 1 RETURNING *`, [authorized.rows[0].job_client, authorized.rows[0].job_user, authorized.rows[0].job_id]);
+                                review = await client.query(`INSERT INTO user_reviews (reviewer, reviewing, review_job_id) VALUES ($1, $2, $3) ON CONFLICT (reviewer, reviewing) DO NOTHING RETURNING *`, [authorized.rows[0].job_client, authorized.rows[0].job_user, authorized.rows[0].job_id]);
                                 token = await client.query(`INSERT INTO review_tokens (token, token_review_id, token_job_id) VALUES ($1, $2, $3) RETURNING *`, [reviewToken, review.rows[0].review_id, authorized.rows[0].job_id]);
 
                                 review.rows[0] = {...review.rows[0], ...token.rows[0]};
                             } else {
                                 await client.query(`UPDATE jobs SET job_status = 'Active' WHERE job_id = $1`, [authorized.rows[0].job_id]);
                             }
+
+                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, `A ${amount !== balance.source.transfer.destination_payment.balance_transaction.net ? 'partial' : ''} payment amount of $${amount / 100} has been paid to you for completing a milestone in Job ID: ${authorized.rows[0].job_id}`, 'Update']);
+                            await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, jobComplete ? `You completed a job` : `You completed a milestone`, 'Job']);
+                            await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, jobComplete ? `You completed a job` : `You completed a milestone`, 'Job']);
+
+                            // email user that a payout was made
 
                             let conditions = await client.query(`SELECT * FROM milestone_conditions WHERE condition_parent_id = $1`, [req.body.milestone_id]);
                             let files = await client.query(`SELECT * FROM milestone_files WHERE file_milestone_id = $1 ORDER BY filename`, [req.body.milestone_id]);
@@ -952,7 +917,7 @@ app.post('/api/job/pay', (req, resp) => {
                             milestone.rows[0]['conditions'] = conditions.rows;
 
                             await client.query('COMMIT')
-                            .then(() => resp.send({status: 'success', statusMessage: 'Payment sent', jobComplete: jobComplete, milestone: milestone.rows[0], review: review ? review.rows[0] : null}));
+                            .then(() => resp.send({status: 'success', statusMessage: 'Payout successful', jobComplete: jobComplete, milestone: milestone.rows[0], review: review ? review.rows[0] : null}));
                         } else {
                             let error = new Error(`The milestone has been modified`);
                             let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
@@ -972,78 +937,159 @@ app.post('/api/job/pay', (req, resp) => {
             })()
             .catch(err => error.log(err, req, resp));
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/milestone/start', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/milestone/start', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
-            console.log(req.body);
+            if (err) error.log(err, req, resp);
 
             (async() => {
                 try {
                     await client.query('BEGIN');
-                    let authorized = await client.query(`SELECT jobs.job_client, jobs.job_title, jobs.job_id, job_milestones.milestone_payment_amount, job_milestones.milestone_status, jobs.job_price_currency, users.user_email, users.stripe_id FROM job_milestones
-                    LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
+                    let authorized = await client.query(`SELECT
+                        jobs.job_client, 
+                        jobs.job_title, 
+                        jobs.job_id, 
+                        jobs.job_modified_date,
+                        job_milestones.milestone_id,
+                        job_milestones.milestone_payment_amount, 
+                        job_milestones.milestone_status,
+                        jobs.job_price_currency, 
+                        users.user_email, 
+                        users.stripe_id,
+                        users.connected_id
+                    FROM jobs
+                    LEFT JOIN job_milestones ON jobs.job_id = job_milestones.milestone_job_id
                     LEFT JOIN users ON users.username = jobs.job_client
-                    WHERE milestone_id = $1`, [req.body.id]);
-                    console.log(authorized.rows[0]);
+                    WHERE job_id = $1 AND milestone_status = 'Pending'
+                    ORDER BY milestone_id`, [req.body.job_id]);
 
-                    if (authorized.rows[0].milestone_status === 'In Progress') {
-                        let error = new Error(`Milestone already started`);
-                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
-                        throw errObj;
-                    } else if (authorized.rows[0].milestone_status !== 'Pending') {
-                        let error = new Error(`Cannot start milestone`);
-                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
-                        throw errObj;
-                    } else if (authorized.rows[0].job_client === req.body.user && req.body.user === req.session.user.username) {
-                        let user = await client.query(`SELECT jobs.job_user, users.connected_id FROM job_milestones
-                        LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
-                        LEFT JOIN users ON jobs.job_user = users.username
-                        WHERE milestone_id = $1`, [req.body.id]);
+                    if (authorized.rows[0].job_client === req.body.user && req.body.user === req.session.user.username) {
+                        let clientDate;
+                        let serverDate;
 
-                        let amount = parseFloat(authorized.rows[0].milestone_payment_amount) * 100;
-                        let clientFee = Math.round(amount * 0.05);
-                        let userFee = Math.round(amount * 0.10);
-                        let chargeAmount = amount + clientFee;
+                        if (req.body.job_modified_date) {
+                            clientDate = new Date(req.body.job_modified_date).getTime();
+                            serverDate = new Date(authorized.rows[0].job_modified_date).getTime();
 
-                        let chargeObj = {
-                            amount: chargeAmount,
-                            application_fee_amount: userFee + clientFee,
-                            currency: authorized.rows[0].job_price_currency.toLowerCase(),
-                            description: `Funds for job ID: ${req.body.job.job_id} [${authorized.rows[0].job_title}]`,
-                            transfer_data: {
-                                destination: authorized.rows[0].connected_id
-                            },
-                            source: req.body.token.id,
-                            receipt_email: user.rows[0].user_email,
-                            expand: ['transfer.destination_payment.balance_transaction']
+                            if (clientDate - serverDate !== 0) {
+                                let error = new Error('Job modified, please review');
+                                let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                                throw errObj;
+                            }
                         }
 
-                        if (user.rows[0].stripe_id) {
-                            chargeObj['customer'] = user.rows[0].stripe_id
+                        let milestoneIds = [];
+
+                        for (let milestone of authorized.rows) {
+                            if (milestone.milestone_status === 'Pending') {
+                                milestoneIds.push(milestone.milestone_id);
+                            }
                         }
-
-                        let charge = await stripe.charges.create(chargeObj)
-                        .catch(err => console.log(err));
-
-                        let milestone = await client.query(`UPDATE job_milestones SET balance_txn_id = $1, charge_id = $2, milestone_status = 'In Progress', milestone_fund_due_date = to_timestamp($5) + interval '90 days', milestone_start_date = to_timestamp($3), milestone_payment_after_fees = $6 WHERE milestone_id = $4 RETURNING *`, [charge.balance_transaction, charge.id, charge.created, req.body.id, charge.created, charge.transfer.destination_payment.balance_transaction.net]);
-                        await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [user.rows[0].job_user, `${authorized.rows[0].job_client} has started a milestone in Job ID: ${authorized.rows[0].job_id}`, 'Job']);
-                        await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`An amount of $${amount} was charged on card ending with ${charge.payment_method_details.card.last4}`, authorized.rows[0].job_client, 'Payment']);
-
-                        let conditions = await client.query(`SELECT * FROM milestone_conditions WHERE condition_parent_id = $1`, [req.body.id]);
-                        let files = await client.query(`SELECT * FROM milestone_files WHERE file_milestone_id = $1 ORDER BY filename`, [req.body.milestone_id]);
                         
-                        milestone.rows[0]['files'] = files.rows;
-                        milestone.rows[0]['balance'] = charge.transfer.destination_payment.balance_transaction;
-                        milestone.rows[0]['conditions'] = conditions.rows;
+                        if (milestoneIds[0].milestone_id !== req.body.milestone_id) {
+                            let error = new Error(`Cannot start milestone`);
+                            let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                            throw errObj;
+                        } else {
+                            let milestones = await client.query(`SELECT * FROM job_milestones WHERE milestone_job_id = $1 AND milestone_status = 'Pending' ORDER BY milestone_id`, [req.body.job_id]);
 
-                        await client.query('COMMIT')
-                        .then(() => resp.send({status: 'success', statusMessage: 'Milestone started', milestone: milestone.rows[0]}));
+                            // Check if the milestone ID sent from client matches the next milestone in 'Pending' status
+                            // This prevents clients from skipping milestones
+                            if (req.body.id !== milestones.rows[0].milestone_id) {
+                                let error = new Error(`Milestone must start in sequence`);
+                                let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                                throw errObj;
+                            } else {
+                                let user = await client.query(`SELECT jobs.job_user, users.connected_id FROM job_milestones
+                                LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
+                                LEFT JOIN users ON jobs.job_user = users.username
+                                WHERE milestone_id = $1`, [req.body.id]);
+
+                                let amount = parseFloat(milestones.rows[0].milestone_payment_amount) * 100;
+                                let clientFee = Math.round(amount * 0.05);
+                                let userFee = Math.round(amount * 0.15);
+
+                                let chargeAmount = amount + clientFee;
+
+                                
+                                
+                                let chargeObj = {
+                                    amount: chargeAmount,
+                                    application_fee_amount: userFee + clientFee,
+                                    currency: authorized.rows[0].job_price_currency.toLowerCase(),
+                                    description: `Funds for job ID: ${req.body.job_id} [${authorized.rows[0].job_title}]`,
+                                    on_behalf_of: user.rows[0].connected_id,
+                                    transfer_data: {
+                                        destination: user.rows[0].connected_id
+                                    },
+                                    source: req.body.token.id,
+                                    receipt_email: authorized.rows[0].user_email,
+                                    expand: ['transfer.destination_payment.balance_transaction']
+                                }
+
+                                if (!req.body.token.object) {
+                                    chargeObj['customer'] = authorized.rows[0].stripe_id
+                                }
+
+                                let charge = await stripe.charges.create(chargeObj)
+                                .catch(err => error.log(err, req, resp));
+                                
+
+                                let milestone = await client.query(`UPDATE job_milestones SET milestone_status = 'In Progress', charge_id = $2, milestone_fund_due_date = to_timestamp($3) + interval '90 days', milestone_start_date = to_timestamp($3), balance_txn_id = $4, milestone_payment_after_fees = $5, client_app_fee = $6, user_app_fee = $7, payout_status = $8, app_fee_id = $9 WHERE milestone_id = $1 RETURNING *`, [
+                                    req.body.id, 
+                                    charge.id, 
+                                    charge.created, 
+                                    charge.balance_transaction, 
+                                    (charge.transfer.destination_payment.balance_transaction.net / 100).toFixed(2), 
+                                    (clientFee / 100).toFixed(2), 
+                                    (userFee / 100).toFixed(2),
+                                    charge.transfer.destination_payment.balance_transaction.status,
+                                    charge.application_fee
+                                ]);
+
+                                // Set job status to 'Active' regardless whether it's accepted job or starting another milestone
+                                await client.query(`UPDATE jobs SET job_status = 'Active' WHERE job_id = $1`, [req.body.job_id]);
+
+                                // Create notification
+                                await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `An amount of $${amount / 100} was charged on card ending with ${charge.payment_method_details.card.last4}`, 'Update']);
+
+                                // Add to recent activities
+                                await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, req.body.accept ? `You accepted a job` : `You started a milestone`, 'Job']);
+
+                                // If an expected delivery date is set, add to upcoming events
+                                if (req.body.milestone_due_date) {
+                                    await client.query(`INSERT INTO user_events (event_name, event_date, event_owner, event_type, event_reference_id) VALUES ($1, $2, $3, $4, $5)`, [`A milestone [ID: ${milestone.milestone_id}] is expected to be delivered`, milestone.milestone_due_date, authorized.rows[0].job_user, 'Job', milestone.milestone_job_id]);
+                                }
+
+                                // email user that a milestone has started
+                                /* let message = {
+                                    to: req.body.email,
+                                    from: 'admin@hireworld.ca',
+                                    subject: 'Welcome to Hire World',
+                                    templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
+                                    dynamicTemplateData: {
+                                        url: process.env.SITE_URL,
+                                        regkey: registrationKey
+                                    },
+                                    trackingSettings: {
+                                        clickTracking: {
+                                            enable: false
+                                        }
+                                    }
+                                } */
+
+                                let conditions = await client.query(`SELECT * FROM milestone_conditions WHERE condition_parent_id = $1`, [req.body.id]);
+                                let files = await client.query(`SELECT * FROM milestone_files WHERE file_milestone_id = $1 ORDER BY filename`, [req.body.milestone_id]);
+                                
+                                milestone.rows[0]['files'] = files.rows;
+                                milestone.rows[0]['balance'] = charge.transfer.destination_payment.balance_transaction;
+                                milestone.rows[0]['conditions'] = conditions.rows;
+
+                                await client.query('COMMIT')
+                                .then(() => resp.send({status: 'success', statusMessage: 'Milestone started', milestone: milestone.rows[0]}));
+                            }
+                        }
                     } else {
                         let error = new Error(`You're not authorized`);
                         let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
@@ -1057,10 +1103,7 @@ app.post('/api/job/milestone/start', (req, resp) => {
                 }
             })()
             .catch(err => error.log(err, req, resp));
-        })
-    } else {
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    }
+        });
 });
 
 const jobFileStorage = multer.diskStorage({
@@ -1099,7 +1142,7 @@ const jobFileUpload = multer({
 });
 
 app.post('/api/job/check-file-exists', (req, resp) => {
-    console.log(req.headers);
+    
     if (parseInt(req.headers.filesize) > 250000000) {
         resp.send({status: 'error', statusMessage: 'File size limit exceeded'});
     } else if (!/(zip|rar|tar.gz|gz|tgz)$/.test(req.headers.filetype)) {
@@ -1115,8 +1158,7 @@ app.post('/api/job/check-file-exists', (req, resp) => {
     }
 });
 
-app.post('/api/job/upload', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/job/upload', authenticate, async(req, resp) => {
         let uploadFile = jobFileUpload.single('file');
         
         uploadFile(req, resp, async(err) => {
@@ -1160,7 +1202,7 @@ app.post('/api/job/upload', async(req, resp) => {
                                 if (err) {
                                     error.log(err, req, resp);
                                 } else {
-                                    await db.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `${authorized.rows[0].job_user} uploaded a file named ${req.body.filename} in Job ID: ${req.body.job_id}`, 'Job']);
+                                    await db.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `${authorized.rows[0].job_user} uploaded a file named ${req.body.filename} in Job ID: ${req.body.job_id}`, 'Updated']);
 
                                     resp.send({status: 'success'});
                                 }
@@ -1173,32 +1215,100 @@ app.post('/api/job/upload', async(req, resp) => {
                 }
             }
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/job/download', async(req, resp) => {
-    if (req.session.user) {
-        let authorized = await db.query(`SELECT * FROM job_milestones LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id WHERE milestone_id = $1`, [req.body.milestone_id]);
-        let downloadFile = await db.query(`SELECT * FROM milestone_files WHERE filename = $1 AND file_milestone_id = $2`, [req.body.file, req.body.milestone_id]);
+app.get('/files/:user/:milestone_id/:hash/:filename', authenticate, async(req, resp) => {
+        
+        let file = await db.query(`SELECT * FROM milestone_files
+        LEFT JOIN job_milestones
+        ON job_milestones.milestone_id = milestone_files.file_milestone_id
+        WHERE file_milestone_id = $1`, [req.params.milestone_id]);
 
-        let decrypt = cryptoJs.AES.decrypt(downloadFile.rows[0].file_hash, process.env.FILE_HASH_SECRET);
-        let secret = decrypt.toString(cryptoJs.enc.Utf8);
+        if (req.session.user.username === req.params.user && req.params.user === file.rows[0].file_owner) {
+            resp.sendFile(path.resolve(`./job_files/${file.rows[0].milestone_job_id}/${req.params.milestone_id}/${req.params.filename}`));
+        } else {
+            resp.redirect('/error/file/401');
+        }
 
-        if (authorized.rows[0].job_client === req.body.user && req.body.user === req.session.user.username && secret === req.body.user) {
-            await db.query(`UPDATE milestone_files SET file_download_counter = file_download_counter + 1 WHERE filename = $1 AND file_milestone_id = $2`, [req.body.file, req.body.milestone_id]);
+});
 
-            let filePath = path.resolve(`./job_files/${authorized.rows[0].job_id}/${authorized.rows[0].milestone_id}/${downloadFile.rows[0].filename}`);
-            resp.download(filePath, downloadFile.rows[0].filename, (err) => {
-                if (err) console.log(err);
-            });
+app.post('/api/job/request/close', authenticate, async(req, resp) => {
+        let authorized = await db.query(`SELECT job_user FROM jobs WHERE job_id = $1 AND job_status IN ('Requesting Payment', 'Active')`, [req.body.job_id]);
+
+        if (authorized.rows[0].job_user === req.body.user && req.body.user === req.session.user.username) {
+            await db.query(`UPDATE jobs SET job_status = 'Requesting Close' WHERE job_id = $1`, [req.body.job_id])
+            .then(result => {
+                if (result.rowCount === 1) {
+                    resp.send({status: 'success'});
+                } else {
+                    resp.send({status: 'error', statusMessage: 'Request failed'});
+                }
+            })
+            .catch(err => error.log(err, req, resp));
         } else {
             resp.send({status: 'error', statusMessage: `You're not authorized`});
         }
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
+});
+
+app.post('/api/job/close', authenticate, async(req, resp) => {
+        db.connect((err, client, done) => {
+            if (err) error.log(err, req, resp);
+
+            (async() => {
+                try{
+                    await client.query('BEGIN');
+
+                    let authorized = await client.query(`SELECT job_client FROM jobs WHERE job_id = $1 AND job_status = 'Requesting Close'`, [req.body.job_id]);
+
+                    if (authorized.rows[0].job_client === req.body.user && req.body.user === req.session.user.username) {
+                        if (req.body.action) {
+                            await client.query(`UPDATE jobs SET job_status = 'Closed' WHERE job_id = $1`, [req.body.job_id]);
+                            let milestone = await client.query(`SELECT * FROM job_milestones WHERE milestone_job_id = $1 AND milestone_status = 'In Progress'`, [req.body.job_id])
+                            let milestones = await client.query(`UPDATE job_milestones SET milestone_status = 'Incomplete' WHERE milestone_job_id = $1 RETURNING milestone_id`, [req.body.job_id]);
+                            let milestoneIds = [];
+
+                            
+
+                            for (let milestone of milestones.rows) {
+                                milestoneIds.push(milestone.milestone_id);
+                            }
+
+                            await client.query(`UPDATE milestone_conditions SET condition_status = 'Incomplete' WHERE condition_parent_id = ANY($1)`, [milestoneIds]);
+
+                            let userFee = Math.round(milestone.rows[0].user_app_fee * 100);
+                            let refundAmount = Math.round(parseFloat(milestone.rows[0].milestone_payment_after_fees) * 100) + userFee;
+
+                            await stripe.applicationFees.createRefund(milestone.rows[0].app_fee_id, {amount: userFee})
+                            .catch(err => error.log(err, req, resp));
+
+
+                            await stripe.refunds.create({
+                                charge: milestone.rows[0].charge_id,
+                                amount: refundAmount,
+                                reason: 'requested_by_customer',
+                                reverse_transfer: true
+                            })
+                            .catch(err => error.log(err, req, resp));
+                        } else {
+                            await client.query(`UPDATE jobs SET job_status = 'Active' WHERE job_id = $1`, [req.body.job_id]);
+                        }
+
+                        await client.query(`COMMIT`)
+                        .then(() => resp.send({status: 'success', closed: req.body.action}));
+                    } else {
+                        let error = new Error(`You're not authorized`);
+                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                        throw errObj;
+                    }
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => error.log(err, req, resp));
+        });
 });
 
 module.exports = app;

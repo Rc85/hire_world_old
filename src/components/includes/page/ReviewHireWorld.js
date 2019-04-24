@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Rating from '../../utils/Rating';
 import Loading from '../../utils/Loading';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle } from '@fortawesome/free-regular-svg-icons';
+import { faCheckCircle } from '@fortawesome/pro-regular-svg-icons';
 import fetch from 'axios';
 import { Alert } from '../../../actions/AlertActions';
 import { LogError } from '../../utils/LogError';

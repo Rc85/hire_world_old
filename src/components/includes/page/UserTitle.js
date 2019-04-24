@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import fetch from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faEdit } from '@fortawesome/pro-solid-svg-icons';
 import PropTypes from 'prop-types';
 import { UpdateUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
@@ -36,7 +36,7 @@ class UserTitle extends Component {
                             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                         }
                     })
-                    .catch(err => LogError(err, '/api/user/search/titles'));
+                    .catch(err => LogError(err, '/api/user/search/titles')); 
                 }, 250)
             });
         }

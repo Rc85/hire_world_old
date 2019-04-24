@@ -29,7 +29,7 @@ class SubmitReview extends Component {
 
         if (this.props.review && this.props.review.token) {
             authMessage = <div>
-                <span>This review is for {this.props.user.user && this.props.user.user.username === this.props.review.reviewer ? <Username username={this.props.review.reviewing} color='highlight' /> : <NavLink to={`/user/${this.props.review.reviewer}`}>{this.props.review.reviewer}</NavLink>} and will hold a <span className='mini-badge mini-badge-success'>Job Complete Verified</span> tag that indicates a job was successfully completed. See <NavLink to='/faq'>FAQs</NavLink> for more details.</span>
+                <span>This review is for {this.props.user.user && this.props.user.user.username === this.props.review.reviewer ? <Username username={this.props.review.reviewing} color='alt-highlight' /> : <NavLink to={`/user/${this.props.review.reviewer}`}>{this.props.review.reviewer}</NavLink>} and will hold a <span className='mini-badge mini-badge-success'>Job Complete Verified</span> tag that indicates a job was successfully completed. See <NavLink to='/faq'>FAQs</NavLink> for more details.</span>
             </div>;
         }
         return (

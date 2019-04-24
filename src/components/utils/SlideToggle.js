@@ -32,10 +32,19 @@ class SlideToggle extends Component {
         }
     }
 
+    click() {
+        if (typeof this.props.timer === 'number' && this.props.timer >= 0) {
+            return;
+        } else {
+            this.props.onClick();
+        }
+    }
+
     render() {
         return(
-            <div ref={node => {sliderContainer = node}} className='slider-container' onClick={() => this.props.onClick()}>
-                <div ref={node => {slider = node}} className='slider'>
+            <div ref={node => {sliderContainer = node}} className={`slider-container ${this.props.className ? this.props.className : ''}`}>
+                {typeof this.props.timer === 'number' ? <div className='slider-timeout'></div> : ''}
+                <div ref={node => {slider = node}} className='slider' onClick={() => this.click()}>
                     <input ref={node => {sliderCheckbox = node}} className='slider-checkbox' type='checkbox' id={this.props.id} defaultChecked={this.props.status} />
                 </div>
             </div>

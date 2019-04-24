@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckSquare, faTimes, faCircleNotch, faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
-import { faSquare } from '@fortawesome/free-regular-svg-icons';
+import { faCheckSquare, faTimes, faCircleNotch, faCaretDown, faCaretUp } from '@fortawesome/pro-solid-svg-icons';
+import { faSquare } from '@fortawesome/pro-regular-svg-icons';
 import moment from 'moment';
 import fetch from 'axios';
 import { connect } from 'react-redux';
@@ -77,7 +77,7 @@ class MilestoneUpdaterRow extends Component {
                 this.props.dispatch(Alert('error', 'An error occurred'));
             });
         } else {
-            this.props.dispatch(Alert('error', 'Milestone cannot be modified'));
+            return;
         }
     }
 
@@ -106,8 +106,7 @@ class MilestoneUpdaterRow extends Component {
         this.setState({status: 'Uploading File'});
 
         let fileTypeChunks = this.state.file.name.split('.');
-        fileTypeChunks.shift();
-        let fileType = fileTypeChunks.join('.');
+        let fileType = fileTypeChunks[fileTypeChunks.length - 1];
 
         fetch.post('/api/job/check-file-exists',
         {milestone_id: this.state.milestone.milestone_id, job_id: this.props.job.job_id, file: this.state.file.name}, 
@@ -118,7 +117,6 @@ class MilestoneUpdaterRow extends Component {
             }
         })
         .then(resp => {
-            console.log(resp);
             if (resp.data.status == 'exists') {
                 this.props.dispatch(ShowConfirmation(`The file already exists. Do you want to overwrite it?`, false, {action: 'overwrite file', id: this.state.milestone.milestone_id}));
             } else if (resp.data.status === 'not exist') {
@@ -186,6 +184,8 @@ class MilestoneUpdaterRow extends Component {
                     this.setState({status: '', uploaded: null, file: null});
                 }
 
+                this.fileUploader.value = '';
+
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             })
             .catch(err => {
@@ -224,7 +224,6 @@ class MilestoneUpdaterRow extends Component {
     }
         
     render() {
-        console.log(this.state)
         let fundStatus;
 
         if (this.state.milestone.balance) {
@@ -249,16 +248,16 @@ class MilestoneUpdaterRow extends Component {
                             <div className={`milestone-progress-bar w-${!isFinite(this.state.milestone.conditions.length / this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length) ? 0 : this.state.milestone.conditions.length / this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length * 100}`}></div>
                         </div>
     
-                        <div className='d-flex-between-start'>
-                            <div className='w-30 opaque'>
+                        <div className='milestone-progress-details mb-3'>
+                            <div className='milestone-updater-details opaque'>
                                 <div className='detail-child'><strong>Funds Status: </strong> {fundStatus}</div>
                             </div>
 
-                            <div className='w-30 text-center opaque'>
+                            <div className='milestone-updater-details text-center opaque'>
                                 <span>{!isFinite(this.state.milestone.conditions.length / this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length) ? 0 : this.state.milestone.conditions.length / this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length * 100}%</span>
                             </div>
     
-                            <div className='w-30 d-flex-end-center'>
+                            <div className='milestone-updater-details d-flex-end-center'>
                                 {this.state.complete.length === 0 && this.state.milestone.milestone_status === 'In Progress' ? <SubmitButton type='button' loading={this.state.status === 'Requesting Payment'} value='Request Payment' bgColor='success' onClick={() => this.props.dispatch(PromptOpen(`Enter an amount (up to $${(this.state.milestone.balance.net / 100).toFixed(2)})`, this.state.milestone.balance.net / 100, {action: 'request payment', id: this.state.milestone.milestone_id}))} className='mr-1' /> : ''}
                                 {this.state.milestone.milestone_status === 'Requesting Payment' ? <button className='btn btn-success' disabled>Payment Requested</button> : ''}
 

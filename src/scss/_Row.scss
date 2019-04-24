@@ -1,0 +1,29 @@
+.row-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.row-main {
+    width: 85%;
+}
+
+.row-title {
+    white-space: nowrap;
+    margin-bottom: 5px;
+}
+
+.row-details {
+    display: flex;
+}
+
+.row-detail {
+    margin-right: 15px;
+    font-size: 0.8rem;
+}
+
+.row-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}

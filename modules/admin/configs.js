@@ -31,10 +31,7 @@ app.post('/api/admin/config/set/:name', async(req, resp) => {
     .then(result => {
         if (result) resp.send({status: 'success', statusMessage: 'Status changed'});
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 app.post('/api/admin/announcement/create', async(req, resp) => {
@@ -58,10 +55,7 @@ app.post('/api/admin/announcement/create', async(req, resp) => {
             .then(result => {
                 if (result) resp.send({status: 'success', announcement: result.rows[0]});
             })
-            .catch(err => {
-                console.log(err);
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
-            });
+            .catch(err => error.log(err, req, resp));
         }
     } else {
         resp.send({status: 'error', statusMessage: 'Cannot create more announcements'});
@@ -73,10 +67,7 @@ app.post('/api/admin/announcement/delete', async(req, resp) => {
     .then(result => {
         if (result) resp.send({status: 'success'});
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 app.post('/api/admin/promo/change-status', async(req, resp) => {
@@ -89,10 +80,7 @@ app.post('/api/admin/promo/change-status', async(req, resp) => {
         .then(result => {
             if (result) resp.send({status: 'success', promo: result.rows[0]});
         })
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
-        });
+        .catch(err => error.log(err, req, resp));
     }
 });
 
@@ -101,10 +89,7 @@ app.post('/api/admin/plan/change-status', async(req, resp) => {
     .then(result => {
         if (result) resp.send({status: 'success', plan: result.rows[0]});
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 module.exports = app;

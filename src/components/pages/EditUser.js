@@ -9,9 +9,9 @@ import Loading from '../utils/Loading';
 import moment from 'moment';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBuilding, faIdCard } from '@fortawesome/free-regular-svg-icons';
+import { faBuilding, faIdCard } from '@fortawesome/pro-regular-svg-icons';
 import SlideToggle from '../utils/SlideToggle';
-import { faBell, faListUl, faCogs, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faListUl, faCogs, faGlobe } from '@fortawesome/pro-solid-svg-icons';
 import { UpdateUser } from '../../actions/LoginActions';
 import InputWrapper from '../utils/InputWrapper';
 import { Alert } from '../../actions/AlertActions';
@@ -143,23 +143,19 @@ class EditUser extends Component {
                     type = 'badge-warning';
                 } else if (n.notification_type === 'Severe') {
                     type = 'badge-danger';
-                } else if (n.notification_type === 'Job') {
-                    type = 'badge-primary';
                 }
 
                 return <div key={i}>
                     <div className='titled-container-row'>
-                        <div className='titled-container-row-title'>
-                            <div className='d-flex-start'>
-                                {n.notification_status === 'New' ? <small className='mini-badge mini-badge-success mr-1'>New</small> : ''}
-                            </div>
+                        <div className='titled-container-row-title mb-1'>
+                            {n.notification_status === 'New' ? <span className='mini-badge mini-badge-success mr-1'>New</span> : ''}
+                            <span className={`mini-badge mini-${type} mr-2`}>{n.notification_type}</span>
                             <div dangerouslySetInnerHTML={{__html: n.notification_message}}></div>
                         </div>
                     </div>
 
                     <div className='d-flex-between-center'>
-                        <div className='mr-1'><small className={`mini-badge mini-${type} mr-1`}>{n.notification_type}</small></div>
-                        <div><small>{moment(n.notification_date).format('MM-DD-YYYY h:mm:ss A')}</small></div>
+                        <small>{moment(n.notification_date).format('MM-DD-YYYY h:mm:ss A')}</small>
                     </div>
 
                     {i + 1 !== this.state.notifications.length ? <hr /> : ''}
@@ -179,18 +175,18 @@ class EditUser extends Component {
                     type = 'badge-lightblue';
                 } else if (a.activity_type === 'Purchase') {
                     type = 'badge-purple';
+                } else if (a.activity_type === 'Connected') {
+                    type = 'badge-primary';
+                } else if (a.activity_type === 'Post') {
+                    type = 'badge-warning';
                 }
 
                 return <div key={i} className='titled-container-row'>
-                    <div className='titled-container-row-title'>
-                        {a.activity_action}
+                    <div className='titled-container-row-title mb-1'>
+                        <span className={`mini-badge mini-${type} mr-2`}>{a.activity_type}</span> {a.activity_action}
                     </div>
 
                     <div className='titled-container-row-detail'>
-                        <div className='activity-badge'>
-                            <span className={`mini-badge mini-${type}`}>{a.activity_type}</span>
-                        </div>
-
                         <div className='activity-timestamp'>{moment(a.activity_date).format('MM-DD-YYYY h:mm:ss A')}</div>
                     </div>
 

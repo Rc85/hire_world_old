@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileDownload, faCheckSquare, faMoneyCheckAlt, faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
+import { faFileDownload, faCheckSquare, faMoneyCheckAlt, faCaretDown, faCaretUp } from '@fortawesome/pro-solid-svg-icons';
 import Tooltip from '../../utils/Tooltip';
-import { faSquare } from '@fortawesome/free-regular-svg-icons';
+import { faSquare } from '@fortawesome/pro-regular-svg-icons';
 import moment from 'moment';
 import fetch from 'axios';
 import { Alert } from '../../../actions/AlertActions';
@@ -15,6 +15,7 @@ import { LogError } from '../../utils/LogError';
 import { PromptOpen, PromptReset } from '../../../actions/PromptActions';
 import SubmitButton from '../../utils/SubmitButton';
 import download from 'js-file-download';
+import { ShowLoading, HideLoading } from '../../../actions/LoadingActions';
 
 class MilestoneTrackingRow extends Component {
     constructor(props) {
@@ -43,8 +44,9 @@ class MilestoneTrackingRow extends Component {
     pay() {
         if (this.state.milestone.milestone_status === 'Requesting Payment') {
             this.setState({status: 'Paying'});
+            this.props.dispatch(ShowLoading(`Paying out funds`));
 
-            fetch.post('/api/job/pay', {milestone_id: this.state.milestone.milestone_id})
+            fetch.post('/api/job/pay', {milestone_id: this.state.milestone.milestone_id, job_modified_date: this.props.job.job_modified_date})
             .then(resp => {
                 if (resp.data.status === 'success') {
                     if (resp.data.jobComplete) {
@@ -58,12 +60,14 @@ class MilestoneTrackingRow extends Component {
                     this.setState({status: ''});
                 }
 
+                this.props.dispatch(HideLoading());
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             })
             .catch(err => {
                 LogError(err, '/api/job/pay');
                 this.setState({status: ''});
                 this.props.dispatch(Alert('error', 'An error occurred'));
+                this.props.dispatch(HideLoading());
             });
         } else {
             return false;
@@ -72,12 +76,10 @@ class MilestoneTrackingRow extends Component {
 
     startMilestone(token) {
         if (this.state.milestone.milestone_status === 'Pending') {
-
             this.setState({status: 'Verifying'});
 
-            fetch.post('/api/job/milestone/start', {id: this.state.milestone.milestone_id, user: this.props.user.user.username, token: token})
+            fetch.post('/api/job/milestone/start', {job_id: this.props.job.job_id, id: this.state.milestone.milestone_id, user: this.props.user.user.username, ...token})
             .then(resp => {
-                console.log(resp);
                 if (resp.data.status === 'success') {
                     this.props.changeJobStatus('Active');
                     this.setState({status: '', milestone: resp.data.milestone, startMilestone: false});
@@ -181,7 +183,8 @@ class MilestoneTrackingRow extends Component {
                     </div>
 
                     <div>
-                        {complete.indexOf('In Progress') < 0 && this.state.milestone.balance && this.state.milestone.balance.status === 'available' && this.state.milestone.milestone_status === 'Requesting Payment' ? <button className='btn btn-success milestone-button' type='button' onClick={() =>  this.props.dispatch(ShowConfirmation(`Are you sure you ready to pay ${this.props.job.job_user}?`, `An amount of $${this.state.milestone.requested_payment_amount ? parseFloat(this.state.milestone.requested_payment_amount).toFixed(2) : (this.state.milestone.balance.net / 100).toFixed(2)} ${this.state.milestone.balance.currency.toUpperCase()} will be paid out to ${this.props.job.job_user}`, {action: 'pay user', id: this.state.milestone.milestone_id}))}>Pay</button> : ''}
+                        {complete.indexOf('In Progress') < 0 && this.state.milestone.balance && this.state.milestone.balance.status === 'available' && this.state.milestone.milestone_status === 'Requesting Payment' ? 
+                        <SubmitButton type='button' loading={this.state.status === 'Paying'} value='Pay' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you ready to pay ${this.props.job.job_user}?`, `An amount of $${this.state.milestone.requested_payment_amount ? parseFloat(this.state.milestone.requested_payment_amount).toFixed(2) : (this.state.milestone.balance.net / 100).toFixed(2)} ${this.state.milestone.balance.currency.toUpperCase()} will be paid out to ${this.props.job.job_user}`, {action: 'pay user', id: this.state.milestone.milestone_id}))} bgColor='success' /> : ''}
                         {this.state.milestone.milestone_status === 'Pending' ? <button className='btn btn-primary milestone-button' type='button' onClick={() => this.setState({startMilestone: true})}>Start Milestone</button> : ''}
                     </div>
                 </div>
@@ -195,6 +198,9 @@ class MilestoneTrackingRow extends Component {
 
                     <div className={`milestone-file-list ${!this.state.showFileList ? 'hide' : ''}`}>
                         {this.state.milestone.files.map((file, i) => {
+                            let urlSafeHash = encodeURIComponent(file.file_hash);
+                            let urlSafeFilename = encodeURIComponent(file.filename);
+
                             return <div key={file.file_id} className='mb-1'>
                                 <div className={`d-flex-between-center ${this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' ? 'disabled' : ''}`}>
                                     <div className='opaque'>
@@ -207,11 +213,11 @@ class MilestoneTrackingRow extends Component {
                                         <small className='text-dark'>Hash: {file.file_hash}</small>
                                     </div>
     
-                                    <SubmitButton type='button' loading={this.state.status === 'Downloading'} value='Download' onClick={() => this.downloadFile(file.filename)} />
+                                    <a href={`/files/${this.props.user.user.username}/${this.state.milestone.milestone_id}/${urlSafeHash}/${urlSafeFilename}`}>Download</a>
                                 </div>
     
                                 <div className='text-right'>
-                                    <small className='text-dark mr-2'>File ID: {file.file_id}</small>
+                                    <small className='text-dark'>File ID: {file.file_id}</small>
                                 </div>
     
                                 {i + 1 !== this.state.milestone.files.length ? <hr/> : ''}

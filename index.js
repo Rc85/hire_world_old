@@ -47,7 +47,7 @@ app.use('/user_files', express.static(`user_files`));
 app.use('/images', express.static('dist/images'));
 app.use('/file', express.static('./job_files'));
 
-app.use(/^\/(?!\/admin-panel).*/, async(req, resp, next) => {
+app.use(/^\/(?!admin-panel).*/, async(req, resp, next) => {
     let status = await db.query(`SELECT config_status FROM site_configs WHERE config_name = 'Site'`);
 
     if (status.rows[0].config_status === 'Active') {
@@ -81,9 +81,11 @@ app.use(require('./modules/fetch/messages'));
 app.use(require('./modules/fetch/jobs'));
 app.use(require('./modules/fetch/listings'));
 app.use(require('./modules/fetch/configs'));
+app.use(require('./modules/fetch/posts'));
 
 app.use(require('./modules/api/messages'));
 app.use(require('./modules/api/jobs'));
+app.use(require('./modules/api/posts'));
 
 app.get('/*', async(req, resp) => {
     /* let announcements = await db.query(`SELECT * FROM announcements`); */
@@ -99,7 +101,7 @@ app.post('/api/resend-confirmation', async(req, resp) => {
 
         if (response.success) {
             db.connect((err, client, done) => {
-                if (err) console.log(err);
+                if (err) error.log(err, req, resp);
 
                 (async() => {
                     try {
@@ -289,10 +291,7 @@ app.post('/api/site/review', (req, resp) => {
             resp.send({status: 'error', statusMessage: 'Not available at this time'});
         }
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 /* app.get(/^\/(app|app(\/)?.*)?/, (req, resp) => {
@@ -302,7 +301,7 @@ app.post('/api/site/review', (req, resp) => {
 app.post('/api/pin', async(req, resp) => {
     if (req.session.user) {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             (async() => {
                 try {
@@ -346,10 +345,7 @@ app.post('/api/pin', async(req, resp) => {
                     done();
                 }
             })()
-            .catch(err => {
-                console.log(err);
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
-            });
+            .catch(err => error.log(err, req, resp));
         });
     }
 });
@@ -369,10 +365,7 @@ app.use('/api/admin', (req, resp, next) => {
                 resp.send({status: 'access error', statusMessage: `You're not authorized to access this area`});
             }
         })
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'An errorr occurred'});
-        });
+        .catch(err => error.log(err, req, resp));
     } else {
         resp.send({status: 'error', statusMessage: `You're not logged in`});
     }
@@ -388,10 +381,7 @@ app.post('/api/admin/privilege', (req, resp) => {
                 resp.send({status: 'access error', statusMessage: `You're not authorized to access this area`});
             }
         })
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'An errorr occurred'});
-        });
+        .catch(err => error.log(err, req, resp));
     } else {
         resp.send({status: 'error', statusMessage: `You're not authorized`});
     }
@@ -423,7 +413,6 @@ app.use(require('./modules/webhooks'));
 
 server.listen(port, '0.0.0.0', (err) => {
     if (err) {
-        console.log(err);
         console.log(err);
     } else {
         console.log(process.env.NODE_ENV);

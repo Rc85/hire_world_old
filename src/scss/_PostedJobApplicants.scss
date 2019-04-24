@@ -1,0 +1,16 @@
+.applicant-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.applicant-details {
+    flex-grow: 1;
+    margin: 0 15px;
+}
+
+.application-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}

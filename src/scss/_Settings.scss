@@ -31,6 +31,7 @@
         &.quarter { flex-basis: 25% }
         &.three-quarter { flex-basis: 75%; }
         &.one-third { flex-basis: 33%; }
+        &.half { flex-basis: 50%; }
     }
 
     > .setting-field-container:not(:last-child) {
@@ -52,9 +53,10 @@
     flex-grow: 1;
     flex-basis: 100%;
 
-    &.quarter { flex-basis: 25% }
+    &.quarter { flex-basis: 25%; }
     &.three-quarter { flex-basis: 75%; }
     &.one-third { flex-basis: 33%; }
+    &.half { flex-basis: 50%; }
 
     &:not(:last-child) {
         margin-right: 15px;

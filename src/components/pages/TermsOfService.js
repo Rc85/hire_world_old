@@ -2,7 +2,7 @@ import React from 'react';
 import TitledContainer from '../utils/TitledContainer';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileContract } from '@fortawesome/free-solid-svg-icons';
+import { faFileContract } from '@fortawesome/pro-solid-svg-icons';
 
 const TermsOfService = props => {
     return(
@@ -134,7 +134,7 @@ const TermsOfService = props => {
 
                 <h2 id='fees'>Fees</h2>
 
-                <p>When using services at Hire World, a fee may be charged. Hire World reserves the right to refuse any service for any reason we feel that your use of our service may put us in jeopardy with the law of any city, region, country, or jurisdiction. In such case, we may flag your account with fraudulent activity and may or may not continue service(s) to you ongoing forward.</p>
+                <p>When using services at Hire World, non-refundable fees may be charged. These fees may include application fee, Stripe processing fee, currency exchange fees, and payout fees for domestic and internation accounts.</p>
 
                 <p>When using our service to handle payments between you and another party, you hereby acknowledge that if no payments are made to the other party, the fee to transfer funds between you and our platform will not be refunded.</p>
 
@@ -144,7 +144,7 @@ const TermsOfService = props => {
 
                 <h2 id='purchases'>Payments, Purchases, and Subscriptions</h2>
 
-                <p>By adding a payment, making a purchase and/or subscribing to a recurring payment plan at Hire World, you hereby agree that the information provided by you upon adding the payment, making the purchases or subscribing to a plan, will be sent and stored on <a href='https://stripe.com'>Stripe</a>. Furthermore, you acknowledge that you have read, understood, and agreed to <a href='https://stripe.com/privacy'>Stripe's Privacy Policy</a>.</p>
+                <p>By adding a payment, making a purchase and/or subscribing to a recurring payment plan at Hire World, you hereby agree that the information provided by you upon adding the payment, making the purchases or subscribing to a plan, will be sent and stored on <a href='https://stripe.com' rel='noopener noreferrer' target='_blank'>Stripe</a>. Furthermore, you acknowledge that you have read, understood, and agreed to <a href='https://stripe.com/privacy' rel='noopener noreferrer' target='_blank'>Stripe's Privacy Policy</a>.</p>
 
                 <p>You have all the rights to cancel your subscription at any time and the service will still be available to you for the remaining time that you paid for.</p>
 
@@ -164,9 +164,7 @@ const TermsOfService = props => {
 
                 <p>You agree that all payments made to subscribe to a monthly plan is not refunded unless applicable by law.</p>
 
-                <p>If no payments are made to the other party with the funds that was transferred to Hire World, you will receive the refund minus any Stripe charge fee and your portion of the application fee. See <a href='https://stripe.com/pricing'>Stripe pricing</a> and <NavLink to='/pricing'>our pricing</NavLink> for more details.</p>
-
-                <p>If partial payment is made to the other party with the funds that was transferred to Hire World, you will receive the remainder of the funds minus the amount you paid, any Stripe fee, and your portion of the application fee.</p>
+                <p>Refunds are on applicable when you use our Connected service to conduct business. Refunds may be processed when no payments are made to the other party, when partial payment is made to the other party, and any dispute that results in your favor. You agree that if funds are refunded back to you, it will equal to the amount you transferred less any applicable fees.</p>
 
                 <p>We take chargebacks seriously and if such case occurs, we may or may not continue service to you ongoing forward depending on the nature of the chargeback. We fully understand under circumstances where financial information can be compromised and as a result of that, a chargeback can happen. If this is the case, you can proivde us with information and proof of the incident for us to investigate and decide to continue service to you.</p>
                 
@@ -209,6 +207,8 @@ const TermsOfService = props => {
                 <h2 id='termination'>Termination</h2>
 
                 <p>You have all the rights to terminate your agreement with Hire World at any time by discontinuing the use of our service. Terminating your agreement does not mean that the information related to your user account will be deleted. Please refer to our <NavLink to='/privacy'>privacy policy</NavLink> in regards to user's data.</p>
+
+                <p>Upon discontinue use of our service, you agree that there will be no jobs that are currently active. You agree to establish an agreement with your client or service provider to close any active jobs and settle any outstanding payments that you were intended to pay or receive. In the event that an agreement cannot be established for reasons out of your control such as and not limited to, no response from the other party, you may contact Hire World to close the job in your favor.</p>
 
                 <div className='text-right'><a href='#top'>Top</a></div>
 

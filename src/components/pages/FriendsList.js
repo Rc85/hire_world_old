@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import Loading from '../utils/Loading';
 import fetch from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserFriends, faUserMinus, faCircleNotch } from '@fortawesome/free-solid-svg-icons';
+import { faUserFriends, faUserMinus, faCircleNotch } from '@fortawesome/pro-solid-svg-icons';
 import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';
 import { LogError } from '../utils/LogError';
 import TitledContainer from '../utils/TitledContainer';
 import UserProfilePic from '../includes/page/UserProfilePic';
-import { faBuilding, faIdCard } from '@fortawesome/free-regular-svg-icons';
+import { faBuilding, faIdCard } from '@fortawesome/pro-regular-svg-icons';
 import { NavLink, Redirect } from 'react-router-dom';
 import AlphaNumericFilter from '../utils/AlphaNumericFilter';
 
@@ -113,7 +113,7 @@ class FriendsList extends Component {
                                         <div className='friend-panel-header-info'>
                                             <div className='friend-panel-header-container'>
                                                 <h5>{friend.listing_status && friend.listing_status === 'Active' ? <NavLink to={`/user/${friend.friend_user_2}`}>{friend.friend_user_2}</NavLink> : friend.friend_user_2}</h5>
-                                                {friend.user_email ? <a href={`mailto:${friend.user_email}`}>{friend.user_email}</a> : ''}
+                                                {friend.user_email ? <a href={`mailto:${friend.user_email}`} rel='noopener noreferrer' target='_blank'>{friend.user_email}</a> : ''}
                                                 {friend.user_business_name ? <div className='friend-panel-header-child'><FontAwesomeIcon icon={faBuilding} className='text-special' /> <strong>{friend.user_business_name}</strong></div> : ''}
                                                 {friend.user_title ? <div className='friend-panel-header-child'><FontAwesomeIcon icon={faIdCard} className='text-special' /> <strong>{friend.user_title}</strong></div> : ''}
                                             </div>

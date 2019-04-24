@@ -3,12 +3,31 @@
     position: relative;
 }
 
+#search-container {
+    position: absolute;
+    width: 100%;
+    z-index: 2;
+    box-shadow: 5px 5px 10px $theme-lightblack;
+    transition: padding 0.1s ease-in-out;
+    transition-delay: 0.25s;
+
+    form {
+        padding: 0 0 20px 0;
+        background-color: $theme-blue;
+
+        &.hide {
+            padding: 0;
+        }
+    }
+}
+
 #search-field-container {
     background-color: $theme-blue;
     max-height: 75vh;
     transition: max-height 0.1s ease-in-out;
     overflow: hidden;
-    border-bottom: 1px solid black;
+    width: 95%;
+    margin: 0 auto 0 auto;
     
     #search-field-wrapper {
         height: 100%;
@@ -24,7 +43,9 @@
         }
     }
     
-    &.hide { max-height: 0; }
+    &.hide {
+        max-height: 0;
+    }
 }
 
 #search-toggler {

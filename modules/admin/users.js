@@ -74,10 +74,7 @@ app.post('/api/admin/get/users', async(req, resp) => {
             resp.send({status: 'success', totalUsers: totalUsers.rows[0].user_count, users: result.rows});
         }
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 app.post('/api/admin/user/change-status', (req, resp) => {
@@ -102,7 +99,7 @@ app.post('/api/admin/user/change-status', (req, resp) => {
     }
 
     db.connect((err, client, done) => {
-        if (err) console.log(err);
+        if (err) error.log(err, req, resp);
 
         (async() => {
             try {
@@ -161,22 +158,19 @@ app.post('/api/admin/user/change-status', (req, resp) => {
                 done();
             }
         })()
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
-        });
+        .catch(err => error.log(err, req, resp));
     });
 });
 
 app.post('/api/admin/user/warn', (req, resp) => {
     db.connect((err, client, done) => {
-        if (err) console.log(err);
+        if (err) error.log(err, req, resp);
 
         (async() => {
             try {
                 await client.query('BEGIN');
                 await client.query('INSERT INTO user_warnings (warning, warned_by, warned_user) VALUES ($1, $2, $3)', [req.body.warning, req.session.user.username, req.body.user]);
-                await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [req.body.user, 'You have been given a warning', 'Warning']);
+        if (err) error.log(err, req, resp);(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [req.body.user, 'You have been given a warning', 'Warning']);
                 await client.query(`UPDATE reports SET report_status = $1 WHERE report_id = $2`, ['Warned', req.body.report_id]);
                 await client.query('COMMIT')
                 .then(() => resp.send({status: 'success', statusMessage: 'Warning sent'}));
@@ -187,10 +181,7 @@ app.post('/api/admin/user/warn', (req, resp) => {
                 done();
             }
         })()
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
-        });
+        .catch(err => error.log(err, req, resp));
     });
 });
 

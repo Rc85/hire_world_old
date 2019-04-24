@@ -4,7 +4,7 @@ import { LogError } from '../utils/LogError';
 import fetch from 'axios';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLink, faPlus, faCreditCard, faUniversity } from '@fortawesome/free-solid-svg-icons';
+import { faLink, faPlus, faCreditCard, faUniversity } from '@fortawesome/pro-solid-svg-icons';
 import Loading from '../utils/Loading';
 import ConnectedSettingsForm from '../includes/page/ConnectedSettingsForm';
 import { connect } from 'react-redux';
@@ -20,6 +20,7 @@ import LabelBadge from '../utils/LabelBadge';
 import StaticAlert from '../utils/StaticAlert';
 import AddBankAccount from '../includes/page/AddBankAccount';
 import { PromptOpen, PromptReset } from '../../actions/PromptActions';
+import { ShowLoading, HideLoading } from '../../actions/LoadingActions';
 
 let financialResetButton;
 
@@ -108,7 +109,6 @@ class ConnectedSettings extends Component {
 
         fetch.post('/api/job/accounts/fetch')
         .then(resp => {
-            console.log(resp)
             if (resp.data.status === 'success') {
                 this.setState({status: '', ...resp.data.account, user: resp.data.user});
             } else if (resp.data.status === 'error' && resp.data.statusMessage === `You're not logged in`) {
@@ -140,15 +140,22 @@ class ConnectedSettings extends Component {
             });
         }
 
-        this.setState({status: 'Adding Financial Account'});
+        //this.setState({status: 'Adding Financial Account'});
+        this.props.dispatch(ShowLoading('Adding Account'));
 
-        fetch.post('/api/job/account/payment/add', token)
+        fetch.post('/api/job/account/payment/add', {...token, user: this.props.user.user.username})
         .then(resp => {
             let state = {...this.state};
+            this.props.dispatch(HideLoading());
             state.status = '';
+            state.accountCountry = '';
+            state.accountCurrency = '';
+            state.accountRoutingNumber = '';
+            state.accountNumber = '';
+            state.accountHolder = '';
             
             if (resp.data.status === 'success') {
-                state.external_accounts.data.unshift(resp.data.payment);
+                state.external_accounts.data = resp.data.accounts;
             }
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -157,7 +164,7 @@ class ConnectedSettings extends Component {
         .catch(err => {
             LogError(err, '/api/job/account/payment/add');
             this.props.dispatch(Alert('error', 'An error occurred'));
-            this.setState({status: ''});
+            this.props.dispatch(HideLoading());
         });
     }
 
@@ -238,25 +245,29 @@ class ConnectedSettings extends Component {
     uploadDocument() {
         let data = new FormData();
 
-        if (this.state.documentBack && this.state.documentFront && this.state.documentBack.length === 0 && this.state.documentFront.length === 0) {
+        let config = {
+            headers: {
+                front: false,
+                back: false
+            }
+        }
+
+        if (this.state.documentFront && this.state.documentFront.length === 0) {
             this.props.dispatch(Alert('error', 'No files to upload'));
         } else {
             this.setState({status: 'Uploading Document'});
             
-            if (this.state.documentBack && this.state.documentFront.length === 1) {
+            if (this.state.documentFront && this.state.documentFront.length === 1) {
                 data.set('front', this.state.documentFront[0]);
+                config.headers.front = true;
             }
 
             if (this.state.documentBack && this.state.documentBack.length === 1) {
                 data.set('back', this.state.documentBack[0]);
+                config.headers.back = true;
             }
 
             data.set('user', this.props.user.user.username);
-        }
-
-        let config = {
-            front: this.state.documentFront.length === 1 ? true : false,
-            back: this.state.documentBack.length === 1 ? true : false
         }
 
         fetch.post('/api/job/account/document/upload', data, config)
@@ -277,7 +288,7 @@ class ConnectedSettings extends Component {
     }
 
     closeAccount() {
-        this.setState({status: 'Closing Account'});
+        this.props.dispatch(ShowLoading(`Closing Account...`));
 
         fetch.post('/api/job/account/close', {id: this.state.id, password: this.props.prompt.input, user: this.props.user.user.username})
         .then(resp => {
@@ -287,11 +298,14 @@ class ConnectedSettings extends Component {
                 this.setState({status: ''});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
+
+            this.props.dispatch(HideLoading());
         })
         .catch(err => {
             LogError(err, '/api/job/account/close');
             this.setState({status: ''});
             this.props.dispatch(Alert('error', 'An error occurred'));
+            this.props.dispatch(HideLoading());
         });
     }
 
@@ -302,6 +316,8 @@ class ConnectedSettings extends Component {
         if (this.state.accountCountry) {
             if (['AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'GI', 'IE', 'IT', 'LU', 'NL', 'NO', 'PT', 'ES', 'SE', 'CH'].indexOf(val) >= 0 && this.state.accountType === 'bank') {
                 this.setState({accountCountry: val, accountType: 'sepa'});
+            } else if (['AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'GI', 'IE', 'IT', 'LU', 'NL', 'NO', 'PT', 'ES', 'SE', 'CH'].indexOf(val) >= 0 && this.state.accountType === 'sepa') {
+                this.setState({accountCountry: val});
             } else if ((['CA', 'US', 'AU', 'NZ'].indexOf(val) >= 0 && this.state.accountType === 'sepa') || ['CA', 'US', 'AU', 'NZ'].indexOf(val) >= 0) {
                 this.setState({accountCountry: val, accountType: 'bank'});
             } else if (val === 'GB') {
@@ -311,9 +327,15 @@ class ConnectedSettings extends Component {
             this.setState({accountCountry: val});
         }
     }
+
+    set(key, val) {
+        let obj = {};
+        obj[key] = val;
+
+        this.setState(obj);
+    }
     
     render() {
-        console.log(this.state);
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
@@ -335,7 +357,7 @@ class ConnectedSettings extends Component {
 
             if (this.state.accountType === 'debit') {
                 financialForm = <div className='mb-3'>
-                    <div className='mb-3'>Only Debit Mastercard or Visa Debit is acceptable as credit card payout is not available.</div>
+                    <div className='mb-3'>Only Debit Mastercard or Visa Debit can be used to accept payouts</div>
                     
                     <div className='setting-field-container mb-3'>
                         <div className='setting-child'>
@@ -383,16 +405,11 @@ class ConnectedSettings extends Component {
                 </div>;
             } else if (this.state.accountType === 'bank' || this.state.accountType === 'sepa') {
                 financialForm = <AddBankAccount
-                accountCountry = {this.state.accountCountry}
-                setCountry = {(val) => this.setCountry(val)}
-                setAccountNumber = {(val) => this.setState({accountNumber: val})}
-                setRoutingNumber = {(type, val) => this.setRoutingNumber(type, val)}
-                setAccountHolder = {(val) => this.setState({accountHolder: val})}
-                setCurrency = {(val) => this.setState({accountCurrency: val})}
-                setUkBankType = {(val) => this.setState({ukBankType: val})}
-                supportedCountries = {supportedCountries}
-                status = {this.state.status}
-                ukBankType = {this.state.ukBankType} />;
+                value={this.state}
+                set={(key, val) => this.set(key, val)}
+                setCountry={(val) => this.setCountry(val)}
+                setRoutingNumber={(type, val) => this.setRoutingNumber(type, val)}
+                supportedCountries={supportedCountries} />;
             }
 
             if (this.state.individual.verification.status === 'unverified') {
@@ -430,7 +447,7 @@ class ConnectedSettings extends Component {
             let bankAccountWarning;
 
             if (this.state.requirements && (this.state.requirements.past_due.includes('external_account') || this.state.requirements.currently_due.includes('external_account') || this.state.requirements.eventually_due.includes('external_account'))) {
-                bankAccountWarning = <StaticAlert status='warning' text='A debit card or bank account is required' />;
+                bankAccountWarning = <StaticAlert status='warning' text='A bank account is required' />;
             }
 
             if (this.state.user) {
@@ -494,6 +511,16 @@ class ConnectedSettings extends Component {
                 }
             }
 
+            let bankAccountText, bankAccountStatus;
+
+            if (!this.props.user.user.has_connected_bank_acct) {
+                bankAccountText = 'Required';
+                bankAccountStatus = 'danger';
+            } else if (!this.props.user.user.bank_acct_verified) {
+                bankAccountText = 'Unverified';
+                bankAccountStatus = 'secondary';
+            }
+
             return (
                 <section id='connected-settings' className='main-panel'>
                     {status}
@@ -503,11 +530,12 @@ class ConnectedSettings extends Component {
                             <h2>{this.state.id}</h2>
                         </div>
 
-                        <div className={`d-flex`}>
+                        <div className='connected-badges'>
                             <div className='mr-2'><LabelBadge label='Account' text={verificationStatusText} status={verificationStatus} /></div>
                             <div className='mr-2'><LabelBadge label='Review' text={this.state.user.connected_acct_status} status={reviewStatus} /></div>
                             <div className='mr-2'><LabelBadge label='Payments' text={paymentText} status={paymentStatus} /></div>
                             <div className='mr-2'><LabelBadge label='Payout' text={payoutText} status={payoutStatus} /></div>
+                            <div className='mr-2'><LabelBadge label='Bank' text={bankAccountText} status={bankAccountStatus} /></div>
                         </div>
 
                         {documentsRequired ? <StaticAlert status='warning' text={documentsRequiredText} /> : ''}

@@ -26,6 +26,33 @@
         }
     }
 
+    .application-buttons {
+        flex-direction: column;
+
+        .mr-2 {
+            margin-right: 0;
+            margin-bottom: 5px;
+        }
+    }
+    
+    .input-container {
+        .checkbox-label-container {
+            .checkbox-label {
+                .checkbox {
+                    width: 25px;
+                    height: 25px;
+                }
+
+                .checkbox-container {
+                    .checkbox-label-text {
+                        height: 25px;
+                        padding: 0;
+                    }
+                }
+            }
+        }
+    }
+
     #bottombar {
         .bottombar-item-wrapper, #bottombar-sectors-container { font-size: 1.6rem; }
 

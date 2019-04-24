@@ -10,15 +10,16 @@ import { injectStripe } from 'react-stripe-elements';
 import InputWrapper from '../../utils/InputWrapper';
 import SubmitButton from '../../utils/SubmitButton';
 import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
+import Loading from '../../utils/Loading';
 
 class VerifyPayment extends Component {
     constructor(props) {
         super(props);
         
         this.state = {
-            status: '',
+            status: 'Getting Payments',
             payments: [],
-            defaultAddress: this.props.user.user_address && this.props.user.user_city && this.props.user.user_region && this.props.user.user_country && this.props.user.user_city_code ? true : false,
+            defaultAddress: this.props.user.user.user_address && this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code ? true : false,
             usePayment: null
         }
     }
@@ -35,7 +36,6 @@ class VerifyPayment extends Component {
     componentDidMount() {
         fetch.post('/api/get/user/payments', {user: this.props.user.user.username})
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', payments: resp.data.payments});
             } else if (resp.data.status === 'error') {
@@ -51,7 +51,7 @@ class VerifyPayment extends Component {
     }
 
     useDefaultAddress() {
-        if (this.props.user.user_address && this.props.user.user_city && this.props.user.user_region && this.props.user.user_country && this.props.user.user_city_code) {
+        if (this.props.user.user.user_address && this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code) {
             this.setState({defaultAddress: !this.state.defaultAddress, address_line1: '', address_city: '', address_state: '', address_country: '', address_zip: '', saveAddress: false});
         } else {
             this.props.dispatch(Alert('error', 'No address to use'));
@@ -86,8 +86,11 @@ class VerifyPayment extends Component {
     }
     
     render() {
-        console.log(this.state);
         let payments, addressInput;
+
+        if (this.state.status === 'Getting Payments') {
+            return <div className='p-relative'><Loading size='7x' /></div>;
+        }
 
         if (this.state.payments.length > 0) {
             payments = this.state.payments.map((payment, i) => {

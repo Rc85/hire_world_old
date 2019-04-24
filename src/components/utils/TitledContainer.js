@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretUp, faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faCaretUp, faCaretDown } from '@fortawesome/pro-solid-svg-icons';
 
 class TitledContainer extends Component {
     constructor(props) {
@@ -24,6 +24,7 @@ class TitledContainer extends Component {
                 <div className='title-wrapper'>
                     {this.props.mini ? '' : <div className='titled-container-icon'>{this.props.icon}</div>}
                     <h3 className={`bg-${this.props.bgColor ? this.props.bgColor : 'highlight'} ${this.props.textColor ? `text-${this.props.textColor}` : ''}`}>{this.props.title}</h3>
+                    {this.props.secondaryTitle ? <h3 className='bg-grey'>{this.props.secondaryTitle}</h3> : ''}
                 </div>
 
                 {this.props.minimizable ? <button className='title-container-toggle-button btn btn-info' onClick={() => this.setState({minimize: !this.state.minimize})}><FontAwesomeIcon icon={this.state.minimize ? faCaretDown : faCaretUp} /></button> : ''}

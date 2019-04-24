@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretRight } from '@fortawesome/free-solid-svg-icons';
+import { faCaretRight } from '@fortawesome/pro-solid-svg-icons';
 
 /**
  * @param {Array|Object} items The menu items. If an object is provided, the value must be an array of items

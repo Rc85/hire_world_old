@@ -78,13 +78,19 @@
 
     select { border: 0; }
 
-    > input:not([type=checkbox]), > select { margin: 0 5px 5px 5px; }
+    > input:not([type=checkbox]) {
+        margin: 0 5px 4px 5px;
+    }
+    
+    > select {
+        margin: 0 5px 5px 5px;
+    }
 
     .checkbox-label-container {
         display: flex;
         width: 100%;
         justify-content: space-around;
-        margin-bottom: 5px;
+        margin-bottom: 3px;
 
         .checkbox-label {
             flex-grow: 1;
@@ -96,6 +102,9 @@
                 width: 30px;
                 height: 30px;
                 padding: 5px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
     
                 svg {
                     width: 100%;
@@ -105,6 +114,14 @@
 
             &:not(:first-child) {
                 .checkbox { border-width: 1px 1px 1px 1px; }
+            }
+
+            &.hovered {
+                .checkbox-label-text {
+                    background-color: $theme-green;
+                    border-color: $theme-green;
+                    color: white;
+                }
             }
         }
 
@@ -116,14 +133,27 @@
                     color: white;
                     border-color: $success;
                     background-color: $success;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
                 }
             }
 
             .checkbox { border-color: $success; }
+
+            &.hovered {
+                .checkbox-label-text {
+                    background-color: $theme-green;
+                    border-color: $theme-green;
+                }
+            }
         }
 
         input[type=checkbox] {
-            display: none;
+            opacity: 0;
+            z-index: -1;
+            position: absolute;
+            left: 0;
         }
 
         .checkbox-container {

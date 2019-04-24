@@ -4,7 +4,7 @@ const error = require('../utils/error-handler');
 
 app.post('/api/admin/sector/add', (req, resp) => {
     db.connect(async(err, client, done) => {
-        if (err) console.log(err);
+        if (err) error.log(err, req, resp);
     
         (async() => {
             try {
@@ -20,10 +20,7 @@ app.post('/api/admin/sector/add', (req, resp) => {
                 done()
             }
         })()
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
-        });
+        .catch(err =>error.log(err, req, resp));
     });
 });
 
@@ -42,10 +39,7 @@ app.post('/api/admin/sector/change-status', async(req, resp) => {
             resp.send({status: 'error', statusMessage: 'Fail to change status'});
         }
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 app.get('/api/admin/sectors/get', async(req, resp) => {
@@ -53,10 +47,7 @@ app.get('/api/admin/sectors/get', async(req, resp) => {
     .then(result => {
         if (result) resp.send({status: 'success', sectors: result.rows});
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 app.post('/api/admin/sector/rename', async(req, resp) => {
@@ -64,10 +55,7 @@ app.post('/api/admin/sector/rename', async(req, resp) => {
     .then(result => {
         if (result) resp.send({status: 'success', sector: result.rows[0]});
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 module.exports = app;

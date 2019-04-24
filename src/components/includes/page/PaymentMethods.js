@@ -8,7 +8,7 @@ import { Alert } from '../../../actions/AlertActions';
 import { LogError } from '../../utils/LogError';
 import fetch from 'axios';
 import { connect } from 'react-redux';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 import InputWrapper from '../../utils/InputWrapper';
 

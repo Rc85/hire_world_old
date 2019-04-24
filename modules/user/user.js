@@ -9,6 +9,7 @@ const validate = require('../utils/validate');
 const moment = require('moment');
 const request = require('request');
 const controller = require('../utils/controller');
+const authenticate = require('../utils/auth');
 
 stripe.setApiVersion('2019-02-19');
 
@@ -46,12 +47,12 @@ const upload = multer({
             if (filesize < 2000000) {
                 if (!fs.existsSync(dir)) {
                     fs.mkdir(dir, (err) => {
-                        if (err) console.log(err);
+                        if (err) error.log(err, req, resp);
                     });
                 }
 
                 fs.readdir(dir, (err, files) => {
-                    if (err) console.log(err);
+                    if (err) error.log(err, req, resp);
 
                     for (let file of files) {
                         if (file.match(filenameCheck)) {
@@ -70,15 +71,13 @@ const upload = multer({
     }
 });
 
-app.post('/api/user/profile-pic/upload', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/user/profile-pic/upload', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             let uploadProfilePic = upload.single('profile_pic');
 
             uploadProfilePic(req, resp, async err => {
-                console.log(req.headers);
                 if (err) {
                     resp.send({status: 'error', statusMessage: err.message});
                 } else {
@@ -92,8 +91,8 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
                                 filePath = `/${req.file.destination.substring(2)}/${req.file.filename}`;
                             } else {
                                 let error = new Error('No file found');
-                                error.type = 'CUSTOM';
-                                throw error;
+                                let errObj = {error: error, type: 'CUSTOM', stack: error.stack};;
+                                throw errObj;
                             }
 
                             await client.query(`UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2`, [filePath, req.session.user.user_id]);
@@ -113,13 +112,11 @@ app.post('/api/user/profile-pic/upload', (req, resp) => {
                 }
             });
         });
-    }
 });
 
-app.post('/api/user/profile-pic/delete', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/user/profile-pic/delete', authenticate, async(req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
         
             (async() => {
                 try {
@@ -142,18 +139,11 @@ app.post('/api/user/profile-pic/delete', async(req, resp) => {
                     done();
                 }
             })()
-            .catch(err => {
-                 console.log(err);
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
-            });
+            .catch(err => error.log(err, req, resp));
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/user/edit', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/user/edit', authenticate, (req, resp) => {
         let type;
 
         if (req.body.column === 'Github') {
@@ -172,7 +162,7 @@ app.post('/api/user/edit', (req, resp) => {
 
         if (validate.urlCheck.test(req.body.value)) {
             db.connect((err, client, done) => {
-                if (err) console.log(err);
+                if (err) error.log(err, req, resp);
 
                 (async() => {
                     try {
@@ -196,17 +186,11 @@ app.post('/api/user/edit', (req, resp) => {
                         done();
                     }
                 })()
-                .catch(err => {
-                     console.log(err);
-                    resp.send({status: 'error', statusMessage: 'An error occurred'});
-                });
+                .catch(err => error.log(err, req, resp));
             });
         } else {
             resp.send({status: 'error', statusMessage: 'URL only'});
         }
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
 app.post('/api/user/search/titles', async(req, resp) => {
@@ -225,16 +209,12 @@ app.post('/api/user/search/titles', async(req, resp) => {
             resp.send({status: 'success', titles: titles});
         }
     })
-    .catch(err => {
-         console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
-app.post('/api/user/business_hours/save', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/user/business_hours/save', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             let timeCheck = /^([0-9]|[1-2][0-4]):?([0-5][0-9])?(\s?(AM|am|PM|pm))?(\s[A-Za-z]{3,5})?$/;
             let invalidFormat = false;
@@ -296,33 +276,24 @@ app.post('/api/user/business_hours/save', (req, resp) => {
                 });
             }
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/user/notifications/viewed', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/user/notifications/viewed', authenticate, async(req, resp) => {
         await db.query(`UPDATE notifications SET notification_status = 'Viewed' WHERE notification_recipient = $1`, [req.session.user.username])
         .then(result => {
             if (result) {
                 resp.send({status: 'success'});
             }
         })
-        .catch(err => {
-             console.log(err);
-            resp.send({status: 'error'});
-        });
-    }
+        .catch(err => error.log(err, req, resp));
 });
 
-app.post('/api/user/subscription/add', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/user/subscription/add', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
-            request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.SUBSCRIPTION_RECAPTCHA_SECRET, response: req.body.verified}}, (err, res, body) => {
-                if (err) console.log(err);
+            request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.RECAPTCHA_SECRET, response: req.body.verified}}, (err, res, body) => {
+                if (err) error.log(err, req, resp);
 
                 let response = JSON.parse(res.body);
                 
@@ -458,15 +429,11 @@ app.post('/api/user/subscription/add', (req, resp) => {
                 }
             });
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/user/subscription/cancel', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/user/subscription/cancel', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
             
             (async() => {
                 try {
@@ -492,20 +459,13 @@ app.post('/api/user/subscription/cancel', (req, resp) => {
                     done();
                 }
             })()
-            .catch(err => {
-                 console.log(err);
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
-            });
+            .catch(err => error.log(err, req, resp));
         });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/user/payment/add', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/user/payment/add', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             if (req.body.error) {
                 req.body.error['stack'] = req.body.error.message;
@@ -562,21 +522,14 @@ app.post('/api/user/payment/add', (req, resp) => {
                         done();
                     }
                 })()
-                .catch(err => {
-                    console.log(err);
-                    resp.send({status: 'error', statusMessage: 'An error occurred'});
-                });
+                .catch(err => error.log(err, req, resp));
             }
         });
-    } else {
-        resp.send({status: `You're not logged in`});
-    }
 });
 
-app.post('/api/user/payment/edit', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/user/payment/edit', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             (async() => {
                 try {
@@ -606,18 +559,13 @@ app.post('/api/user/payment/edit', (req, resp) => {
                     done();
                 }
             })()
-            .catch(err => {
-                 console.log(err);
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
-            });
+            .catch(err => error.log(err, req, resp));
         });
-    }
 });
 
-app.post('/api/user/payment/default', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/user/payment/default', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             (async() => {
                 try {
@@ -655,13 +603,11 @@ app.post('/api/user/payment/default', (req, resp) => {
             })()
             .catch(err => error.log(err, req, resp));
         });
-    }
 });
 
-app.post('/api/user/payment/delete', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/user/payment/delete', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             (async() => {
                 try {
@@ -674,8 +620,8 @@ app.post('/api/user/payment/delete', (req, resp) => {
 
                         if (user.rows[0].is_subscribed && customer.sources.data.length === 1) {
                             let error = new Error(`This card cannot be deleted`);
-                            error.type = 'CUSTOM';
-                            throw error;
+                            let errObj = {error: error, type: 'CUSTOM', stack: error.stack};;
+                            throw errObj;
                         } else if (!user.rows[0].is_subscribed && customer.sources.data.length > 0) {
                             card = await stripe.customers.deleteCard(user.rows[0].stripe_id, req.body.id);
 
@@ -689,14 +635,14 @@ app.post('/api/user/payment/delete', (req, resp) => {
                                 });
                             } else {
                                 let error = new Error('Failed to delete card');
-                                error.type = 'CUSTOM';
-                                throw error;
+                                let errObj = {error: error, type: 'CUSTOM', stack: error.stack};;
+                                throw errObj;
                             }
                         }
                     } else {
                         let error = new Error(`Account does not exist`);
-                        error.type = 'CUSTOM';
-                        throw error;
+                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};;
+                        throw errObj;
                     }
                 } catch (e) {
                     await client.query('ROLLBACK');
@@ -705,50 +651,33 @@ app.post('/api/user/payment/delete', (req, resp) => {
                     done();
                 }
             })()
-            .catch(err => {
-                 console.log(err);
-                let message = 'An error occurred';
-
-                if (err.type === 'CUSTOM') {
-                    message = err.message;
-                }
-
-                resp.send({status: 'error', statusMessage: message});
-            });
+            .catch(err => error.log(err, req, resp));
         });
-    }
 });
 
-app.post('/api/user/dismiss/announcement', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/user/dismiss/announcement', authenticate, async(req, resp) => {
         await db.query(`INSERT INTO dismissed_announcements (dismissed_announcement, dismissed_by) VALUES ($1, $2) ON CONFLICT ON CONSTRAINT unique_dismiss DO NOTHING`, [req.body.id, req.session.user.username])
         .then(() => resp.send({status: 'success'}))
-        .catch(err => {
-             console.log(err);
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
-        });
-    }
+        .catch(err => error.log(err, req, resp));
 });
 
-app.post('/api/user/notifications/read', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/user/notifications/read', authenticate, async(req, resp) => {
         await db.query(`UPDATE notifications SET notification_status = 'Viewed' WHERE notification_recipient = $1`, [req.session.user.username])
         .then(result => {
             if (result && result.rowCount > 0) {
                 resp.send({status: 'success'});
             }
         })
-        .catch(err => {
-             console.log(err);
-        });
-    }
+        .catch(err => error.log(err, req, resp));
 });
 
-app.post('/api/user/friend', (req, resp) => {
-    if (req.session.user) {
-        db.connect((err, client, done) => {
-            if (err) console.log(err);
+app.post('/api/user/friend', authenticate, (req, resp) => {
+    db.connect((err, client, done) => {
+        if (err) error.log(err, req, resp);
 
+        if (req.session.user.username === req.body.user) {
+            resp.send({status: 'error', statusMessage: `You cannot add yourself as friend`});
+        } else {
             (async() => {
                 try {
                     await client.query('BEGIN');
@@ -768,46 +697,36 @@ app.post('/api/user/friend', (req, resp) => {
                     done();
                 }
             })()
-            .catch(err => {
-                console.log(err);
-
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
-            });
-        });
-    }
+            .catch(err => error.log(err, req, resp));
+        }
+    });
 });
 
-app.post('/api/user/block', (req, resp) => {
-    if (req.session.user) {
-        db.connect((err, client, done) => {
-            if (err) console.log(err);
+app.post('/api/user/block', authenticate, (req, resp) => {
+    db.connect((err, client, done) => {
+        if (err) error.log(err, req, resp);
 
-            (async() => {
-                try {
-                    await client.query('BEGIN');
+        (async() => {
+            try {
+                await client.query('BEGIN');
 
-                    if (req.body.action === 'block') {
-                        await client.query(`INSERT INTO blocked_users (blocking_user, blocked_user) VALUES ($1, $2)`, [req.session.user.username, req.body.user]);
-                    } else if (req.body.action === 'unblock') {
-                        await client.query(`DELETE FROM blocked_users WHERE blocking_user = $1 AND blocked_user = $2`, [req.session.user.username, req.body.user]);
-                    }
-
-                    await client.query('COMMIT')
-                    .then(() => resp.send({status: 'success', statusMessage: req.body.action === 'block' ? 'User blocked' : 'User unblocked'}));
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                    throw e;
-                } finally {
-                    done();
+                if (req.body.action === 'block') {
+                    await client.query(`INSERT INTO blocked_users (blocking_user, blocked_user) VALUES ($1, $2)`, [req.session.user.username, req.body.user]);
+                } else if (req.body.action === 'unblock') {
+                    await client.query(`DELETE FROM blocked_users WHERE blocking_user = $1 AND blocked_user = $2`, [req.session.user.username, req.body.user]);
                 }
-            })()
-            .catch(err => {
-                console.log(err);
 
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
-            });
-        });
-    }
+                await client.query('COMMIT')
+                .then(() => resp.send({status: 'success', statusMessage: req.body.action === 'block' ? 'User blocked' : 'User unblocked'}));
+            } catch (e) {
+                await client.query('ROLLBACK');
+                throw e;
+            } finally {
+                done();
+            }
+        })()
+        .catch(err => error.log(err, req, resp));
+    });
 });
 
 module.exports = app;

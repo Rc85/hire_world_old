@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import fetch from 'axios';
 import { LogError } from '../../utils/LogError';
 import SubmitReview from './SubmitReview';
-import UserReviewRow from './UserReviewRow';
+import ViewUserReviewRow from './ViewUserReviewRow';
 import { Alert } from '../../../actions/AlertActions';
 import { connect } from 'react-redux';
 import Pagination from '../../utils/Pagination';
@@ -115,9 +115,9 @@ class ViewUserReviews extends Component {
 
                 <div className='user-reviews-container'>
                     {this.state.reviews.length > 0 ? this.state.reviews.map((review, i) => {
-                        let reported = this.state.reportedReviews.indexOf(review.review_id) >= 0;
+                        let reported = this.state.reportedReviews.indexOf(review.review_id.toString()) >= 0;
 
-                        return <UserReviewRow key={review.review_id} review={review} user={this.props.user} edit={(review, id, star) => this.editReview(review, id, star, i)} reported={reported} />;
+                        return <ViewUserReviewRow key={review.review_id} review={review} user={this.props.user} edit={(review, id, star) => this.editReview(review, id, star, i)} reported={reported} />;
                     }) : <h1 className='text-dark text-center'>No Reviews</h1>}
                 </div>
 

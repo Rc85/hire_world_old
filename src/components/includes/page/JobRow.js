@@ -20,6 +20,8 @@ class JobRow extends Component {
             jobStatus = <span className='mini-badge mini-badge-info'>Awaiting Funds...</span>;
         } else if (this.props.job.job_status === 'Active') {
             jobStatus = <span className='mini-badge mini-badge-warning'>In Progress</span>;
+        } else if (this.props.job.job_status === 'Requesting Close') {
+            jobStatus = <span className='mini-badge mini-badge-danger'>Requesting Close...</span>;
         } else if (this.props.job.job_status === 'Complete') {
             jobStatus = <span className='mini-badge mini-badge-success'>Complete</span>;
         } else if (this.props.job.job_status === 'Abandoned') {

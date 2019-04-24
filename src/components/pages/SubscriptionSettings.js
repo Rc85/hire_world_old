@@ -10,7 +10,7 @@ import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationA
 import { connect } from 'react-redux';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSyncAlt, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import { faSyncAlt, faShoppingCart } from '@fortawesome/pro-solid-svg-icons';
 import { Redirect } from 'react-router-dom';
 import Loading from '../utils/Loading';
 import Tooltip from '../utils/Tooltip';

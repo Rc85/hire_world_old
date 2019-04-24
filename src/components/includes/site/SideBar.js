@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink, withRouter, Redirect } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faBell, faThList, faUserCircle, faUserFriends, faUserSlash } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt, faBell, faThList, faUserCircle, faUserFriends, faUserSlash } from '@fortawesome/pro-solid-svg-icons';
 import { LogoutUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
 import Loading from '../../utils/Loading';
@@ -24,7 +24,7 @@ class SideBar extends Component {
         e.stopPropagation();
 
         if (this.props.menu.id === 'browse-menu' && this.props.menu.show) {
-            this.props.dispatch(ToggleMenu(false, 'browse-menu'));
+            this.props.dispatch(ToggleMenu(false, ''));
         } else {
             this.props.dispatch(ToggleMenu(true, 'browse-menu'));
         }
@@ -34,7 +34,7 @@ class SideBar extends Component {
         e.stopPropagation();
 
         if (this.props.menu.id = 'notification-panel' && this.props.menu.show) {
-            this.props.dispatch(ToggleMenu(false, 'notification-panel'));
+            this.props.dispatch(ToggleMenu(false, ''));
         } else {
             this.props.dispatch(ToggleMenu(true, 'notification-panel'));
         }
@@ -44,15 +44,16 @@ class SideBar extends Component {
         let browseLink = <div className='sidebar-link-container'>
             <Link
             className='browse-listing-link'
-            text={<h5>Browse Sectors</h5>}
+            text={`Browse`}
             onClick={(e) => this.toggleMenu(e)}
             icon={<FontAwesomeIcon icon={faThList} />}
             active={/^\/(browse|sector|user)/.test(this.props.location.pathname) || (this.props.menu.id === 'browse-menu' && this.props.menu.show)} />
+
+            <BrowseMenu show={this.props.menu.id === 'browse-menu' && this.props.menu.show} />
         </div>;
 
         if (this.props.user.status === 'success' && this.props.user.user) {
             return <section id='sidebar'>
-                <BrowseMenu show={this.props.menu.id === 'browse-menu' && this.props.menu.show} />
 
                 <div className='text-center'><NavLink to='/'><img src='/images/logo_xl.png' id='hireworld-logo' /></NavLink></div>
 
@@ -77,7 +78,7 @@ class SideBar extends Component {
                                 return <div key={i} className='sidebar-link-container'>
                                     <Link
                                     name={item.name}
-                                    text={<h5>{item.name}</h5>}
+                                    text={item.name}
                                     link={item.link}
                                     icon={item.icon}
                                     active={item.active}
@@ -88,7 +89,7 @@ class SideBar extends Component {
                             })}
 
                             <div className='sidebar-link-container'>
-                                <Link text={<h5>Logout</h5>} icon={<FontAwesomeIcon icon={faSignOutAlt} />} onClick={() => this.props.dispatch(LogoutUser())} />
+                                <Link text={'Logout'} icon={<FontAwesomeIcon icon={faSignOutAlt} />} onClick={() => this.props.dispatch(LogoutUser())} />
                             </div>
                         </div>
                     </React.Fragment>
@@ -96,8 +97,6 @@ class SideBar extends Component {
             </section>;
         } else if (this.props.user.status === 'error' || this.props.user.status === 'not logged in' || this.props.user.status === 'access error') {
             return <section id='sidebar'>
-                <BrowseMenu show={this.props.menu.id === 'browse-menu' && this.props.menu.show} />
-
                 <div className='text-center'><NavLink to='/'><img src='/images/logo_xl.png' id='hireworld-logo' /></NavLink></div>
 
                 <div id='sidebar-content'>
@@ -150,7 +149,7 @@ class Link extends Component {
                     return null;
                 }
 
-                return <NavLink key={i} to={item.link}><div className={`sidebar-sub-item ${item.active ? 'active' : ''}`}><div className='sidebar-sub-item-link'>{item.name}</div> {item.messageCount > 0 ? <span className='mini-badge mini-badge-danger'>{item.messageCount}</span> : ''}</div></NavLink>
+                return <NavLink key={i} to={item.link}><div className={`sidebar-sub-item`}><div className={`sidebar-sub-item-link ${item.active ? 'active' : ''}`}>{item.name}</div> {item.messageCount > 0 ? <span className='mini-badge mini-badge-danger'>{item.messageCount}</span> : ''}</div></NavLink>
             });
         }
 
@@ -163,7 +162,7 @@ class Link extends Component {
                 <div className={`sidebar-link-item-wrapper ${this.props.className ? this.props.className : ''}`}>
                     <div className={`sidebar-link-item ${this.props.className ? this.props.className : ''}`}>
                         {this.props.icon ? <div className={`sidebar-link-icon ${this.props.active ? 'active' : ''} ${this.props.className ? this.props.className : ''}`}>{this.props.icon}</div> : ''}
-                        <div className={`sidebar-link-text ${this.props.className ? this.props.className : ''}`}>{this.props.text}</div>
+                        <div className={`sidebar-link-text ${this.props.className ? this.props.className : ''}`}><h5>{this.props.text}</h5></div>
                     </div>
                     <div className={`sidebar-link-underline ${this.state.hover ? 'hover' : ''} ${this.props.className ? this.props.className : ''}`}></div>
                 </div>
@@ -174,7 +173,7 @@ class Link extends Component {
                     <div className='sidebar-link-item-wrapper'>
                         <div className='sidebar-link-item'>
                             {this.props.icon ? <div className={`sidebar-link-icon ${this.props.active ? 'active' : ''}`}>{this.props.icon}</div> : ''}
-                            <div className='sidebar-link-text'>{this.props.text}</div>
+                            <div className='sidebar-link-text'><h5>{this.props.text}</h5></div>
                             {messageCount}
                         </div>
                         <div className={`sidebar-link-underline ${this.state.hover ? 'hover' : ''}`}></div>

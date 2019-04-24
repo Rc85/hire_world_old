@@ -11,7 +11,7 @@ import AddressInput from '../includes/page/AddressInput';
 import { connect } from 'react-redux';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
+import { faCreditCard } from '@fortawesome/pro-regular-svg-icons';
 import InputWrapper from '../utils/InputWrapper';
 import Loading from '../utils/Loading';
 import { IsTyping } from '../../actions/ConfigActions';
@@ -48,7 +48,6 @@ class PaymentSettings extends Component {
     componentDidMount() {
         fetch.post('/api/get/user/payments')
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', payments: resp.data.payments, defaultSource: resp.data.defaultSource});
             } else if (resp.data.status === 'error') {

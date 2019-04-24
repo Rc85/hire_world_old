@@ -43,6 +43,10 @@ module.exports = (env) => {
                 '/api': {
                     target: 'http://localhost',
                     secure: false
+                },
+                '/files': {
+                    target: 'http://localhost',
+                    secure: false
                 }
             },
             historyApiFallback: {

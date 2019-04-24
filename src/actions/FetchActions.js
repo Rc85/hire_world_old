@@ -1,6 +1,7 @@
 import fetch from 'axios';
 import { LogError } from '../components/utils/LogError';
 import { Alert } from './AlertActions';
+import { LogoutUser } from './LoginActions';
 
 export const GetSession = () => {
     return dispatch => {
@@ -8,8 +9,10 @@ export const GetSession = () => {
         .then(resp => {
             if (resp.data.status === 'success') {
                 dispatch(GetSessionSuccess(resp.data.status, resp.data.user));
-            } else {
+            } else if (resp.data.status === 'error') {
                 dispatch(GetSessionFail(resp.data.status, resp.data.statusMessage));
+            } else if (resp.data.status === 'suspended' || resp.data.status === 'banned') {
+                dispatch(LogoutUser());
             }
         })
         .catch(err => LogError(err, '/api/auth/login'));

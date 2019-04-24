@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUniversity, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faUniversity, faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { faCcVisa, faCcMastercard } from '@fortawesome/free-brands-svg-icons';
 import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 import { connect } from 'react-redux';
@@ -28,35 +28,37 @@ class FinancialAccountRow extends Component {
         let icon, info;
 
         if (this.props.account.object === 'card' && this.props.account.brand === 'Visa') {
-            icon = <FontAwesomeIcon icon={faCcVisa} size='3x' />;
+            icon = <FontAwesomeIcon icon={faCcVisa} size='3x' className='financial-account-icon' />;
         } else if (this.props.account.object === 'card' && this.props.account.brand === 'MasterCard') {
-            icon = <FontAwesomeIcon icon={faCcMastercard} size='3x' />;
+            icon = <FontAwesomeIcon icon={faCcMastercard} size='3x' className='financial-account-icon' />;
         } else if (this.props.account.object === 'bank_account') {
-            icon = <FontAwesomeIcon icon={faUniversity} size='3x' />;
+            icon = <FontAwesomeIcon icon={faUniversity} size='3x' className='financial-account-icon' />;
         }
 
         if (this.props.account.object === 'card') {
-            info = <div className='ml-2'>
-                <div className='mb-1'>
-                    <strong>{this.props.account.brand} {this.props.account.funding.charAt(0).toUpperCase() + this.props.account.funding.substr(1)}</strong>
-                    <span className='mini-badge mini-badge-info ml-2'>{this.props.account.currency.toUpperCase()}</span>
-                    {this.props.account.default_for_currency ? <span className='mini-badge mini-badge-success ml-2'>Default</span> : ''}
+            info = <div className='financial-account-row'>
+                <div className='financial-account-details'><strong className='mr-2'>{this.props.account.brand} {this.props.account.funding.charAt(0).toUpperCase() + this.props.account.funding.substr(1)}</strong></div>
+                <div className='financial-account-currency'>
+                    <span className='mini-badge mini-badge-info mr-2'>{this.props.account.currency.toUpperCase()}</span>
+                    {this.props.account.default_for_currency ? <span className='mini-badge mini-badge-success'>Default</span> : ''}
                 </div>
-                <div className='mb-1'>**** **** **** {this.props.account.last4}</div>
-                <div className='mb-1'><strong>Expiry Date:</strong> {this.props.account.exp_month}/{this.props.account.exp_year}</div>
-                <div className='mb-1'><strong>Available Payout Methods:</strong> {this.props.account.available_payout_methods.map((payout, i) => {
+                <div className='financial-account-details'>**** **** **** {this.props.account.last4}</div>
+                <div className='financial-account-details'><strong>Expiry Date:</strong> {this.props.account.exp_month}/{this.props.account.exp_year}</div>
+                <div className='financial-account-details'><strong>Available Payout Methods:</strong> {this.props.account.available_payout_methods.map((payout, i) => {
                     return <span key={i} className='mini-badge mini-badge-lightblue mr-1'>{payout}</span>;
                 })}</div>
             </div>;
         } else if (this.props.account.object === 'bank_account') {
-            info = <div className='ml-2'>
-                <div className='mb-1'>
+            info = <div className='financial-account-row'>
+                <div className='financial-account-details'>
                     <strong>{this.props.account.bank_name}</strong>
-                    <span className='mini-badge mini-badge-info ml-2'>{this.props.account.currency.toUpperCase()}</span>
-                    {this.props.account.default_for_currency ? <span className='mini-badge mini-badge-success ml-2'>Default</span> : ''}
                 </div>
-                <div className='mb-1'>***** {this.props.account.last4}</div>
-                <div className='mb-1'><strong>Routing Number:</strong> {this.props.account.routing_number}</div>
+                <div className='financial-account-currency'>
+                    <span className='mini-badge mini-badge-info mr-2'>{this.props.account.currency.toUpperCase()}</span>
+                    {this.props.account.default_for_currency ? <span className='mini-badge mini-badge-success mr-2'>Default</span> : ''}
+                </div>
+                <div className='financial-account-details'>***** {this.props.account.last4}</div>
+                <div className='financial-account-details'><strong>Routing Number:</strong> <span>{this.props.account.routing_number}</span></div>
             </div>;
         }
         

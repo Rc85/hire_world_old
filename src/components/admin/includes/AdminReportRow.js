@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faCaretUp } from '@fortawesome/pro-solid-svg-icons';
 import { connect } from 'react-redux';
 import { ToggleMenu } from '../../../actions/MenuActions';
 import Menu from '../../utils/Menu';

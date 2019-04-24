@@ -3,7 +3,7 @@ import InputWrapper from '../utils/InputWrapper';
 import Recaptcha from 'react-recaptcha';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlusSquare } from '@fortawesome/free-solid-svg-icons';
+import { faPlusSquare } from '@fortawesome/pro-solid-svg-icons';
 import SubmitButton from '../utils/SubmitButton';
 import fetch from 'axios';
 import { Alert } from '../../actions/AlertActions';
@@ -130,11 +130,11 @@ class Register extends Component {
     
                         <div className='mb-3'>
                             <label>
-                                <input type='checkbox' onClick={() => this.setState({agreed: !this.state.agreed})} /> I have read, understood, and agree to the <a href='/tos'>Terms of Service</a> and <a href='/privacy'>Privacy Policy</a>
+                                <input type='checkbox' onClick={() => this.setState({agreed: !this.state.agreed})} /> I have read, understood, and agree to the <NavLink to='/tos'>Terms of Service</NavLink> and <NavLink to='/privacy'>Privacy Policy</NavLink>
                             </label>
                         </div>
     
-                        <Recaptcha sitekey='6LdKOIIUAAAAAPRGJ4dDSoHfb1Dad0vxuD4s5gjG' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} ref={(el) => recaptchaInstance = el} />
+                        <Recaptcha sitekey='6Le5uJ4UAAAAAMvk94nwQjc9_8nln2URksn1152W' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} ref={(el) => recaptchaInstance = el} />
 
                         <div className='text-right'>
                             <SubmitButton type='submit' loading={this.state.status === 'Registering'} />

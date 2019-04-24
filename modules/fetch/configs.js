@@ -17,10 +17,7 @@ app.post('/api/get/announcements', async(req, resp) => {
     .then(result => {
         resp.send({status: 'success', announcements: result.rows})
     })
-    .catch(err => {
-         console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 module.exports = app;

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThList, faClipboardList } from '@fortawesome/free-solid-svg-icons';
+import { faThList, faClipboardList } from '@fortawesome/pro-solid-svg-icons';
 import { LogError } from '../utils/LogError';
 import fetch from 'axios';
 import ListingRow from '../includes/page/ListingRow';
@@ -14,17 +14,17 @@ class Main extends Component {
         
         this.state = {
             status: '',
-            listings: []
+            profiles: []
         }
     }
     
     componentDidMount() {
         this.setState({status: 'Fetching'});
 
-        fetch.post('/api/get/listings', {recent: true})
+        fetch.post('/api/get/listings', {recent: true, type: 'profiles'})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', listings: resp.data.listings});
+                this.setState({status: '', profiles: resp.data.listings});
             } else if (resp.data.status === 'error') {
                 this.setState({status: 'error'});
             }
@@ -38,9 +38,9 @@ class Main extends Component {
     render() {
         return (
             <section id='main' className='main-panel'>
-                <TitledContainer title='Recent Listings' icon={<FontAwesomeIcon icon={faClipboardList} />} shadow bgColor='lime' className='mb-5'>
-                    {this.state.listings.map((listing, i) => {
-                        return <ListingRow key={i} listing={listing} />
+                <TitledContainer title='Featured Profiles' icon={<FontAwesomeIcon icon={faClipboardList} />} shadow bgColor='lime' className='mb-5'>
+                    {this.state.profiles.map((profile, i) => {
+                        return <ListingRow key={i} listing={profile} />
                     })}
                 </TitledContainer>
 

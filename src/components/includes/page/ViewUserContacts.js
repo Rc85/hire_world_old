@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
-import { faPhone, faMapMarkedAlt, faMapMarkerAlt, faUserCircle } from '@fortawesome/free-solid-svg-icons';
-import { faBuilding } from '@fortawesome/free-regular-svg-icons';
+import { faEnvelope } from '@fortawesome/pro-regular-svg-icons';
+import { faPhone, faMapMarkedAlt, faMapMarkerAlt, faUserCircle } from '@fortawesome/pro-solid-svg-icons';
+import { faBuilding } from '@fortawesome/pro-regular-svg-icons';
 import TitledContainer from '../../utils/TitledContainer';
 
 const ViewUserContacts = props => {

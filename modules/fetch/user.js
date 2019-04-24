@@ -3,12 +3,13 @@ const db = require('../db');
 const error = require('../utils/error-handler');
 const stripe = require('stripe')(process.env.STRIPE_API_KEY);
 const controller = require('../utils/controller');
+const authenticate = require('../utils/auth');
 
 stripe.setApiVersion('2019-02-19');
 
 app.post('/api/get/user', async(req, resp) => {
     db.connect((err, client, done) => {
-        if (err) console.log(err);
+        if (err) error.log(err, req, resp);
 
         (async() => {
             try {
@@ -64,7 +65,7 @@ app.post('/api/get/user', async(req, resp) => {
                     }
                     
                     if (req.session.user) {
-                        reportedUser = await client.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2 AND reported_user = $3 AND report_status = 'Pending'`, [req.session.user.username, 'Listing', req.body.username]);
+                        reportedUser = await client.query(`SELECT report_id FROM reports WHERE reporter = $1 AND report_type = $2 AND report_status = 'Pending' AND reported_content_link = $3`, [req.session.user.username, 'User Profile', req.body.url]);
                         isFriend = await client.query(`SELECT * FROM friends WHERE friend_user_1 = $1 AND friend_user_2 = $2`, [req.session.user.username, req.body.username]);
                         isBlocked = await client.query(`SELECT * FROM blocked_users WHERE blocking_user = $1 AND blocked_user = $2`, [req.session.user.username, req.body.username]);
                         
@@ -110,23 +111,15 @@ app.post('/api/get/user', async(req, resp) => {
     });
 });
 
-app.post('/api/get/business_hours', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/get/business_hours', authenticate, async(req, resp) => {
         await db.query(`SELECT monday, tuesday, wednesday, thursday, friday, saturday, sunday FROM business_hours WHERE for_listing = $1`, [req.body.id])
         .then(result => {
             if (result) resp.send({status: 'success', hours: result.rows[0]});
         })
-        .catch(err => {
-             console.log(err);
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
-        });
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
+        .catch(err => error.log(err, req, resp));
 });
 
-app.get('/api/get/user/notification-message-job-count', async(req, resp) => {
-    if (req.session.user) {
+app.get('/api/get/user/notification-message-job-count', authenticate, async(req, resp) => {
         let deletedConversationsArray = [];
         let deletedConversations = await db.query(`SELECT deleted_convo FROM deleted_conversations WHERE convo_deleted_by = $1`, [req.session.user.username]);
 
@@ -169,13 +162,9 @@ app.get('/api/get/user/notification-message-job-count', async(req, resp) => {
         } else {
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         }
-    } else {
-        resp.send('done');
-    }
 });
 
-app.post('/api/get/user/notifications', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/get/user/notifications', authenticate, async(req, resp) => {
         let queryString;
 
         if (req.body.new) {
@@ -190,36 +179,24 @@ app.post('/api/get/user/notifications', async(req, resp) => {
                 resp.send({status: 'success', notifications: result.rows});
             }
         })
-        .catch(err => {
-             console.log(err);
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
-        });
-    } else {
-        resp.send('done');
-    }
+        .catch(err => error.log(err, req, resp));
 });
 
-app.post('/api/get/user/payments', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/get/user/payments', authenticate, async(req, resp) => {
         let user = await db.query(`SELECT stripe_id FROM users WHERE username = $1`, [req.session.user.username])
 
         if (user && user.rows[0].stripe_id) {
-            stripe.customers.retrieve(user.rows[0].stripe_id, (err, customer) => {
-                if (err) {
-                     console.log(err);
-                    resp.send({status: 'error', statusMessage: 'An error occurred'});
-                }
-
+            await stripe.customers.retrieve(user.rows[0].stripe_id)
+            .then(customer => {
                 resp.send({status: 'success', defaultSource: customer.default_source, payments: customer.sources.data});
-            });
+            })
+            .catch(err => error.log(err, req, resp));
         } else {
             resp.send({status: 'success', payments: []});
         }
-    }
 });
 
-app.post('/api/get/user/subscription', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/get/user/subscription', authenticate, async(req, resp) => {
         let user = await db.query(`SELECT subscription_id FROM users WHERE username = $1`, [req.session.user.username]);
 
         if (user && user.rows[0].subscription_id) {
@@ -229,22 +206,15 @@ app.post('/api/get/user/subscription', async(req, resp) => {
                     resp.send({status: 'success', subscription: subscription});
                 }
             })
-            .catch(err => {
-                console.log(err);
-                resp.send({status: 'error', statusMessage: 'Cannot retrieve subscription details'});
-            });
+            .catch(err => error.log(err, req, resp));
         } else {
             resp.send('done');
         }
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
 });
 
-app.post('/api/get/user/activities', (req, resp) => {
-    if (req.session.user) {
+app.post('/api/get/user/activities', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
-            if (err) console.log(err);
+            if (err) error.log(err, req, resp);
 
             (async() => {
                 try {
@@ -274,16 +244,11 @@ app.post('/api/get/user/activities', (req, resp) => {
                     done();
                 }
             })()
-            .catch(err => {
-                 console.log(err);
-                resp.send({status: 'error', statusMessage: 'An error occurred'});
-            });
+            .catch(err => error.log(err, req, resp));
         });
-    }
 });
 
-app.post('/api/get/user/friends', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/get/user/friends', authenticate, async(req, resp) => {
         let filterValue = '';
         let filterString = '';
 
@@ -332,11 +297,7 @@ app.post('/api/get/user/friends', async(req, resp) => {
                 resp.send({status: 'error', statusMessage: 'Failed to retrieve friends list'});
             }
         })
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
-        });
-    }
+        .catch(err => error.log(err, req, resp));
 });
 
 app.post('/api/get/user/minimal', async(req, resp) => {
@@ -351,7 +312,7 @@ app.post('/api/get/user/minimal', async(req, resp) => {
     LEFT JOIN user_settings AS us ON users.user_id = us.user_setting_id
     WHERE users.username = $1`, [req.body.user, req.session.user ? req.session.user.username : null])
     .then(result => {
-        console.log(result.rows[0])
+        
         if (result && result.rows.length === 1) {
             if (result.rows[0].hide_email) {
                 delete result.rows[0].user_email;
@@ -362,14 +323,10 @@ app.post('/api/get/user/minimal', async(req, resp) => {
             resp.send({status: 'success', user: result.rows[0]});
         }
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
-app.post('/api/get/user/blocked', async(req, resp) => {
-    if (req.session.user) {
+app.post('/api/get/user/blocked', authenticate, async(req, resp) => {
         await controller.blockedUsers.retrieve(req, (result) => {
             if (result.status === 'success') {
                 resp.send({status: result.status, statusMessage: result.statusMessage, users: result.users, totalBlockedUsers: result.totalBlockedUsers});
@@ -377,7 +334,6 @@ app.post('/api/get/user/blocked', async(req, resp) => {
                 error.log(result.error, req, resp);
             }
         });
-    }
 });
 
 app.post('/api/get/reviews', async(req, resp) => {
@@ -386,8 +342,15 @@ app.post('/api/get/reviews', async(req, resp) => {
     let reports, reviewed, reviewSubmitted;
 
     if (req.session.user) {
-        reports = await db.query(`SELECT reported_id FROM reports WHERE reporter = $1 AND report_type = $2 AND report_status = 'Pending'`, [req.session.user.username, 'Review']);
-        reviewed = await db.query(`SELECT reviewer FROM user_reviews WHERE reviewing = $1 AND reviewer = $2`, [req.body.user, req.session.user.username]);
+        reviewed = await db.query(`SELECT review_id FROM user_reviews WHERE reviewing = $1`, [req.body.user]);
+        
+        let reviewIds = [];
+
+        for (let row of reviewed.rows) {
+            reviewIds.push(row.review_id);
+        }
+
+        reports = await db.query(`SELECT reported_content_link FROM reports WHERE reporter = $1 AND report_type = 'Review' AND report_status = 'Pending' AND reported_content_link = ANY($2)`, [req.session.user.username, reviewIds]);
     }
     
     let reportedReviews = [];
@@ -396,11 +359,11 @@ app.post('/api/get/reviews', async(req, resp) => {
         reviewSubmitted = reviewed.rows.length === 1;
 
         for (let report of reports.rows) {
-            reportedReviews.push(report.reported_id);
+            reportedReviews.push(report.reported_content_link);
         }
     }
 
-    await db.query(`SELECT DISTINCT user_reviews.*, user_profiles.avatar_url, review_tokens.token_status FROM user_reviews
+    await db.query(`SELECT DISTINCT user_reviews.*, user_profiles.avatar_url, review_tokens.token_review_id FROM user_reviews
     LEFT JOIN users ON users.username = user_reviews.reviewer
     LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
     LEFT JOIN review_tokens ON review_tokens.token_review_id = user_reviews.review_id
@@ -413,6 +376,24 @@ app.post('/api/get/reviews', async(req, resp) => {
             resp.send({status: 'success', reviews: result.rows, totalReviews: reviews.rows[0].count, reportedReviews: reportedReviews, reviewSubmitted: reviewSubmitted});
         } else {
             resp.send({status: 'error', statusMessage: 'Fail to retrieve reviews'});
+        }
+    })
+    .catch(err => error.log(err, req, resp));
+});
+
+app.post('/api/get/user/work', authenticate, async(req, resp) => {
+    let jobs = await db.query(`SELECT COUNT(job_id) AS total_jobs FROM jobs WHERE job_user = $1`, [req.body.user]);
+
+    await db.query(`SELECT * FROM jobs
+    WHERE job_status IN ('Complete', 'Abandoned')
+    AND job_user = $1
+    ORDER BY job_created_date DESC
+    LIMIT 5 OFFSET $2`, [req.body.user, req.body.offset])
+    .then(result => {
+        if (result) {
+            resp.send({status: 'success', history: result.rows, total: jobs.rows[0].total_jobs});
+        } else {
+            resp.send({status: 'error'});
         }
     })
     .catch(err => error.log(err, req, resp));

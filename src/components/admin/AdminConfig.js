@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faTrash } from '@fortawesome/pro-solid-svg-icons';
 import Loading from '../utils/Loading';
 import { LogError } from '../utils/LogError';
 

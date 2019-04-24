@@ -9,3 +9,21 @@
 
     a { color: $theme-highlight; }
 }
+
+.connect-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.connected-badges, .financial-account-currency {
+    display: flex;
+}
+
+.financial-account-row {
+    margin-left: 5px;
+}
+
+.financial-account-details {
+    margin-bottom: 5px;
+}

@@ -83,6 +83,229 @@
         }
     }
 
+    .input-group-container {
+        select:not(:last-child) {
+            margin-right: 5px;
+        }
+
+        .input-group {
+            &.row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    }
+
+    .job-row {
+        .job-info-row {
+            flex-direction: column;
+            align-items: stretch;
+
+            .job-info {
+                flex-direction: column;
+                
+                .job-info-item {
+                    border-bottom: 1px solid black;
+                    border-right: 0;
+                }
+            }
+
+            .job-info-item {
+                border-bottom: 0;
+            }
+        }
+    }
+
+    .view-header-title-details, .job-details-dates, .milestone-creator-details, .connect-footer, .row-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .funds-remaining {
+        margin-top: 5px;
+    }
+
+    .milestone-container {
+        grid-template-columns: 1fr;
+        grid-gap: 0;
+    }
+
+    .applicant-row {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .job-message-row-container {
+        .job-message-row-profile-pic {
+            display: none;
+        }
+
+        &.left {
+            .job-message {
+                margin-left: 0;
+            }
+        }
+
+        &.right {
+            .job-message {
+                margin-right: 0;
+            }
+        }
+    }
+
+    .financial-account-icon {
+        display: none;
+    }
+
+    .financial-account-details {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .job-post-title-container {
+        flex-grow: 1;
+    }
+
+    .job-post-toggler {
+        width: 25%;
+    }
+
+    .job-post-detail-row, .view-header, .radio-container, .connected-badges {
+        flex-direction: column;
+    }
+
+    .financial-accounts {
+        .financial-info-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+
+    .financial-info-buttons {
+        text-align: right;
+    }
+
+    .account-id {
+        h2 {
+            font-size: 1.2rem;
+        }
+    }
+    
+    .connected-badges {
+        .mr-2 {
+            margin-right: 0;
+            margin-bottom: 5px;
+        }
+    }
+
+    .job-post-detail {
+        border-right: 0;
+        border-bottom: 1px solid black;
+
+        &:last-child {
+            border-bottom: 0;
+        }
+    }
+
+    .job-info-item {
+        border-right: 0;
+        border-bottom: 1px solid black;
+    }
+
+    .row-details, .milestone-tracking-details {
+        flex-direction: column;
+    }
+
+    .row-detail {
+        margin-bottom: 5px;
+    }
+
+    .row-title {
+        a {
+            display: block;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+    }
+
+    .detail-child {
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
+
+    .row-details {
+        margin-bottom: 15px;
+    }
+
+    .milestone-conditions-container {
+        margin-left: 0;
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .row-buttons, .row-main {
+        width: 100%;
+    }
+
+    .view-profile-pic {
+        width: 50%;
+        align-self: center;
+    }
+
+    .applicant-details {
+        margin: 0;
+    }
+
+    .application-buttons {
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    .milestone-progress-details {
+        flex-direction: column;
+
+        .mr-2 {
+            margin-right: 0;
+            margin-bottom: 5px;
+        }
+    }
+
+    .milestone-updater-details {
+        width: 100%;
+        margin-bottom: 5px;
+
+        &:nth-child(2) {
+            order: 0;
+        }
+
+        &:first-child {
+            order: 1;
+        }
+        
+        &:nth-child(3) {
+            order: 2;
+        }
+    }
+
+    .job-details-subheader {
+        .d-flex {
+            flex-direction: column;
+
+            .mr-2 {
+                margin-right: 0;
+                margin-bottom: 5px;
+            }
+        }
+    }
+
+    .view-header-title-details {
+        .mr-2 {
+            margin-right: 0;
+            margin-bottom: 15px;
+        }
+    }
+
     #user-reviews-container { grid-column-end: 2; }
 
     .user-review-container {

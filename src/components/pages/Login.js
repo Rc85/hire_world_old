@@ -3,7 +3,7 @@ import { Redirect } from 'react-router-dom';
 import Loading from '../utils/Loading';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSignInAlt } from '@fortawesome/pro-solid-svg-icons';
 import LoginPanel from '../includes/site/LoginPanel';
 
 class Login extends Component {

@@ -17,10 +17,7 @@ app.post('/api/admin/reports/get', async(req, resp) => {
     .then(result => {
         if (result) resp.send({status: 'success', reports: result.rows});
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 app.post('/api/admin/report/change-status', async(req, resp) => {
@@ -50,10 +47,7 @@ app.post('/api/admin/report/change-status', async(req, resp) => {
                 resp.send({status: 'success', statusMessage: successMessage});
             }
         })
-        .catch(err => {
-            console.log(err);
-            resp.send({status: 'error', statusMessage: 'An error occurred'});
-        });
+        .catch(err => error.log(err, req, resp));
     } else {
         resp.send({status: 'error', statusMessage: 'Report already taken care of'});
     }
@@ -68,10 +62,7 @@ app.post('/api/admin/report/get-review', async(req, resp) => {
             resp.send({status: 'error', statusMessage: 'Review not found'});
         }
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 app.post('/api/admin/report/delete-review', async(req, resp) => {
@@ -83,10 +74,7 @@ app.post('/api/admin/report/delete-review', async(req, resp) => {
             resp.send({status: 'error', statusMessage: 'Nothing to delete'});
         }
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 module.exports = app;

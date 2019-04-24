@@ -7,9 +7,6 @@ import { Alert } from '../../../actions/AlertActions';
 import { LogError } from '../../utils/LogError';
 import SlideToggle from '../../utils/SlideToggle';
 import { UpdateUser } from '../../../actions/LoginActions';
-import TitledContainer from '../../utils/TitledContainer';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBusinessTime } from '@fortawesome/free-solid-svg-icons';
 import InputGroup from '../../utils/InputGroup';
 import { IsTyping } from '../../../actions/ConfigActions';
 
@@ -40,7 +37,6 @@ class BusinessHoursSettings extends Component {
         if (prevProps.id !== this.props.id) {
             fetch.post('/api/get/business_hours', {id: this.props.id})
             .then(resp => {
-                console.log(resp);
                 if (resp.data.status === 'success') {
                     this.initialState = this.splitHours(resp.data.hours);
 
@@ -185,7 +181,6 @@ class BusinessHoursSettings extends Component {
     }
     
     render() {
-        console.log(this.state);
         return (
             <section id='business-hours-settings' className='mb-3'>
                 <div className='d-flex-between-center'>
@@ -223,9 +218,9 @@ const HourSetters = props => {
     return(
         <div id={props.day} className='hour-container'>                      
             <InputGroup className='hour-container' label={props.day}>
-                <div className='start-time'><input type='text' onChange={(e) => props.startTime(e.target.value)} maxLength='15' defaultValue={props.startValue} onFocus={() => props.dispatch(IsTyping(true))} onBlur={() => props.dispatch(IsTyping(false))} /></div>
+                <input type='text' onChange={(e) => props.startTime(e.target.value)} maxLength='15' defaultValue={props.startValue} onFocus={() => props.dispatch(IsTyping(true))} onBlur={() => props.dispatch(IsTyping(false))} />
                 <div className='hour-separator'>to</div>
-                <div className='end-time'><input type='text' onChange={(e) => props.endTime(e.target.value)} maxLength='15' defaultValue={props.endValue} onFocus={() => props.dispatch(IsTyping(true))} onBlur={() => props.dispatch(IsTyping(false))} /></div>
+                <input type='text' onChange={(e) => props.endTime(e.target.value)} maxLength='15' defaultValue={props.endValue} onFocus={() => props.dispatch(IsTyping(true))} onBlur={() => props.dispatch(IsTyping(false))} />
             </InputGroup>
         </div>
     )

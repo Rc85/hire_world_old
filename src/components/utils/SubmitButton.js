@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
+import { faCircleNotch } from '@fortawesome/pro-solid-svg-icons';
 import PropTypes from 'prop-types';
 
 export default class SubmitButton extends Component {
@@ -18,7 +18,7 @@ export default class SubmitButton extends Component {
         }
 
         return(
-            <button type={this.props.type} id={this.props.id} className={`btn btn-${this.props.bgColor ? this.props.bgColor : 'primary'} ${this.props.className ? this.props.className : ''}`} disabled={this.props.loading || this.props.disabled} onClick={() => this.onClick()}>
+            <button type={this.props.type ? this.props.type : 'submit'} id={this.props.id} className={`btn btn-${this.props.bgColor ? this.props.bgColor : 'primary'} ${this.props.className ? this.props.className : ''}`} disabled={this.props.loading || this.props.disabled} onClick={() => this.onClick()}>
                 {this.props.loading ? <FontAwesomeIcon icon={faCircleNotch} spin /> : value }
             </button>
         )
@@ -26,8 +26,13 @@ export default class SubmitButton extends Component {
 }
 
 SubmitButton.propTypes = {
-    type: PropTypes.oneOf(['submit', 'button']).isRequired,
-    value: PropTypes.string,
+    type: PropTypes.oneOf([
+        'submit', 'button'
+    ]),
+    value: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.object
+    ]),
     loading: PropTypes.bool,
     onClick: PropTypes.func,
     disabled: PropTypes.bool

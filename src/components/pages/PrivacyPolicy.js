@@ -1,7 +1,7 @@
 import React from 'react';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faFileAlt } from '@fortawesome/pro-solid-svg-icons';
 
 const PrivacyPolicy = props => {
     return (
@@ -36,10 +36,10 @@ const PrivacyPolicy = props => {
                         <li>User's settings such as and not limited to, enabled/disabled email notifications and showing/hiding user information.</li>
                         <li>Cookies which contains a user's data that holds the user's session with our application.</li>
                         <li>Any content submitted to Hire World by its users such as and not limited to, reviews and messages.</li>
-                        <li>Your social security number, financial information, and any information requested by <a href='https://stripe.com'>Stripe</a> will be required conducting business on our platform where you receive payments from <a href='https://stripe.com'>Stripe</a>.</li>
+                        <li>Your social security number, financial information, and any information requested by <a href='https://stripe.com' rel='noopener noreferrer' target='_blank'>Stripe</a> will be required conducting business on our platform where you receive payments from <a href='https://stripe.com' rel='noopener noreferrer' target='_blank'>Stripe</a>.</li>
                     </ul>
 
-                    <p>We do not share your personal information with any other party other than <a href='https://stripe.com'>Stripe</a>.</p>
+                    <p>We do not share your personal information with any other party other than <a href='https://stripe.com' rel='noopener noreferrer' target='_blank'>Stripe</a>.</p>
 
                     <div className='text-right'><a href='#top'>Top</a></div>
 

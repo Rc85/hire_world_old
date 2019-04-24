@@ -1,0 +1,28 @@
+.delete-milestone-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+.milestone-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-gap: 20px;
+  width: 100%;
+}
+
+.condition-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.condition-container .delete-button {
+  position: initial;
+  margin-left: 5px;
+}
+.condition-container .input-container {
+  flex-grow: 1;
+}
+
+/*# sourceMappingURL=MilestoneCreator.css.map */

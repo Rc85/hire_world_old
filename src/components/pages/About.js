@@ -1,7 +1,7 @@
 import React from 'react';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faGlobe } from '@fortawesome/pro-solid-svg-icons';
 
 const About = props => {
     return (

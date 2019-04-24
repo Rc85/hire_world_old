@@ -32,30 +32,32 @@ class ConnectedSettingsForm extends Component {
                 </InputWrapper>
             </div>;
 
-            phone = <div className='setting-child quarter'>
-                <InputWrapper label='Phone Number' required>
-                    <input type='text' defaultValue={this.props.settings.individual.phone === null ? '' : this.props.settings.individual.phone} onChange={(e) => this.setSettings({
-                        ...this.props.settings,
-                        ...{individual: {
-                            ...this.props.settings.individual,
-                            ...{phone: e.target.value}
-                        }}
-                    })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required /> 
-                </InputWrapper>
-            </div>;
+            if (this.props.settings.individual.address.country === 'US') {
+                phone = <div className='setting-child quarter'>
+                    <InputWrapper label='Phone Number' required>
+                        <input type='text' defaultValue={this.props.settings.individual.phone === null ? '' : this.props.settings.individual.phone} onChange={(e) => this.setSettings({
+                            ...this.props.settings,
+                            ...{individual: {
+                                ...this.props.settings.individual,
+                                ...{phone: e.target.value}
+                            }}
+                        })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required /> 
+                    </InputWrapper>
+                </div>;
 
-            mcc = <div className='setting-child quarter'>
-                <InputWrapper label='MCC' required>
-                    <input type='text' maxLength='4' defaultValue={this.props.settings.business_profile.mcc === null ? '' : this.props.settings.business_profile.mcc} onChange={(e) => this.setSettings({
-                        ...this.props.settings,
-                        ...{business_profile: {
-                            ...this.props.settings.business_profile,
-                            mcc: e.target.value
-                        }}
-                    })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required /> 
-                </InputWrapper>
-                <a href='https://stripe.com/docs/connect/setting-mcc#list'>What is this?</a>
-            </div>;
+                mcc = <div className='setting-child quarter'>
+                    <InputWrapper label='MCC' required>
+                        <input type='text' maxLength='4' defaultValue={this.props.settings.business_profile.mcc === null ? '' : this.props.settings.business_profile.mcc} onChange={(e) => this.setSettings({
+                            ...this.props.settings,
+                            ...{business_profile: {
+                                ...this.props.settings.business_profile,
+                                mcc: e.target.value
+                            }}
+                        })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required /> 
+                    </InputWrapper>
+                    <a href='https://stripe.com/docs/connect/setting-mcc#list' rel='noopener noreferrer' target='_blank'>What is this?</a>
+                </div>;
+            }
         }
 
         if (this.props.settings.business_type === 'company') {

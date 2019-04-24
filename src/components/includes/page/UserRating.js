@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar } from '@fortawesome/free-solid-svg-icons';
+import { faStar } from '@fortawesome/pro-solid-svg-icons';
 
 const UserRating = props => {
     if (props.rating >= 0) {

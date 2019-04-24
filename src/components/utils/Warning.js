@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { CloseWarning } from '../../actions/WarningActions';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle } from '@fortawesome/pro-solid-svg-icons';
 
 class Warning extends Component {
     componentDidMount() {

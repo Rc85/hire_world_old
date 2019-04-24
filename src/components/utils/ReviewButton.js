@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from './Tooltip';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faCommentDots } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faCommentDots } from '@fortawesome/pro-solid-svg-icons';
 
 class ReviewButton extends Component {
     render() {

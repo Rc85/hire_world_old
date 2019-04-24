@@ -8,7 +8,7 @@ import OfferDetails from '../includes/page/OfferDetails';
 import Conversation from '../includes/page/Conversation';
 import { withRouter, Redirect } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHandHoldingUsd, faInfoCircle, faCheck, faBan, faMinusCircle, faReply, faTimes, faRedoAlt } from '@fortawesome/free-solid-svg-icons';
+import { faHandHoldingUsd, faInfoCircle, faCheck, faBan, faMinusCircle, faReply, faTimes, faRedoAlt } from '@fortawesome/pro-solid-svg-icons';
 import { connect } from 'react-redux';
 import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
 import fetch from 'axios';

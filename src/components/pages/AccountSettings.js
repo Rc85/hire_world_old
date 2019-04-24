@@ -12,10 +12,10 @@ import { Alert } from '../../actions/AlertActions';
 import { ShowWarning } from '../../actions/WarningActions';
 import { LogError } from '../utils/LogError';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
+import { faQuestionCircle } from '@fortawesome/pro-regular-svg-icons';
 import Loading from '../utils/Loading';
 import TitledContainer from '../utils/TitledContainer';
-import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle } from '@fortawesome/pro-solid-svg-icons';
 import Tooltip from '../utils/Tooltip';
 
 class AccountSettings extends Component {

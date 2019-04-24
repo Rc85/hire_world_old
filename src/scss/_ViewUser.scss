@@ -38,10 +38,6 @@
     }
 }
 
-.view-user-title-child {
-    margin-bottom: 15px;
-}
-
 .view-user-title-wrapper {
     display: flex;
     justify-content: space-between;
@@ -101,4 +97,8 @@
 .view-user-contact-field {
     text-overflow: ellipsis;
     overflow: hidden;
+}
+
+.work-history {
+    display: flex;
 }

@@ -64,7 +64,7 @@ class ResendConfirmation extends Component {
                             <input type='email' onChange={(e) => this.setState({email: e.target.value})} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                         </InputWrapper>
 
-                        <Recaptcha sitekey='6LdKOIIUAAAAAPRGJ4dDSoHfb1Dad0vxuD4s5gjG' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} />
+                        <Recaptcha sitekey='6Le5uJ4UAAAAAMvk94nwQjc9_8nln2URksn1152W' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} />
 
                         <div className='mt-3 text-right'><SubmitButton type='submit' loading={this.state.status === 'Sending'} /></div>
                     </form>

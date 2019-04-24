@@ -16,10 +16,9 @@ class JobProposal extends Component {
         super(props);
         
         this.state = {
-            descriptionLength: 10000,
             workDescription: this.props.job ? this.props.job.job_description : '',
             workTitle: this.props.job ? this.props.job.job_title : '',
-            workDueDate: this.props.job ? moment(this.props.job.job_due_date) : moment(),
+            workDueDate: this.props.job ? moment(this.props.job.job_due_date) : null,
             offerPrice: this.props.job && this.props.job.job_offer_price ? this.props.job.job_offer_price : '',
             priceCurrency: this.props.job && this.props.job.job_price_currency ? this.props.job.job_price_currency : ''
         }
@@ -61,7 +60,7 @@ class JobProposal extends Component {
 
                         <div className='setting-child'>
                             <InputWrapper label='Expected Due Date' className='pb-1 pr-1 pl-1'>
-                                <DatePicker dropdownMode='select' onChange={(val) => this.setState({workDueDate: val})} selected={this.state.workDueDate} value={moment(this.state.workDueDate).format('MM-DD-YYYY')} />
+                                <DatePicker dropdownMode='select' onChange={(val) => this.setState({workDueDate: val})} selected={this.state.workDueDate} value={moment(this.state.workDueDate).isValid() ? moment(this.state.workDueDate).format('MM-DD-YYYY') : ''} />
                             </InputWrapper>
                         </div>
                     </div>
@@ -70,8 +69,6 @@ class JobProposal extends Component {
                         <InputWrapper label='Work Description' required>
                             <TextArea value={this.state.workDescription} placeholder={`Describe the work with as detail as possible (expectations, quality, requirements, tasks completed by date, agreements, etc.)`} onChange={(val) => this.setState({workDescription: val})} className='w-100' textAreaClassName='w-100' value={this.state.workDescription} />
                         </InputWrapper>
-
-                        <div className='character-count'>{this.state.workDescription.length} / {this.state.descriptionLength}</div>
                     </div>
 
                     <div className='text-right'>

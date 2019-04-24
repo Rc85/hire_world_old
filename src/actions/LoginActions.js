@@ -18,6 +18,9 @@ export const LoginUser = (data) => {
                 dispatch(Alert(resp.data.status, resp.data.statusMessage));
             } else if (resp.data.status === 'access error') {
                 dispatch(LoginError(resp.data.status, resp.data.statusMessage));
+            } else if (resp.data.status === 'suspended' || resp.data.status === 'banned') {
+                dispatch(LoginError('error', resp.data.statusMessage));
+                dispatch(Alert('error', resp.data.statusMessage));
             }
         })
         .catch(err => LogError(err, '/api/auth/login'));   

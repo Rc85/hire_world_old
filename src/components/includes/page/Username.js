@@ -4,8 +4,8 @@ import fetch from 'axios';
 import { LogError } from '../../utils/LogError';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBuilding, faIdBadge, faCheckCircle } from '@fortawesome/free-regular-svg-icons';
-import { faBan, faCircleNotch, faTimes, faThumbsDown, faThumbsUp, faUserPlus, faUserMinus, faUserTimes, faUser, faUserCheck } from '@fortawesome/free-solid-svg-icons';
+import { faBuilding, faIdBadge, faCheckCircle } from '@fortawesome/pro-regular-svg-icons';
+import { faBan, faCircleNotch, faTimes, faThumbsDown, faThumbsUp, faUserPlus, faUserMinus, faUserTimes, faUser, faUserCheck } from '@fortawesome/pro-solid-svg-icons';
 import UserProfilePic from './UserProfilePic';
 import { connect } from 'react-redux';
 import { ToggleMenu } from '../../../actions/MenuActions';
@@ -100,7 +100,7 @@ class Username extends Component {
                     let userObj = JSON.parse(userString);
                     userObj.user.is_friend = value;
 
-                    localStorage.setItem(this.state.user.username, JSON.stringify({userObj}));
+                    localStorage.setItem(this.state.user.username, JSON.stringify(userObj));
                     user.is_friend = value;
 
                     this.setState({status: '', user: user});
@@ -131,7 +131,7 @@ class Username extends Component {
                 popup = <div className={`username-popup${this.props.right ? ' right' : ''}${this.props.top ? ' top' : ''}`}>
                     <FontAwesomeIcon icon={faCircleNotch} size='2x' spin />
                 </div>;
-            } else if (!this.state.status && this.state.user) {
+            } else if (this.state.user) {
                 popup = <div className={`username-popup${this.props.right ? ' right' : ''}${this.props.top ? ' top' : ''}`}>
                     <div className='username-popup-container' onClick={(e) => e.stopPropagation()}>
                         <div className='username-popup-header'>
@@ -144,7 +144,7 @@ class Username extends Component {
     
                                 {this.state.user.user_title ? <div><FontAwesomeIcon icon={faIdBadge} className='text-special mr-1' /> {this.state.user.user_title}</div> : ''}
     
-                                {this.state.user.user_email ? <a href={`mailto:${this.state.user.user_email}`}>{this.state.user.user_email}</a> : ''}
+                                {this.state.user.user_email ? <a href={`mailto:${this.state.user.user_email}`} rel='noopener noreferrer' target='_blank'>{this.state.user.user_email}</a> : ''}
                             </div>
                         </div>
     

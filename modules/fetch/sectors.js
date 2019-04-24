@@ -14,10 +14,7 @@ app.get('/api/get/sectors', async(req, resp) => {
             resp.send({status: 'get sectors success', sectors: result.rows});
         }
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'get sectors error'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 module.exports = app;

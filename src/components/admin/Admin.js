@@ -7,8 +7,8 @@ import fetch from 'axios';
 import Loading from '../utils/Loading';
 import { LogError } from '../utils/LogError';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUsersCog, faExclamationTriangle, faCogs, faTable } from '@fortawesome/free-solid-svg-icons';
-import { faListAlt } from '@fortawesome/free-regular-svg-icons';
+import { faUsersCog, faExclamationTriangle, faCogs, faTable } from '@fortawesome/pro-solid-svg-icons';
+import { faListAlt } from '@fortawesome/pro-regular-svg-icons';
 import SideBar from '../includes/site/SideBar';
 import BottomBar from '../includes/site/BottomBar';
 

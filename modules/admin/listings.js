@@ -43,10 +43,7 @@ app.post('/api/admin/listings/get', async(req, resp) => {
     .then(result => {
         if (result) resp.send({status: 'success', listings: result.rows, totalListings: totalListings.rows[0].listing_count});
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 app.post('/api/admin/listing/change-status', async(req, resp) => {
@@ -60,10 +57,7 @@ app.post('/api/admin/listing/change-status', async(req, resp) => {
 
         if (result) resp.send({status: 'success', listing: listing});
     })
-    .catch(err => {
-        console.log(err);
-        resp.send({status: 'error', statusMessage: 'An error occurred'});
-    });
+    .catch(err => error.log(err, req, resp));
 });
 
 module.exports = app;

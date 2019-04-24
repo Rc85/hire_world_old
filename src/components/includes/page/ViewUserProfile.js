@@ -4,11 +4,13 @@ import moment from 'moment';
 import UserProfilePic from '../../includes/page/UserProfilePic';
 import UserRating from './UserRating';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDollarSign, faCommentsDollar } from '@fortawesome/free-solid-svg-icons';
-import { faListAlt } from '@fortawesome/free-regular-svg-icons';
+import { faDollarSign, faCommentsDollar, faThList } from '@fortawesome/pro-solid-svg-icons';
+import { faListAlt } from '@fortawesome/pro-regular-svg-icons';
 import Tooltip from '../../utils/Tooltip';
 import { NavLink } from 'react-router-dom';
 import ViewUserSocialMedia from './ViewUserSocialMedia';
+import { faCommentAltDollar } from '@fortawesome/pro-solid-svg-icons';
+import MoneyFormatter from '../../utils/MoneyFormatter';
 
 const ViewUserProfile = props => {
     let avatar, bio, price;
@@ -25,16 +27,16 @@ const ViewUserProfile = props => {
     }
 
     if (props.user.listing_price_type === 'To Be Discussed') {
-        price = <div className='view-user-listing-info-child'><Tooltip text='Asking Price' placement='top'><FontAwesomeIcon icon={faDollarSign} className='text-special mr-2' /></Tooltip> <nobr>{props.user.listing_price_type}</nobr></div>;
+        price = <div className='view-user-listing-info-child'><FontAwesomeIcon icon={faDollarSign} className='text-special mr-1' /> <nobr>{props.user.listing_price_type}</nobr></div>;
     } else {
         if (props.user.listing_price !== '0') {
             price = <React.Fragment>
                 <div className='view-user-listing-info-child'>
-                    <Tooltip text='Asking Price' placement='top'><FontAwesomeIcon icon={faDollarSign} className='text-special mr-2' /></Tooltip> <nobr>{props.user.listing_price} / {props.user.listing_price_type} {props.user.listing_price_currency}</nobr>
+                    <FontAwesomeIcon icon={faCommentAltDollar} className='text-special mr-1' /> <nobr>$<MoneyFormatter value={props.user.listing_price} /> / {props.user.listing_price_type} {props.user.listing_price_currency}</nobr>
                 </div>
 
                 <div className='view-user-listing-info-child'>
-                    <Tooltip text='Negotiable' placement='top'><FontAwesomeIcon icon={faCommentsDollar} className='text-special mr-2' /></Tooltip> {props.user.listing_negotiable ? <span className='mini-badge mini-badge-success'>Negotiable</span> : <span className='mini-badge mini-badge-secondary'>Non-negotiable</span>}
+                    <FontAwesomeIcon icon={faCommentsDollar} className='text-special mr-1' /> {props.user.listing_negotiable ? <span className='mini-badge mini-badge-success'>Negotiable</span> : <span className='mini-badge mini-badge-secondary'>Non-negotiable</span>}
                 </div>
             </React.Fragment>;
         }
@@ -49,25 +51,25 @@ const ViewUserProfile = props => {
                     </div>
     
                     <div id='view-user-title'>
-                        <div className='view-user-title-child'>
-                            <h3>{props.user.user_title}</h3>
+                        <div className='d-flex-start'>
+                            <h3 className='mr-1'>{props.user.user_title}</h3>
                             {props.user.connected_acct_status === 'Approved' ? <div className='connected-status mini-badge mini-badge-success'>Connected</div> : ''}
                         </div>
 
-                        <div id='view-user-rating' className='view-user-title-child'><UserRating rating={props.stats.rating || 0} /> ({props.stats.job_count})</div>
+                        <div id='view-user-rating' className='mb-3'><UserRating rating={props.stats.rating || 0} /> ({props.stats.job_count})</div>
 
-                        <div id='view-user-listing-info' className='view-user-title-child'>
+                        <div id='view-user-listing-info' className='mb-3'>
                             <div className='view-user-listing-info-child'>
-                                <Tooltip text='Listed Under' placement='top'><FontAwesomeIcon icon={faListAlt} className='text-special mr-2' /></Tooltip> <NavLink to={`/sector/${props.user.listing_sector}`}>{props.user.listing_sector}</NavLink>
+                                <FontAwesomeIcon icon={faThList} className='text-special mr-1' /> <NavLink to={`/sector/${props.user.listing_sector}`}>{props.user.listing_sector}</NavLink>
                             </div>
 
                             {price}
                         </div>
 
-                        <div className='view-user-listing-location view-user-title-child'>
-                            {props.user.listing_local ? <span className='mini-badge mini-badge-orange'>Local</span> : ''}
-                            {props.user.listing_online ? <span className='mini-badge mini-badge-purple'>Online</span> : ''}
-                            {props.user.listing_remote ? <span className='mini-badge mini-badge-green'>Remote</span> : ''}
+                        <div className='view-user-listing-location mb-3'>
+                            {props.user.listing_local ? <span className='mini-badge mini-badge-orange mr-1'>Local</span> : ''}
+                            {props.user.listing_online ? <span className='mini-badge mini-badge-purple mr-1'>Connect</span> : ''}
+                            {props.user.listing_remote ? <span className='mini-badge mini-badge-green mr-1'>Remote</span> : ''}
                         </div>
                     </div>
                 </div>

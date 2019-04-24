@@ -8,25 +8,26 @@ import Loading from '../utils/Loading';
 import ViewUserReviews from '../includes/page/ViewUserReviews';
 import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserCircle, faEye, faExclamationTriangle, faHeart, faCoins, faUserPlus, faUserMinus, faBan, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faEye, faExclamationTriangle, faHeart, faCoins, faUserPlus, faUserMinus, faBan, faUser } from '@fortawesome/pro-solid-svg-icons';
 import ViewUserBusinessHours from '../includes/page/ViewUserBusinessHours';
 import { connect } from 'react-redux';
 import { LogError } from '../utils/LogError';
 import MessageSender from '../includes/page/MessageSender';
-import { faCheckCircle, faTimesCircle } from '@fortawesome/free-regular-svg-icons';
+import { faCheckCircle, faTimesCircle } from '@fortawesome/pro-regular-svg-icons';
 import TitledContainer from '../utils/TitledContainer';
 import Tooltip from '../utils/Tooltip';
-import ViewUserJobActivities from '../includes/page/ViewUserJobActivities';
 import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
-import ViewUserStartJob from '../includes/page/JobProposal';
 import JobProposal from '../includes/page/JobProposal';
+import ViewUserWorkHistory from '../includes/page/ViewUserWorkHistory';
+import { ShowLoading, HideLoading } from '../../actions/LoadingActions';
+import { ShowSelectionModal, ResetSelection, ResetSelectionConfirm } from '../../actions/SelectModalActions';
 
 class ViewUser extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            user: null,
+            user: {},
             status: 'Loading',
             hours: {},
             userReported: false,
@@ -39,15 +40,6 @@ class ViewUser extends Component {
                 job_complete: 0,
                 job_abandon: 0,
                 last_login: null
-            }
-        }
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.confirm.data) {
-            if (nextProps.confirm.data.action === 'report listing' && nextProps.confirm.option) {
-                this.submitReport();
-                this.props.dispatch(ResetConfirmation());
             }
         }
     }
@@ -69,10 +61,22 @@ class ViewUser extends Component {
             })
             .catch(err => LogError(err, '/api/get/user'));
         }
+
+        if (this.props.selection.data.action) {
+            if (!prevProps.selection.selected && !this.props.selection.selected && this.props.selection.confirm) {
+                this.props.dispatch(Alert('error', 'Please select a reason'));
+                this.props.dispatch(ResetSelectionConfirm());
+            } else if (this.props.selection.confirm !== prevProps.selection.confirm) {
+                if (this.props.selection.data.action === 'report user' && this.props.selection.selected && this.props.selection.confirm) {
+                    this.submitReport(this.props.selection.selected, this.props.selection.specified);
+                    this.props.dispatch(ResetSelection());
+                }
+            }
+        }
     }
     
     componentDidMount() {
-        fetch.post('/api/get/user', {username: this.props.match.params.username, id: this.props.match.params.listing_id})
+        fetch.post('/api/get/user', {username: this.props.match.params.username, id: this.props.match.params.listing_id, url: this.props.location.pathname})
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({user: resp.data.user, stats: resp.data.stats, hours: resp.data.hours, status: '', userReported: resp.data.userReported, isFriend: resp.data.isFriend, jobs: resp.data.jobs, isBlocked: resp.data.isBlocked});
@@ -88,22 +92,23 @@ class ViewUser extends Component {
         });
     }
 
-    submitReport() {
-        this.setState({status: 'Submitting Report'});
+    submitReport(reason, specified) {
+        this.props.dispatch(ShowLoading('Sending report'));
 
-        fetch.post('/api/report/submit', {id: this.props.match.params.listing_id, type: 'Listing', url: this.props.location.pathname, user: this.state.user.username})
+        fetch.post('/api/report/submit', {url: this.props.location.pathname, type: 'User Profile', reason: reason, specified: specified === '' ? null : specified})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', userReported: true});
-            } else if (resp.data.status === 'error') {
-                this.setState({status: ''});
-            } else if (resp.data.status === 'redirect') {
-                this.setState({status: resp.data.status});
+                this.setState({userReported: true});
             }
 
+            this.props.dispatch(HideLoading());
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => LogError(err, '/api/report/submit'));
+        .catch(err => {
+            LogError(err, '/api/report/submit');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
     }
 
     sendMessage(message, verified, subject) {
@@ -138,6 +143,10 @@ class ViewUser extends Component {
             }
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        }).catch(err => {
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+            LogError(err, '/api/user/friend');
         });
     }
 
@@ -193,7 +202,6 @@ class ViewUser extends Component {
         if (this.state.user) {
             contacts = <ViewUserContacts user={this.state.user} />;
             profile = <ViewUserProfile user={this.state.user} stats={this.state.stats} hours={this.state.hours} />;
-            jobs = <ViewUserJobActivities user={this.state.user} jobs={this.state.jobs} />;
 
             if (this.state.user.display_business_hours) {
                 businessHours = <ViewUserBusinessHours hours={this.state.hours} />;
@@ -201,19 +209,21 @@ class ViewUser extends Component {
 
             if (this.props.user.user && this.props.user.user.username !== this.state.user.username) {
                 if (!this.state.isFriend) {
-                    friendIcon = <Tooltip text='Add to Friends List' placement='bottom-right'><FontAwesomeIcon icon={faUserPlus} className='text-alt-highlight' onClick={() => this.friendUser('add')} /></Tooltip>;
+                    friendIcon = <Tooltip text='Add to Friends List' placement='bottom-right'><FontAwesomeIcon icon={faUserPlus} className='view-button text-alt-highlight mr-2' onClick={() => this.friendUser('add')} /></Tooltip>;
                 } else {
-                    friendIcon = <Tooltip text='Remove from Friends List' placement='bottom-right'><FontAwesomeIcon icon={faUserMinus} className='text-alt-highlight' onClick={() => this.friendUser('remove')} /></Tooltip>
+                    friendIcon = <Tooltip text='Remove from Friends List' placement='bottom-right'><FontAwesomeIcon icon={faUserMinus} className='view-button text-alt-highlight mr-2' onClick={() => this.friendUser('remove')} /></Tooltip>
                 }
 
                 if (!this.state.isBlocked) {
-                    blockIcon = <Tooltip text='Block User' placement='bottom-right'><FontAwesomeIcon icon={faTimesCircle} className='text-secondary' onClick={() => this.blockUser('block')} /></Tooltip>
+                    blockIcon = <Tooltip text='Block User' placement='bottom-right'><FontAwesomeIcon icon={faTimesCircle} className='view-button text-dark mr-2' onClick={() => this.blockUser('block')} /></Tooltip>
                 } else {
-                    blockIcon = <Tooltip text='Unblock User' placement='bottom-right'><FontAwesomeIcon icon={faTimesCircle} className='text-danger' onClick={() => this.blockUser('unblock')} /></Tooltip>
+                    blockIcon = <Tooltip text='Unblock User' placement='bottom-right'><FontAwesomeIcon icon={faTimesCircle} className='view-button text-danger mr-2' onClick={() => this.blockUser('unblock')} /></Tooltip>
                 }
                 
                 if (!this.state.userReported) {
-                    reportButton = <Tooltip text='Report this listing' placement='bottom-right'><FontAwesomeIcon icon={faExclamationTriangle} onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to report this listing?`, false, {action: 'report listing'}))} className='text-warning' /></Tooltip>;
+                    reportButton = <Tooltip text='Report this listing' placement='bottom-right'><FontAwesomeIcon icon={faExclamationTriangle} className='view-button text-warning' onClick={() => this.props.dispatch(ShowSelectionModal(`Please select a reason`, ['Spam', 'Suspicious', 'Duplicate', 'Impersonating', 'Inappropriate'], {action: 'report user'}))} /></Tooltip>;
+                } else {
+                    reportButton = <Tooltip text='Reported' placement='bottom-right'><FontAwesomeIcon icon={faExclamationTriangle} className='text-dark' /></Tooltip>;
                 }
 
                 if (this.state.message === 'message') {
@@ -279,7 +289,7 @@ class ViewUser extends Component {
                                     </div>
                                 </div>
         
-                                <div className='view-user-buttons'>
+                                <div className='view-buttons'>
                                     {friendIcon}
                                     {blockIcon}
                                     {reportButton}
@@ -291,7 +301,7 @@ class ViewUser extends Component {
                     <div id='view-user-details'>
                         {contacts}
                         {businessHours}
-                        {jobs}
+                        <ViewUserWorkHistory user={this.state.user.username} />
                     </div>
 
                     <ViewUserReviews username={this.props.match.params.username} user={this.props.user} listingId={this.props.match.params.listing_id} />
@@ -308,7 +318,8 @@ ViewUser.propTypes = {
 const mapStateToProps = state => {
     return {
         user: state.Login,
-        confirm: state.Confirmation
+        confirm: state.Confirmation,
+        selection: state.Selection
     }
 }
 

@@ -1,0 +1,27 @@
+.view-header {
+    display: flex;
+    align-items: flex-start;
+}
+
+.view-profile-pic {
+    margin-right: 15px;
+    width: 10%;
+}
+
+.view-header-title {
+    flex-grow: 1;
+}
+
+.view-header-title-details {
+    display: flex;
+    align-items: center;
+}
+
+.view-buttons {
+    display: flex;
+    justify-content: flex-end;
+
+    .view-button {
+        cursor: pointer;
+    }
+}

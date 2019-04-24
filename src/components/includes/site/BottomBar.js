@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink, withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faThList, faTimes, faBars, faBell, faUserCircle, faUserFriends, faUserSlash, faHome } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt, faThList, faTimes, faBars, faBell, faUserCircle, faUserFriends, faUserSlash, faHome, faArrowLeft, faBriefcase } from '@fortawesome/pro-solid-svg-icons';
 import { LogoutUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
 import LoginPanel from './LoginPanel';
@@ -54,12 +54,16 @@ class BottomBar extends Component {
         if (this.props.user.user) {
             bottombarContent = <React.Fragment>
                 {this.props.items.map((item, i) => {
+                    if (this.props.user.user && this.props.user.user.connected_acct_status === 'Approved' && item.name === 'Connect') {
+                        return null
+                    }
+
                     return <div key={i} className='bottombar-item'>
                         <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'>{item.icon}</div><NavLink to={item.link}>{item.name}</NavLink> {parseInt(item.messageCount) > 0 ? <div className='bottombar-message-indicator'>{item.messageCount}</div> : ''}</div>
 
                         <div className='bottombar-sub-item-container'>
                             {item.items ? item.items.map((subItem, index) => {
-                                return <div key={index} className='bottombar-sub-item'><NavLink to={subItem.link}>{subItem.name}</NavLink></div>
+                                return <div key={index} className='bottombar-sub-item'><NavLink to={subItem.link}>{subItem.name}</NavLink> {subItem.messageCount > 0 ? <span className='bottombar-message-indicator'>{subItem.messageCount}</span> : ''}</div>
                             }) : false}
                         </div>
                     </div>
@@ -83,18 +87,32 @@ class BottomBar extends Component {
                         </div>
 
                         <div className='bottombar-item'>
-                            <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'><FontAwesomeIcon icon={faThList} /></div><strong onClick={() => this.setState({showSectors: true})}>Browse Sectors</strong></div>
+                            <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'><FontAwesomeIcon icon={faThList} /></div><strong onClick={() => this.setState({showType: true})}>Browse</strong></div>
                         </div>
 
                         {bottombarContent}
                     </div>
 
+                    <div id='bottombar-sectors-container' className={this.state.showType ? 'show' : ''}>
+                        <div className='bottombar-sectors'>
+                            <div className='text-right'>
+                                <FontAwesomeIcon icon={faArrowLeft} size='lg' onClick={() => this.setState({type: '', showType: false, showSectors: false, showMenu: true})} className='mr-2' />
+                                <FontAwesomeIcon icon={faTimes} size='lg' onClick={() => this.setState({showSectors: false, showMenu: false, showType: false})} className='mr-2' />
+                            </div>
+                            <div className='bottombar-link-div' onClick={() => this.setState({type: 'jobs', showType: false, showSectors: true})}><FontAwesomeIcon icon={faBriefcase} className='mr-2' /> Jobs</div>
+                            <div className='bottombar-link-div' onClick={() => this.setState({type: 'profiles', showType: false, showSectors: true})}><FontAwesomeIcon icon={faUserCircle} className='mr-2' /> Profiles</div>
+                        </div>
+                    </div>
+
                     <div id='bottombar-sectors-container' className={this.state.showSectors ? 'show' : ''}>
                         <div id='bottombar-sectors'>
-                            <div className='text-right'><FontAwesomeIcon icon={faTimes} id='bottombar-sectors-close-button' size='lg' onClick={() => this.setState({showSectors: false, showMenu: true})} /></div>
+                            <div className='text-right'>
+                                <FontAwesomeIcon icon={faArrowLeft} size='lg' onClick={() => this.setState({type: '', showType: true, showSectors: false})} className='mr-2' />
+                                <FontAwesomeIcon icon={faTimes} size='lg' onClick={() => this.setState({showSectors: false, showMenu: false, showType: false})} className='mr-2' />
+                            </div>
 
                             {this.props.sectors.map((sector, i) => {
-                                return <div key={i}><NavLink to={`/sectors/${sector.sector}`}>{sector.sector}</NavLink></div>
+                                return <div key={i}><NavLink to={`/sectors/${this.state.type}/${sector.sector}`}>{sector.sector}</NavLink></div>
                             })}
                         </div>
                     </div>

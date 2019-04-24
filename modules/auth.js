@@ -8,12 +8,13 @@ const error = require('./utils/error-handler');
 const request = require('request');
 const controller = require('./utils/controller');
 const fs = require('fs');
+const authenticate = require('./utils/auth');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.post('/api/auth/register', (req, resp) => {
     request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.RECAPTCHA_SECRET, response: req.body.verified}}, (err, res, body) => {
-        if (err) console.log(err);
+        if (err) error.log(err, req, resp);
 
         let response = JSON.parse(res.body);
 
@@ -51,10 +52,10 @@ app.post('/api/auth/register', (req, resp) => {
                     resp.send({status: 'error', statusMessage: 'Invalid city'});
                 } else {
                     bcrypt.hash(req.body.password, 10, (err, result) => {
-                        if (err) console.log(err);
+                        if (err) error.log(err, req, resp);
 
                         db.connect((err, client, done) => {
-                            if (err) console.log(err);
+                            if (err) error.log(err, req, resp);
                             
                             (async() => {
                                 try {
@@ -88,7 +89,7 @@ app.post('/api/auth/register', (req, resp) => {
                                     sgMail.send(message);
 
                                     fs.mkdir(`./user_files/${user.rows[0].user_id}`, err => {
-                                        console.log(err);
+                                        error.log(err, req, resp)
                                     });
 
                                     await client.query(`COMMIT`)
@@ -104,21 +105,21 @@ app.post('/api/auth/register', (req, resp) => {
                                 }
                             })()
                             .catch(err => {
-                                    console.log(err);
+                                error.log(err, req, null, null, (err) => {
+                                    let message = `An error occurred`;
                                 
-                                let message = `An error occurred`;
-                                
-                                if (err.code === '23505') {
-                                    if (err.constraint === 'unique_email') {
-                                        message = 'Email already taken';
-                                    } else if (err.constraint === 'unique_username') {
-                                        message = 'Username already taken';
+                                    if (err.code === '23505') {
+                                        if (err.constraint === 'unique_email') {
+                                            message = 'Email already taken';
+                                        } else if (err.constraint === 'unique_username') {
+                                            message = 'Username already taken';
+                                        }
+                                    } else if (err.code === '23502') {
+                                        message = 'All fields are required';
                                     }
-                                } else if (err.code === '23502') {
-                                    message = 'All fields are required';
-                                }
 
-                                resp.send({status: 'error', statusMessage: message});
+                                    resp.send({status: 'error', statusMessage: message});
+                                });
                             });
                         });
                     });
@@ -132,104 +133,10 @@ app.post('/api/auth/register', (req, resp) => {
     });
 });
 
-app.post('/api/auth/login', async(req, resp, next) => {
-    if (req.session.user) {
-        next();
-    } else {
-        db.connect((err, client, done) => {
-            if (err) console.log(err);
+app.post('/api/auth/login', authenticate, async(req, resp) => {
+    let user = await controller.session.retrieve(false, req.session.user.user_id);
 
-            (async() => {
-                try {
-                    await client.query('BEGIN');
-
-                    if (req.body.username) {
-                        let auth = await client.query(`SELECT * FROM users WHERE LOWER(username) = LOWER($1)`, [req.body.username]);
-                    
-                        // If user exists
-                        if (auth && auth.rows.length === 1) {
-                            // Get user's ban date and today's date
-                            let banEndDate = await client.query(`SELECT ban_end_date FROM user_bans WHERE banned_user = $1 ORDER BY ban_id DESC LIMIT 1`, [req.body.username]);
-                            let today = new Date();
-                            // If user is banned, deny access
-                            if (auth.rows[0].user_status === 'Ban') {
-                                let error = new Error(`Your account has been permanently banned`);
-                                let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
-                                throw errObj
-                            // if users haven't activated their account
-                            } else if (auth.rows[0].user_status === 'Pending') {
-                                let error = new Error(`You need to activate your account`);
-                                let errObj = {error: error, type: 'CUSTOM', stack: error.stack, status: 'access error'};
-                                throw errObj
-                            // If user is temporarily banned, check if today is after ban date. If it is, set user status to 'Active'
-                            } else if (auth.rows[0].user_status === 'Suspend') {
-                                if (today >= banEndDate) {
-                                    await client.query(`UPDATE users SET user_status = 'Active' WHERE username = $1`, [req.body.username]);
-                                }
-                            }
-
-                            // Compare password
-                            bcrypt.compare(req.body.password, auth.rows[0].user_password, async(err, match) => {
-                                if (err) console.log(err);
-
-                                if (match) {
-                                    let now = new Date();
-
-                                    if (now > auth.rows[0].subscription_end_date) {
-                                        await client.query(`UPDATE users SET account_type = 'User', subscription_id = null, plan_id = null WHERE user_id = $1`, [auth.rows[0].user_id]);
-                                    }
-                                    
-                                    await client.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
-                                    // .catch(err => console.log(err);
-
-                                    let session = {
-                                        user_id: auth.rows[0].user_id,
-                                        username: auth.rows[0].username
-                                    }
-
-                                    req.session.user = session;
-                                    
-                                    await client.query('COMMIT')
-                                    .then(() => next());
-                                } else {
-                                    await client.query('ROLLBACK');
-                                    resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
-                                    return;
-                                }
-                            });
-                        } else {
-                            await client.query('ROLLBACK');
-                            resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
-                            return;
-                        }    
-                    } else {
-                        resp.send({status: 'error', statusMessage: `You're not logged in`});
-                    }
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                    throw e;
-                } finally {
-                    done();
-                }
-            })()
-            .catch(err => {
-                error.log(err, req, resp);
-            });
-        }); 
-    }
-},
-async(req, resp) => {
-    if (req.session.user) {
-        let user = await controller.session.retrieve(false, req.session.user.user_id);
-
-        if (user) {    
-            resp.send({status: 'success', user: user});
-        } else {
-            resp.send({status: 'error', statusMessage: `The user does not exist`});
-        }
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
+    resp.send({status: 'success', user: user});
 });
 
 app.post('/api/auth/logout', (req, resp) => {

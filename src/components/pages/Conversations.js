@@ -11,7 +11,7 @@ import MessageDetails from '../includes/page/MessageDetails';
 import { GetUserNotificationAndMessageCount } from '../../actions/FetchActions';
 import { Alert } from '../../actions/AlertActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faChevronLeft, faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faChevronLeft, faChevronUp, faChevronDown } from '@fortawesome/pro-solid-svg-icons';
 
 class Conversations extends Component {
     constructor(props) {

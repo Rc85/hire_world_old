@@ -13,17 +13,35 @@ import SubmitButton from '../utils/SubmitButton';
 import { IsTyping } from '../../actions/ConfigActions';
 import Tooltip from '../utils/Tooltip';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faCircleNotch } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faCircleNotch, faUser } from '@fortawesome/pro-solid-svg-icons';
 import TitledContainer from '../utils/TitledContainer';
-import { faListAlt } from '@fortawesome/free-regular-svg-icons';
+import { faListAlt } from '@fortawesome/pro-regular-svg-icons';
 import SlideToggle from '../utils/SlideToggle';
 import { UpdateUser } from '../../actions/LoginActions';
 import BusinessHoursSettings from '../includes/page/BusinessHoursSettings';
 import StaticAlert from '../utils/StaticAlert';
 
-class ListSettings extends Component {
+class Profile extends Component {
     constructor(props) {
         super(props);
+
+        this.clearSettings = {
+            listing_negotiable: false,
+            listing_price_type: 'To Be Discussed',
+            listing_id: null,
+            listing_renewed_date: null,
+            listing_created_date: null,
+            listing_sector: 'Agencies',
+            listing_price: '',
+            listing_price_currency: '',
+            listing_detail: '',
+            listing_status: '',
+            listing_title: '',
+            listing_purpose: '',
+            listing_location: '',
+            listing_local: false,
+            listing_remote: false
+        };
         
         this.state = {
             status: 'Loading',
@@ -176,7 +194,7 @@ class ListSettings extends Component {
 
             return(
                 <section id='list-settings' className='main-panel'>
-                    <TitledContainer title='My Listing' bgColor='danger' icon={<FontAwesomeIcon icon={faListAlt} />} shadow>
+                    <TitledContainer title='Profile' bgColor='danger' icon={<FontAwesomeIcon icon={faUser} />} shadow>
                         {status}
 
                         <div className='setting-container'>
@@ -202,17 +220,17 @@ class ListSettings extends Component {
             
                                         <InputWrapper label='Type of Business' id='listing-location' required>
                                             <div className='checkbox-label-container'>
-                                                <label className={`checkbox-label ${this.state.newSettings.listing_online ? 'active' : ''}`}>
-                                                    <input type='checkbox' value='Online' onChange={(e) => this.setSetting('listing_online', !this.state.newSettings.listing_online)} checked={this.state.newSettings.Listing_online} />
+                                                <label className={`checkbox-label ${this.state.newSettings.listing_online ? 'active' : ''} ${this.state.onlineFocused ? 'hovered' : ''}`}>
+                                                    <input type='checkbox' value='Online' onChange={(e) => this.setSetting('listing_online', !this.state.newSettings.listing_online)} checked={this.state.newSettings.Listing_online} onFocus={() => this.setState({onlineFocused: true})} onBlur={() => this.setState({onlineFocused: false})} />
                                                     
                                                     <div className='checkbox-container'>
                                                         <div className='checkbox'>{this.state.newSettings.listing_online ? <FontAwesomeIcon icon={faCheck} /> : ''}</div>
-                                                        <span className='checkbox-label-text'>Online</span>
+                                                        <span className='checkbox-label-text'>Connect</span>
                                                     </div>
                                                 </label>
 
-                                                <label className={`checkbox-label ${this.state.newSettings.listing_remote ? 'active' : ''}`}>
-                                                    <input type='checkbox' value='Remote' onChange={(e) => this.setSetting('listing_remote', !this.state.newSettings.listing_remote)} checked={this.state.newSettings.listing_remote} />
+                                                <label className={`checkbox-label ${this.state.newSettings.listing_remote ? 'active' : ''} ${this.state.remoteFocused ? 'hovered' : ''}`}>
+                                                    <input type='checkbox' value='Remote' onChange={(e) => this.setSetting('listing_remote', !this.state.newSettings.listing_remote)} checked={this.state.newSettings.listing_remote} onFocus={() => this.setState({remoteFocused: true})} onBlur={() => this.setState({remoteFocused: false})} />
                                                     
                                                     <div className='checkbox-container'>
                                                         <div className='checkbox'>{this.state.newSettings.listing_remote ? <FontAwesomeIcon icon={faCheck} /> : ''}</div>
@@ -220,8 +238,8 @@ class ListSettings extends Component {
                                                     </div>
                                                 </label>
                         
-                                                <label className={`checkbox-label ${this.state.newSettings.listing_local ? 'active' : ''}`}>
-                                                    <input type='checkbox' value='Local' onChange={(e) => this.setSetting('listing_local', !this.state.newSettings.listing_local)} checked={this.state.newSettings.listing_local} />
+                                                <label className={`checkbox-label ${this.state.newSettings.listing_local ? 'active' : ''} ${this.state.localFocused ? 'hovered' : ''}`}>
+                                                    <input type='checkbox' value='Local' onChange={(e) => this.setSetting('listing_local', !this.state.newSettings.listing_local)} checked={this.state.newSettings.listing_local} onFocus={() => this.setState({localFocused: true})} onBlur={() => this.setState({localFocused: false})} />
                                                     
                                                     <div className='checkbox-container'>
                                                         <div className='checkbox'>{this.state.newSettings.listing_local ? <FontAwesomeIcon icon={faCheck} /> : ''}</div>
@@ -276,7 +294,7 @@ class ListSettings extends Component {
             
                                     <div className='d-flex-end-center mb-3'>
                                         {this.props.create ? <SubmitButton type='submit' loading={this.props.status === 'Creating'} value='Create' /> : <SubmitButton type='submit' loading={this.state.status === 'Saving'} value='Save' disabled={disableSave} />}
-                        
+                                        <button type='button' className='btn btn-secondary' onClick={() => this.setState({newSettings: this.clearSettings})}>Clear</button>
                                         <button type='button' className='btn btn-secondary' onClick={() => this.setState({newSettings: this.state.initialSettings})}>Reset</button>
                                     </div>
                                 </form>
@@ -293,8 +311,8 @@ class ListSettings extends Component {
     }
 }
 
-ListSettings.propTypes = {
+Profile.propTypes = {
     user: PropTypes.object
 };
 
-export default withRouter(connect()(ListSettings));
+export default withRouter(connect()(Profile));

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { faTimesCircle } from '@fortawesome/pro-solid-svg-icons';
 import InputWrapper from '../utils/InputWrapper';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import SubmitButton from '../utils/SubmitButton';
@@ -14,6 +14,7 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { CardNumberElement, CardCVCElement, CardExpiryElement, injectStripe, IbanElement } from 'react-stripe-elements';
 import ConnectedSettingsForm from '../includes/page/ConnectedSettingsForm';
+import { ShowLoading, HideLoading } from '../../actions/LoadingActions';
 
 let onloadCallback = function() {
     console.log('Recaptcha ready!');
@@ -21,7 +22,7 @@ let onloadCallback = function() {
 
 let recaptchaInstance;
 
-class NotConnected extends Component {
+class Connect extends Component {
     constructor(props) {
         super(props);
         
@@ -85,23 +86,23 @@ class NotConnected extends Component {
     }
 
     submit() {
-        this.setState({status: 'Submitting'});
+        this.props.dispatch(ShowLoading(`Creating Account`));
 
         fetch.post('/api/job/accounts/create', this.state)
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({status: 'Account Created'});
             } else if (resp.data.status === 'error') {
-                this.setState({status: ''});
-
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                 recaptchaInstance.reset();
             }
+
+            this.props.dispatch(HideLoading());
         })
         .catch(err => {
             LogError(err, '/api/job/account/create');
             recaptchaInstance.reset();
-            this.setState({status: ''});
+            this.props.dispatch(HideLoading());
         });
     }
 
@@ -144,11 +145,11 @@ class NotConnected extends Component {
         
         return(
             <div id='jobs-not-connected' className='main-panel'>
-                <TitledContainer title='Not Connected' icon={<FontAwesomeIcon icon={faTimesCircle} />} shadow>
+                <TitledContainer title='Connect' icon={<FontAwesomeIcon icon={faTimesCircle} />} shadow>
                     <div className='mb-3'>
                         <div className='mb-3'>To begin working with other users on our platform, you need a Connected account. To create an account, please fill out the form below.</div>
 
-                        <div className='mb-3'>A new account will undergo a review process by Hire World, this should not take more than 24 hours. At the same time, your account will not be verified by Stripe Connect until a bank account and further required information is provided. After creating your account, you can check your status, add and change information in <strong>Connected Settings</strong>.</div>
+                        <div className='mb-3'>A new account will undergo a review process by Hire World, this can take up to 24 hours or more. At the same time, your account will not be verified by Stripe Connect until the indicated required information is provided. After creating your account, you can check your status, add and change information in <strong>Connected Settings</strong>. Lastly, please review <a href='https://stripe.com/restricted-businesses'>Stripe's restricted business list</a> to ensure that the business you're conducting does not fall under any business in that list.</div>
                         
                         <form onSubmit={(e) => {
                             e.preventDefault();
@@ -158,18 +159,18 @@ class NotConnected extends Component {
                             <ConnectedSettingsForm settings={this.state} set={(state) => this.setState(state)} />
                             
                             <div className='terms mb-3'>
-                                Payment processing services for working with other users on Hire World (collectively, <strong>"us"</strong>, <strong>"we"</strong>, <strong>"our"</strong>) are provided by Stripe and are subject to the <a href='https://stripe.com/connect-account/legal'>Stripe Connected Account Agreement</a>, which includes the <a href='https://stripe.com/legal'>Stripe Terms of Service</a> (collectively, the <strong>“Stripe Services Agreement”</strong>). By agreeing to these terms or continuing to work with other users on Hire World, you agree to be bound by the Stripe Services Agreement, as the same may be modified by Stripe from time to time. As a condition of Hire World enabling payment processing services through Stripe, you agree to provide us with accurate and complete information about you and your business, and you authorize us to share it and transaction information related to your use of the payment processing services provided by Stripe.
+                                Payment processing services for working with other users on Hire World (collectively, <strong>"us"</strong>, <strong>"we"</strong>, <strong>"our"</strong>) are provided by Stripe and are subject to the <a href='https://stripe.com/connect-account/legal' rel='noopener noreferrer' target='_blank'>Stripe Connected Account Agreement</a>, which includes the <a href='https://stripe.com/legal' rel='noopener noreferrer' target='_blank'>Stripe Terms of Service</a> (collectively, the <strong>“Stripe Services Agreement”</strong>). By agreeing to these terms or continuing to work with other users on Hire World, you agree to be bound by the Stripe Services Agreement, as the same may be modified by Stripe from time to time. As a condition of Hire World enabling payment processing services through Stripe, you agree to provide us with accurate and complete information about you and your business, and you authorize us to share it and transaction information related to your use of the payment processing services provided by Stripe.
                             </div>
 
                             <div className='mb-3'>
                                 <div><label><input type='checkbox' checked={this.state.tosAgree} onChange={() => this.setState({tosAgree: !this.state.tosAgree})} /> I understand and agree with the terms indicated above.</label></div>
-                                <div><label><input type='checkbox' checked={this.state.stripeAgree} onChange={() => this.setState({stripeAgree: !this.state.stripeAgree})} /> I have read, understood, and agreed to <a href='https://stripe.com/connect-account/legal'>Stripe Connected Account Agreement</a> and <a href='https://stripe.com/legal'>Stripe Terms of Service</a>.</label></div>
+                                <div><label><input type='checkbox' checked={this.state.stripeAgree} onChange={() => this.setState({stripeAgree: !this.state.stripeAgree})} /> I have read, understood, and agreed to <a href='https://stripe.com/connect-account/legal' rel='noopener noreferrer' target='_blank'>Stripe Connected Account Agreement</a> and <a href='https://stripe.com/legal' rel='noopener noreferrer' target='_blank'>Stripe Terms of Service</a>.</label></div>
                             </div>
 
-                            <div className='d-flex-between-center'>
-                                <Recaptcha sitekey='6Lev95EUAAAAAD6Ox0SOCyKyqQgCW7LA8d3f0DDa' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} ref={(e) => recaptchaInstance = e} />
+                            <div className='connect-footer'>
+                                <Recaptcha sitekey='6Le5uJ4UAAAAAMvk94nwQjc9_8nln2URksn1152W' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} ref={(e) => recaptchaInstance = e} />
 
-                                <SubmitButton type='submit' loading={this.state.status === 'Submitting'} />
+                                <div className='text-right'><SubmitButton type='submit' loading={this.state.status === 'Submitting'} /></div>
                             </div>
                         </form>
                     </div>
@@ -179,8 +180,8 @@ class NotConnected extends Component {
     }
 }
 
-NotConnected.propTypes = {
+Connect.propTypes = {
     
 };
 
-export default connect()(injectStripe(NotConnected));
+export default connect()(injectStripe(Connect));

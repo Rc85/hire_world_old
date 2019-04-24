@@ -18,6 +18,8 @@
 @import 'Badge';
 @import 'Confirmation';
 @import 'DocumentUploader';
+@import 'GlobalLoading';
+@import 'JobTimeline';
 @import 'LabelBadge';
 @import 'Loading';
 @import 'Menu';
@@ -41,29 +43,32 @@
 @import 'Dashboard';
 @import 'Footer';
 @import 'Faq';
+@import 'FilterListings';
 @import 'FriendsList';
 @import 'OpenJobDetails';
 @import 'Jobs';
 @import 'JobMessages';
+@import 'JobSummary';
 @import 'Login';
 @import 'Main';
 @import 'MessageDetails';
 @import 'Conversations';
 @import 'Messages';
+@import 'PostedJobApplicants';
+@import 'PostedJobRow';
 @import 'RegisterForm';
 @import 'ResendConfirmation';
 @import 'Response';
-@import 'SearchListing';
+@import 'Row';
 @import 'Sectors';
-@import 'ServiceDetails';
 @import 'SideBar';
-@import 'StartJob';
+@import 'MilestoneCreator';
 @import 'SubmitReview';
 @import 'TabBar';
 @import 'UserDetails';
-@import 'UserInfo';
 @import 'Settings';
 @import 'MyListingRow';
+@import 'View';
 @import 'ViewUser';
 @import 'ViewUserReview';
 
@@ -192,6 +197,13 @@ input { padding: 5px; }
     h4 { font-size: 1.2rem; }
     h5 { font-size: 1.1rem; }
     h6 { font-size: 1rem; }
+
+    button {
+        &.btn {
+            min-height: 26px;
+            font-size: 0.8rem;
+        }
+    }
 }
 
 @media only screen and (max-width: 320px) {

@@ -58,7 +58,7 @@ class BottomBar extends Component {
         if (this.props.user.user) {
             bottombarContent = <React.Fragment>
                 {this.props.items.map((item, i) => {
-                    if (this.props.user.user && this.props.user.user.connected_acct_status === 'Approved' && item.name === 'Connect') {
+                    if (this.props.user.user && this.props.user.user.connected_acct_status === 'Approved' && item.name === 'Link Work') {
                         return null
                     }
 

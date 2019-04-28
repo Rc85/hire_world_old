@@ -78,12 +78,12 @@ class Dashboard extends Component {
                 {name: 'Completed', active: this.props.location.pathname === '/dashboard/jobs/complete', link: '/dashboard/jobs/complete'},
                 {name: 'Abandoned', active: this.props.location.pathname === '/dashboard/jobs/abandoned', link: '/dashboard/jobs/abandoned'}
             ]},
-            {name: 'Connect', link: '/dashboard/connect', active: this.props.location.pathname === '/dashboard/connect', icon: <FontAwesomeIcon icon={faLink} />},
+            {name: 'Link Work', link: '/dashboard/linkwork', active: this.props.location.pathname === '/dashboard/linkwork', icon: <FontAwesomeIcon icon={faLink} />},
             {name: 'Subscription', link: '/dashboard/subscription', active: this.props.location.pathname === '/dashboard/subscription', icon: <FontAwesomeIcon icon={faSyncAlt} />},
             {name: 'Settings', link: '/dashboard/settings/account', active: /^\/dashboard\/settings/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCog} />, items: [
                 {name: 'Account', active: this.props.location.pathname === '/dashboard/settings/account', link: '/dashboard/settings/account'},
                 {name: 'Payment', active: this.props.location.pathname === '/dashboard/settings/payment', link: '/dashboard/settings/payment'},
-                {name: 'Connected', active: this.props.location.pathname === '/dashboard/settings/connected', link: '/dashboard/settings/connected'}
+                {name: 'Link Work', active: this.props.location.pathname === '/dashboard/settings/linkwork', link: '/dashboard/settings/linkwork'}
             ]}
         ];
 

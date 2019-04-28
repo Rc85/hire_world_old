@@ -74,7 +74,7 @@ class SideBar extends Component {
                         <div id='sidebar-links'>
                             {browseLink}
                             {this.props.items.map((item, i) => {
-                                if (this.props.user.user && this.props.user.user.connected_id && item.name === 'Connect') {
+                                if (this.props.user.user && this.props.user.user.connected_id && item.name === 'Link Work') {
                                     return null;
                                 }
                                 
@@ -148,7 +148,7 @@ class Link extends Component {
 
         if (this.props.active && this.props.items) {
             subItems = this.props.items.map((item, i) => {
-                if (this.props.user.user && !this.props.user.user.connected_id && item.name === 'Connected') {
+                if (this.props.user.user && !this.props.user.user.connected_id && item.name === 'Link Work') {
                     return null;
                 }
 

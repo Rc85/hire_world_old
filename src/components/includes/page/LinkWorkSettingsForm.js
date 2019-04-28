@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import BirthdateInput from '../../utils/BirthdateInput';
 import { IsTyping } from '../../../actions/ConfigActions';
 
-class ConnectedSettingsForm extends Component {
+class LinkWorkSettingsForm extends Component {
     constructor(props) {
         super(props);
     }
@@ -435,10 +435,10 @@ class ConnectedSettingsForm extends Component {
     }
 }
 
-ConnectedSettingsForm.propTypes = {
+LinkWorkSettingsForm.propTypes = {
     settings: PropTypes.object,
     user: PropTypes.object,
     update: PropTypes.func
 };
 
-export default connect()(ConnectedSettingsForm);
+export default connect()(LinkWorkSettingsForm);

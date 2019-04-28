@@ -53,7 +53,7 @@ const ViewUserProfile = props => {
                     <div id='view-user-title'>
                         <div className='d-flex-start'>
                             <h3 className='mr-1'>{props.user.user_title}</h3>
-                            {props.user.connected_acct_status === 'Approved' ? <div className='connected-status mini-badge mini-badge-success'>Connected</div> : ''}
+                            {props.user.connected_acct_status === 'Approved' ? <div className='connected-status mini-badge mini-badge-success'>Linked</div> : ''}
                         </div>
 
                         <div id='view-user-rating' className='mb-3'><UserRating rating={props.stats.rating || 0} /> ({props.stats.job_count})</div>
@@ -68,7 +68,7 @@ const ViewUserProfile = props => {
 
                         <div className='view-user-listing-location mb-3'>
                             {props.user.listing_local ? <span className='mini-badge mini-badge-orange mr-1'>Local</span> : ''}
-                            {props.user.listing_online ? <span className='mini-badge mini-badge-purple mr-1'>Connect</span> : ''}
+                            {props.user.listing_online ? <span className='mini-badge mini-badge-purple mr-1'>Linked</span> : ''}
                             {props.user.listing_remote ? <span className='mini-badge mini-badge-green mr-1'>Remote</span> : ''}
                         </div>
                     </div>

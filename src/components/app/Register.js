@@ -132,7 +132,7 @@ class Register extends Component {
         
                             <div className='mb-3'>
                                 <label>
-                                    <input type='checkbox' onClick={() => this.setState({agreed: !this.state.agreed})} /> I have read, understood, and agree to the <NavLink to='/tos'>Terms of Service</NavLink> and <NavLink to='/privacy'>Privacy Policy</NavLink>
+                                    <input type='checkbox' onClick={() => this.setState({agreed: !this.state.agreed})} /> I have read, understood, and agreed to the <NavLink to='/tos'>Terms of Service</NavLink> and <NavLink to='/privacy'>Privacy Policy</NavLink>
                                 </label>
                             </div>
         

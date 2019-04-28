@@ -8,14 +8,14 @@ const PrivacyPolicy = props => {
         <div>
             <section id='privacy' className='main-panel'>
                 <TitledContainer title='Privacy Policy' icon={<FontAwesomeIcon icon={faFileAlt} />} shadow bgColor='primary'>
-                    <h2 id='top'>Table of Contents</h2>
+                    <h2 id='top' className='mb-3'>Table of Contents</h2>
 
-                    <div className='mb-3'><a href='#intro'>Introduction</a></div>
-                    <div className='mb-3'><a href='#what'>What information do we collect and what are we doing with it</a></div>
-                    <div className='mb-3'><a href='#why'>Why do we collect these information</a></div>
-                    <div className='mb-3'><a href='#your-control'>Your control of your data</a></div>
-                    <div className='mb-3'><a href='#our-control'>Our control of your data and your user account</a></div>
-                    <div className='mb-3'><a href='#deleting'>Deleting your data from Hire World</a></div>
+                    <div className='mb-1'><a href='#intro'>Introduction</a></div>
+                    <div className='mb-1'><a href='#what'>What information do we collect and what are we doing with it</a></div>
+                    <div className='mb-1'><a href='#why'>Why do we collect these information</a></div>
+                    <div className='mb-1'><a href='#your-control'>Your control of your data</a></div>
+                    <div className='mb-1'><a href='#our-control'>Our control of your data and your user account</a></div>
+                    <div className='mb-1'><a href='#deleting'>Deleting your data from Hire World</a></div>
 
                     <hr/>
 

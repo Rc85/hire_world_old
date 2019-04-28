@@ -41,7 +41,7 @@ const ListingRow = props => {
                 <div className='listing-row-detail'>
                     <div className='listing-row-detail-child'>
                         <Username color='highlight' username={props.listing.listing_user} /> ({props.listing.user_title})
-                        {props.listing.connected_acct_status === 'Approved' ? <div className='connected-status mini-badge mini-badge-success ml-1'>Connected</div> : ''}
+                        {props.listing.connected_acct_status === 'Approved' ? <div className='connected-status mini-badge mini-badge-success ml-1'>Linked</div> : ''}
                     </div>
     
                     <div className='listing-row-detail-child'>

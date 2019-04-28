@@ -8,7 +8,7 @@ const Faq = props => {
     return(
         <section id='faq' className='main-panel'>
             <TitledContainer title='FAQ' shadow icon={<FontAwesomeIcon icon={faQuestionCircle} />} bgColor='danger'>
-                <div className='mb-3'>In this frequently asked questions, "service provider" and "Connected user" refers to a user providing a service and "client" refers to the user paying/hiring the service provider.</div>
+                <div className='mb-3'>In this frequently asked questions, "service provider" and "Link Work user" refers to a user providing a service and "client" refers to the user paying/hiring the service provider.</div>
 
                 <div id='questions' className='mb-5'>
                     <div className='mb-1'>
@@ -52,11 +52,11 @@ const Faq = props => {
                     </div>
 
                     <div className='mb-1'>
-                        <a href='#eleven'>What is Connected and how does it work?</a>
+                        <a href='#eleven'>What is Link Work and how does it work?</a>
                     </div>
 
                     <div className='mb-1'>
-                        <a href='#thirteen'>What happens if the Connected user does not complete a milestone within 90 days after the funds are deposited?</a>
+                        <a href='#thirteen'>What happens if the Link Work user does not complete a milestone within 90 days after the funds are deposited?</a>
                     </div>
 
                     <div className='mb-1'>
@@ -286,13 +286,13 @@ const Faq = props => {
                     
                     <div id='eleven' className='mb-3'>
                         <div className='mb-3'>
-                            <strong>What is Connected and how does it work?</strong>
+                            <strong>What is Link Work and how does it work?</strong>
                         </div>
 
                         <div className='answer'>
-                            <p>Connected is a service powered by <a href='https://stripe.com/connect' rel='noopener noreferrer' target='_blank'>Stripe Connect</a> that ensures a service provider is paid when completing a job. The service is available to service providers working with clients who are cities or countries apart or service providers doing business with clients in-person but want to use Hire World to secure the payment.</p>
+                            <p>Link Work is a service powered by <a href='https://stripe.com/connect' rel='noopener noreferrer' target='_blank'>Stripe Connect</a> that ensures a service provider is paid when completing a job. The service is available to service providers working with clients who are cities or countries apart or service providers doing business with clients in-person but want to use Hire World to secure the payment.</p>
 
-                            <p>Connected users on Hire World will need a Connected account. Once that is created, verified by Stripe and approved by Hire World, users can start a job through the Connected user's profile. A job proposal with the work title and description is to be submitted by the client to the Connected user for review. The Connected user creates milestones, preferrably small milestones that can be completed within 90 days, and sends it back to the client. If the client agrees, the job will move to the active stage. During the active stage, whenever the Connected user completes a condition in the milestone, the condition should be checked off. This allows both parties to see the progress of the job. Only when all the conditions are completed, the Connected user can send a payment request to the client. If the client is satisfied, the client can release the agreed funds to the Connected user.</p>
+                            <p>Users on Hire World will need to be subscribed to the Link Work plan. Once subscribed, users will need to create a Link Work account that will be verified by Stripe and approved by Hire World. Clients can then start a job by submitting a job proposal with the work title and description to the Link Work user for review. The Link Work user creates milestones, preferrably small milestones that can be completed within 90 days, and sends it back to the client. If the client agrees, the job will move to the active stage. During the active stage, whenever the Link Work user completes a condition in the milestone, the condition should be checked off. This allows both parties to see the progress of the job. Only when all the conditions are completed, the Link Work user can send a payment request to the client. If the client is satisfied, the client can release the agreed funds to the Link Work user.</p>
 
                             <p>Once all milestones are completed, the job will be completed and the client will have the chance to submit a Job Complete Verified review.</p>
                         </div>
@@ -306,12 +306,12 @@ const Faq = props => {
                     
                     <div id='thirteen' className='mb-3'>
                         <div className='mb-3'>
-                            <strong>What happens if the Connected user does not complete a milestone within 90 days after the funds are deposited?</strong>
+                            <strong>What happens if the Link Work user does not complete a milestone within 90 days after the funds are deposited?</strong>
                         </div>
 
                         <div className='answer'>
-                            <p>We will send a reminder by email to the Connected user 15 days prior to the 90 days is up regarding the funds status. If the Connected user does not complete the milestone or if the milestone is not paid within the 90, the funds will be refunded back to the client.</p>
-                            <p>If partial work is completed, we encourage clients to discuss with the Connected user and see if the two can agree upon a partial payment. If an agreement cannot be established, the job will be abandoned once the funds are refunded back to the client.</p>
+                            <p>We will send a reminder by email to the Link Work user 15 days prior to the 90 days is up regarding the funds status. If the Link Work user does not complete the milestone or if the milestone is not paid within the 90, the funds will be refunded back to the client.</p>
+                            <p>If partial work is completed, we encourage clients to discuss with the Link Work user and see if the two can agree upon a partial payment. If an agreement cannot be established, the job will be abandoned once the funds are refunded back to the client.</p>
                         </div>
 
                         <div className='text-right'>
@@ -343,8 +343,8 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            <p>We encourage clients to communicate with the Connected user and try to come to an agreement for a partial payment.</p>
-                            <p>If the Connected user does not agree to send a request for partial payment, clients have the option to file a case for Hire World to step in and investigate the issue.</p>
+                            <p>We encourage clients to communicate with the Link Work user and try to come to an agreement for a partial payment.</p>
+                            <p>If the Link Work user does not agree to send a request for partial payment, clients have the option to file a case for Hire World to step in and investigate the issue.</p>
                             <p>Keep in mind that filing a dispute doesn't not necessarily mean that it will favor the user that files it.</p>
                         </div>
 
@@ -361,11 +361,11 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            <p>Whether it's for the client or the Connected user, small milestones benefit both parties in events where scams are involved to reduce financial or work loss. We limit the milestone payment to $500 to protect both parties financial loss.</p>
+                            <p>Whether it's for the client or the Link Work user, small milestones benefit both parties in events where scams are involved to reduce financial or work loss. We limit the milestone payment to $500 to protect both parties financial loss.</p>
 
-                            <p>As a Connected user, deliverable for a milestone should only equal up to the amount of the milestone, nothing more, nothing less. If the job cannot be divided into multiple small milestones, then the total of all milestone payments can only equal the total job price. For example, if the total job price is $2000, and you can only create two milestones for the job, we advise communicating with the client to agree on down payments or other strategies to satisfy the job. However, we are certain that if a job is priced $2000, it can be divided into at least 4 milestones.</p>
+                            <p>As a Link Work user, deliverable for a milestone should only equal up to the amount of the milestone, nothing more, nothing less. If the job cannot be divided into multiple small milestones, then the total of all milestone payments can only equal the total job price. For example, if the total job price is $2000, and you can only create two milestones for the job, we advise communicating with the client to agree on down payments or other strategies to satisfy the job. However, we are certain that if a job is priced $2000, it can be divided into at least 4 milestones.</p>
 
-                            <p>As a client, be aware when a Connected user is asking for down payments due to not being able to create more milestones. Clients can always suggest to the Connected user on creating milestones that the Connected user did not thought of. If clients agree to put a down payment to get the job down, down payments should not exceed 50% of the total job price.</p>
+                            <p>As a client, be aware when a Link Work user is asking for down payments due to not being able to create more milestones. Clients can always suggest to the Link Work user on creating milestones that the Link Work user did not thought of. If clients agree to put a down payment to get the job down, down payments should not exceed 50% of the total job price.</p>
 
                             <p>In the end, the strategy is yours to protect your losses.</p>
                         </div>

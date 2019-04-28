@@ -139,7 +139,7 @@ app.post('/api/auth/login', authenticate, async(req, resp) => {
     resp.send({status: 'success', user: user});
 });
 
-app.post('/api/auth/logout', (req, resp) => {
+app.all('/api/auth/logout', (req, resp) => {
     req.session = null;
 
     resp.send({status: 'error', statusMessage: `Logged out`});

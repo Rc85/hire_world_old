@@ -162,7 +162,7 @@ class FilterListings extends Component {
 
                     <div className='setting-child quarter text-center'><label htmlFor='have-reviews'><input type='checkbox' id='have-reviews' onClick={() => this.setState({haveReviews: !this.state.haveReviews})} value={this.state.haveReviews} /> Have Reviews</label></div>
 
-                    <div className='setting-child quarter text-center'><label htmlFor='is-connected'><input type='checkbox' id='is-connected' onClick={() => this.setState({isConnected: !this.state.isConnected})} value={this.state.isConnected} /> Connected Only</label></div>
+                    <div className='setting-child quarter text-center'><label htmlFor='is-connected'><input type='checkbox' id='is-connected' onClick={() => this.setState({isLinked: !this.state.isLinked})} value={this.state.isLinked} /> Linked Only</label></div>
 
                     <div className='setting-child quarter text-center'><label htmlFor='no-abandoned-jobs'><input type='checkbox' id='no-abandoned-jobs' onClick={() => this.setState({noAbandonedJobs: !this.state.noAbandonedJobs})} value={this.state.noAbandonedJobs} /> No Abandoned Jobs</label></div>
                 </div>
@@ -222,7 +222,7 @@ class FilterListings extends Component {
                                         <div className='checkbox'>
                                             {this.state.online ? <FontAwesomeIcon icon={faCheck} /> : ''}
                                         </div>
-                                        <span className='checkbox-label-text'>Connect</span>
+                                        <span className='checkbox-label-text'>Link Work</span>
                                     </div>
                                 </label>
                             </div>

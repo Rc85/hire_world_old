@@ -155,7 +155,7 @@ class PostJobForm extends Component {
                                         <div className='checkbox'>
                                             {this.props.data.online ? <FontAwesomeIcon icon={faCheck} /> : ''}
                                         </div>
-                                        <span className='checkbox-label-text'>Connect</span>
+                                        <span className='checkbox-label-text'>Link Work</span>
                                     </div>
                                 </label>
                             </div>

@@ -225,7 +225,7 @@ class Profile extends Component {
                                                     
                                                     <div className='checkbox-container'>
                                                         <div className='checkbox'>{this.state.newSettings.listing_online ? <FontAwesomeIcon icon={faCheck} /> : ''}</div>
-                                                        <span className='checkbox-label-text'>Connect</span>
+                                                        <span className='checkbox-label-text'>Link Work</span>
                                                     </div>
                                                 </label>
 

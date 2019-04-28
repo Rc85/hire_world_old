@@ -192,9 +192,9 @@ class App extends Component {
 
 						<Route exact path='/dashboard/settings/payment' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
 
-						<Route exact path='/dashboard/connect' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.Connect user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+						<Route exact path='/dashboard/linkwork' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.LinkWork user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
 
-						<Route exact path='/dashboard/settings/connected' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.ConnectedSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+						<Route exact path='/dashboard/settings/linkwork' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.LinkWorkSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
 						
 						<Route exact path='/dashboard/subscription' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
 	
@@ -221,7 +221,7 @@ class App extends Component {
 						</Pages.Response></Pages.Dashboard>} />
 
 						<Route exact path='/account/created' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Account Created! But...'}>
-							<React.Fragment><div className='mb-3'>Your Connected account was successfully created and connected to our platform; however, it will be under review and may not be verified yet.</div><div>Please check the settings in your <NavLink to='/dashboard/settings/connected'>Connected Settings</NavLink> for your account status.</div></React.Fragment>
+							<React.Fragment><div className='mb-3'>Your Link Work account was successfully created and connected to our platform; however, it will be under review and may not be verified yet.</div><div>Please check the settings in your <NavLink to='/dashboard/settings/linkwork'>Link Work Settings</NavLink> for your account status.</div></React.Fragment>
 						</Pages.Response></Pages.Dashboard>} />
 
 						<Route exact path='/connected/account/closed' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Account Closed!'}></Pages.Response></Pages.Dashboard>} />

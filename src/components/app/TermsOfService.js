@@ -164,7 +164,7 @@ const TermsOfService = props => {
 
                 <p>You agree that all payments made to subscribe to a monthly plan is not refunded unless applicable by law.</p>
 
-                <p>Refunds are on applicable when you use our Connected service to conduct business. Refunds may be processed when no payments are made to the other party, when partial payment is made to the other party, and any dispute that results in your favor. You agree that if funds are refunded back to you, it will equal to the amount you transferred less any applicable fees.</p>
+                <p>Refunds are on applicable when you use our Link Work service to conduct business. Refunds may be processed when no payments are made to the other party, when partial payment is made to the other party, and any dispute that results in your favor. You agree that if funds are refunded back to you, it will equal to the amount you transferred less any applicable fees.</p>
 
                 <p>We take chargebacks seriously and if such case occurs, we may or may not continue service to you ongoing forward depending on the nature of the chargeback. We fully understand under circumstances where financial information can be compromised and as a result of that, a chargeback can happen. If this is the case, you can proivde us with information and proof of the incident for us to investigate and decide to continue service to you.</p>
                 

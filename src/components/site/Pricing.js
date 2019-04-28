@@ -108,7 +108,7 @@ class Pricing extends Component {
 
                         <tbody>
                             <tr>
-                                <td colSpan='4' className='text-center'>Calculated by client to service provider lifetime transactions</td>
+                                <td colSpan='4' className='text-center'>Calculated by successful payout amount per client. See <NavLink to='/faq'>FAQ</NavLink> for more details.</td>
                             </tr>
 
                             <tr>

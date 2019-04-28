@@ -124,7 +124,7 @@ class FriendsList extends Component {
                                     <div className='friend-panel-footer'>
                                         <div className='text-right'>
                                         {friend.listing_status === 'Active' ? <span className='mini-badge mini-badge-success ml-1'>Listed</span> : ''}
-                                        {friend.connected_acct_status === 'Approved' ? <span className='mini-badge mini-badge-success ml-1'>Connected</span> : ''}
+                                        {friend.connected_acct_status === 'Approved' ? <span className='mini-badge mini-badge-success ml-1'>Linked</span> : ''}
                                         </div>
                                     </div>
                                     : ''}

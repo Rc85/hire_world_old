@@ -175,7 +175,7 @@ class EditUser extends Component {
                     type = 'badge-lightblue';
                 } else if (a.activity_type === 'Purchase') {
                     type = 'badge-purple';
-                } else if (a.activity_type === 'Connected') {
+                } else if (a.activity_type === 'Link Work') {
                     type = 'badge-primary';
                 } else if (a.activity_type === 'Post') {
                     type = 'badge-warning';

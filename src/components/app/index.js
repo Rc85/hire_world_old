@@ -11,7 +11,7 @@ import PaymentSettings from './PaymentSettings';
 import SubscriptionSettings from './SubscriptionSettings';
 import Profile from './Profile';
 import Register from './Register';
-import ConnectedSettings from './ConnectedSettings';
+import LinkWorkSettings from './LinkWorkSettings';
 import JobSummary from './JobSummary';
 import Jobs from './Jobs';
 import OpenJobDetails from './OpenJobDetails';
@@ -25,7 +25,7 @@ import ActivateAccount from './ActivateAccount';
 import ForgotPassword from './ForgotPassword';
 import BlockedUsers from './BlockedUsers';
 import ActiveJobDetails from './ActiveJobDetails';
-import Connect from './Connect';
+import LinkWork from './LinkWork';
 import PostJob from './PostJob';
 import PostedJobs from './PostedJobs';
 import EditPostedJob from './EditPostedJob';
@@ -34,4 +34,4 @@ import AppliedJobs from './AppliedJobs';
 import SavedPosts from './SavedPosts';
 import ResetPassword from './ResetPassword';
 
-export { Dashboard, EditUser, Conversations, Login, Response, FriendsList, Sectors, AccountSettings, ViewUser, PaymentSettings, SubscriptionSettings, Profile, Register, Faq, TermsOfService, PrivacyPolicy, About, Main, ResendConfirmation, ActivateAccount, ForgotPassword, BlockedUsers, Jobs, ConnectedSettings, JobSummary, OpenJobDetails, ActiveJobDetails, Connect, PostJob, PostedJobs, EditPostedJob, ViewPostedJob, AppliedJobs, SavedPosts, ResetPassword }
+export { Dashboard, EditUser, Conversations, Login, Response, FriendsList, Sectors, AccountSettings, ViewUser, PaymentSettings, SubscriptionSettings, Profile, Register, Faq, TermsOfService, PrivacyPolicy, About, Main, ResendConfirmation, ActivateAccount, ForgotPassword, BlockedUsers, Jobs, LinkWorkSettings, JobSummary, OpenJobDetails, ActiveJobDetails, LinkWork, PostJob, PostedJobs, EditPostedJob, ViewPostedJob, AppliedJobs, SavedPosts, ResetPassword }

@@ -6,7 +6,7 @@ import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLink, faPlus, faCreditCard, faUniversity } from '@fortawesome/pro-solid-svg-icons';
 import Loading from '../utils/Loading';
-import ConnectedSettingsForm from '../includes/page/ConnectedSettingsForm';
+import LinkWorkSettingsForm from '../includes/page/LinkWorkSettingsForm';
 import { connect } from 'react-redux';
 import { Alert } from '../../actions/AlertActions';
 import { CardNumberElement, CardCVCElement, CardExpiryElement, injectStripe, IbanElement } from 'react-stripe-elements';
@@ -24,7 +24,7 @@ import { ShowLoading, HideLoading } from '../../actions/LoadingActions';
 
 let financialResetButton;
 
-class ConnectedSettings extends Component {
+class LinkWorkSettings extends Component {
     constructor(props) {
         super(props);
 
@@ -525,7 +525,7 @@ class ConnectedSettings extends Component {
                 <section id='connected-settings' className='main-panel'>
                     {status}
                     
-                    <TitledContainer title='Connected Settings' icon={<FontAwesomeIcon icon={faLink} />} shadow bgColor='lightblue'>
+                    <TitledContainer title='Link Work Settings' icon={<FontAwesomeIcon icon={faLink} />} shadow bgColor='lightblue'>
                         <div className='account-id mb-3'>
                             <h2>{this.state.id}</h2>
                         </div>
@@ -577,7 +577,7 @@ class ConnectedSettings extends Component {
                             e.preventDefault();
                             this.updatePersonal();
                         }}>
-                            <ConnectedSettingsForm settings={this.state} user={this.props.user} set={(state) => this.setState(state)}/>
+                            <LinkWorkSettingsForm settings={this.state} user={this.props.user} set={(state) => this.setState(state)}/>
 
                             <div className='text-right'>
                                 <SubmitButton type='submit' loading={this.state.status === 'Updating Personal'} value='Update' />
@@ -596,7 +596,7 @@ class ConnectedSettings extends Component {
     }
 }
 
-ConnectedSettings.propTypes = {
+LinkWorkSettings.propTypes = {
 
 };
 
@@ -606,4 +606,4 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps)(injectStripe(ConnectedSettings));
+export default connect(mapStateToProps)(injectStripe(LinkWorkSettings));

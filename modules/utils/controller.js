@@ -23,6 +23,7 @@ module.exports = {
                 users.user_level,
                 users.subscription_end_date,
                 users.connected_acct_status,
+                users.connected_id,
                 users.has_connected_bank_acct,
                 users.bank_acct_verified,
                 user_profiles.*,

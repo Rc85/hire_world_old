@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimesCircle } from '@fortawesome/pro-solid-svg-icons';
+import { faTimesCircle, faLink } from '@fortawesome/pro-solid-svg-icons';
 import InputWrapper from '../utils/InputWrapper';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import SubmitButton from '../utils/SubmitButton';
@@ -13,7 +13,7 @@ import { Alert } from '../../actions/AlertActions';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { CardNumberElement, CardCVCElement, CardExpiryElement, injectStripe, IbanElement } from 'react-stripe-elements';
-import ConnectedSettingsForm from '../includes/page/ConnectedSettingsForm';
+import LinkWorkSettingsForm from '../includes/page/LinkWorkSettingsForm';
 import { ShowLoading, HideLoading } from '../../actions/LoadingActions';
 import Loading from '../utils/Loading';
 
@@ -23,7 +23,7 @@ let onloadCallback = function() {
 
 let recaptchaInstance;
 
-class Connect extends Component {
+class LinkWork extends Component {
     constructor(props) {
         super(props);
         
@@ -151,18 +151,18 @@ class Connect extends Component {
         if (this.props.user.user) {
             return(
                 <div id='jobs-not-connected' className='main-panel'>
-                    <TitledContainer title='Connect' icon={<FontAwesomeIcon icon={faTimesCircle} />} shadow>
+                    <TitledContainer title='Link Work' icon={<FontAwesomeIcon icon={faLink} />} shadow>
                         <div className='mb-3'>
-                            <div className='mb-3'>To begin working with other users on our platform, you need a Connected account. To create an account, please fill out the form below.</div>
+                            <div className='mb-3'>To begin working with other users on our platform, you need a Link Work account. To create an account, please fill out the form below.</div>
 
-                            <div className='mb-3'>A new account will undergo a review process by Hire World, this can take up to 24 hours or more. At the same time, your account will not be verified by Stripe Connect until the indicated required information is provided. After creating your account, you can check your status, add and change information in <strong>Connected Settings</strong>. Lastly, please review <a href='https://stripe.com/restricted-businesses'>Stripe's restricted business list</a> to ensure that the business you're conducting does not fall under any business in that list.</div>
+                            <div className='mb-3'>A new account will undergo a review process by Hire World, this can take up to 24 hours or more. At the same time, your account will not be verified by Stripe Connect until the indicated required information is provided. After creating your account, you can check your status, add and change information in <strong>Link Work Settings</strong>. Lastly, please review <a href='https://stripe.com/restricted-businesses'>Stripe's restricted business list</a> to ensure that the business you're conducting does not fall under any business in that list.</div>
                             
                             <form onSubmit={(e) => {
                                 e.preventDefault();
 
                                 this.submit();
                             }}>
-                                <ConnectedSettingsForm settings={this.state} set={(state) => this.setState(state)} />
+                                <LinkWorkSettingsForm settings={this.state} set={(state) => this.setState(state)} />
                                 
                                 <div className='terms mb-3'>
                                     Payment processing services for working with other users on Hire World (collectively, <strong>"us"</strong>, <strong>"we"</strong>, <strong>"our"</strong>) are provided by Stripe and are subject to the <a href='https://stripe.com/connect-account/legal' rel='noopener noreferrer' target='_blank'>Stripe Connected Account Agreement</a>, which includes the <a href='https://stripe.com/legal' rel='noopener noreferrer' target='_blank'>Stripe Terms of Service</a> (collectively, the <strong>“Stripe Services Agreement”</strong>). By agreeing to these terms or continuing to work with other users on Hire World, you agree to be bound by the Stripe Services Agreement, as the same may be modified by Stripe from time to time. As a condition of Hire World enabling payment processing services through Stripe, you agree to provide us with accurate and complete information about you and your business, and you authorize us to share it and transaction information related to your use of the payment processing services provided by Stripe.
@@ -189,8 +189,8 @@ class Connect extends Component {
     }
 }
 
-Connect.propTypes = {
+LinkWork.propTypes = {
     
 };
 
-export default connect()(injectStripe(Connect));
+export default connect()(injectStripe(LinkWork));

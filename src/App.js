@@ -3,9 +3,7 @@ import { Route, withRouter, Switch, NavLink, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { GetSession, GetUserNotificationAndMessageCount, GetSectors } from './actions/FetchActions';
 import { RemoveAlert } from './actions/AlertActions';
-import * as Pages from './components/pages';
-import * as Admin from './components/admin';
-import BrowseMenu from './components/includes/site/BrowseMenu';
+import * as Pages from './components/app';
 import Confirmation from './components/utils/Confirmation';
 import Alert from './components/utils/Alert';
 import Prompt from './components/utils/Prompt';
@@ -16,12 +14,15 @@ import { StripeProvider, Elements } from 'react-stripe-elements';
 import CheckoutConfirmation from './components/utils/CheckoutConfirmation';
 import fetch from 'axios';
 import { LogError } from './components/utils/LogError';
-import { IsMobile, IsTyping } from './actions/ConfigActions';
+import { IsMobile, IsTyping, SiteLoaded } from './actions/ConfigActions';
 import { ToggleMenu } from './actions/MenuActions';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleNotch } from '@fortawesome/pro-solid-svg-icons';
 import GlobalLoading from './components/utils/GlobalLoading';
 import SelectionModal from './components/utils/SelectionModal';
+import Loading from './components/utils/Loading';
+import Site from './components/site/Site';
+import Main from './components/site/Main';
+import Features from './components/site/Features';
+import Pricing from './components/site/Pricing';
 
 class App extends Component {
 	constructor(props) {
@@ -33,47 +34,22 @@ class App extends Component {
 			announcementIds: []
 		}
 	}
-
-	/* shouldComponentUpdate(nextProps, nextState) {
-		if (this.props.user.user && !nextProps.user.user) {
-			return true;
-		}
-
-		return true;
-	} */
 	
 	componentDidUpdate(prevProps, prevState) {
 		if (this.props.location.key !== prevProps.location.key) {
 			window.scrollTo(0, 0);
+			this.props.dispatch(GetSectors());
+			this.props.dispatch(GetSession());
 			this.props.dispatch(GetUserNotificationAndMessageCount());
 			this.props.dispatch(IsTyping(false));
-
-			fetch.post('/api/get/announcements')
-			.then(resp => {
-				if (resp.data.status === 'success') {
-					let ids = [];
-					let localIds = JSON.parse(localStorage.getItem('dismissed'));
-
-					for (let a of resp.data.announcements) {
-						if (!localIds) {
-							ids.push(a.announcement_id);
-						} else if (localIds && localIds.indexOf(a.announcement_id) < 0) {
-							ids.push(a.announcement_id);
-						}
-					}
-
-					this.setState({announcements: resp.data.announcements, announcementIds: ids});
-				}
-			})
-			.catch(err => LogError(err, '/api/get/announcements'));
 		}
 	}
 		
 	componentDidMount() {
 		this.props.dispatch(GetSectors());
-		this.props.dispatch(GetSession());
+        this.props.dispatch(GetSession());
 		this.props.dispatch(GetUserNotificationAndMessageCount());
-
+		
 		window.addEventListener('resize', () => {
 			if (window.innerWidth > 1366) {
 				this.props.dispatch(IsMobile(false));
@@ -81,31 +57,16 @@ class App extends Component {
 				this.props.dispatch(IsMobile(true));
 			}
 		});
-
+		
 		if (window.innerWidth > 1366) {
 			this.props.dispatch(IsMobile(false));
 		} else {
 			this.props.dispatch(IsMobile(true));
 		}
 
-		fetch.post('/api/get/announcements')
-		.then(resp => {
-			if (resp.data.status === 'success') {
-				let ids = [];
-				let localIds = JSON.parse(localStorage.getItem('dismissed'));
-
-				for (let a of resp.data.announcements) {
-					if (!localIds) {
-						ids.push(a.announcement_id);
-					} else if (localIds && localIds.indexOf(a.announcement_id) < 0) {
-						ids.push(a.announcement_id);
-					}
-				}
-
-				this.setState({announcements: resp.data.announcements, announcementIds: ids});
-			}
-		})
-		.catch(err => LogError(err, '/api/get/announcements'));
+		setTimeout(() => {
+			this.props.dispatch(SiteLoaded());
+		}, 1500);
 	}
 	
 	dismissAlert(id) {
@@ -138,7 +99,11 @@ class App extends Component {
 	}
 
 	render() {
-		let confirmation, sectors, alerts, prompt, warning, login, loading;
+		if (!this.props.config.loaded) {
+			return <Loading size='10x' color='black' />;
+		}
+
+		let confirmation, alerts, prompt, warning, loading;
 
 		if (this.props.confirmation.status === true) {
 			confirmation = <Confirmation message={this.props.confirmation.message} note={this.props.confirmation.note} />;
@@ -146,12 +111,6 @@ class App extends Component {
 			if (this.props.confirmation.obj.type === 'checkout') {
 				confirmation = <CheckoutConfirmation info={this.props.confirmation.obj} />;
 			}
-		}
-
-		if (this.props.sectors) {
-			sectors = this.props.sectors.map((sector, i) => {
-				return <Route key={i} path={`/sectors/${sector.sector.toLowerCase()}`} render={() => <Pages.Sectors name={sector.sector} />} />;
-			});
 		}
 
 		if (this.props.alerts.length > 0) {
@@ -193,36 +152,56 @@ class App extends Component {
 					{selection}
 	
 					<Switch>
-						<Route exact path='/' render={() => <Pages.Dashboard user={this.props.user}><Pages.Main user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
+						<Route exact path='/' render={() => <Site user={this.props.user} sectors={this.props.sectors}><Main user={this.props.user} sectors={this.props.sectors} /></Site>} />
+
+                    	<Route exact path='/features' render={() => <Site user={this.props.user} sectors={this.props.sectors}><Features user={this.props.user} sectors={this.props.sectors} /></Site>} />
+
+						<Route exact path='/pricing' render={() => <Site user={this.props.user} sectors={this.props.sectors}><Pricing user={this.props.user} sectors={this.props.sectors} /></Site>} />
+
+						<Route exact path='/main' render={() => <Pages.Dashboard user={this.props.user}><Pages.Main user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
+
 						<Route exact path='/register' render={() => <Pages.Dashboard user={this.props.user}><Pages.Register user={this.props.user} /></Pages.Dashboard>} />
 	
 						<Route exact path='/dashboard' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
+
 						<Route exact path='/dashboard/friends' render={() => <Pages.Dashboard user={this.props.user}><Pages.FriendsList user={this.props.user} /></Pages.Dashboard>} />
+
 						<Route exact path='/dashboard/blocked-users' render={() => <Pages.Dashboard user={this.props.user}><Pages.BlockedUsers user={this.props.user} /></Pages.Dashboard>} />
 
 						<Route exact path='/dashboard/post/job' render={() => <Pages.Dashboard user={this.props.user}><Pages.PostJob user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
+
 						<Route exact path='/dashboard/saved/jobs' render={() => <Pages.Dashboard user={this.props.user}><Pages.SavedPosts user={this.props.user} /></Pages.Dashboard>} />
+
 						<Route exact path='/dashboard/posted/jobs' render={() => <Pages.Dashboard user={this.props.user}><Pages.PostedJobs user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
+
 						<Route exact path='/dashboard/applied/jobs' render={() => <Pages.Dashboard user={this.props.user}><Pages.AppliedJobs user={this.props.user} /></Pages.Dashboard>} />
+
 						<Route exact path='/dashboard/posted/job/details/:id' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditPostedJob user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
 
 						<Route exact path='/dashboard/profile' render={() => <Pages.Dashboard user={this.props.user}><Pages.Profile user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
 	
-						<Route exact path='/dashboard/messages' render={() => <Pages.Dashboard user={this.props.user}><Pages.Conversations user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/dashboard/conversations' render={() => <Pages.Dashboard user={this.props.user}><Pages.Conversations user={this.props.user} /></Pages.Dashboard>} />
 
 						<Route exact path='/dashboard/jobs' render={() => <Pages.Dashboard user={this.props.user}><Pages.JobSummary user={this.props.user} /></Pages.Dashboard>} />
+
 						<Route exact path='/dashboard/jobs/:stage(opened|active|complete|abandoned)' render={() => <Pages.Dashboard user={this.props.user}><Pages.Jobs user={this.props.user} /></Pages.Dashboard>} />
+
 						<Route exact path='/dashboard/job/details/:stage(opened)/:id' render={() => <Pages.Dashboard user={this.props.user}><Pages.OpenJobDetails user={this.props.user} /></Pages.Dashboard>} />
+
 						<Route exact path='/dashboard/job/details/:stage(active|complete|abandoned)/:id' render={() => <Pages.Dashboard user={this.props.user}><Pages.ActiveJobDetails user={this.props.user} /></Pages.Dashboard>} />
 	
 						<Route exact path='/dashboard/settings/account' render={() => <Pages.Dashboard user={this.props.user}><Pages.AccountSettings user={this.props.user} /></Pages.Dashboard>} />
+
 						<Route exact path='/dashboard/settings/payment' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+
 						<Route exact path='/dashboard/connect' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.Connect user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+
 						<Route exact path='/dashboard/settings/connected' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.ConnectedSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
 						
 						<Route exact path='/dashboard/subscription' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
 	
 						<Route exact path='/user/:username' render={() => <Pages.Dashboard user={this.props.user}><Pages.ViewUser user={this.props.user} /></Pages.Dashboard>} />
+
 						<Route exact path='/job/:id' render={() => <Pages.Dashboard user={this.props.user}><Pages.ViewPostedJob user={this.props.user} /></Pages.Dashboard>} />
 		
 						<Route exact path='/sectors/:type/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
@@ -253,23 +232,27 @@ class App extends Component {
 
 						<Route exact path='/resend' render={() => <Pages.Dashboard user={this.props.user}><Pages.ResendConfirmation /></Pages.Dashboard>} />
 
+						<Route exact path='/resend' render={() => <Pages.Dashboard user={this.props.user}><Pages.ResendConfirmation /></Pages.Dashboard>} />
+
 						<Route exact path='/confirmation-sent' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Confirmation Email Sent!'}><div>Please activate your account by clicking on the link in the email</div></Pages.Response></Pages.Dashboard>} />
 
 						<Route exact path='/activate-account/:key' render={() => <Pages.Dashboard user={this.props.user}><Pages.ActivateAccount /></Pages.Dashboard>} />
 
+						<Route exact path='/reset-password/:key' render={() => <Pages.Dashboard user={this.props.user}><Pages.ResetPassword /></Pages.Dashboard>} />
+
 						<Route exact path='/forgot-password' render={() => <Pages.Dashboard user={this.props.user}><Pages.ForgotPassword /></Pages.Dashboard>} />
 
-						<Route exact path='/faq' render={() => <Pages.Dashboard user={this.props.user}><Pages.Faq /></Pages.Dashboard>} />
-						<Route exact path='/tos' render={() => <Pages.Dashboard user={this.props.user}><Pages.TermsOfService /></Pages.Dashboard>} />
-						<Route exact path='/privacy' render={() => <Pages.Dashboard user={this.props.user}><Pages.PrivacyPolicy /></Pages.Dashboard>} />
-						<Route exact path='/about' render={() => <Pages.Dashboard user={this.props.user}><Pages.About /></Pages.Dashboard>} />
+						<Route exact path='/reset-password-email-sent' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header='Email Sent!'>Please check your email for a link to reset your password</Pages.Response></Pages.Dashboard>} />
 
-						<Route exact path='/admin-panel' render={() => <Admin.Admin><Admin.AdminOverview user={this.props.user} /></Admin.Admin>} />
-						<Route exact path='/admin-panel/sectors' render={() => <Admin.Admin><Admin.AdminSectors user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />
-						<Route exact path='/admin-panel/users' render={() => <Admin.Admin><Admin.AdminUsers user={this.props.user} /></Admin.Admin>} />
-						<Route exact path='/admin-panel/listings' render={() => <Admin.Admin><Admin.AdminListings user={this.props.user} sectors={this.props.sectors} /></Admin.Admin>} />
-						<Route exact path='/admin-panel/reports' render={() => <Admin.Admin><Admin.AdminReports user={this.props.user} /></Admin.Admin>} />
-						<Route exact path='/admin-panel/config' render={() => <Admin.Admin><Admin.AdminConfig user={this.props.user} /></Admin.Admin>} />
+						<Route exact path='/password-resetted' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header='Successful!'>Your password has been updated.</Pages.Response></Pages.Dashboard>} />
+
+						<Route exact path='/faq' render={() => <Pages.Dashboard user={this.props.user}><Pages.Faq /></Pages.Dashboard>} />
+
+						<Route exact path='/tos' render={() => <Pages.Dashboard user={this.props.user}><Pages.TermsOfService /></Pages.Dashboard>} />
+
+						<Route exact path='/privacy' render={() => <Pages.Dashboard user={this.props.user}><Pages.PrivacyPolicy /></Pages.Dashboard>} />
+
+						<Route exact path='/about' render={() => <Pages.Dashboard user={this.props.user}><Pages.About /></Pages.Dashboard>} />
 	
 						<Route exact path='/error/:type/:code?' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response /></Pages.Dashboard>} />
 	
@@ -295,7 +278,8 @@ const mapStateToProps = (state) => {
 		warning: state.Warning,
 		menu: state.Menu,
 		loading: state.Loading,
-		selection: state.Selection
+		selection: state.Selection,
+		config: state.Config
 	}
 }
 

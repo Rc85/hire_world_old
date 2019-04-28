@@ -2,8 +2,8 @@
     #footer {
         padding: 20px 20px 75px 20px;
     }
-
-    #dashboard-main { width: 100%; }
+    
+    #hireworld-logo { width: 90%; }
 
     #main-panel-bg {
         display: block;
@@ -414,19 +414,6 @@
 
     #listings { margin-top: 50px; }
 
-    #notification-panel {
-        position: absolute;
-        top: auto;
-        bottom: calc(100% + 10px);
-        left: -20px;
-        width: 100vw;
-        transform: scaleY(0);
-        transform-origin: bottom;
-        box-shadow: none;
-
-        &.show { transform: scaleY(1); }
-    }
-
     .activity-timestamp {
         text-align: right;
         margin-top: 5px;
@@ -445,5 +432,21 @@
     
     .filter-dropdown {
         display: block;
+    }
+
+    .site-top-bar-container, .site-section, .site-main-footer-container, .site-main-headline {
+        width: 90%;
+    }
+
+    .site-main-container {
+        background-position: -65vw -40vh;
+    }
+    
+    .site-mobile-nav-menu-container {
+        padding: 20px;
+    }
+    
+    .site-mobile-nav-close-button {
+        display: none;
     }
 }

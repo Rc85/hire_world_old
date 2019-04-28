@@ -1,5 +1,5 @@
 @media only screen and (max-width: 1366px) {
-    #hireworld-logo { width: 90%; }
+    #dashboard-main { width: 100%; }
 
     #sidebar-links { margin-left: 25px; }
 
@@ -20,4 +20,25 @@
     }
 
     #view-user-profile-pic { margin-right: 15px; }
+
+    #notification-panel {
+        position: absolute;
+        top: auto;
+        bottom: calc(100% + 10px);
+        left: -20px;
+        width: 100vw;
+        transform: scaleY(0);
+        transform-origin: bottom;
+        box-shadow: none;
+
+        &.show { transform: scaleY(1); }
+    }
+
+    .site-top-bar-container, .site-section, .site-main-footer-container, .site-main-headline {
+        width: 75%;
+    }
+
+    .site-main-container {
+        background-position: -35vw -40vh;
+    }
 }

@@ -145,4 +145,169 @@ app.post('/api/auth/logout', (req, resp) => {
     resp.send({status: 'error', statusMessage: `Logged out`});
 });
 
+
+app.post('/api/resend-confirmation', async(req, resp) => {
+    request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.RECAPTCHA_SECRET, response: req.body.verified}}, async(err, res, body) => {
+        if (err) error.log(err, req, resp);
+
+        let response = JSON.parse(res.body);
+
+        if (response.success) {
+            db.connect((err, client, done) => {
+                if (err) error.log(err, req, resp);
+
+                (async() => {
+                    try {
+                        client.query('BEGIN');
+
+                        let user = await client.query(`SELECT user_id, user_status FROM users WHERE user_email = $1`, [req.body.email]);
+
+                        if (user && user.rows.length === 1 && user.rows[0].user_status === 'Pending') {
+                            let encrypted = cryptoJS.AES.encrypt(req.body.email, process.env.ACTIVATE_ACCOUNT_SECRET);
+                            let regKeyString = encrypted.toString();
+                            let registrationKey = encodeURIComponent(regKeyString);
+                            
+                            let message = {
+                                to: req.body.email,
+                                from: 'admin@hireworld.ca',
+                                subject: 'Reset Password',
+                                templateId: 'd-d299977ec2404a5d9952b08a21576be5',
+                                dynamicTemplateData: {
+                                    url: process.env.SITE_URL,
+                                    regkey: registrationKey
+                                },
+                                trackingSettings: {
+                                    clickTracking: {
+                                        enable: false
+                                    }
+                                }
+                            }
+                            
+                            sgMail.send(message);
+
+                            await client.query(`UPDATE users SET registration_key = $1, reg_key_expire_date = current_timestamp + interval '1' day WHERE user_id = $2`, [regKeyString, user.rows[0].user_id])
+                        }
+
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success'}));
+                    } catch (e) {
+                        await client.query('ROLLBACK');
+                        throw e;
+                    } finally {
+                        done();
+                    }
+                })()
+                .catch(err => error.log(err, req, resp));
+            });
+        } else {
+            resp.send({status: 'error', statusMessage: `You're not human`});
+        }
+    });
+});
+
+app.post('/api/activate-account', async(req, resp) => {
+    if (req.session.user) {
+        req.session = null;
+    }
+    
+    let registrationKey = decodeURIComponent(req.body.key);
+
+    let user = await db.query(`SELECT username, registration_key, reg_key_expire_date, user_status, user_email, user_id FROM users WHERE registration_key = $1 AND user_status = 'Pending'`, [registrationKey])
+
+    if (user && user.rows.length === 1) {
+        if (new Date(user.rows[0].reg_key_expire_date) < new Date) {
+            resp.send({status: 'error', statusMessage: 'The link has expired'});
+        } else {
+            let decrypted = cryptoJS.AES.decrypt(registrationKey, process.env.ACTIVATE_ACCOUNT_SECRET);
+
+            if (decrypted.toString(cryptoJS.enc.Utf8) === user.rows[0].user_email) {
+                await db.query(`UPDATE users SET user_status = 'Active' WHERE user_id = $1`, [user.rows[0].user_id])
+                .then(result => {
+                    if (result && result.rowCount === 1) {
+                        resp.send({status: 'success', statusMessage: `Your account has been activated`});
+                    }
+                })
+            } else {
+                resp.send({status: 'error', statusMessage: 'Failed to activated account. Please try again or contact an administrator.'})
+            }
+        }
+    } else {
+        resp.send({status: 'error', statusMessage: `The account requiring activation does not exist`});
+    }
+});
+
+app.post('/api/forgot-password', async(req, resp) => {
+    request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.RECAPTCHA_SECRET, response: req.body.verified}}, async(err, res, body) => {
+        if (err) error.log(err, req, resp);
+
+        let response = JSON.parse(res.body);
+
+        if (response.success) {
+            controller.email.password.reset(req.body.email, (err, message) => {
+                if (err && message) {
+                    let error = new Error(message);
+                    let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                    error.log(errObj, req, resp);
+                } else if (err && !message) {
+                    error.log(err, req, resp);
+                } else {
+                    resp.send({status: 'success'});
+                }
+            });
+        } else {
+            resp.send({status: 'error', statusMessage: `You're not human`});
+        }
+    });
+});
+
+app.post('/api/reset-password', async(req, resp) => {
+    if (req.body.password === req.body.confirm) {
+        let resetKey = decodeURIComponent(req.body.key);
+
+        db.connect((err, client, done) => {
+            if (err) error.log(err, req, resp);
+
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let key = await client.query(`SELECT reset_user, reset_key, reset_expires FROM reset_passwords WHERE reset_key = $1`, [resetKey]);
+
+                    if (key.rows.length === 1) {
+                        if (new Date(key.rows[0].reset_expires) < new Date) {
+                            let error = new Error('The request has expired, please request a new one');
+                            let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                            throw errObj;
+                        } else {
+                            bcrypt.hash(req.body.password, 10, async(err, result) => {
+                                if (err) {
+                                    let error = new Error('Please contact an administrator');
+                                    let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                                    throw errObj;
+                                } else {
+                                    await client.query(`UPDATE users SET user_password = $1 WHERE username = $2`, [result, key.rows[0].reset_user]);
+                                    await client.query(`DELETE FROM reset_passwords WHERE reset_key = $1`, [resetKey]);
+                                }
+                            });
+
+                            await client.query('COMMIT')
+                            .then(() => resp.send({status: 'success'}));
+                        }
+                    } else {
+                        let error = new Error('Reset request does not exist');
+                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                        throw errObj;
+                    }
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => error.log(err, req, resp));
+        })
+    }
+})
+
 module.exports = app;

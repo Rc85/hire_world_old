@@ -93,7 +93,8 @@
         ('violet', $theme-violet, white),
         ('lime', $theme-lime, white),
         ('yellow', $theme-yellow, black),
-        ('grey', $theme-medgrey, black) {
+        ('grey', $theme-medgrey, black),
+        ('special', $theme-special, black) {
             .mini-badge-#{$colorName} {
                 background-color: $color;
                 color: $text;
@@ -140,8 +141,6 @@
         .badge.badge-#{$colorName} {
             color: white;
 
-            
-
             .badge-text {
                 background-color: $color;
                 border-top-left-radius: 3px;
@@ -174,7 +173,5 @@
         .text-#{$colorName} {
             color: $color !important;
         }
-
-
     }
 }

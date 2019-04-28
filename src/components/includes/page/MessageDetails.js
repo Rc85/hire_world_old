@@ -73,6 +73,10 @@ class MessageDetails extends Component {
                 messages.unshift(resp.data.message);
 
                 this.setState({sendStatus: 'send success', messages: messages});
+
+                setTimeout(() => {
+                   this.setState({sendStatus: ''}); 
+                }, 5000);
             } else if (resp.data.status === 'error') {
                 this.setState({sendStatus: 'send error'});
                 this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -86,6 +90,7 @@ class MessageDetails extends Component {
     }
     
     render() {
+        console.log(this.state.status);
         let status;
 
         if (this.state.status === 'Loading Message') {

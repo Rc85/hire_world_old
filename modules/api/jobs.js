@@ -1007,13 +1007,25 @@ app.post('/api/job/milestone/start', authenticate, (req, resp) => {
                                 WHERE milestone_id = $1`, [req.body.id]);
 
                                 let amount = parseFloat(milestones.rows[0].milestone_payment_amount) * 100;
-                                let clientFee = Math.round(amount * 0.05);
-                                let userFee = Math.round(amount * 0.15);
+                                let clientFee = Math.round(amount * 0.03);
+                                let userFee;
+
+                                let lifetimeTotal = await client.query(`SELECT SUM(payout_amount) + SUM(user_app_fee) AS total_payout FROM job_milestones
+                                LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
+                                WHERE jobs.job_client = $1 AND job_user = $2
+                                AND milestone_status = 'Complete'
+                                AND payout_status = 'paid'`, [authorized.rows[0].job_client, authorized.rows[0].job_user]);
+
+                                if (lifetimeTotal.rows[0].total_payout <= 500) {
+                                    userFee = Math.round(amount * 0.15);
+                                } else if (lifetimeTotal.rows[0].total_payout >= 500.01 && lifetimeTotal.rows[0].total_payout <= 10000) {
+                                    userFee = Math.round(amount * 0.075);
+                                } else if (lifetimeTotal.rows[0].total_payout > 10000.01) {
+                                    userFee = Math.round(amount * 0.0375);
+                                }
 
                                 let chargeAmount = amount + clientFee;
-
-                                
-                                
+                        
                                 let chargeObj = {
                                     amount: chargeAmount,
                                     application_fee_amount: userFee + clientFee,

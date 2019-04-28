@@ -382,4 +382,114 @@
     .tooltip {
         display: none;
     }
+
+    .site-logo {
+        width: 75%;
+    }
+
+    .site-main-container {
+        background-position: -90vw, -15vh;
+        background-size: 175%;
+    }
+
+    .site-section-div {
+        width: 100%;
+        
+        &:not(:last-child) {
+            border-right: 0;
+            padding: 0 0 25px 0;
+            border-bottom: 1px solid $theme-lightgrey;
+            margin-bottom: 25px;
+        }
+    }
+
+    .site-section {
+        flex-direction: column-reverse;
+
+        &:nth-child(2n+2) {
+            flex-direction: column;
+        }
+    }
+
+    .site-section-col {
+        flex-direction: column;
+    }
+
+    .site-section-div-container {
+        flex-direction: column;
+    }
+
+    .site-section-image {
+        width: 75%;
+        margin: 0 auto;
+    }
+
+    .site-text {
+        width: 100%;
+    }
+
+    .site-main-footer {
+        font-size: 0.9rem;
+    }
+
+    .site-main-footer-container {
+        flex-direction: column;
+    }
+
+    .main-links {
+        margin-right: 0;
+        border-right: 0;
+        padding-right: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin-bottom: 30px;
+
+        h5 {
+            display: none;
+        }
+    }
+
+    .footer-link {
+        margin-bottom: 15px;
+        margin-right: 5px;
+    }
+
+    .site-main-footer-section {
+        margin-bottom: 30px;
+
+        &.right-bordered {
+            border-right: 0;
+            margin-right: 0;
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .footer-link-container {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .site-main-sub-footer {
+        .mr-5 {
+            margin-right: 0;
+            margin-bottom: 15px;
+        }
+    }
+
+    .site-pricing-table, .app-fee-table {
+        font-size: 0.8rem;
+    }
+
+    .site-pricing-table, .app-fee-table {
+        th, td {
+            padding: 10px;
+        }
+    }
+
+    .sub-feature {
+        padding-left: 0;
+    }
 }

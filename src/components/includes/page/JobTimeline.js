@@ -60,20 +60,20 @@ class JobTimeline extends Component {
         if (this.props.jobs) {
             months.map((month, i) => {
                 for (let job of this.props.jobs) {
-                    let jobCreated = moment.utc(job.job_created_date).format('DD');
-                    let jobMonth = moment.utc(job.job_created_date).month();
+                    let jobComplete = moment.utc(job.job_end_date).format('DD');
+                    let jobMonth = moment.utc(job.job_end_date).month();
 
                     if (jobMonth === i) {
-                        if (months[i].jobs[jobCreated]) {
+                        if (months[i].jobs[jobComplete]) {
                             for (let key in months[i].jobs) {
-                                if (key === jobCreated) {
-                                    months[i].jobs[jobCreated].push(job);
+                                if (key === jobComplete) {
+                                    months[i].jobs[jobComplete].push(job);
                                 } else {
                                     months[i].jobs[key] = [job];
                                 }
                             }
                         } else {
-                            months[i].jobs[jobCreated] = [job];
+                            months[i].jobs[jobComplete] = [job];
                         }
                     }
                 }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import fetch from 'axios';
-import Response from '../pages/Response';
+import Response from '../app/Response';
 import Loading from '../utils/Loading';
 import { LogError } from '../utils/LogError';
 import TitledContainer from '../utils/TitledContainer';

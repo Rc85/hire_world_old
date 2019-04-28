@@ -1,10 +1,12 @@
 import fetch from 'axios';
 import { LogError } from '../components/utils/LogError';
 import { Alert } from './AlertActions';
-import { LogoutUser } from './LoginActions';
+import { LogoutUser, LoginBegin } from './LoginActions';
 
 export const GetSession = () => {
     return dispatch => {
+        dispatch(LoginBegin('login begin'));
+
         return fetch.post('/api/auth/login')
         .then(resp => {
             if (resp.data.status === 'success') {
@@ -13,6 +15,11 @@ export const GetSession = () => {
                 dispatch(GetSessionFail(resp.data.status, resp.data.statusMessage));
             } else if (resp.data.status === 'suspended' || resp.data.status === 'banned') {
                 dispatch(LogoutUser());
+                if (resp.data.status === 'suspended') {
+                    dispatch(Alert('error', `Your account has been temporarily banned`));
+                } else if (resp.data.status === 'banned') {
+                    dispatch(Alert('error', `Your account has been permanently banned`));
+                }
             }
         })
         .catch(err => LogError(err, '/api/auth/login'));

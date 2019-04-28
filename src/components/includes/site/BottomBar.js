@@ -38,6 +38,10 @@ class BottomBar extends Component {
         this.setState({showBottomBar: !this.state.showBottomBar, showMenu: !this.state.showMenu, showSectors: false});
     }
 
+    componentWillUnmount() {
+        document.body.style.overflow = 'auto';
+    }
+    
     showNotificationPanel(e) {
         e.stopPropagation();
 
@@ -79,11 +83,12 @@ class BottomBar extends Component {
         }
 
         return (
-            <div id='bottombar-container' className={`${this.props.config.IsTyping ? 'hide' : ''}`}>
-                <div id='bottombar' className={`${!this.state.showMenu ? '' : 'expand'} ${this.props.config.LoggingIn ? 'no-padding' : ''}`}>
+            <div id='bottombar-container' className={`${this.props.config.typing ? 'hide' : ''}`}>
+                <div id='bottombar' className={`${!this.state.showMenu ? '' : 'expand'} ${this.props.config.loginIn ? 'no-padding' : ''}`}>
                     <div className={`bottombar-item-container`}>
+                        <NavLink to='/'><img src='/images/logo_md.png' className='bottombar-site-logo' /></NavLink>
                         <div className='bottombar-item'>
-                            <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'><FontAwesomeIcon icon={faHome} /></div><NavLink to='/'>Main</NavLink></div>
+                            <div className='bottombar-item-wrapper'><div className='bottombar-item-icon'><FontAwesomeIcon icon={faHome} /></div><NavLink to='/main'>Main</NavLink></div>
                         </div>
 
                         <div className='bottombar-item'>
@@ -118,7 +123,7 @@ class BottomBar extends Component {
                     </div>
                 </div>
                 
-                {!this.props.config.LoggingIn ? <div className='bottombar-toggle-buttons'>
+                {!this.props.config.loginIn ? <div className='bottombar-toggle-buttons'>
                     <div id='bottombar-button-container'>
                         {this.props.user.user ?
                         <div id='bottombar-dashboard-buttons'>

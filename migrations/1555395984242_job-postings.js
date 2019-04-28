@@ -37,7 +37,7 @@ exports.up = pgm => {
             default: 0
         },
         job_post_budget_end: {
-            type: 'numieric',
+            type: 'numeric',
         },
         job_post_budget_currency: {
             type: 'varchar'

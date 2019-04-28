@@ -70,6 +70,43 @@ module.exports = {
 
                 return regKeyString;
             }
+        },
+        password: {
+            reset: async(email, callback) => {
+                let encrypted = cryptoJS.AES.encrypt(email, process.env.RESET_PASSWORD_SECRET);
+                let resetKeyString = encrypted.toString();
+                let resetKey = encodeURIComponent(resetKeyString);
+
+                let user = await db.query(`SELECT username FROM users WHERE user_email = $1`, [email]);
+                await db.query(`INSERT INTO reset_passwords(reset_user, reset_key) VALUES ($1, $2) ON CONFLICT (reset_user) DO UPDATE SET reset_key = $2, reset_expires = current_timestamp + interval '1 day'`, [user.rows[0].username, resetKeyString])
+                .then(() => {
+                    let message = {
+                        to: email,
+                        from: 'admin@hireworld.ca',
+                        subject: 'Reset Password',
+                        templateId: 'd-d299977ec2404a5d9952b08a21576be5',
+                        dynamicTemplateData: {
+                            url: `${process.env.SITE_URL}/reset-password/${resetKey}`
+                        },
+                        trackingSettings: {
+                            clickTracking: {
+                                enable: false
+                            }
+                        }
+                    }
+                    
+                    sgMail.send(message)
+                    .then(() => callback())
+                    .catch(err => callback(err));
+                })
+                .catch(err => {
+                    if (err.code === '23505') {
+                        callback(err, 'An error occurred, please try again');
+                    } else {
+                        callback(err);
+                    }
+                });
+            }
         }
     },
     conversations: {

@@ -45,7 +45,7 @@ class FilterListings extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (!this.props.config.IsMobile) {
+        if (!this.props.config.mobile) {
             document.body.style.overflowY = 'auto';
         }
 
@@ -76,9 +76,9 @@ class FilterListings extends Component {
     }
 
     toggleSearch() {
-        if (this.props.config.IsMobile && !this.state.show) {
+        if (this.props.config.mobile && !this.state.show) {
             document.body.style.overflowY = 'hidden';
-        } else if (this.props.config.IsMobile && this.state.show) {
+        } else if (this.props.config.mobile && this.state.show) {
             document.body.style.overflowY = '';
         }
 

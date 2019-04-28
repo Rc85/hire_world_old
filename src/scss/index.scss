@@ -72,8 +72,14 @@
 @import 'ViewUser';
 @import 'ViewUserReview';
 
+@import './site/Site';
+@import './site/Main';
+@import './site/Features';
+@import './site/Pricing';
+
 @import 'mobile/2560px';
 @import 'mobile/1920px';
+@import 'mobile/1600px';
 @import 'mobile/1366px';
 @import 'mobile/1024px';
 @import 'mobile/768px';

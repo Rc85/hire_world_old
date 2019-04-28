@@ -18,3 +18,9 @@ export const LoggingIn = value => {
         value: value
     }
 }
+
+export const SiteLoaded = () => {
+    return {
+        type: 'SITE_LOADED'
+    }
+}

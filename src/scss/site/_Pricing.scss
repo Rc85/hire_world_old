@@ -1,0 +1,71 @@
+.site-pricing-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    &.two-column {
+        td, th {
+            width: 80%;
+
+            &:first-child {
+                width: 20%;
+                
+            }
+        }
+    }
+
+    th:first-child {
+        text-align: left;
+    }
+
+    td, th {
+        border-top: 1px solid $theme-lightgrey;
+        border-bottom: 1px solid $theme-lightgrey;
+        padding: 20px;
+        width: 20%;
+
+        &:first-child {
+            width: 40%;
+        }
+    }
+    
+    tbody {
+        tr {
+            td {
+                &:not(:first-child) {
+                    border-left: 1px solid $theme-lightgrey;
+                    text-align: center;
+                }
+            }
+        }
+    }
+}
+
+.sub-feature {
+    padding-left: 60px;
+}
+
+.pricing-plan {
+    border-left: 1px solid $theme-lightgrey;
+    text-align: center;
+}
+
+.app-fee-table {
+    border-collapse: collapse;
+
+    th, td {
+        padding: 20px;
+        border-bottom: 1px solid $theme-lightgrey;
+    }
+
+    td:not(:first-child) {
+        border-left: 1px solid $theme-lightgrey;
+        text-align: center
+    }
+    
+    thead {
+        th {
+            border-top: 1px solid $theme-lightgrey;
+            border-bottom: 1px solid $theme-lightgrey;
+        }
+    }
+}

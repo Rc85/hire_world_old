@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import TabBar from '../utils/TabBar';
-import Response from '../pages/Response';
+import Response from '../app/Response';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import fetch from 'axios';
@@ -71,7 +71,7 @@ class Admin extends Component {
 
         return(
             <section id='dashboard'>
-                {!this.props.config.IsMobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
+                {!this.props.config.mobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
 
                 <div id='dashboard-main'>
                     {this.props.location.pathname.match(/^\/dashboard/) ? <div id='main-panel-bg'></div> : ''}

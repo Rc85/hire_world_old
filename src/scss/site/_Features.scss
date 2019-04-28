@@ -1,0 +1,19 @@
+.site-features-section {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 60px;
+}
+
+.site-features-text {
+    width: 75%;
+}
+
+.site-features-image {
+    width: 20%;
+
+    img {
+        width: 100%;
+    }
+}

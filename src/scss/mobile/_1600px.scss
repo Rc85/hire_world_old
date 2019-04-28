@@ -1,0 +1,10 @@
+@media only screen and (max-width: 1600px) {
+    .input-group-container {
+        .input-group {
+            &.row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    }
+}

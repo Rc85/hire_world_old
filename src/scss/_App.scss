@@ -26,10 +26,18 @@
     > .titled-container:first-child {
         margin-top: 50px;
     }
+
+    &.centered {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
 }
 
 .badge {
-    display: flex;
+    display: inline-flex;
     font-size: 0.7em;
     font-weight: bold;
 }
@@ -42,32 +50,6 @@
     justify-content: center;
     color: black;
 }
-
-/* .bg-purple { background-color: $theme-purple !important; }
-.bg-orange { background-color: $theme-orange !important; }
-.bg-green { background-color: $theme-green !important; }
-.bg-violet { background-color: $theme-violet !important; }
-.bg-highlight { background-color: $theme-highlight !important; }
-.bg-lime { background-color: $theme-lime !important; }
-.bg-success { background-color: $success !important; }
-.bg-yellow { background-color: $theme-yellow !important; }
-.bg-primary { background-color: $primary !important; }
-.bg-lightblue { background-color: $theme-lightblue !important; }
-.bg-lightgrey { background-color: $theme-lightgrey !important; }
-
-.text-special { color: $theme-special !important;  }
-.text-black { color: black !important; }
-.text-highlight { color: $theme-highlight !important; }
-.text-dark { color: $theme-darkgrey !important; }
-.text-info { color: $info !important; }
-.text-blue { color: $theme-blue !important; }
-.text-light { color: $theme-lightgrey !important; }
-.text-success { color: $success !important; }
-.text-danger { color: $danger !important; }
-.text-warning { color: $warning !important; }
-.text-alt-highlight { color: $theme-alt-highlight !important; }
-.text-secondary { color: $secondary !important; }
-.text-white { color: white !important; } */
 
 .text-center { text-align: center !important; }
 .text-right { text-align: right !important; }
@@ -117,6 +99,13 @@
     font-size: 1rem;
 }
 
+.mini-indicator {
+    width: 10px;
+    height: 10px;
+    background-color: $theme-special;
+    border-radius: 100%;
+}
+
 #prompt-input {
     border: 1px solid $theme-medgrey;
     padding: 5px 10px;
@@ -156,14 +145,6 @@
     .label {
         padding: 0 20px;
     }
-}
-
-#activate-account, #forgot-password {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
 }
 
 .global-overlay {

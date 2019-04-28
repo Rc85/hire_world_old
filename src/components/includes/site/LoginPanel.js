@@ -4,9 +4,8 @@ import { LoginUser } from '../../../actions/LoginActions';
 import { connect } from 'react-redux';
 import InputWrapper from '../../utils/InputWrapper';
 import SubmitButton from '../../utils/SubmitButton';
-import { IsTyping, LoggingIn } from '../../../actions/ConfigActions';
 import { NavLink } from 'react-router-dom';
-import { strictEqual } from 'assert';
+import { LoggingIn } from '../../../actions/ConfigActions';
 
 class LoginPanel extends Component {
     constructor(props) {
@@ -55,7 +54,7 @@ class LoginPanel extends Component {
 }
 
 LoginPanel.propTypes = {
-
+    user: PropTypes.object
 };
 
 const mapStateToProps = state => {

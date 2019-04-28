@@ -6,19 +6,23 @@ import { GetUserNotificationAndMessageCount, UpdateUserNotifications } from '../
 import { connect } from 'react-redux';
 import { LogError } from '../../utils/LogError';
 import { withRouter } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleNotch } from '@fortawesome/pro-solid-svg-icons';
 
 class NotificationPanel extends Component {
     constructor(props) {
         super(props);
         
         this.state = {
-            status: 'Loading',
+            status: '',
             notifications: []
         }
     }
     
     componentDidUpdate(prevProps, prevState) {
         if (!prevProps.show && this.props.show) {
+            this.setState({status: 'Loading'});
+
             fetch.post('/api/get/user/notifications', {new: true})
             .then(resp => {
                 if (resp.data.status === 'success') {
@@ -37,7 +41,7 @@ class NotificationPanel extends Component {
         }
     }
     
-    componentDidMount() {
+    /* componentDidMount() {
         fetch.post('/api/get/user/notifications', {new: true})
         .then(resp => {
             if (resp.data.status === 'success') {
@@ -48,14 +52,16 @@ class NotificationPanel extends Component {
             }
         })
         .catch(err => LogError(err, '/api/user/get/notifications'));
-    }
+    } */
         
     render() {
-        let notifications;
+        let notifications, body;
         let message = 'No new notifications';
 
         if (this.state.status === 'error') {
             message = this.state.statusMessage;
+        } else if (this.state.status === 'Loading') {
+            notifications = <div className='text-center'><FontAwesomeIcon icon={faCircleNotch} size='3x' spin /></div>;
         }
         
         if (this.state.notifications.length > 0) {
@@ -70,7 +76,7 @@ class NotificationPanel extends Component {
                     notification_icon = <span className='mini-badge mini-badge-danger'>{n.notification_type}</span>;
                 }
 
-                return <div key={i} className={`${i !== this.state.notifications.length - 1 ? 'mb-3' : ''}`}>
+                return <div key={n.notification_id} className={`${i !== this.state.notifications.length - 1 ? 'mb-3' : ''}`}>
                     <div className='mb-1' dangerouslySetInnerHTML={{__html: n.notification_message}}></div>
 
                     <div className='d-flex-between-center'>

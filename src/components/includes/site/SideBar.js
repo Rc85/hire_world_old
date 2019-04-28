@@ -52,18 +52,21 @@ class SideBar extends Component {
             <BrowseMenu show={this.props.menu.id === 'browse-menu' && this.props.menu.show} />
         </div>;
 
-        if (this.props.user.status === 'success' && this.props.user.user) {
+        if (this.props.user.user) {
             return <section id='sidebar'>
 
-                <div className='text-center'><NavLink to='/'><img src='/images/logo_xl.png' id='hireworld-logo' /></NavLink></div>
+                <div className='text-center'><NavLink to='/main'><img src='/images/logo_xl.png' id='hireworld-logo' /></NavLink></div>
 
                 <div id='sidebar-content'>
                     <React.Fragment>
                         <div id='sidebar-buttons-container'>
                             <div><FontAwesomeIcon icon={faUserCircle} className='text-highlight mr-1' /> <NavLink to='/dashboard'>{this.props.user.user.username}</NavLink></div>
+
                             <div><NavLink to='/dashboard/friends'><FontAwesomeIcon icon={faUserFriends} className={this.props.location.pathname === '/dashboard/friends' ? 'text-highlight' : ''} /></NavLink></div>
+
                             <div><NavLink to='/dashboard/blocked-users'><FontAwesomeIcon icon={faUserSlash} /></NavLink></div>
-                            {this.props.user.user ? <React.Fragment><div className='notification-button-container' onClick={(e) => this.showNotificationPanel(e)}>{parseInt(this.props.user.notifications) > 0 ? <span className='notification-counter mini-badge mini-badge-danger'>{this.props.user.notifications}</span> : ''}<FontAwesomeIcon icon={faBell} size='lg' id='notification-icon'/><NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} user={this.props.user} /></div></React.Fragment> : ''}
+                            
+                            <React.Fragment><div className='notification-button-container' onClick={(e) => this.showNotificationPanel(e)}>{parseInt(this.props.user.notifications) > 0 ? <span className='notification-counter mini-badge mini-badge-danger'>{this.props.user.notifications}</span> : ''}<FontAwesomeIcon icon={faBell} size='lg' id='notification-icon'/><NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} user={this.props.user} /></div></React.Fragment>
                         </div>
 
                         <hr className='w-90' />
@@ -97,7 +100,7 @@ class SideBar extends Component {
             </section>;
         } else if (this.props.user.status === 'error' || this.props.user.status === 'not logged in' || this.props.user.status === 'access error') {
             return <section id='sidebar'>
-                <div className='text-center'><NavLink to='/'><img src='/images/logo_xl.png' id='hireworld-logo' /></NavLink></div>
+                <div className='text-center'><NavLink to='/main'><img src='/images/logo_xl.png' id='hireworld-logo' /></NavLink></div>
 
                 <div id='sidebar-content'>
                     <React.Fragment>
@@ -115,7 +118,7 @@ class SideBar extends Component {
             <section id='sidebar'>
                 <BrowseMenu show={this.props.menu.id === 'browse-menu' && this.props.menu.show} />
 
-                <div className='text-center'><NavLink to='/'><img src='/images/logo_xl.png' id='hireworld-logo' /></NavLink></div>
+                <div className='text-center'><NavLink to='/main'><img src='/images/logo_xl.png' id='hireworld-logo' /></NavLink></div>
 
                 <div id='sidebar-content'>
                     <Loading size='5x' className='mt-5' />

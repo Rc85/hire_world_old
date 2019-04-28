@@ -1,7 +1,6 @@
 import fetch from 'axios';
 import { Alert } from '../actions/AlertActions';
 import { LogError } from '../components/utils/LogError';
-import { GetSession } from './FetchActions';
 
 export const LoginUser = (data) => {
     return dispatch => {
@@ -10,7 +9,6 @@ export const LoginUser = (data) => {
 
         return fetch.post('/api/auth/login', data)
         .then(resp => {
-            document.body.style.overflow = 'auto';
             if (resp.data.status === 'success') {
                 dispatch(LoginSuccess(resp.data.status, resp.data.user));
             } else if (resp.data.status === 'error') {
@@ -27,7 +25,7 @@ export const LoginUser = (data) => {
     }
 }
 
-const LoginBegin = (status) => {
+export const LoginBegin = (status) => {
     return {
         type: 'LOGIN_USER',
         status

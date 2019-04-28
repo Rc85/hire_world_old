@@ -8,6 +8,7 @@ export default class Loading extends Component {
         return(
             <div className={`loading-container ${this.props.className ? this.props.className : ''}`}>
                 <FontAwesomeIcon icon={faCircleNotch} size={this.props.size} spin color={this.props.color} />
+                <h3 className={this.props.color === 'black' ? 'text-black' : ''}>{this.props.text}</h3>
             </div>
         )
     }

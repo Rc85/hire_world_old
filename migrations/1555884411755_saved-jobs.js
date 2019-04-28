@@ -16,5 +16,5 @@ exports.up = pgm => {
             default: pgm.func('current_timestamp')
         }
     }),
-    pgm.addConstraint('saved_job_post', 'unique_saved_job_post', 'unique (saved_job_post_id, saved_by)')
+    pgm.addConstraint('saved_job_posts', 'unique_saved_job_post', 'unique (saved_job_post_id, saved_by)')
 }

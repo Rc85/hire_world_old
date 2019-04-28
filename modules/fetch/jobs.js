@@ -41,6 +41,13 @@ app.post('/api/jobs/fetch', authenticate, async(req, resp) => {
             statusParam = `job_status IN ('Abandoned')`;
         }
 
+        let jobs = await db.query(`SELECT COUNT(job_id) AS total_jobs FROM jobs
+        WHERE (job_user = $1 OR job_client = $1)
+        AND ${statusParam}`, [req.session.user.username])
+        .catch(err => {
+            return error.log(err, req, resp);
+        });;
+
         await db.query(`SELECT * FROM jobs
         LEFT JOIN (
             SELECT COUNT(job_message_id) AS new_message, job_message_parent_id FROM job_messages
@@ -51,16 +58,18 @@ app.post('/api/jobs/fetch', authenticate, async(req, resp) => {
         LEFT JOIN review_tokens
         ON review_tokens.token_job_id = jobs.job_id
         WHERE (job_user = $1 OR job_client = $1) AND ${statusParam}
-        ORDER BY job_created_date DESC NULLS LAST`, [req.session.user.username])
+        ORDER BY job_created_date DESC NULLS LAST
+        LIMIT 25
+        OFFSET $2`, [req.session.user.username, req.body.offset])
         .then(result => {
             if (result) {
-                resp.send({status: 'success', jobs: result.rows});
+                resp.send({status: 'success', jobs: result.rows, totalJobs: jobs.rows[0].total_jobs});
             } else {
                 resp.send({status: 'error', statusMessage: 'Fail to retrieve jobs'});
             }
         })
         .catch(err => {
-            error.log(err, req, resp);
+            return error.log(err, req, resp);
         });
 });
 

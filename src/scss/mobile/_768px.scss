@@ -54,6 +54,10 @@
         }
     }
 
+    .listing-row-wrapper {
+        width: 100%;
+    }
+
     .listing-row-detail-child {
         flex-grow: 1;
         margin-right: -1px;
@@ -68,5 +72,67 @@
 
     .user-container {
         width: 49%;
+    }
+
+    .site-main-container {
+        background-position: -50vw -30vh;
+        background-size: 125%;
+    }
+
+    .site-main-banner {
+        background-color: rgba(0, 0, 0, 0.65);
+    }
+
+    .site-main-headline {
+        width: 90%;
+    }
+
+    .site-section {
+        padding: 25px;
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+    }
+
+    .footer-link-container {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .site-nav-bar {
+        display: none;
+    }
+
+    .site-top-user-panel {
+        transform: scale(1);
+        opacity: 1;
+        position: static;
+        background-image: none;
+        box-shadow: none;
+        width: 100%;
+    }
+
+    .site-mobile-nav-button {
+        display: block;
+    }
+
+    .site-overlay {
+        &.show {
+            display: block;
+        }
+    }
+
+    .site-mobile-nav-container {
+        display: block;
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.25s ease-in-out, opacity 0.25s ease-in-out;
+        opacity: 0;
+
+        &.show {
+            opacity: 1;
+            transform: scaleX(1);
+        }
     }
 }

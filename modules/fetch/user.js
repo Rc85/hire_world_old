@@ -141,7 +141,7 @@ app.get('/api/get/user/notification-message-job-count', authenticate, async(req,
             (
                 SELECT COUNT(job_message_id) AS opened_job_message_count FROM job_messages
                 LEFT JOIN jobs ON jobs.job_id = job_messages.job_message_parent_id
-                WHERE job_message_status = 'New' AND job_status IN ('New', 'Pending', 'Confirmed') AND job_message_creator != $1
+                WHERE job_message_status = 'New' AND job_status IN ('New', 'Open', 'Pending') AND job_message_creator != $1
             ),
             (
                 SELECT COUNT(job_message_id) AS active_job_message_count FROM job_messages

@@ -64,9 +64,7 @@ class App extends Component {
 			this.props.dispatch(IsMobile(true));
 		}
 
-		setTimeout(() => {
-			this.props.dispatch(SiteLoaded());
-		}, 1500);
+		this.props.dispatch(SiteLoaded());
 	}
 	
 	dismissAlert(id) {

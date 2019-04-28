@@ -24,7 +24,7 @@ class Main extends Component {
 
                 <div className='site-section-div-container'>
                     <div className='site-section-div'>
-                        <div className='text-center mb-1'><FontAwesome icon={faSearchDollar} size='3x' className='text-highlight' /></div>
+                        <div className='text-center mb-1'><FontAwesomeIcon icon={faSearchDollar} size='3x' className='text-highlight' /></div>
                         <div className='text-center mb-3'><h3>No Hidden Fees</h3></div>
 
                         <p>No VAT, processing fees, administration fees, refund fees, currency exchange fees, partial payment fees, or "we need more money" fees.</p>

@@ -342,7 +342,7 @@ app.post('/api/job/create', authenticate, async(req, resp) => {
             await db.query(query, params)
             .then(result => {
                 if (result && result.rowCount === 1) {
-                    resp.send({status: 'success', statusMessage: req.body.job_id ? 'Job updated' : 'Job submitted and added to your job proposals', job: result.rows[0]});
+                    resp.send({status: 'success', statusMessage: req.body.job_id ? 'Job updated' : 'Job submitted and has been added to your job proposals', job: result.rows[0]});
                 } else {
                     resp.send({status: 'error', statusMessage: req.body.job_id ? 'Fail to update job' : 'Fail to submit job'});
                 }

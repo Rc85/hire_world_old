@@ -15,8 +15,6 @@ class Prompt extends Component {
     }
 
     componentDidMount() {
-        let modal = document.getElementById('prompt-modal');
-        modal.style.top = `${window.pageYOffset}px`;
         document.body.style.overflowY = 'hidden';
     }
 
@@ -26,7 +24,7 @@ class Prompt extends Component {
     
     render() {
         return (
-            <div id='prompt-modal' className='full-black-overlay'>
+            <div id='prompt-modal' className='full-black-overlay' style={{'top': window.pageYOffset + 'px'}}>
                 <div className='modal-container w-25 rounded'>
                     <div className='text-black'>{this.props.text}</div>
 
@@ -57,7 +55,10 @@ class Prompt extends Component {
 }
 
 Prompt.propTypes = {
-    text: PropTypes.string.isRequired,
+    text: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.object
+    ]).isRequired,
     value: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.number,

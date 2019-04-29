@@ -43,10 +43,12 @@ class BusinessHoursSettings extends Component {
                     this.setState(this.initialState);
                 }
             })
-            .catch(err => LogError(err, '/api/get/business_hours'));
+            .catch(err => {
+                LogError(err, '/api/get/business_hours');
+                this.setState({status: ''});
+            });
         }
     }
-    
 
     splitHours(days) {
         let monStart, monEnd, tueStart, tueEnd, wedStart, wedEnd, thuStart, thuEnd, friStart, friEnd, satStart, satEnd, sunStart, sunEnd;
@@ -153,12 +155,17 @@ class BusinessHoursSettings extends Component {
             if (resp.data.status === 'success') {
                 this.initialState = {...this.state};
                 this.initialState.status = '';
+                this.setState(this.initialState);
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
             }
 
-            this.setState(this.initialState);
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => LogError(err, '/api/user/business_hours/save'));
+        .catch(err => {
+            LogError(err, '/api/user/business_hours/save');
+            this.setState({status: ''});
+        });
     }
 
     toggle() {

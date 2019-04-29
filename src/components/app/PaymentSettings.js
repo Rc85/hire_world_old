@@ -24,7 +24,7 @@ class PaymentSettings extends Component {
         
         this.state = {
             status: 'Loading',
-            defaultAddress: this.props.user.user && this.props.user.user.user_address && this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code,
+            defaultAddress: this.props.user.user && this.props.user.user.user_address && this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code || false,
             saveAddress: false,
             payments: [],
             name: '',
@@ -73,7 +73,7 @@ class PaymentSettings extends Component {
             address_country: this.state.defaultAddress ? this.props.user.user.user_country : this.state.address_country
         });
 
-        let data = {...this.state.defaultAddress, ...this.state.saveAddress, ...token};
+        let data = {saveAdress: this.state.saveAddress, ...token};
 
         fetch.post('/api/user/payment/add', data)
         .then(resp => {
@@ -108,10 +108,10 @@ class PaymentSettings extends Component {
     }
 
     useDefaultAdress() {
-        if (!this.props.user.user.user_address && !this.props.user.user.user_city && !this.props.user.user.user_region && !this.props.user.user.user_country && !this.props.user.user.user_city_code) {
+        if (!this.props.user.user.user_address || !this.props.user.user.user_city || !this.props.user.user.user_region || !this.props.user.user.user_country || !this.props.user.user.user_city_code) {
             this.props.dispatch(Alert('error', 'No address to use'));
         } else {
-            this.setState({defaultAddress: !this.state.defaultAddress});
+            this.setState({defaultAddress: !this.state.defaultAddress, saveAddress: false});
         }
     }
 
@@ -244,7 +244,7 @@ class PaymentSettings extends Component {
                         }}>
                             {paymentType}
             
-                            <div className='setting-child mb-3'><label><input type='checkbox' name='default-address' id='useDefaultAddress' onClick={() => this.useDefaultAdress()} defaultChecked={this.state.defaultAddress} /> Use address registered with this account</label></div>
+                            <div className='setting-child mb-3'><label><input type='checkbox' name='default-address' id='useDefaultAddress' onChange={() => this.useDefaultAdress()} checked={this.state.defaultAddress} /> Use address registered with this account</label></div>
             
                             {address}
             

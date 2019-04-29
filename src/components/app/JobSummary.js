@@ -9,6 +9,7 @@ import { Redirect } from 'react-router-dom';
 import { LogError } from '../utils/LogError';
 import JobTimeline from '../includes/page/JobTimeline';
 import InputWrapper from '../utils/InputWrapper';
+import MoneyFormatter from '../utils/MoneyFormatter';
 
 class JobSummary extends Component {
     constructor(props) {
@@ -122,11 +123,11 @@ class JobSummary extends Component {
                             <div className='simple-container-title'>Payments</div>
 
                             <div className='job-summary-stats mb-1'>
-                                <strong>Total Payment for Services:</strong> ${!this.state.summary.total_payment.total_payment ? 0 : `${this.state.summary.total_payment.total_payment} ${this.state.summary.total_payment.job_price_currency}`}
+                                <strong>Total Payment for Services:</strong> {!this.state.summary.total_payment.total_payment ? <span>$0</span> : <span>$<MoneyFormatter value={this.state.summary.total_payment.total_payment} /> {this.state.summary.total_payment.job_price_currency}</span>}
                             </div>
 
                             <div className='job-summary-stats mb-1'>
-                                <strong>Total Application Fees Paid:</strong> ${!isNaN(appFee) ? appFee.toFixed(2) : 0} CAD
+                                <strong>Total Application Fees Paid:</strong> {!isNaN(appFee) ? <span>$<MoneyFormatter value={appFee} /></span> : <span>$0</span>} CAD
                             </div>
                         </div>
 
@@ -134,20 +135,20 @@ class JobSummary extends Component {
                             <div className='simple-container-title'>Income</div>
 
                             <div className='job-summary-stats mb-1'>
-                                <strong>Total Earnings:</strong> ${!this.state.summary.payout_received ? 0 : this.state.summary.payout_received}
+                                <strong>Total Earnings:</strong> {!this.state.summary.payout_received ? <span>$0</span> : <span>$<MoneyFormatter value={this.state.summary.payout_received} /></span>}
                             </div>
 
                             <div className='job-summary-stats mb-1'>
-                                <strong>Funds Available Soon:</strong> ${!this.state.summary.balance_pending ? 0 : this.state.summary.balance_pending}
+                                <strong>Funds Available Soon:</strong> {!this.state.summary.balance_pending ? <span>$0</span> : <span>$<MoneyFormatter value={this.state.summary.balance_pending} /></span>}
                             </div>
 
                             <div className='job-summary-stats mb-1'>
-                                <strong>Funds Available for Payout:</strong> ${!this.state.summary.balance_available ? 0 : this.state.summary.balance_available}
+                                <strong>Funds Available for Payout:</strong> {!this.state.summary.balance_available ? <span>$0</span> : <span>$<MoneyFormatter value={this.state.summary.balance_available} /></span>}
                             </div>
                         </div> 
 
                         <div className='simple-container no-bg'>
-                            <div className='simple-container-title'>Job Timeline</div>
+                            <div className='simple-container-title'>Job History</div>
 
                             <JobTimeline status={this.state.status} jobs={this.state.summary.jobs} getJobs={(year) => this.getJobs(year)} years={this.state.summary.job_years} />
                         </div>

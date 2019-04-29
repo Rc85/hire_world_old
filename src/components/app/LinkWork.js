@@ -28,10 +28,10 @@ class LinkWork extends Component {
         super(props);
         
         this.state = {
-            business_type: null,
+            business_type: 'individual',
             business_profile: {
                 name: null,
-                product_description: null,
+                product_description: null
             },
             email: null,
             external_accounts: null,
@@ -68,7 +68,9 @@ class LinkWork extends Component {
                     state: null
                 },
                 tax_id: null,
+                tax_id_registrar: null,
                 phone: null,
+                var_id: null
             },
             ukBankType: '',
             useDefault: true,

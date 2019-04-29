@@ -12,17 +12,20 @@ const Pagination = props => {
     let pages = [];
     let currentPage = props.currentPage + 1;
 
+    if (props.totalItems === 0) {
+        pages.push(<div key={1} className={`page-number active`}>1</div>);
+    } else {
+        for (let i = 0; i < props.totalItems / props.itemsPerPage; i++) {
+            let page;
 
-    for (let i = 0; i < props.totalItems / props.itemsPerPage; i++) {
-        let page;
+            if (currentPage === i + 1) {
+                page = <div key={i} className={`page-number active`}>{i + 1}</div>
+            } else {
+                page = <div key={i} className='page-number' onClick={() => props.onClick(i)}>{i + 1}</div>
+            }
 
-        if (currentPage === i + 1) {
-            page = <div key={i} className={`page-number active`}>{i + 1}</div>
-        } else {
-            page = <div key={i} className='page-number' onClick={() => props.onClick(i)}>{i + 1}</div>
+            pages.push(page);
         }
-
-        pages.push(page);
     }
 
     return(

@@ -88,8 +88,12 @@ app.post('/api/auth/register', (req, resp) => {
 
                                     sgMail.send(message);
 
-                                    fs.mkdir(`./user_files/${user.rows[0].user_id}`, err => {
-                                        error.log(err, req, resp)
+                                    fs.exists(`./user_files/${user.rows[0].user_id}`, (exist) => {
+                                        if (exist) {
+                                            return false;
+                                        } else {
+                                            fs.mkdirSync(`./user_files/${user.rows[0].user_id}`);
+                                        }
                                     });
 
                                     await client.query(`COMMIT`)

@@ -12,6 +12,7 @@ import SubmitButton from '../../utils/SubmitButton';
 import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 import Tooltip from '../../utils/Tooltip';
 import { PromptOpen, PromptReset } from '../../../actions/PromptActions';
+import MoneyFormatter from '../../utils/MoneyFormatter';
 
 let CancelToken = fetch.CancelToken;
 let cancelUpload;
@@ -53,18 +54,25 @@ class MilestoneUpdaterRow extends Component {
     
     updateCondition(id, index, action) {
         if (this.state.milestone.milestone_status !== 'Complete') {
-            this.setState({status: 'Completing Condition'});
+            this.setState({status: `Completing Condition ${id}`});
 
             fetch.post('/api/job/condition/update', {job_id: this.props.job.job_id, milestone_id: this.state.milestone.milestone_id, condition_id: id, action: action})
             .then(resp => {
                 if (resp.data.status === 'success') {
-                    let complete = resp.data.milestone.conditions.filter(condition => condition.condition_status === 'In Progress');
+                    let milestone = {...this.state.milestone};
+                    milestone.conditions[index] = resp.data.condition;
+
+                    if (action === 'uncheck') {
+                        milestone.milestone_status = 'In Progress';
+                    }
+
+                    let complete = milestone.conditions.filter(condition => condition.condition_status === 'In Progress');
 
                     if (this.props.job.job_status === 'Requesting Payment') {
                         this.props.changeJobStatus('Active');
                     }
 
-                    this.setState({status: '', milestone: resp.data.milestone, complete: complete});
+                    this.setState({status: '', milestone: milestone, complete: complete});
                 } else if (resp.data.status === 'error') {
                     this.setState({status: ''});
                 }
@@ -222,11 +230,45 @@ class MilestoneUpdaterRow extends Component {
             this.setState({file: file});
         }
     }
+
+    toggleDetails() {
+        if (!this.state.showDetails) {
+            if (this.state.milestone.milestone_status === 'In Progress') {
+                this.setState({showDetails: !this.state.showDetails});
+            } else if (this.state.milestone.milestone_status === 'Pending') {
+                return false;
+            } else if (this.state.milestone.milestone_status === 'Complete' && !this.state.milestone.balance) {
+                this.setState({status: 'Getting Milestone Details', showDetails: true});
+
+                fetch.post('/api/get/milestone/details', {id: this.state.milestone.milestone_id})
+                .then(resp => {
+                    if (resp.data.status === 'success') {
+                        let milestone = {...this.state.milestone};
+                        milestone['balance'] = resp.data.balance;
+                        milestone['files'] = resp.data.files;
+                        this.setState({status: '', milestone: milestone});
+                    } else if (resp.data.status === 'error') {
+                        this.setState({status: '', showDetails: false});
+                        this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+                    }
+                })
+                .catch(err => {
+                    LogError(err, '/api/get/milestone/details');
+                    this.setState({status: '', showDetails: false});
+                    this.props.dispatch(Alert('error', 'An error occurred'));
+                });
+            } else if (this.state.milestone.milestone_status === 'Complete' && this.state.milestone.balance) {
+                this.setState({showDetails: true});
+            }
+        } else {
+            this.setState({showDetails: false});
+        }
+    }
         
     render() {
-        let fundStatus;
+        let fundStatus, details;
 
-        if (this.state.milestone.balance) {
+        if (this.state.milestone.balance && this.state.showDetails) {
             if (this.state.milestone.balance.status === 'pending') {
                 fundStatus = <span className='mini-badge mini-badge-warning'>Pending</span>;
             } else if (this.state.milestone.balance.status === 'available') {
@@ -234,8 +276,109 @@ class MilestoneUpdaterRow extends Component {
             } else if (this.state.milestone.balance.status === 'paid') {
                 fundStatus = <span className='mini-badge mini-badge-success'>Paid</span>;
             }
-        } else {
-            fundStatus = <span className='mini-badge mini-badge-secondary'>N/A</span>;
+
+            details = <div className={`milestone-conditions-container ${this.state.showDetails ? 'show' : ''} opaque`}>
+                <div className='milestone-tracking-details'>
+                    <div className='detail-child'><strong>Payment: </strong> {this.state.milestone.balance ? <span>$<MoneyFormatter value={this.state.milestone.balance.net / 100} /> {this.state.milestone.balance.currency.toUpperCase()}</span> : ''} {fundStatus}</div>
+
+                    {!isNaN(moment(this.state.milestone.milestone_fund_due_date).diff(moment(), 'days')) && this.state.milestone.milestone_status !== 'Complete' ? <div className='detail-child'><strong>Days Remaining: </strong> {moment(this.state.milestone.milestone_fund_due_date).diff(moment(), 'days')}</div> : ''}
+
+                    {this.state.milestone.milestone_status === 'Complete' ? <div className='detail-child'><strong>Paid on:</strong> {moment(this.state.milestone.balance.created * 1000).format('MM-DD-YYYY')}</div>: ''}
+
+                    {this.state.milestone.milestone_status === 'Requesting Payment'
+                        ? <div className='detail-child'>
+                            <strong>Requested Amount:</strong> ${this.state.milestone.requested_payment_amount 
+                                ? <span>$<MoneyFormatter value={this.state.milestone.requested_payment_amount} /></span>
+                                : <span>$<MoneyFormatter value={this.state.milestone.balance.net / 100} /> {this.state.milestone.balance.currency.toUpperCase()}</span>}
+                        </div>
+                        : ''}
+                </div>
+
+                <div className='simple-container no-bg'>
+                    <div className='simple-container-title'>Conditions</div>
+
+                    {this.state.milestone.conditions.map((condition, i) => {
+                        let icon;
+
+                        if (this.state.status === `Completing Condition ${condition.condition_id}`) {
+                            icon = <FontAwesomeIcon icon={faCircleNotch} spin />;
+                        } else if (condition.condition_status === 'Complete') {
+                            icon = <FontAwesomeIcon icon={faCheckSquare} className='text-success mr-1' />;
+                        } else if (condition.condition_status === 'In Progress') {
+                            icon = <FontAwesomeIcon icon={faSquare} className='text-grey mr-1' />;
+                        } else if (condition.condition_status === 'Complete' && this.state.milestone.milestone_status === 'Complete') {
+                            icon = <FontAwesomeIcon icon={faCheckSquare} className='text-success mr-1' />;
+                        }
+
+                        return <div key={condition.condition_id} className='condition-row' onClick={() => this.updateCondition(condition.condition_id, i, condition.condition_status === 'In Progress' ? 'check' : 'uncheck')}>
+                            {icon} <span>{condition.condition}</span>
+                        </div>
+                    })}
+                </div>
+
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    this.checkFileExist();
+                }} encType='multipart/form-data'>
+                    <input type='file' onChange={(e) => this.setFile(e.target.files[0])} className='milestone-upload-file' ref={e => this.fileUploader = e} />
+
+                    {this.state.file ? <div className='simple-container no-bg'>
+                        <div className='simple-container-title'>Uploading File</div>
+
+                        {this.state.uploaded ? <div className='d-flex-between-start'>
+                            <div className='fg-1 mr-1'>
+                                <div className='milestone-upload-progress-track'>
+                                    <div className={`milestone-upload-progress-bar ${!this.state.uploaded ? '' : `w-${this.state.uploaded}`}`}></div>
+                                </div>
+
+                                <div className='text-center mb-3'>{this.state.uploaded < 100 ? `${this.state.uploaded}%` : 'Copying file...'}</div>
+                            </div>
+
+                            <button className='btn btn-secondary' type='button' onClick={() => this.cancelUpload()}>Cancel</button>
+                        </div> :
+
+                        <div className='d-flex-between-center'>
+                            <div className='d-flex-center w-100'>
+                                <div className='milestone-filename' title={this.state.file.name}><strong>Filename:</strong> {this.state.file.name}</div>
+                                <div className='mr-2'><strong>Filesize:</strong> {this.state.file.size / 1000 < 1000 ? `${this.state.file.size / 1000} KB` : ''} {this.state.file.size / 1000 > 1000 && this.state.file.size / 1000000 < 1000  ? `${Math.round(this.state.file.size / 100000) / 10} MB` : ''} {this.state.file.size / 1000000 > 1000 ? `${Math.round(this.state.file.size / 100000000) / 10} GB` : ''}</div>
+                            </div>
+
+                            <div className='d-flex-center'>
+                                <SubmitButton type='submit' loading={this.state.status === 'Uploading File'} value='Upload' />
+                                <button className='btn btn-secondary' type='button' onClick={() => this.setState({file: null})}>Cancel</button>
+                            </div>
+                        </div>}
+                    </div> : ''}
+                </form>
+
+                {this.state.milestone.files.length > 0 ? <div className='simple-container no-bg'>
+                    <div className='simple-container-title'>Files</div>
+
+                    {this.state.milestone.files.map((file) => {
+                        return <div key={file.file_id} className='milestone-file-row mb-2'>
+                            <div className='milestone-filename' title={file.filename}><strong>Filename:</strong> {file.filename}</div>
+
+                            <div className='milestone-file-details'>
+                                <small className='mr-2'><strong>Filesize:</strong> {file.filesize / 1000 < 1000 ? `${file.filesize / 1000} KB` : ''} {file.filesize / 1000 > 1000 && file.filesize / 1000000 < 1000 ? `${Math.round(file.filesize / 100000) / 10} MB` : ''} {file.filesize / 1000000 > 1000 ? `${Math.round(file.filesize / 100000000) / 10} GB` : ''}</small>
+                                <small className='mr-2'><strong>Uploaded:</strong> {moment(file.file_uploaded_date).format('MM-DD-YYYY')}</small>
+                                <small className='mr-2'><strong>Downloaded:</strong> {file.file_download_counter}</small>
+                            </div>
+                        </div>;
+                    })}
+                </div> : ''}
+
+                <div className='text-right'><small className='text-dark mr-1'>Milestone ID: {this.state.milestone.milestone_id}</small></div>
+            </div>;
+        } else if (this.state.status === 'Getting Milestone Details' && this.state.showDetails) {
+            details = <div className='text-center'><FontAwesomeIcon icon={faCircleNotch} size='5x' spin /></div>;
+        }
+
+        let milestoneStatus;
+
+        if (this.state.milestone.milestone_status === 'Complete') {
+            milestoneStatus = <span className='mini-badge mini-badge-success'>Complete</span>;
+        } else if (this.state.milestone.milestone_status === 'In Progress') {
+            milestoneStatus = <span className='mini-badge mini-badge-warning'>In Progress</span>;
         }
 
         return (
@@ -245,20 +388,20 @@ class MilestoneUpdaterRow extends Component {
     
                     <div className='milestone-progress-container'>
                         <div className='milestone-progress-bar-track opaque'>
-                            <div className={`milestone-progress-bar w-${!isFinite(this.state.milestone.conditions.length / this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length) ? 0 : this.state.milestone.conditions.length / this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length * 100}`}></div>
+                            <div className={`milestone-progress-bar w-${Math.round(this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length / this.state.milestone.conditions.length * 100)}`}></div>
                         </div>
     
                         <div className='milestone-progress-details mb-3'>
                             <div className='milestone-updater-details opaque'>
-                                <div className='detail-child'><strong>Funds Status: </strong> {fundStatus}</div>
+                                {milestoneStatus}
                             </div>
 
                             <div className='milestone-updater-details text-center opaque'>
-                                <span>{!isFinite(this.state.milestone.conditions.length / this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length) ? 0 : this.state.milestone.conditions.length / this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length * 100}%</span>
+                                <span>{Math.round(this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length / this.state.milestone.conditions.length * 100)}%</span>
                             </div>
     
                             <div className='milestone-updater-details d-flex-end-center'>
-                                {this.state.complete.length === 0 && this.state.milestone.milestone_status === 'In Progress' ? <SubmitButton type='button' loading={this.state.status === 'Requesting Payment'} value='Request Payment' bgColor='success' onClick={() => this.props.dispatch(PromptOpen(`Enter an amount (up to $${(this.state.milestone.balance.net / 100).toFixed(2)})`, this.state.milestone.balance.net / 100, {action: 'request payment', id: this.state.milestone.milestone_id}))} className='mr-1' /> : ''}
+                                {this.state.complete.length === 0 && this.state.milestone.milestone_status === 'In Progress' ? <SubmitButton type='button' loading={this.state.status === 'Requesting Payment'} value='Request Payment' bgColor='success' onClick={() => this.props.dispatch(PromptOpen(<span>Enter an amount (up to $<MoneyFormatter value={this.state.milestone.balance.net / 100} />)</span>, this.state.milestone.balance.net / 100, {action: 'request payment', id: this.state.milestone.milestone_id}))} className='mr-1' /> : ''}
                                 {this.state.milestone.milestone_status === 'Requesting Payment' ? <button className='btn btn-success' disabled>Payment Requested</button> : ''}
 
                                 <div className='mr-1'><Tooltip text={<React.Fragment>
@@ -266,98 +409,13 @@ class MilestoneUpdaterRow extends Component {
                                     <li className='ml-2'>Max 250 GB</li>
                                 </React.Fragment>} placement='bottom-right' disabled={this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Abandoned'}><SubmitButton type='button' loading={this.state.status === 'Uploading File'} value='Upload File' className='opaque' onClick={() => this.openFileBrowser()} disabled={this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Abandoned'} /></Tooltip></div>
 
-                                <button className='btn btn-info' onClick={() => this.setState({showDetails: this.state.milestone.milestone_status === 'Pending' ? false : !this.state.showDetails})}><FontAwesomeIcon icon={this.state.showDetails ? faCaretUp : faCaretDown} /></button>
+                                <button className='btn btn-info' onClick={this.toggleDetails.bind(this)}><FontAwesomeIcon icon={this.state.showDetails ? faCaretUp : faCaretDown} /></button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className={`milestone-conditions-container ${this.state.showDetails ? 'show' : ''} opaque`}>
-                    <div className='milestone-tracking-details'>
-                        <div className='detail-child'><strong>Payment: </strong> ${this.state.milestone.balance ? `${(this.state.milestone.balance.net / 100).toFixed(2)} ${this.state.milestone.balance.currency.toUpperCase()}` : ''}</div>
-
-                        {!isNaN(moment(this.state.milestone.milestone_fund_due_date).diff(moment(), 'days')) && this.state.milestone.milestone_status !== 'Complete' ? <div className='detail-child'><strong>Days Remaining: </strong> {moment(this.state.milestone.milestone_fund_due_date).diff(moment(), 'days')}</div> : ''}
-
-                        {this.state.milestone.milestone_status === 'Complete' ? <div className='detail-child'><strong>Paid on:</strong> {moment(this.state.milestone.balance.created * 1000).format('MM-DD-YYYY')}</div>: ''}
-
-                        {this.state.milestone.milestone_status === 'Requesting Payment' ? <div className='detail-child'><strong>Requested Amount:</strong> ${this.state.milestone.requested_payment_amount ? parseFloat(this.state.milestone.requested_payment_amount).toFixed(2) : (this.state.milestone.balance.net / 100).toFixed(2)} {this.state.milestone.balance.currency.toUpperCase()}</div> : ''}
-                    </div>
-
-                    <div className='simple-container no-bg'>
-                        <div className='simple-container-title'>Conditions</div>
-    
-                        {this.state.milestone.conditions.map((condition, i) => {
-                            let icon;
-
-                            if (this.state.status === 'Completing Condition') {
-                                icon = <FontAwesomeIcon icon={faCircleNotch} spin />;
-                            } else if (condition.condition_status === 'Complete') {
-                                icon = <FontAwesomeIcon icon={faCheckSquare} className='text-success mr-1' />;
-                            } else if (condition.condition_status === 'In Progress') {
-                                icon = <FontAwesomeIcon icon={faSquare} className='text-grey mr-1' />;
-                            } else if (condition.condition_status === 'Complete' && this.state.milestone.milestone_status === 'Complete') {
-                                icon = <FontAwesomeIcon icon={faCheckSquare} className='text-success mr-1' />;
-                            }
-
-                            return <div key={condition.condition_id} className='condition-row' onClick={() => this.updateCondition(condition.condition_id, i, condition.condition_status === 'In Progress' ? 'check' : 'uncheck')}>
-                                {icon} <span>{condition.condition}</span>
-                            </div>
-                        })}
-                    </div>
-
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        this.checkFileExist();
-                    }} encType='multipart/form-data'>
-                        <input type='file' onChange={(e) => this.setFile(e.target.files[0])} className='milestone-upload-file' ref={e => this.fileUploader = e} />
-
-                        {this.state.file ? <div className='simple-container no-bg'>
-                            <div className='simple-container-title'>Uploading File</div>
-
-                            {this.state.uploaded ? <div className='d-flex-between-start'>
-                                <div className='fg-1 mr-1'>
-                                    <div className='milestone-upload-progress-track'>
-                                        <div className={`milestone-upload-progress-bar ${!this.state.uploaded ? '' : `w-${this.state.uploaded}`}`}></div>
-                                    </div>
-    
-                                    <div className='text-center mb-3'>{this.state.uploaded < 100 ? `${this.state.uploaded}%` : 'Copying file...'}</div>
-                                </div>
-
-                                <button className='btn btn-secondary' type='button' onClick={() => this.cancelUpload()}>Cancel</button>
-                            </div> :
-
-                            <div className='d-flex-between-center'>
-                                <div className='d-flex-center w-100'>
-                                    <div className='milestone-filename' title={this.state.file.name}><strong>Filename:</strong> {this.state.file.name}</div>
-                                    <div className='mr-2'><strong>Filesize:</strong> {this.state.file.size / 1000 < 1000 ? `${this.state.file.size / 1000} KB` : ''} {this.state.file.size / 1000 > 1000 && this.state.file.size / 1000000 < 1000  ? `${Math.round(this.state.file.size / 100000) / 10} MB` : ''} {this.state.file.size / 1000000 > 1000 ? `${Math.round(this.state.file.size / 100000000) / 10} GB` : ''}</div>
-                                </div>
-
-                                <div className='d-flex-center'>
-                                    <SubmitButton type='submit' loading={this.state.status === 'Uploading File'} value='Upload' />
-                                    <button className='btn btn-secondary' type='button' onClick={() => this.setState({file: null})}>Cancel</button>
-                                </div>
-                            </div>}
-                        </div> : ''}
-                    </form>
-
-                    {this.state.milestone.files.length > 0 ? <div className='simple-container no-bg'>
-                        <div className='simple-container-title'>Files</div>
-
-                        {this.state.milestone.files.map((file) => {
-                            return <div key={file.file_id} className='milestone-file-row mb-2'>
-                                <div className='milestone-filename' title={file.filename}><strong>Filename:</strong> {file.filename}</div>
-
-                                <div className='milestone-file-details'>
-                                    <small className='mr-2'><strong>Filesize:</strong> {file.filesize / 1000 < 1000 ? `${file.filesize / 1000} KB` : ''} {file.filesize / 1000 > 1000 && file.filesize / 1000000 < 1000 ? `${Math.round(file.filesize / 100000) / 10} MB` : ''} {file.filesize / 1000000 > 1000 ? `${Math.round(file.filesize / 100000000) / 10} GB` : ''}</small>
-                                    <small className='mr-2'><strong>Uploaded:</strong> {moment(file.file_uploaded_date).format('MM-DD-YYYY')}</small>
-                                    <small className='mr-2'><strong>Downloaded:</strong> {file.file_download_counter}</small>
-                                </div>
-                            </div>;
-                        })}
-                    </div> : ''}
-
-                    <div className='text-right'><small className='text-dark mr-1'>Milestone ID: {this.state.milestone.milestone_id}</small></div>
-                </div>
+                {details}
             </div>
         );
     }

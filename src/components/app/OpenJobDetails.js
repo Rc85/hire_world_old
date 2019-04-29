@@ -46,7 +46,7 @@ class OpenJobDetails extends Component {
                 this.declineJob();
                 this.props.dispatch(ResetConfirmation());
             } else if (this.props.confirm.data.action === 'start job' && this.props.confirm.option && this.props.confirm.option !== prevProps.confirm.option) {
-                this.startJob(this.props.confirm.data.token);
+                this.startJob(this.props.confirm.data.token, this.props.confirm.data.saveAddress);
                 this.props.dispatch(ResetConfirmation());
             }
         }
@@ -76,7 +76,7 @@ class OpenJobDetails extends Component {
     refresh() {
         this.setState({status: 'Fetching'});
 
-        fetch.post('/api/get/job/details', {id: this.props.match.params.id, key: this.props.match.params.acceptKey})
+        fetch.post('/api/get/job/details', {id: this.props.match.params.id, key: this.props.match.params.acceptKey, stage: this.props.match.params.stage})
         .then(resp => {
             if (resp.data.status === 'success') {
                 this.setState({status: '', job: resp.data.job, messages: resp.data.messages, milestones: resp.data.milestones});
@@ -140,12 +140,12 @@ class OpenJobDetails extends Component {
         document.body.style.overflowY = 'auto';
     }
 
-    startJob(token) {
+    startJob(token, save) {
         if (this.state.job.job_status === 'Pending') {
             this.setState({status: 'Verifying'});
             this.props.dispatch(ShowLoading(`Processing`));
 
-            fetch.post('/api/job/milestone/start', {job_id: this.state.job.job_id, job_modified_date: this.state.job.job_modified_date, id: this.state.milestones[0].milestone_id, ...token, user: this.props.user.user.username, accept: true})
+            fetch.post('/api/job/milestone/start', {job_id: this.state.job.job_id, job_modified_date: this.state.job.job_modified_date, id: this.state.milestones[0].milestone_id, ...token, user: this.props.user.user.username, accept: true, saveAdress: save})
             .then(resp => {
                 if (resp.data.status === 'success') {
                     this.setState({status: 'Job Accepted'});
@@ -186,6 +186,11 @@ class OpenJobDetails extends Component {
             this.setState({status: ''});
             this.props.dispatch(Alert('error', 'An error occurred'));
         });
+    }
+
+    confirm() {
+        window.scrollTo(0, 0);
+        this.setState({status: 'Confirmed'});
     }
 
     render() {
@@ -234,9 +239,27 @@ class OpenJobDetails extends Component {
                 let details;
 
                 if (this.state.job.job_status === 'Pending' && this.state.status !== 'Confirmed' && this.state.status !== 'Verifying') {
-                    details = <MilestoneDetails user={this.props.user} job={this.state.job} milestones={this.state.milestones} decline={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to decline this job?`, `This action cannot be reverted`, {action: 'decline job'}))} confirm={() => this.setState({status: 'Confirmed'})} status={this.state.status} update={(job, milestones) => this.setState({job: job, milestones: milestones})} />;
+                    details = <MilestoneDetails
+                    user={this.props.user}
+                    job={this.state.job}
+                    milestones={this.state.milestones}
+                    decline={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to decline this job?`, `This action cannot be reverted`, {action: 'decline job'}))}
+                    confirm={this.confirm.bind(this)}
+                    status={this.state.status}
+                    update={(job, milestones) => this.setState({job: job, milestones: milestones})}
+                    />;
                 } else if ((this.state.status === 'Confirmed' || this.state.status === 'Verifying') && this.props.user.user && this.props.user.user.username === this.state.job.job_client) {
-                    details = <StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><VerifyPayment user={this.props.user} decline={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to decline this job?`, `This action cannot be reverted`, {action: 'decline job'}))} job={this.state.job} submit={(token) => this.props.dispatch(ShowConfirmation(`Are you sure you want to start this job?`, `An amount of $${Math.round(parseFloat(this.state.milestones[0].milestone_payment_amount) * 1.05 * 100) / 100} ($${this.state.milestones[0].milestone_payment_amount} + 5%) ${this.state.job.job_price_currency} will be charged on the selected payment method`, {action: 'start job', token: token}))} back={() => this.refresh()} /></Elements></StripeProvider>
+                    details = <StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}>
+                        <Elements>
+                            <VerifyPayment
+                            user={this.props.user}
+                            decline={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to decline this job?`, `This action cannot be reverted`, {action: 'decline job'}))}
+                            job={this.state.job}
+                            submit={(token, saveAddress) => this.props.dispatch(ShowConfirmation(`Are you sure you want to start this job?`, `An amount of $${Math.round(parseFloat(this.state.milestones[0].milestone_payment_amount) * 1.03 * 100) / 100} ($${this.state.milestones[0].milestone_payment_amount} + 3%) ${this.state.job.job_price_currency} will be charged on the selected payment method`, {action: 'start job', token: token, saveAddress: saveAddress}))}
+                            back={() => this.refresh()}
+                            />
+                        </Elements>
+                    </StripeProvider>;
                 } else if (this.state.status === 'Confirmed' && this.props.user.user && this.props.user.user.username !== this.state.job.job_client) {
                     details = <h3 className='text-dark text-center'>Waiting for other party to transfer funds...</h3>;
                 }

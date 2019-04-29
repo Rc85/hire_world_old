@@ -8,7 +8,7 @@ const ViewUserStats = props => {
         time.push(
             <div key={day} className='d-flex-between-center mb-1'>
                 <div className='w-25'>{day.charAt(0).toUpperCase() + day.substring(1)}</div>
-                <div>{props.hours[day]}</div>
+                <div className={props.hours[day] === 'Closed' ? 'text-special' : ''}>{props.hours[day]}</div>
             </div>
         )
     }

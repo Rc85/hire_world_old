@@ -79,6 +79,7 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
 
         resp.json({received: true});
     } catch (e) {
+        error.log(err, req);
         resp.status(400).end();
     }
 });
@@ -88,10 +89,9 @@ app.post('/stripe-webhooks/connected', async(req, resp) => {
 
     try {
         let event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.STRIPE_CONNECTED_WEBHOOK_KEY);
+        let user = await db.query(`SELECT username FROM users WHERE connected_id = $1`, [event.account]);
 
-        if (event.type === 'person.updated') {
-            let user = await db.query(`SELECT username FROM users WHERE connected_id = $1`, [event.account]);
-            
+        if (event.type === 'person.updated') {    
             if (event.data.object.verification.status === 'verified') {
                 await db.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [user.rows[0].username, `Your Connected account has been verified`, 'Update']);
                 await db.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [user.rows[0].username, `Connected account verified`, 'Connected']);
@@ -102,6 +102,7 @@ app.post('/stripe-webhooks/connected', async(req, resp) => {
 
         resp.json({received: true})
     } catch (e) {
+        error.log(err, req);
         resp.status(400).end();
     }
 });
@@ -117,12 +118,15 @@ app.post('/stripe-webhooks/payout', async(req, resp) => {
             await db.query(`UPDATE job_milestones SET payout_status = 'paid' WHERE payout_id = $1`, [event.data.object.id]);
         } else if (event.type === 'payout.updated') {
             await db.query(`UPDATE job_milestones SET payout_status = $1 WHERE payout_id = $2`, [event.data.object.status, event.data.object.id]);
+        } else if (event.type === 'payout.canceled') {
+            await db.query(`UPDATE job_milestones SET payout_status = 'canceled' WHERE payout_id = $1`, [event.data.object.id]);
         }
 
         resp.json({received: true});
     } catch (e) {
+        error.log(err, req);
         resp.status(400).end();
     }
-})
+});
 
 module.exports = app;

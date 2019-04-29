@@ -51,10 +51,10 @@ class VerifyPayment extends Component {
     }
 
     useDefaultAddress() {
-        if (this.props.user.user.user_address && this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code) {
-            this.setState({defaultAddress: !this.state.defaultAddress, address_line1: '', address_city: '', address_state: '', address_country: '', address_zip: '', saveAddress: false});
-        } else {
+        if (!this.props.user.user.user_address || !this.props.user.user.user_city || !this.props.user.user.user_region || !this.props.user.user.user_country || !this.props.user.user.user_city_code) {
             this.props.dispatch(Alert('error', 'No address to use'));
+        } else {
+            this.setState({defaultAddress: !this.state.defaultAddress, saveAddress: false});
         }
     }
 
@@ -68,7 +68,7 @@ class VerifyPayment extends Component {
     async submit() {
         let token = {};
 
-        if (this.state.usePayment) {
+        if (this.state.usePayment && this.state.usePayment !== 'New') {
             token['token'] = {}
             token['token']['id'] = this.state.usePayment;
         } else {
@@ -82,7 +82,7 @@ class VerifyPayment extends Component {
             });
         }
 
-        this.props.submit(token)
+        this.props.submit(token, this.state.saveAddress)
     }
     
     render() {

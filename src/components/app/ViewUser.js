@@ -117,7 +117,7 @@ class ViewUser extends Component {
         fetch.post('/api/conversation/submit', {subject: subject, message: message, user: this.state.user.username, verified: verified})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', sendStatus: 'send success'});
+                this.setState({status: '', sendStatus: 'send success', message: ''});
             } else if (resp.data.status === 'send error' || resp.data.status === 'error') {
                 this.setState({status: '', sendStatus: resp.data.status});
             }

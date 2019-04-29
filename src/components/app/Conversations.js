@@ -205,7 +205,7 @@ class Conversations extends Component {
                 </React.Fragment>;
             } else {
                 body = <div className='text-center'>
-                    <h2 className='text-dark'>There are no messages</h2>
+                    <h2 className='text-dark'>You have no messages</h2>
                 </div>;
             }
 

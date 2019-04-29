@@ -213,7 +213,7 @@ class App extends Component {
 						</Pages.Response></Pages.Dashboard>} />
 
 						<Route exact path='/registration/success' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Registration Success!'}>
-							<React.Fragment><div className='mb-3'>An confirmation email has been sent. Please click the link provided to activate your account</div><NavLink to='/'>Back to main page</NavLink></React.Fragment>
+							<React.Fragment><div className='mb-3'>An confirmation email has been sent. Please click the link provided to activate your account</div><NavLink to='/main'>Back to main page</NavLink></React.Fragment>
 						</Pages.Response></Pages.Dashboard>} />
 
 						<Route exact path='/subscription/cancelled' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Unsubscribed!'}>

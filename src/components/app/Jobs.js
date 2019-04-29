@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFolderOpen } from '@fortawesome/pro-solid-svg-icons';
 import { faFileSpreadsheet } from '@fortawesome/pro-solid-svg-icons';
 import fetch from 'axios';
 import { LogError } from '../utils/LogError';
@@ -10,6 +9,8 @@ import JobRow from '../includes/page/JobRow';
 import { Redirect, withRouter } from 'react-router-dom';
 import Loading from '../utils/Loading';
 import Pagination from '../utils/Pagination';
+import { UpdateUser } from '../../actions/LoginActions';
+import { connect } from 'react-redux';
 
 class Jobs extends Component {
     constructor(props) {
@@ -62,8 +63,30 @@ class Jobs extends Component {
     selectPage() {
         this.setState({offset: this.state.offset + 25})
     }
+
+    saveSetting(name) {
+        this.setState({status: name});
+
+        let setting = Object.assign({}, this.props.user.user);
+        setting[name] = !setting[name];
+
+       fetch.post(`/api/user/settings/change`, setting)
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.props.dispatch(UpdateUser(setting));
+            } else {
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+
+            this.setState({status: ''});
+        })
+        .catch(err => {
+            LogError(err, '/api/user/settings/change');
+            this.setState({status: ''});
+        });
+    }
     
-    render() {
+    render() {    
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
@@ -72,6 +95,10 @@ class Jobs extends Component {
 
         if (this.props.user.user) {
             let jobs = this.state.jobs.map((job, i) => {
+                if (this.props.user.user && this.props.user.user.hide_declined_jobs && job.job_status === 'Declined') {
+                    return null;
+                }
+                
                 return <JobRow job={job} key={job.job_id} stage={this.props.match.params.stage} user={this.props.user} />;
             });
 
@@ -79,6 +106,8 @@ class Jobs extends Component {
                 <section id='opened-jobs' className='main-panel'>
                     <TitledContainer title='Proposals' icon={<FontAwesomeIcon icon={faFileSpreadsheet} />} shadow bgColor='green'>
                         {this.state.status === 'error' ? <span>An error occurred while retrieving the job list</span> : ''}
+
+                        <div className='text-right mb-3'><label><input type='checkbox' onChange={() => this.saveSetting('hide_declined_jobs')} checked={this.props.user.user.hide_declined_jobs} /> Hide declined jobs</label></div>
 
                         <div className='mb-3'><Pagination totalItems={parseInt(this.state.totalJobs)} itemsPerPage={25} currentPage={this.state.offset / 25} onClick={(i) => this.setState({offset: i * 25})} /></div>
 
@@ -98,4 +127,4 @@ Jobs.propTypes = {
 
 };
 
-export default withRouter(Jobs);
+export default withRouter(connect()(Jobs));

@@ -23,6 +23,7 @@ import MilestoneTrackingRow from '../includes/page/MilestoneTrackingRow';
 import MilestoneUpdaterRow from '../includes/page/MilestoneUpdaterRow';
 import SubmitReview from '../includes/page/SubmitReview';
 import SubmitButton from '../utils/SubmitButton';
+import MoneyFormatter from '../utils/MoneyFormatter';
 
 class ActiveJobDetails extends Component {
     constructor(props) {
@@ -174,7 +175,7 @@ class ActiveJobDetails extends Component {
         if (this.state.status === 'Fetching') {
             return <Loading size='7x' color='black' />;
         } else if (this.state.status === 'error') {
-            return <Redirect to='/error/app/500' />;
+            return <Redirect to='/error/app/404' />;
         } else if (!this.state.job) {
             return <Redirect to='/error/job/404' />;
         } else if (this.state.status === 'Job Closed') {
@@ -210,7 +211,7 @@ class ActiveJobDetails extends Component {
 
             return (
                 <section id='job-details-container' className='main-panel'>
-                    <TitledContainer title='Job Details' shadow bgColor='purple' icon={<FontAwesomeIcon icon={faFileAlt} />} id='job-details' minimizable className='mb-5'>
+                    <TitledContainer title='Job Details' shadow bgColor='purple' icon={<FontAwesomeIcon icon={faFileAlt} />} id='job-details' minimizable minimized={this.state.job.job_status === 'Complete'} className='mb-5'>
                         <div className='job-details-header'>
                             <div className='d-flex-center'>
                                 <h2>{this.state.job.job_title}</h2>
@@ -256,7 +257,7 @@ class ActiveJobDetails extends Component {
 
                     {this.props.user.user && this.state.job.job_client === this.props.user.user.username && this.state.review && this.state.review.token_status === 'Valid' ? <TitledContainer title='Submit Review' bgColor='green' shadow className='mb-5' icon={<FontAwesomeIcon icon={faCommentAlt} />}><SubmitReview review={this.state.review} user={this.props.user} submit={(review, star) => this.submitReview(review, star)} status={this.state.status} stars={this.state.review.review_rating} /></TitledContainer> : ''}
 
-                    <TitledContainer title='Job Discussion' shadow bgColor='pink' icon={<FontAwesomeIcon icon={faComments} />}>
+                    {this.state.job.job_status !== 'Complete' && this.state.job.job_status !== 'Abandoned' ? <TitledContainer title='Job Discussion' shadow bgColor='pink' icon={<FontAwesomeIcon icon={faComments} />}>
                         <MessageSender send={(message) => this.send(message)} status={this.state.sendStatus} />
 
                         <div id='job-messages'>
@@ -264,7 +265,7 @@ class ActiveJobDetails extends Component {
                                 return <JobMessageRow message={message} key={i} user={this.props.user} />
                             })}
                         </div>
-                    </TitledContainer>
+                    </TitledContainer> : ''}
                 </section>
             );
         }

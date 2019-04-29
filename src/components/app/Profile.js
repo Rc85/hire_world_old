@@ -261,10 +261,7 @@ class Profile extends Component {
                                             <select onChange={(e) => this.setSetting('listing_price_type', e.target.value)} value={this.state.newSettings.listing_price_type}>
                                                 <option value='To Be Discussed'>To Be Discussed</option>
                                                 <option value='Hourly'>Hourly</option>
-                                                <option value='Bi-weekly'>Bi-weekly</option>
-                                                <option value='Monthly'>Monthly</option>
-                                                <option value='Per Delivery'>Per Delivery</option>
-                                                <option value='One Time Payment'>One Time Payment</option>
+                                                <option value='Bi-weekly'>Fixed</option>
                                             </select>
                                         </InputWrapper>
                         

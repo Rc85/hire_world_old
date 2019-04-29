@@ -76,14 +76,12 @@ class ViewUserWorkHistory extends Component {
                             if (job.job_status === 'Complete') {
                                 div = <div className='work-history'>
                                     <div className='mr-2'><FontAwesomeIcon icon={faCheck} className='text-success' /></div>
-                                    <div className='mr-1'><strong><nobr>{moment(job.job_created_date).format('MM-DD-YYYY')}</nobr></strong></div>
                                     <span>Completed a job with <Username username={job.job_client} color='alt-highlight' /> on {moment(job.job_end_date).format('MM-DD-YYYY')}</span>
                                 </div>;
                             } else if (job.job_status === 'Abandoned') {
                                 div = <div className='work-history'>
                                     <div className='mr-2'><FontAwesomeIcon icon={faTimes} className='text-danger' /></div>
-                                    <div className='mr-1'><strong>{moment(job.job_end_date).format('MM-DD-YYYY')}</strong></div>
-                                    <span>Abandoned a job</span>
+                                    <span>Abandoned a job on {moment(job.job_end_date).format('MM-DD-YYYY')}</span>
                                 </div>;
                             }
 

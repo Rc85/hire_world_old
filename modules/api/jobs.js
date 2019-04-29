@@ -15,6 +15,7 @@ const util = require('util');
 const formidable = require('formidable');
 const http = require('http');
 const authenticate = require('../utils/auth');
+const moneyFormatter = require('../utils/money-formatter');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -341,7 +342,7 @@ app.post('/api/job/create', authenticate, async(req, resp) => {
             await db.query(query, params)
             .then(result => {
                 if (result && result.rowCount === 1) {
-                    resp.send({status: 'success', statusMessage: req.body.job_id ? 'Job updated' : 'Job submitted', job: result.rows[0]});
+                    resp.send({status: 'success', statusMessage: req.body.job_id ? 'Job updated' : 'Job submitted and added to your job proposals', job: result.rows[0]});
                 } else {
                     resp.send({status: 'error', statusMessage: req.body.job_id ? 'Fail to update job' : 'Fail to submit job'});
                 }
@@ -505,7 +506,6 @@ app.post('/api/job/account/document/upload', authenticate, async(req, resp) => {
 
 app.post('/api/job/agreement/submit', authenticate, (req, resp) => {
         let validMilestonePrices = true;
-        let milestonePriceLimitExceeded = false;
         let validMilestoneDates = true;
         let totalMilestonePrice = 0;
         let validConditions = true;
@@ -521,9 +521,6 @@ app.post('/api/job/agreement/submit', authenticate, (req, resp) => {
                     break;
                 } else if (moment(milestone.milestone_due_date) === 'Invalid date') {
                     validMilestoneDates = false;
-                    break;
-                } else if (parseFloat(milestone.milestone_payment_amount) > 500) {
-                    milestonePriceLimitExceeded = true;
                     break;
                 }
 
@@ -549,8 +546,6 @@ app.post('/api/job/agreement/submit', authenticate, (req, resp) => {
             resp.send({status: 'error', statusMessage: 'Invalid milestone price'});
         } else if (!validMilestoneDates) {
             resp.send({status: 'error', statusMessage: 'Invalid delivery date'});
-        } else if (milestonePriceLimitExceeded) {
-            resp.send({status: 'error', statusMessage: 'Max. milestone payment is $500'});
         } else if (parseFloat(req.body.totalPrice) - totalMilestonePrice < 0) {
             resp.send({status: 'error', statusMessage: `Total milestone payment cannot exceed total price`});
         } else if (parseFloat(req.body.totalPrice) - totalMilestonePrice > 0) {
@@ -558,8 +553,6 @@ app.post('/api/job/agreement/submit', authenticate, (req, resp) => {
         } else {
             db.connect((err, client, done) => {
                 if (err) error.log(err, req);
-
-                
 
                 (async() => {
                     try {
@@ -677,21 +670,21 @@ app.post('/api/job/condition/update', authenticate, async(req, resp) => {
 
                             if (req.body.action === 'uncheck') {
                                 await client.query(`UPDATE jobs SET job_status = 'Active', job_modified_date = current_timestamp WHERE job_id = $1`, [req.body.job_id]);
-                                milestoneObj = await client.query(`UPDATE job_milestones SET milestone_status = 'In Progress' WHERE milestone_id = $1 RETURNING *`, [req.body.milestone_id]);
+                                milestoneObj = await client.query(`UPDATE job_milestones SET milestone_status = 'In Progress', requested_payment_amount = null WHERE milestone_id = $1 RETURNING *`, [req.body.milestone_id]);
                             } else if (req.body.action === 'check') {
                                 milestoneObj = await client.query(`SELECT * FROM job_milestones WHERE milestone_id = $1`, [req.body.milestone_id]);
                             }
 
                             let condition = await client.query(`UPDATE milestone_conditions SET condition_status = $2, condition_completed_date = $3 WHERE condition_id = $1 RETURNING *`, [req.body.condition_id, action, req.body.action === 'check' ? new Date() : null]);
-                            let balance = await stripe.balance.retrieveTransaction(milestoneObj.rows[0].balance_txn_id, {expand: ['source.transfer.destination_payment.balance_transaction']});
+                            /* let balance = await stripe.balance.retrieveTransaction(milestoneObj.rows[0].balance_txn_id, {expand: ['source.transfer.destination_payment.balance_transaction']});
                             let files = await client.query(`SELECT * FROM milestone_files WHERE file_milestone_id = $1 ORDER BY filename`, [req.body.milestone_id]);
 
-                            milestoneObj.rows[0]['conditions'] = condition.rows;
                             milestoneObj.rows[0]['balance'] = balance.source.transfer.destination_payment.balance_transaction;
-                            milestoneObj.rows[0]['files'] = files.rows;
+                            milestoneObj.rows[0]['files'] = files.rows; */
+                            milestoneObj.rows[0]['conditions'] = condition.rows;
                             
                             await client.query('COMMIT')
-                            .then(() => resp.send({status: 'success', statusMessage: 'Condition updated', milestone: milestoneObj.rows[0]}));
+                            .then(() => resp.send({status: 'success', statusMessage: 'Condition updated', condition: condition.rows[0]}));
                         } else {
                             resp.send({status: 'error', statusMessage: 'Milestone cannot be modified'});
                         }
@@ -821,7 +814,7 @@ app.post('/api/job/pay', authenticate, (req, resp) => {
                     let serverDate = new Date(authorized.rows[0].job_modified_date).getTime();
 
                     if (clientDate - serverDate !== 0) {
-                        let error = new Error(`Job has been modified`);
+                        let error = new Error(`Milestone has been modified`);
                         let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
                         throw errObj;
                     } else if (authorized.rows[0].job_client === req.session.user.username) {
@@ -843,12 +836,16 @@ app.post('/api/job/pay', authenticate, (req, resp) => {
                             let payment = requestedAmount;
                             let userFee;
 
+                            // If partial payment is made
                             if (requestedAmount !== amount) {
-                                // Although 15% was taken from the total charge, if a partial payment is to be made, we take 15% of the partial payment
+                                // We calculate 15% of the partial payment
                                 userFee = Math.round(requestedAmount * 0.15);
+                                // Deduct it from the requested amount so service provider gets the full partial payment
                                 payment = requestedAmount - userFee;
+                                // Update user_app_fee to 15% of the partial payment
                                 await client.query(`UPDATE job_milestones SET user_app_fee = $1 WHERE milestone_id = $2`, [userFee, req.body.milestone_id]);
 
+                                // Refund the entire app fee minus the new 15% of partial payment
                                 let refundAppFee = Math.round(parseFloat(authorized.rows[0].user_app_fee) * 100) - userFee;
 
                                 await stripe.applicationFees.createRefund(balance.source.application_fee, {amount: refundAppFee})
@@ -857,17 +854,11 @@ app.post('/api/job/pay', authenticate, (req, resp) => {
                              
                             let payout = await stripe.payouts.create({
                                 amount: payment,
-                                currency: balance.source.transfer.destination_payment.balance_transaction.currency
+                                currency: balance.source.transfer.destination_payment.balance_transaction.currency,
                             }, {stripe_account: authorized.rows[0].connected_id})
                             .catch(err => error.log(err, req, resp));
-                            
-
-                            //let remainingBalance = (amount - payment) - (totalAmount - requestedAmount);
 
                             if (requestedAmount !== amount) {
-                                // Refund the remainder to the customer
-                                // Problem here is that we cannot cover the negative balance in connected account using connected reserves
-                                // And by refunding the application fee, an amount lesser than the userFee comes out of our platform into the connected account
                                 await stripe.refunds.create({
                                     charge: authorized.rows[0].charge_id,
                                     amount: totalAmount - requestedAmount,
@@ -895,7 +886,7 @@ app.post('/api/job/pay', authenticate, (req, resp) => {
                                 let encrypt = cryptoJs.AES.encrypt(authorized.rows[0].job_client, process.env.REVIEW_TOKEN_SECRET);
                                 let reviewToken = encrypt.toString();
 
-                                review = await client.query(`INSERT INTO user_reviews (reviewer, reviewing, review_job_id) VALUES ($1, $2, $3) ON CONFLICT (reviewer, reviewing) DO NOTHING RETURNING *`, [authorized.rows[0].job_client, authorized.rows[0].job_user, authorized.rows[0].job_id]);
+                                review = await client.query(`INSERT INTO user_reviews (reviewer, reviewing, review_job_id) VALUES ($1, $2, $3) ON CONFLICT (reviewer, reviewing, review_job_id) DO NOTHING RETURNING *`, [authorized.rows[0].job_client, authorized.rows[0].job_user, authorized.rows[0].job_id]);
                                 token = await client.query(`INSERT INTO review_tokens (token, token_review_id, token_job_id) VALUES ($1, $2, $3) RETURNING *`, [reviewToken, review.rows[0].review_id, authorized.rows[0].job_id]);
 
                                 review.rows[0] = {...review.rows[0], ...token.rows[0]};
@@ -903,7 +894,7 @@ app.post('/api/job/pay', authenticate, (req, resp) => {
                                 await client.query(`UPDATE jobs SET job_status = 'Active' WHERE job_id = $1`, [authorized.rows[0].job_id]);
                             }
 
-                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, `A ${amount !== balance.source.transfer.destination_payment.balance_transaction.net ? 'partial' : ''} payment amount of $${amount / 100} has been paid to you for completing a milestone in Job ID: ${authorized.rows[0].job_id}`, 'Update']);
+                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, `A ${amount !== balance.source.transfer.destination_payment.balance_transaction.net ? 'partial' : ''} payment amount of $${moneyFormatter(amount / 100)} has been paid to you for completing a milestone in Job ID: ${authorized.rows[0].job_id}`, 'Update']);
                             await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, jobComplete ? `You completed a job` : `You completed a milestone`, 'Job']);
                             await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, jobComplete ? `You completed a job` : `You completed a milestone`, 'Job']);
 
@@ -947,7 +938,8 @@ app.post('/api/job/milestone/start', authenticate, (req, resp) => {
                 try {
                     await client.query('BEGIN');
                     let authorized = await client.query(`SELECT
-                        jobs.job_client, 
+                        jobs.job_client,
+                        jobs.job_user,
                         jobs.job_title, 
                         jobs.job_id, 
                         jobs.job_modified_date,
@@ -961,17 +953,19 @@ app.post('/api/job/milestone/start', authenticate, (req, resp) => {
                     FROM jobs
                     LEFT JOIN job_milestones ON jobs.job_id = job_milestones.milestone_job_id
                     LEFT JOIN users ON users.username = jobs.job_client
-                    WHERE job_id = $1 AND milestone_status = 'Pending'
+                    WHERE job_id = $1
                     ORDER BY milestone_id`, [req.body.job_id]);
 
                     if (authorized.rows[0].job_client === req.body.user && req.body.user === req.session.user.username) {
                         let clientDate;
                         let serverDate;
 
+                        // If job has a modified date
                         if (req.body.job_modified_date) {
                             clientDate = new Date(req.body.job_modified_date).getTime();
                             serverDate = new Date(authorized.rows[0].job_modified_date).getTime();
 
+                            // Compare dates to see if they're not equal
                             if (clientDate - serverDate !== 0) {
                                 let error = new Error('Job modified, please review');
                                 let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
@@ -979,128 +973,197 @@ app.post('/api/job/milestone/start', authenticate, (req, resp) => {
                             }
                         }
 
-                        let milestoneIds = [];
+                        let milestoneInProgress = false;
+                        let pendingMilestones = [];
 
+                        // Loop through all milestones
                         for (let milestone of authorized.rows) {
-                            if (milestone.milestone_status === 'Pending') {
-                                milestoneIds.push(milestone.milestone_id);
+                            // If there is one in progress, stop looping
+                            if (milestone.milestone_status === 'In Progress' || milestone.milestone_status === 'Requesting Payment') {
+                                milestoneInProgress = true;
+                                break;
+                            // Or else store id of all "Pending" miletones
+                            } else if (milestone.milestone_status === 'Pending') {
+                                pendingMilestones.push(milestone.milestone_id);
                             }
                         }
                         
-                        if (milestoneIds[0].milestone_id !== req.body.milestone_id) {
-                            let error = new Error(`Cannot start milestone`);
+                        // If there is a milestone in progress
+                        if (milestoneInProgress) {
+                            let error = new Error(`Cannot start milestone while another is in progress`);
+                            let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                            throw errObj;
+                        // If there first pending milestone id does not match the one sent from client
+                        } else if (pendingMilestones[0] !== req.body.id) {
+                            let error = new Error(`Milestones must start in sequence`);
                             let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
                             throw errObj;
                         } else {
                             let milestones = await client.query(`SELECT * FROM job_milestones WHERE milestone_job_id = $1 AND milestone_status = 'Pending' ORDER BY milestone_id`, [req.body.job_id]);
 
+                            if (req.body.saveAddress) {
+                                await client.query(`UPDATE user_profiles SET user_city = $1, user_region = $2, user_country = $3, user_address = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.token.card.address_city, req.body.token.card.address_state, req.body.token.card.address_country, req.body.token.card.address_line1, req.body.token.card.address_zip, req.session.user.user_id]);
+                            }
+
                             // Check if the milestone ID sent from client matches the next milestone in 'Pending' status
                             // This prevents clients from skipping milestones
-                            if (req.body.id !== milestones.rows[0].milestone_id) {
-                                let error = new Error(`Milestone must start in sequence`);
-                                let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
-                                throw errObj;
-                            } else {
-                                let user = await client.query(`SELECT jobs.job_user, users.connected_id FROM job_milestones
-                                LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
-                                LEFT JOIN users ON jobs.job_user = users.username
-                                WHERE milestone_id = $1`, [req.body.id]);
+                            
+                            let user = await client.query(`SELECT jobs.job_user, users.connected_id FROM job_milestones
+                            LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
+                            LEFT JOIN users ON jobs.job_user = users.username
+                            WHERE milestone_id = $1`, [req.body.id]);
 
-                                let amount = parseFloat(milestones.rows[0].milestone_payment_amount) * 100;
-                                let clientFee = Math.round(amount * 0.03);
-                                let userFee;
+                            let amount = parseFloat(milestones.rows[0].milestone_payment_amount) * 100;
+                            let clientFee = Math.round(amount * 0.03);
+                            let userFee = totalAmount = lifetimeAmount = 0;
 
-                                let lifetimeTotal = await client.query(`SELECT SUM(payout_amount) + SUM(user_app_fee) AS total_payout FROM job_milestones
-                                LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
-                                WHERE jobs.job_client = $1 AND job_user = $2
-                                AND milestone_status = 'Complete'
-                                AND payout_status = 'paid'`, [authorized.rows[0].job_client, authorized.rows[0].job_user]);
+                            let lifetimeTotal = await client.query(`SELECT SUM(requested_payment_amount) + SUM(user_app_fee) AS total_payout FROM job_milestones
+                            LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
+                            WHERE jobs.job_client = $1 AND job_user = $2
+                            AND milestone_status = 'Complete'
+                            AND (payout_status != 'failed' OR payout_status != 'canceled')`, [authorized.rows[0].job_client, authorized.rows[0].job_user]);
+                            let firstFee = secondFee = thirdFee = 0;
 
-                                if (lifetimeTotal.rows[0].total_payout <= 500) {
-                                    userFee = Math.round(amount * 0.15);
-                                } else if (lifetimeTotal.rows[0].total_payout >= 500.01 && lifetimeTotal.rows[0].total_payout <= 10000) {
-                                    userFee = Math.round(amount * 0.075);
-                                } else if (lifetimeTotal.rows[0].total_payout > 10000.01) {
-                                    userFee = Math.round(amount * 0.0375);
-                                }
+                            // If user have previous jobs that are completed and payout not failed or canceled
+                            if (lifetimeTotal.rows[0].total_payout) {
+                                let totalAmount = parseFloat(lifetimeTotal.rows[0].total_payout) + parseFloat(milestones.rows[0].milestone_payment_amount);
 
-                                let chargeAmount = amount + clientFee;
-                        
-                                let chargeObj = {
-                                    amount: chargeAmount,
-                                    application_fee_amount: userFee + clientFee,
-                                    currency: authorized.rows[0].job_price_currency.toLowerCase(),
-                                    description: `Funds for job ID: ${req.body.job_id} [${authorized.rows[0].job_title}]`,
-                                    on_behalf_of: user.rows[0].connected_id,
-                                    transfer_data: {
-                                        destination: user.rows[0].connected_id
-                                    },
-                                    source: req.body.token.id,
-                                    receipt_email: authorized.rows[0].user_email,
-                                    expand: ['transfer.destination_payment.balance_transaction']
-                                }
+                                // If lifetime total is 500 or lower
+                                if (parseFloat(lifetimeTotal.rows[0].total_payout) <= 500) {
+                                    if (totalAmount <= 500) {
+                                        // If current payment plus lifetime total is still 500 or lower, fee is 15%
+                                        userFee = Math.round(parseFloat(milestones.rows[0].milestone_payment_amount) * 0.15 * 100);
+                                    } else if (totalAmount > 500 && totalAmount <= 10000) {
+                                        // If current payment plus lifetime total is between 500 and 10000
+                                        // Get the difference of 500 and the lifetime total and charge 15% on that
+                                        firstFee = Math.round((500 - parseFloat(lifetimeTotal.rows[0].total_payout)) * 0.15 * 100);
+                                        // Take 500 out of the lifetime total plus current payment and charge 7.5% on that
+                                        secondFee = Math.round((totalAmount - 500) * 0.075 * 100);
 
-                                if (!req.body.token.object) {
-                                    chargeObj['customer'] = authorized.rows[0].stripe_id
-                                }
+                                        userFee = firstFee + secondFee;
+                                    } else if (totalAmount > 10000) {
+                                        // If lifetime total and current payment is greater than 10000
+                                        // Get the difference of 500 and the lifetime total and charge 15% on that
+                                        firstFee = Math.round((500 - parseFloat(lifetimeTotal.rows[0].total_payout)) * 0.15 * 100);
+                                        // Take the first 10000, minus 500 and charge 7.5% on that
+                                        secondFee = Math.round((10000 - 500) * 0.075 * 100);
+                                        // Take 10000 out of lifetime total plus current payment and charge 3.75% on that
+                                        thirdFee = Math.round((totalAmount - 10000) * 0.0375 * 100);
 
-                                let charge = await stripe.charges.create(chargeObj)
-                                .catch(err => error.log(err, req, resp));
-                                
-
-                                let milestone = await client.query(`UPDATE job_milestones SET milestone_status = 'In Progress', charge_id = $2, milestone_fund_due_date = to_timestamp($3) + interval '90 days', milestone_start_date = to_timestamp($3), balance_txn_id = $4, milestone_payment_after_fees = $5, client_app_fee = $6, user_app_fee = $7, payout_status = $8, app_fee_id = $9 WHERE milestone_id = $1 RETURNING *`, [
-                                    req.body.id, 
-                                    charge.id, 
-                                    charge.created, 
-                                    charge.balance_transaction, 
-                                    (charge.transfer.destination_payment.balance_transaction.net / 100).toFixed(2), 
-                                    (clientFee / 100).toFixed(2), 
-                                    (userFee / 100).toFixed(2),
-                                    charge.transfer.destination_payment.balance_transaction.status,
-                                    charge.application_fee
-                                ]);
-
-                                // Set job status to 'Active' regardless whether it's accepted job or starting another milestone
-                                await client.query(`UPDATE jobs SET job_status = 'Active' WHERE job_id = $1`, [req.body.job_id]);
-
-                                // Create notification
-                                await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `An amount of $${amount / 100} was charged on card ending with ${charge.payment_method_details.card.last4}`, 'Update']);
-
-                                // Add to recent activities
-                                await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, req.body.accept ? `You accepted a job` : `You started a milestone`, 'Job']);
-
-                                // If an expected delivery date is set, add to upcoming events
-                                if (req.body.milestone_due_date) {
-                                    await client.query(`INSERT INTO user_events (event_name, event_date, event_owner, event_type, event_reference_id) VALUES ($1, $2, $3, $4, $5)`, [`A milestone [ID: ${milestone.milestone_id}] is expected to be delivered`, milestone.milestone_due_date, authorized.rows[0].job_user, 'Job', milestone.milestone_job_id]);
-                                }
-
-                                // email user that a milestone has started
-                                /* let message = {
-                                    to: req.body.email,
-                                    from: 'admin@hireworld.ca',
-                                    subject: 'Welcome to Hire World',
-                                    templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
-                                    dynamicTemplateData: {
-                                        url: process.env.SITE_URL,
-                                        regkey: registrationKey
-                                    },
-                                    trackingSettings: {
-                                        clickTracking: {
-                                            enable: false
-                                        }
+                                        userFee = firstFee + secondFee + thirdFee;
                                     }
-                                } */
+                                // If lifetime total is between 500 and 10000
+                                } else if (parseFloat(lifetimeTotal.rows[0].total_payout) > 500 && parseFloat(lifetimeTotal.rows[0].total_payout) <= 10000) {
+                                    if (totalAmount <= 10000) {
+                                        // If lifetime total plus current payment is 10000 or less, fee is 7.5%
+                                        userFee = Math.round(parseFloat(milestones.rows[0].milestone_payment_amount) * 0.075 * 100);
+                                    } else if (totalAmount > 10000) {
+                                        // If the lifetime total plus current payment is more than 10000
+                                        // Take the lifetime total out of the first 10000 and charge 7.5% on that
+                                        firstFee = Math.round((10000 - parseFloat(lifetimeTotal.rows[0].total_payout)) * 0.075 * 100);
+                                        // Take the remainder of the current payment minus 10000 and charge 3.75% on taht
+                                        secondFee = Math.round((totalAmount - 10000) * 0.0375 * 100);
 
-                                let conditions = await client.query(`SELECT * FROM milestone_conditions WHERE condition_parent_id = $1`, [req.body.id]);
-                                let files = await client.query(`SELECT * FROM milestone_files WHERE file_milestone_id = $1 ORDER BY filename`, [req.body.milestone_id]);
-                                
-                                milestone.rows[0]['files'] = files.rows;
-                                milestone.rows[0]['balance'] = charge.transfer.destination_payment.balance_transaction;
-                                milestone.rows[0]['conditions'] = conditions.rows;
+                                        userFee = firstFee + secondFee;
+                                    }
+                                // If lifetime total is already more than 10000
+                                } else if (parseFloat(lifetimeTotal.rows[0].total_payout) > 10000) {
+                                    // Fee is 3.75% of the current payment
+                                    userFee = Math.round(parseFloat(milestones.rows[0].milestone_payment_amount) * 0.0375 * 100);
+                                }
+                            } else {
+                                if (parseFloat(milestones.rows[0].milestone_payment_amount) <= 500) {
+                                    userFee = Math.round(parseFloat(milestones.rows[0].milestone_payment_amount) * 0.15 * 100);
+                                } else if (parseFloat(milestones.rows[0].milestone_payment_amount) > 500 && parseFloat(milestones.rows[0].milestone_payment_amount) <= 10000) {
+                                    firstFee = Math.round(500 * 0.15 * 100);
+                                    secondFee = Math.round((parseFloat(milestones.rows[0].milestone_payment_amount) - 500) * 0.075 * 100);
+                                    
+                                    userFee = firstFee + secondFee;
+                                } else if (parseFloat(milestones.rows[0].milestone_payment_amount) > 10000) {
+                                    firstFee = Math.round(500 * 0.15 * 100);
+                                    secondFee = Math.round(9500 * 0.075 * 100);
+                                    thirdFee = Math.round((parseFloat(milestones.rows[0].milestone_payment_amount) - 10000) * 0.0375 * 100);
 
-                                await client.query('COMMIT')
-                                .then(() => resp.send({status: 'success', statusMessage: 'Milestone started', milestone: milestone.rows[0]}));
+                                    userFee = firstFee + secondFee + thirdFee;
+                                }
                             }
+
+                            let chargeAmount = amount + clientFee;
+                    
+                            let chargeObj = {
+                                amount: chargeAmount,
+                                application_fee_amount: userFee + clientFee,
+                                currency: authorized.rows[0].job_price_currency.toLowerCase(),
+                                description: `Funds for job ID: ${req.body.job_id} [${authorized.rows[0].job_title}]`,
+                                on_behalf_of: user.rows[0].connected_id,
+                                transfer_data: {
+                                    destination: user.rows[0].connected_id
+                                },
+                                source: req.body.token.id,
+                                receipt_email: authorized.rows[0].user_email,
+                                expand: ['transfer.destination_payment.balance_transaction']
+                            }
+
+                            if (!req.body.token.object) {
+                                chargeObj['customer'] = authorized.rows[0].stripe_id
+                            }
+
+                            let charge = await stripe.charges.create(chargeObj)
+                            .catch(err => error.log(err, req, resp));
+                            
+
+                            let milestone = await client.query(`UPDATE job_milestones SET milestone_status = 'In Progress', charge_id = $2, milestone_fund_due_date = to_timestamp($3) + interval '90 days', milestone_start_date = to_timestamp($3), balance_txn_id = $4, milestone_payment_after_fees = $5, client_app_fee = $6, user_app_fee = $7, payout_status = $8, app_fee_id = $9 WHERE milestone_id = $1 RETURNING *`, [
+                                req.body.id, 
+                                charge.id, 
+                                charge.created, 
+                                charge.balance_transaction, 
+                                (charge.transfer.destination_payment.balance_transaction.net / 100).toFixed(2), 
+                                (clientFee / 100).toFixed(2), 
+                                (userFee / 100).toFixed(2),
+                                charge.transfer.destination_payment.balance_transaction.status,
+                                charge.application_fee
+                            ]);
+
+                            // Set job status to 'Active' regardless whether it's accepted job or starting another milestone
+                            await client.query(`UPDATE jobs SET job_status = 'Active' WHERE job_id = $1`, [req.body.job_id]);
+
+                            // Create notification
+                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `An amount of $${amount / 100} was charged on card ending with ${charge.payment_method_details.card.last4}`, 'Update']);
+
+                            // Add to recent activities
+                            await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, req.body.accept ? `You accepted a job` : `You started a milestone`, 'Job']);
+
+                            // If an expected delivery date is set, add to upcoming events
+                            if (req.body.milestone_due_date) {
+                                await client.query(`INSERT INTO user_events (event_name, event_date, event_owner, event_type, event_reference_id) VALUES ($1, $2, $3, $4, $5)`, [`A milestone [ID: ${milestone.milestone_id}] is expected to be delivered`, milestone.milestone_due_date, authorized.rows[0].job_user, 'Job', milestone.milestone_job_id]);
+                            }
+
+                            // email user that a milestone has started
+                            /* let message = {
+                                to: req.body.email,
+                                from: 'admin@hireworld.ca',
+                                subject: 'Welcome to Hire World',
+                                templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
+                                dynamicTemplateData: {
+                                    url: process.env.SITE_URL,
+                                    regkey: registrationKey
+                                },
+                                trackingSettings: {
+                                    clickTracking: {
+                                        enable: false
+                                    }
+                                }
+                            } */
+
+                            let conditions = await client.query(`SELECT * FROM milestone_conditions WHERE condition_parent_id = $1`, [req.body.id]);
+                            let files = await client.query(`SELECT * FROM milestone_files WHERE file_milestone_id = $1 ORDER BY filename`, [req.body.milestone_id]);
+                            
+                            milestone.rows[0]['files'] = files.rows;
+                            milestone.rows[0]['balance'] = charge.transfer.destination_payment.balance_transaction;
+                            milestone.rows[0]['conditions'] = conditions.rows;
+
+                            await client.query('COMMIT')
+                            .then(() => resp.send({status: 'success', statusMessage: 'Milestone started', milestone: milestone.rows[0]}));
                         }
                     } else {
                         let error = new Error(`You're not authorized`);

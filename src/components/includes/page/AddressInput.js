@@ -19,13 +19,13 @@ const AddressInput = props => {
             <div className='setting-field-container mb-3'>
                 <div className='setting-child'>
                     <InputWrapper label='Address'>
-                        <input type='text' name='address' id='address' onChange={(e) => props.set('address_line1', e.target.value)} defaultValue={props.info ? props.info.address_line1 : ''} onFocus={() => props.dispatch(IsTyping(true))} onBlur={() => props.dispatch(IsTyping(false))} />
+                        <input type='text' name='address' id='address' onChange={(e) => props.set('address_line1', e.target.value)} value={props.info && props.info.address_line1 ? props.info.address_line1 : ''} onFocus={() => props.dispatch(IsTyping(true))} onBlur={() => props.dispatch(IsTyping(false))} />
                     </InputWrapper>
                 </div>
 
                 <div className='setting-child'>
                     <InputWrapper label='Country'>
-                        <CountryDropdown value={props.info.address_country} onChange={(val) => props.set('address_country', val)} valueType='short' />
+                        <CountryDropdown value={props.info.address_country || ''} onChange={(val) => props.set('address_country', val)} valueType='short' />
                     </InputWrapper>
                 </div>
             </div>
@@ -36,13 +36,13 @@ const AddressInput = props => {
                 </div>
 
                 <div className='setting-child'>
-                    <InputWrapper label='City'><input type='text' name='city' id='city' onChange={(e) => props.set('address_city', e.target.value)} defaultValue={props.info ? props.info.address_city : ''} onFocus={() => props.dispatch(IsTyping(true))} onBlur={() => props.dispatch(IsTyping(false))} /></InputWrapper>
+                    <InputWrapper label='City'><input type='text' name='city' id='city' onChange={(e) => props.set('address_city', e.target.value)} value={props.info && props.info.address_city ? props.info.address_city : ''} onFocus={() => props.dispatch(IsTyping(true))} onBlur={() => props.dispatch(IsTyping(false))} /></InputWrapper>
                 </div>
             </div>
 
             <div className='setting-field-container center'>
                 <div className='setting-child'>
-                    <InputWrapper label='Postal/Zip Code'><input type='text' name='city_code' id='city_code' onChange={(e) => props.set('address_zip', e.target.value)} defaultValue={props.info ? props.info.address_zip : ''} onFocus={() => props.dispatch(IsTyping(true))} onBlur={() => props.dispatch(IsTyping(false))} /></InputWrapper>
+                    <InputWrapper label='Postal/Zip Code'><input type='text' name='city_code' id='city_code' onChange={(e) => props.set('address_zip', e.target.value)} value={props.info && props.info.address_zip ? props.info.address_zip : ''} onFocus={() => props.dispatch(IsTyping(true))} onBlur={() => props.dispatch(IsTyping(false))} /></InputWrapper>
                 </div>
 
                 {saveable}

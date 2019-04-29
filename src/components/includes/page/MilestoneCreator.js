@@ -143,7 +143,7 @@ class MilestoneCreator extends Component {
 
                 <div className='setting-field-container mb-3'>
                     <InputWrapper label='Payment' required>
-                        <input type='text' onChange={(e) => this.setPayment(e.target.value, i)} value={milestone.milestone_payment_amount} placeholder='Max $500' />
+                        <input type='text' onChange={(e) => this.setPayment(e.target.value, i)} value={milestone.milestone_payment_amount} />
                     </InputWrapper>
     
                     <InputWrapper label='Expected Date'>

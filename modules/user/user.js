@@ -219,7 +219,7 @@ app.post('/api/user/business_hours/save', authenticate, (req, resp) => {
     db.connect((err, client, done) => {
         if (err) error.log(err, req, resp);
 
-        let timeCheck = /^([0-9]|[1-2][0-4]):?([0-5][0-9])?(\s?(AM|am|PM|pm))?(\s[A-Za-z]{3,5})?$/;
+        let timeCheck = /^([0-9]|[1][1-2]|[1-2][0-4]):?([0-5][0-9])?(\s?(AM|am|PM|pm))(\s[A-Za-z]{3,5})?$/;
         let invalidFormat = false;
 
         for (let key in req.body.days) {
@@ -231,7 +231,8 @@ app.post('/api/user/business_hours/save', authenticate, (req, resp) => {
                     break;
                 } else {
                     for (let time of times) {
-                        if (!timeCheck.test(time)) {
+                        let timeString = time.trim();
+                        if (!timeCheck.test(timeString)) {
                             invalidFormat = true;
                             break;
                         }
@@ -240,33 +241,25 @@ app.post('/api/user/business_hours/save', authenticate, (req, resp) => {
             }
         }
 
-        if (invalidFormat) {
+        if (!req.body.id) {
+            resp.send({status: 'error', statusMessage: `You haven't listed your profile`});
+        } else if (invalidFormat) {
             resp.send({status: 'error', statusMessage: 'Invalid time format'});
         } else {
             (async() => {
                 try {
                     await client.query('BEGIN');
 
-                    let user = await client.query(`SELECT account_type FROM users
-                    LEFT JOIN user_listings ON users.username = user_listings.listing_user
-                    WHERE username = $1 AND listing_id = $2`, [req.session.user.username, req.body.id]);
+                    let businessHour = await client.query(`SELECT * FROM business_hours WHERE for_listing = $1`, [req.body.id]);
 
-                    if (user.rows[0].account_type !== 'User') {
-                        let businessHour = await client.query(`SELECT * FROM business_hours WHERE for_listing = $1`, [req.body.id]);
-
-                        if (businessHour.rows.length === 0) {
-                            await client.query(`INSERT INTO business_hours (monday, tuesday, wednesday, thursday, friday, saturday, sunday, for_listing) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, [req.body.days.mon, req.body.days.tue, req.body.days.wed, req.body.days.thu, req.body.days.fri, req.body.days.sat, req.body.days.sun, req.body.id]);
-                        } else if (businessHour.rows.length === 1) {
-                            await client.query('UPDATE business_hours SET monday = $1, tuesday = $2, wednesday = $3, thursday = $4, friday = $5, saturday = $6, sunday = $7 WHERE for_listing = $8', [req.body.days.mon, req.body.days.tue, req.body.days.wed, req.body.days.thu, req.body.days.fri, req.body.days.sat, req.body.days.sun, req.body.id])
-                        }
-
-                        await client.query('COMMIT')
-                        .then(() => resp.send({status: 'success', statusMessage: 'Business hours saved'}));
-                    } else if (user.rows[0].account_type === 'User') {
-                        let error = new Error(`You're not subscribed`);
-                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack}
-                        throw errObj;
+                    if (businessHour.rows.length === 0) {
+                        await client.query(`INSERT INTO business_hours (monday, tuesday, wednesday, thursday, friday, saturday, sunday, for_listing) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, [req.body.days.mon, req.body.days.tue, req.body.days.wed, req.body.days.thu, req.body.days.fri, req.body.days.sat, req.body.days.sun, req.body.id]);
+                    } else if (businessHour.rows.length === 1) {
+                        await client.query('UPDATE business_hours SET monday = $1, tuesday = $2, wednesday = $3, thursday = $4, friday = $5, saturday = $6, sunday = $7 WHERE for_listing = $8', [req.body.days.mon, req.body.days.tue, req.body.days.wed, req.body.days.thu, req.body.days.fri, req.body.days.sat, req.body.days.sun, req.body.id])
                     }
+
+                    await client.query('COMMIT')
+                    .then(() => resp.send({status: 'success', statusMessage: 'Business hours saved'}));
                 } catch (e) {
                     await client.query('ROLLBACK');
                     throw e;
@@ -479,7 +472,7 @@ app.post('/api/user/payment/add', authenticate, (req, resp) => {
                         await client.query('BEGIN');
 
                         let user = await client.query(`SELECT stripe_id, user_email FROM users WHERE username = $1`, [req.session.user.username]);
-
+                        
                         if (req.body.saveAddress) {
                             await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.address_line1, req.body.address_city, req.body.address_state, req.body.address_country, req.body.address_zip, req.session.user.user_id]);
                         }

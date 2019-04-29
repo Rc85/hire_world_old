@@ -90,7 +90,6 @@ class MessageDetails extends Component {
     }
     
     render() {
-        console.log(this.state.status);
         let status;
 
         if (this.state.status === 'Loading Message') {

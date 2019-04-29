@@ -17,9 +17,9 @@ class LinkWorkSettingsForm extends Component {
     
     render() {
         let supportedCountries = ['AT', 'AU', 'BE', 'CA', 'CH', 'DE', 'DK', 'ES', 'FI', 'FR', 'GB', 'IE', 'IT', 'LU', 'NL', 'NO', 'NZ', 'PT', 'SE', 'US'];
-        let ssn, form, phone, mcc;
+        let ssn, form, phone, mcc, business;
 
-        if (this.props.settings.individual.address.country === 'US' || this.props.settings.individual.address.country === 'CA') {
+        if (this.props.settings.individual.address.country === 'US' || this.props.settings.individual.address.country === 'CA'|| this.props.settings.company.address.country === 'US'|| this.props.settings.company.address.country === 'CA') {
             ssn = <div className='setting-child'>
                 <InputWrapper label='SIN/SSN' required={!this.props.settings.individual.ssn_last_4_provided}>
                     <input type='text' defaultValue={this.props.settings.individual.id_number === null ? '' : this.props.settings.individual.id_number} maxLength='9' onChange={(e) => this.setSettings({
@@ -32,7 +32,7 @@ class LinkWorkSettingsForm extends Component {
                 </InputWrapper>
             </div>;
 
-            if (this.props.settings.individual.address.country === 'US') {
+            if (this.props.settings.individual.address.country === 'US' || this.props.settings.company.address.country === 'US') {
                 phone = <div className='setting-child quarter'>
                     <InputWrapper label='Phone Number' required>
                         <input type='text' defaultValue={this.props.settings.individual.phone === null ? '' : this.props.settings.individual.phone} onChange={(e) => this.setSettings({
@@ -57,173 +57,181 @@ class LinkWorkSettingsForm extends Component {
                     </InputWrapper>
                     <a href='https://stripe.com/docs/connect/setting-mcc#list' rel='noopener noreferrer' target='_blank'>What is this?</a>
                 </div>;
+
+                business = <div className='simple-container no-bg mb-3'>
+                    <div className='simple-container-title'>Business</div>
+
+                    <div className='setting-field-container mb-3'>
+                        <InputWrapper label='Business Name'>
+                            <input type='text' defaultValue={this.props.settings.business_profile.name === null ? '' : this.props.settings.business_profile.name} onChange={(e) => this.setSettings({
+                                ...this.props.settings,
+                                ...{business_profile: {
+                                    ...this.props.settings.business_profile,
+                                    ...{name: e.target.value}
+                                }}
+                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
+                        </InputWrapper>
+                    </div>
+
+                    <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <InputWrapper label='Business Description' required={this.props.settings.individual.address.country === 'US' || this.props.settings.company.address.country === 'US'}>
+                                <input type='text' defaultValue={this.props.settings.business_profile.product_description === null ? '' : this.props.settings.business_profile.product_description} onChange={(e) => this.setSettings({
+                                    ...this.props.settings,
+                                    ...{business_profile: {
+                                        ...this.props.settings.business_profile,
+                                        ...{product_description: e.target.value}
+                                    }}
+                                })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required={this.props.settings.individual.address.country === 'US' || this.props.settings.company.address.country === 'US'} />
+                            </InputWrapper>
+                        </div>
+
+                        {mcc}
+                    </div>
+                </div>;
             }
         }
 
         if (this.props.settings.business_type === 'company') {
-            form = <div className='simple-container no-bg mb-3'>
-                <div className='simple-container-title'>Company</div>
-                
-                <div className='setting-field-container mb-3'>
-                    <InputWrapper label='Company Name' required>
-                        <input type='text' value={this.props.settings.company.name === null ? '' : this.props.settings.company.name} onChange={(e) => this.setState({
-                            ...this.props.settings,
-                            ...{company: {
-                                ...this.props.settings.company,
-                                ...{name: e.target.value === '' ? null : e.target.value}
-                            }}
-                        })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
-                    </InputWrapper>
-                </div>
-
-                <div className='setting-field-container mb-3'>
-                    <InputWrapper label='Company Tax ID' required>
-                        <input type='text' value={this.props.settings.company.tax_id === null ? '' : this.props.settings.company.tax_id} onChange={(e) => this.setSettings({
-                            ...this.props.settings,
-                            ...{company: {
-                                ...this.props.settings.company,
-                                ...{tax_id: e.target.value === '' ? null : e.target.value}
-                            }}
-                        })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
-                    </InputWrapper>
-
-                    <InputWrapper label='Company Phone Number'>
-                        <input type='tel' value={this.props.settings.company.phone === null ? '' : this.props.settings.company.phone} onChange={(e) => this.setSettings({
-                            ...this.props.settings,
-                            ...{company: {
-                                ...this.props.settings.company,
-                                ...{phone: e.target.value === '' ? null : e.target.value}
-                            }}
-                        })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
-                    </InputWrapper>
-                </div>
-
-                <div className='setting-field-container mb-3'>
-                    <div className='setting-child'>
-                        <InputWrapper label='Country' required>
-                            <CountryDropdown value={this.props.settings.company.address.country === null ? '' : this.props.settings.company.address.country} onChange={(e) => this.setSettings({
-                            ...this.props.settings,
-                            ...{company: {
-                                ...this.props.settings.company,
-                                ...{address: {
-                                    ...this.props.settings.company.address,
-                                    ...{country: e.target.value === '' ? null : e.target.value}
-                                    }}
-                                }}
-                            })} valueType='short' />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-child'>
-                        <InputWrapper label='Region' required>
-                            <RegionDropdown value={this.props.settings.company.address.region === null ? '' : this.props.settings.company.address.region} onChange={(e) => this.setSettings({
-                            ...this.props.settings,
-                            ...{company: {
-                                ...this.props.settings.company,
-                                ...{address: {
-                                    ...this.props.settings.company.address,
-                                    ...{region: e.target.value === '' ? null : e.target.value}
-                                    }}
-                                }}
-                            })} countryValueType='short' valueType='short' country={this.props.settings.company.address.country} />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-child'>
-                        <InputWrapper label='City' required>
-                            <input type='text' value={this.props.settings.company.address.city === null ? '' : this.props.settings.company.address.city} onChange={(e) => this.setSettings({
-                            ...this.props.settings,
-                            ...{company: {
-                                ...this.props.settings.company,
-                                ...{address: {
-                                    ...this.props.settings.company.address,
-                                    ...{city: e.target.value === '' ? null : e.target.value}
-                                    }}
-                                }}
-                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
-                        </InputWrapper>
-                    </div>
-                </div>
-
-                <div className='setting-field-container mb-3'>
-                    <div className='setting-child three-quarter'>
-                        <InputWrapper label='Address Line 1' required>
-                            <input type='text' value={this.props.settings.company.address.line1 === null ? '' : this.props.settings.company.address.line1} onChange={(e) => this.setSettings({
-                                ...this.props.settings,
-                                ...{company: {
-                                    ...this.props.settings.company,
-                                    ...{address: {
-                                        ...this.props.settings.company.address,
-                                        ...{line1: e.target.value === '' ? null : e.target.value}
-                                    }}
-                                }}
-                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-child quarter'>
-                        <InputWrapper label='Postal/Zip Code' required>
-                        <input type='text' value={this.props.settings.company.address.postal_code === null ? '' : this.props.settings.company.address.postal_code} onChange={(e) => this.setSettings({
-                                ...this.props.settings,
-                                ...{company: {
-                                    ...this.props.settings.company,
-                                    ...{address: {
-                                        ...this.props.settings.company.address,
-                                        ...{postal_code: e.target.value === '' ? null : e.target.value}
-                                    }}
-                                }}
-                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
-                        </InputWrapper>
-                    </div>
-                </div>
-
-                <div className='setting-field-container'>
-                    <InputWrapper label='Address Line 2'>
-                        <input type='text' value={this.props.settings.company.address.line2 === null ? '' : this.props.settings.company.address.line2} onChange={(e) => this.setSettings({
-                            ...this.props.settings,
-                            ...{company: {
-                                ...this.props.settings.company,
-                                ...{address: {
-                                    ...this.props.settings.company.address,
-                                    ...{line2: e.target.value === '' ? null : e.target.value}
-                                }}
-                            }}
-                        })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
-                    </InputWrapper>
-                </div>
-            </div>;
-        }
-
-        return(
-            <React.Fragment>
+            form = <React.Fragment>
                 <div className='simple-container no-bg mb-3'>
-                    <div className='radio-container mb-3'>
-                        <label htmlFor='business_type_individual' className={this.props.settings.business_type === 'individual' ? 'active' : ''} onClick={() => this.setSettings({
-                            ...this.props.settings,
-                            ...{business_type: 'individual'}
-                        })}>
-                            <div className='radio'>
-                                <input type='radio' name='business_type' required id='business_type_individual' readOnly checked={this.props.settings.business_type === 'individual'} />
-                                {this.props.settings.business_type === 'individual' ? <div className='radio-selected'></div> : ''}
-                            </div>
-    
-                            <span>Individual</span>
-                        </label>
-    
-                        <label htmlFor='business_type_company' className={this.props.settings.business_type === 'company' ? 'active' : ''} onClick={() => this.setSettings({
-                            ...this.props.settings,
-                            ...{business_type: 'company'}
-                        })}>
-                            <div className='radio'>
-                                <input type='radio' name='business_type' required id='business_type_company' readOnly checked={this.props.settings.business_type === 'company'} />
-                                {this.props.settings.business_type === 'company' ? <div className='radio-selected'></div> : ''}
-                            </div>
-    
-                            <span>Company</span>
-                        </label>
+                    <div className='simple-container-title'>Company</div>
+                    
+                    <div className='setting-field-container mb-3'>
+                        <InputWrapper label='Company Name' required>
+                            <input type='text' value={this.props.settings.company.name === null ? '' : this.props.settings.company.name} onChange={(e) => this.setSettings({
+                                ...this.props.settings,
+                                ...{company: {
+                                    ...this.props.settings.company,
+                                    ...{name: e.target.value === '' ? null : e.target.value}
+                                }}
+                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
+                        </InputWrapper>
                     </div>
 
-                    <div className='simple-container-title'>Personal Information</div>
+                    <div className='setting-field-container mb-3'>
+                        <InputWrapper label='Company Tax ID' required>
+                            <input type='text' value={this.props.settings.company.tax_id === null ? '' : this.props.settings.company.tax_id} onChange={(e) => this.setSettings({
+                                ...this.props.settings,
+                                ...{company: {
+                                    ...this.props.settings.company,
+                                    ...{tax_id: e.target.value === '' ? null : e.target.value}
+                                }}
+                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
+                        </InputWrapper>
+
+                        <InputWrapper label='Company Phone Number'>
+                            <input type='tel' value={this.props.settings.company.phone === null ? '' : this.props.settings.company.phone} onChange={(e) => this.setSettings({
+                                ...this.props.settings,
+                                ...{company: {
+                                    ...this.props.settings.company,
+                                    ...{phone: e.target.value === '' ? null : e.target.value}
+                                }}
+                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
+                        </InputWrapper>
+                    </div>
+
+                    <div className='setting-field-container mb-3'>
+                        <div className='setting-child'>
+                            <InputWrapper label='Country' required>
+                                <CountryDropdown value={this.props.settings.company.address.country === null ? '' : this.props.settings.company.address.country} onChange={(val) => this.setSettings({
+                                ...this.props.settings,
+                                ...{company: {
+                                    ...this.props.settings.company,
+                                    ...{address: {
+                                        ...this.props.settings.company.address,
+                                        ...{country: val}
+                                        }}
+                                    }}
+                                })} valueType='short' />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child'>
+                            <InputWrapper label='Region' required>
+                                <RegionDropdown value={this.props.settings.company.address.region === null ? '' : this.props.settings.company.address.region} onChange={(val) => this.setSettings({
+                                ...this.props.settings,
+                                ...{company: {
+                                    ...this.props.settings.company,
+                                    ...{address: {
+                                        ...this.props.settings.company.address,
+                                        ...{region: val}
+                                        }}
+                                    }}
+                                })} countryValueType='short' valueType='short' country={this.props.settings.company.address.country} />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child'>
+                            <InputWrapper label='City' required>
+                                <input type='text' value={this.props.settings.company.address.city === null ? '' : this.props.settings.company.address.city} onChange={(e) => this.setSettings({
+                                ...this.props.settings,
+                                ...{company: {
+                                    ...this.props.settings.company,
+                                    ...{address: {
+                                        ...this.props.settings.company.address,
+                                        ...{city: e.target.value === '' ? null : e.target.value}
+                                        }}
+                                    }}
+                                })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
+                            </InputWrapper>
+                        </div>
+                    </div>
+
+                    <div className='setting-field-container mb-3'>
+                        <div className='setting-child three-quarter'>
+                            <InputWrapper label='Address Line 1' required>
+                                <input type='text' value={this.props.settings.company.address.line1 === null ? '' : this.props.settings.company.address.line1} onChange={(e) => this.setSettings({
+                                    ...this.props.settings,
+                                    ...{company: {
+                                        ...this.props.settings.company,
+                                        ...{address: {
+                                            ...this.props.settings.company.address,
+                                            ...{line1: e.target.value === '' ? null : e.target.value}
+                                        }}
+                                    }}
+                                })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
+                            </InputWrapper>
+                        </div>
+
+                        <div className='setting-child quarter'>
+                            <InputWrapper label='Postal/Zip Code' required>
+                            <input type='text' value={this.props.settings.company.address.postal_code === null ? '' : this.props.settings.company.address.postal_code} onChange={(e) => this.setSettings({
+                                    ...this.props.settings,
+                                    ...{company: {
+                                        ...this.props.settings.company,
+                                        ...{address: {
+                                            ...this.props.settings.company.address,
+                                            ...{postal_code: e.target.value === '' ? null : e.target.value}
+                                        }}
+                                    }}
+                                })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />
+                            </InputWrapper>
+                        </div>
+                    </div>
+
+                    <div className='setting-field-container'>
+                        <InputWrapper label='Address Line 2'>
+                            <input type='text' value={this.props.settings.company.address.line2 === null ? '' : this.props.settings.company.address.line2} onChange={(e) => this.setSettings({
+                                ...this.props.settings,
+                                ...{company: {
+                                    ...this.props.settings.company,
+                                    ...{address: {
+                                        ...this.props.settings.company.address,
+                                        ...{line2: e.target.value === '' ? null : e.target.value}
+                                    }}
+                                }}
+                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
+                        </InputWrapper>
+                    </div>
+                </div>
+
+                {business}
+            </React.Fragment>;
+        } else if (this.props.settings.business_type === 'individual') {
+            form = <React.Fragment>
+                <div className='simple-container no-bg mb-3'>
+                    <div className='simple-container-title'>Personal</div>
 
                     <div className='setting-field-container mb-3'>
                         <InputWrapper label='First Name' required>
@@ -395,39 +403,39 @@ class LinkWorkSettingsForm extends Component {
                             </InputWrapper>
                         </div>
                     </div>
-                </div>
+                </div> 
+                
+                {business}
+            </React.Fragment>;
+        }
 
-                <div className='simple-container no-bg mb-3'>
-                    <div className='simple-container-title'>Business</div>
-
-                    <div className='setting-field-container mb-3'>
-                        <InputWrapper label='Business Name'>
-                            <input type='text' defaultValue={this.props.settings.business_profile.name === null ? '' : this.props.settings.business_profile.name} onChange={(e) => this.setSettings({
-                                ...this.props.settings,
-                                ...{business_profile: {
-                                    ...this.props.settings.business_profile,
-                                    ...{name: e.target.value}
-                                }}
-                            })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
-                        </InputWrapper>
-                    </div>
-
-                    <div className='setting-field-container mb-3'>
-                        <div className='setting-child'>
-                            <InputWrapper label='Business Description' required={this.props.settings.individual.address.country === 'US' || this.props.settings.company.address.country === 'US'}>
-                                <input type='text' defaultValue={this.props.settings.business_profile.product_description === null ? '' : this.props.settings.business_profile.product_description} onChange={(e) => this.setSettings({
-                                    ...this.props.settings,
-                                    ...{business_profile: {
-                                        ...this.props.settings.business_profile,
-                                        ...{product_description: e.target.value}
-                                    }}
-                                })} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required={this.props.settings.individual.address.country === 'US' || this.props.settings.company.address.country === 'US'} />
-                            </InputWrapper>
+        return(
+            <React.Fragment>
+                {/* <div className='radio-container mb-3'>
+                    <label htmlFor='business_type_individual' className={this.props.settings.business_type === 'individual' ? 'active' : ''} onClick={() => this.setSettings({
+                        ...this.props.settings,
+                        ...{business_type: 'individual'}
+                    })}>
+                        <div className='radio'>
+                            <input type='radio' name='business_type' required id='business_type_individual' readOnly checked={this.props.settings.business_type === 'individual'} />
+                            {this.props.settings.business_type === 'individual' ? <div className='radio-selected'></div> : ''}
                         </div>
 
-                        {mcc}
-                    </div>
-                </div>
+                        <span>Individual</span>
+                    </label>
+
+                    <label htmlFor='business_type_company' className={this.props.settings.business_type === 'company' ? 'active' : ''} onClick={() => this.setSettings({
+                        ...this.props.settings,
+                        ...{business_type: 'company'}
+                    })}>
+                        <div className='radio'>
+                            <input type='radio' name='business_type' required id='business_type_company' readOnly checked={this.props.settings.business_type === 'company'} />
+                            {this.props.settings.business_type === 'company' ? <div className='radio-selected'></div> : ''}
+                        </div>
+
+                        <span>Company</span>
+                    </label>
+                </div> */}
 
                 {form}
             </React.Fragment>

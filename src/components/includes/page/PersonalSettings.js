@@ -11,7 +11,7 @@ import InputWrapper from '../../utils/InputWrapper';
 import { LogError } from '../../utils/LogError';
 import { IsTyping } from '../../../actions/ConfigActions';
 
-class ProfileSettings extends Component {
+class PersonalSettings extends Component {
     constructor(props) {
         super(props);
 
@@ -99,7 +99,9 @@ class ProfileSettings extends Component {
         }
 
         return(
-            <div id='profile-settings'>
+            <div id='profile-settings' className='simple-container no-bg'>
+                <div className='simple-container-title'>Personal Settings</div>
+                
                 {status}
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child three-quarter'>
@@ -161,8 +163,8 @@ class ProfileSettings extends Component {
     }
 }
 
-ProfileSettings.propTypes = {
+PersonalSettings.propTypes = {
     user: PropTypes.object.isRequired
 }
 
-export default connect()(ProfileSettings);
+export default connect()(PersonalSettings);

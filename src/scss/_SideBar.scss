@@ -89,7 +89,10 @@
         .sidebar-sub-item-link {
             margin-right: 15px;
             
-            a:hover { color: $theme-highlight; }
+            &:hover {
+                color: $theme-highlight;
+                text-decoration: underline;
+            }
     
             &.active { color: $theme-highlight; }
         }

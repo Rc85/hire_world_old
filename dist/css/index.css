@@ -4135,13 +4135,13 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
   color: #2988BC;
 }
 
-.connect-footer {
+.link-work-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.connected-badges, .financial-account-currency {
+.link-work-badges, .financial-account-currency {
   display: flex;
 }
 
@@ -4177,7 +4177,7 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
   width: 80%;
 }
 
-#dashboard-panel-container {
+.dashboard-panel-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -4185,10 +4185,10 @@ scrollbar- #browse-list-container #browse-list::webkit-scrollbar {
   margin-top: 20px;
   padding: 20px;
 }
-#dashboard-panel-container .dashboard-panel-half {
+.dashboard-panel-container .dashboard-panel-half {
   width: 45%;
 }
-#dashboard-panel-container .dashboard-panel-full {
+.dashboard-panel-container .dashboard-panel-full {
   width: 100%;
 }
 
@@ -5296,8 +5296,9 @@ footer {
 .sidebar-sub-items-container .sidebar-sub-item .sidebar-sub-item-link {
   margin-right: 15px;
 }
-.sidebar-sub-items-container .sidebar-sub-item .sidebar-sub-item-link a:hover {
+.sidebar-sub-items-container .sidebar-sub-item .sidebar-sub-item-link:hover {
   color: #2988BC;
+  text-decoration: underline;
 }
 .sidebar-sub-items-container .sidebar-sub-item .sidebar-sub-item-link.active {
   color: #2988BC;
@@ -5366,9 +5367,10 @@ footer {
   align-items: center;
   position: relative;
 }
-.condition-container .delete-button {
+.condition-container .condition-button {
   position: initial;
   margin-left: 5px;
+  margin-bottom: 5px;
 }
 .condition-container .input-container {
   flex-grow: 1;
@@ -5382,6 +5384,16 @@ footer {
 
 .funds-remaining {
   text-align: right;
+}
+
+.milestone-creator-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.milestone-creator-detail {
+  display: flex;
+  align-items: center;
 }
 
 .verified-review-container {
@@ -5476,8 +5488,8 @@ footer {
   justify-content: space-between;
   align-items: flex-start;
 }
-.setting-field-container.start {
-  align-items: flex-start;
+.setting-field-container.stretched {
+  align-items: stretch;
 }
 .setting-field-container > .setting-field-container {
   flex-grow: 1;
@@ -5532,7 +5544,6 @@ footer {
   display: flex;
   flex-direction: column;
   width: 45%;
-  justify-content: space-between;
 }
 .settings-col .setting-col-field {
   display: flex;
@@ -6402,20 +6413,20 @@ footer {
     margin-right: 10px;
   }
 
-  #dashboard-panel-container {
+  .dashboard-panel-container {
     flex-direction: column;
     margin-top: 60px;
   }
-  #dashboard-panel-container .dashboard-panel-half {
+  .dashboard-panel-container .dashboard-panel-half {
     width: 100%;
   }
-  #dashboard-panel-container #notifications-panel {
+  .dashboard-panel-container #notifications-panel {
     order: 2;
   }
-  #dashboard-panel-container #activities-panel {
+  .dashboard-panel-container #activities-panel {
     order: 3;
   }
-  #dashboard-panel-container #upcoming-events-panel {
+  .dashboard-panel-container #upcoming-events-panel {
     order: 1;
   }
 
@@ -6873,6 +6884,10 @@ footer {
     width: 49%;
   }
 
+  .tooltip-container {
+    display: none;
+  }
+
   .site-main-container {
     background-position: -50vw -30vh;
     background-size: 125%;
@@ -7025,6 +7040,13 @@ footer {
     align-items: stretch;
   }
 
+  .job-row .job-main-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .job-row .job-main-row .job-status {
+    align-self: flex-end;
+  }
   .job-row .job-info-row {
     flex-direction: column;
     align-items: stretch;
@@ -7035,12 +7057,23 @@ footer {
   .job-row .job-info-row .job-info .job-info-item {
     border-bottom: 1px solid black;
     border-right: 0;
+    text-align: right;
   }
   .job-row .job-info-row .job-info-item {
     border-bottom: 0;
+    text-align: right;
   }
 
-  .view-header-title-details, .job-details-dates, .milestone-creator-details, .connect-footer, .row-container {
+  .mobile-tooltip {
+    display: block;
+  }
+
+  .milestone-creator-detail {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .view-header-title-details, .job-details-dates, .milestone-creator-details, .link-work-footer, .row-container {
     flex-direction: column;
     align-items: stretch;
   }
@@ -7087,7 +7120,7 @@ footer {
     width: 25%;
   }
 
-  .job-post-detail-row, .view-header, .radio-container, .connected-badges {
+  .job-post-detail-row, .view-header, .radio-container, .link-work-badges {
     flex-direction: column;
   }
 
@@ -7104,7 +7137,7 @@ footer {
     font-size: 1.2rem;
   }
 
-  .connected-badges .mr-2 {
+  .link-work-badges .mr-2 {
     margin-right: 0;
     margin-bottom: 5px;
   }
@@ -7191,6 +7224,10 @@ footer {
     order: 2;
   }
 
+  .job-details-subheader {
+    flex-direction: column;
+    align-items: stretch;
+  }
   .job-details-subheader .d-flex {
     flex-direction: column;
   }
@@ -7544,6 +7581,15 @@ footer {
 
   .site-pricing-table, .app-fee-table {
     font-size: 0.7rem;
+  }
+
+  .milestone-creator-buttons {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .milestone-creator-buttons .btn {
+    margin-right: 0;
+    margin-bottom: 5px;
   }
 }
 @font-face {

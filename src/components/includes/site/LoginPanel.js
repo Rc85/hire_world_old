@@ -17,7 +17,7 @@ class LoginPanel extends Component {
             password: null
         }
     }
-
+    
     componentWillUnmount() {
         this.props.dispatch(LoggingIn(false));
     }

@@ -152,12 +152,12 @@ class LinkWork extends Component {
 
         if (this.props.user.user) {
             return(
-                <div id='jobs-not-connected' className='main-panel'>
+                <div id='jobs-not-linked' className='main-panel'>
                     <TitledContainer title='Link Work' icon={<FontAwesomeIcon icon={faLink} />} shadow>
                         <div className='mb-3'>
                             <div className='mb-3'>To begin working with other users on our platform, you need a Link Work account. To create an account, please fill out the form below.</div>
 
-                            <div className='mb-3'>A new account will undergo a review process by Hire World, this can take up to 24 hours or more. At the same time, your account will not be verified by Stripe Connect until the indicated required information is provided. After creating your account, you can check your status, add and change information in <strong>Link Work Settings</strong>. Lastly, please review <a href='https://stripe.com/restricted-businesses'>Stripe's restricted business list</a> to ensure that the business you're conducting does not fall under any business in that list.</div>
+                            <div className='mb-3'>A new account will undergo a review process by Hire World, this can take up to 24 hours or more. At the same time, your account may not be verified by Stripe until the indicated required information is provided. After creating your account, you can check your status, add and change information in <strong>Link Work Settings</strong>. Lastly, please review <a href='https://stripe.com/restricted-businesses'>Stripe's restricted business list</a> to ensure that the business you're conducting does not fall under any business in that list.</div>
                             
                             <form onSubmit={(e) => {
                                 e.preventDefault();
@@ -175,7 +175,7 @@ class LinkWork extends Component {
                                     <div><label><input type='checkbox' checked={this.state.stripeAgree} onChange={() => this.setState({stripeAgree: !this.state.stripeAgree})} /> I have read, understood, and agreed to <a href='https://stripe.com/connect-account/legal' rel='noopener noreferrer' target='_blank'>Stripe Connected Account Agreement</a> and <a href='https://stripe.com/legal' rel='noopener noreferrer' target='_blank'>Stripe Terms of Service</a>.</label></div>
                                 </div>
 
-                                <div className='connect-footer'>
+                                <div className='link-work-footer'>
                                     <Recaptcha sitekey='6Le5uJ4UAAAAAMvk94nwQjc9_8nln2URksn1152W' render='explicit' onloadCallback={onloadCallback} verifyCallback={(val) => this.verify(val)} ref={(e) => recaptchaInstance = e} />
 
                                     <div className='text-right'><SubmitButton type='submit' loading={this.state.status === 'Submitting'} /></div>

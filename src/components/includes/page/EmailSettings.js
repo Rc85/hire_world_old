@@ -41,7 +41,9 @@ class EmailSettings extends Component {
 
     render() {
         return(
-            <div id='email-settings' className='mb-3'>
+            <div id='email-settings' className='simple-container no-bg mb-3'>
+                <div className='simple-container-title'>Change Email</div>
+                
                 <div>
                     <div className='mb-3'><small>NOTE: You will be logged out and not be able to log in until you verify your new email</small></div>
 

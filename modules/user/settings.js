@@ -181,7 +181,7 @@ app.post('/api/user/settings/change', authenticate, (req, resp) => {
                         let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
                         throw errObj;
                     } else {
-                        await client.query(`UPDATE user_settings SET hide_email = $1, display_fullname = $2, email_notifications = $3, allow_messaging = $4, display_business_hours = $6, hide_declined_jobs = $7 WHERE user_setting_id = $5`, [req.body.hide_email, req.body.display_fullname, req.body.email_notifications, req.body.allow_messaging, req.session.user.user_id, req.body.display_business_hours, req.body.hide_declined_jobs]);
+                        await client.query(`UPDATE user_settings SET hide_email = $1, display_fullname = $2, email_notifications = $3, allow_messaging = $4, display_business_hours = $6, hide_declined_jobs = $7, hide_completed_milestones = $8 WHERE user_setting_id = $5`, [req.body.hide_email, req.body.display_fullname, req.body.email_notifications, req.body.allow_messaging, req.session.user.user_id, req.body.display_business_hours, req.body.hide_declined_jobs, req.body.hide_completed_milestones]);
 
                         if (req.body.display_business_hours) {
                             let listing = await client.query(`SELECT listing_id FROM user_listings WHERE listing_user = $1 AND listing_status != 'Deleted'`, [req.session.user.username]);

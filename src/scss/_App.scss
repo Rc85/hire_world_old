@@ -118,7 +118,9 @@
     cursor: pointer;
 }
 
-.mobile-tooltip { display: none; }
+.mobile-tooltip {
+    display: none;
+}
 
 .keep-format {
     white-space: pre-line;

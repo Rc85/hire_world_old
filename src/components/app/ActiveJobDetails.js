@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter, Redirect } from 'react-router-dom';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileAlt, faComments, faCommentAlt } from '@fortawesome/pro-solid-svg-icons';
+import { faFileAlt, faComments, faCommentAlt, faCalendarAlt, faUsdSquare } from '@fortawesome/pro-solid-svg-icons';
 import { LogError } from '../utils/LogError';
 import fetch from 'axios';
 import moment from 'moment';
@@ -24,6 +24,7 @@ import MilestoneUpdaterRow from '../includes/page/MilestoneUpdaterRow';
 import SubmitReview from '../includes/page/SubmitReview';
 import SubmitButton from '../utils/SubmitButton';
 import MoneyFormatter from '../utils/MoneyFormatter';
+import { UpdateUser } from '../../actions/LoginActions';
 
 class ActiveJobDetails extends Component {
     constructor(props) {
@@ -164,6 +165,29 @@ class ActiveJobDetails extends Component {
             this.props.dispatch(Alert('error', 'An error occurred'));
         });
     }
+
+    saveSetting(name) {
+        this.setState({status: name});
+
+        let setting = Object.assign({}, this.props.user.user);
+        setting[name] = !setting[name];
+
+       fetch.post(`/api/user/settings/change`, setting)
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.props.dispatch(UpdateUser(setting));
+            } else {
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+
+            this.setState({status: ''});
+        })
+        .catch(err => {
+            LogError(err, '/api/user/settings/change');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
+    }
     
     render() {
         if (this.props.user.status === 'error') {
@@ -179,7 +203,7 @@ class ActiveJobDetails extends Component {
         } else if (!this.state.job) {
             return <Redirect to='/error/job/404' />;
         } else if (this.state.status === 'Job Closed') {
-            return <Redirect to='/connected/job/closed' />;
+            return <Redirect to='/link_work/job/closed' />;
         }
 
         if (this.props.user.user) {
@@ -220,13 +244,22 @@ class ActiveJobDetails extends Component {
                         </div>
 
                         <div className='job-details-subheader mb-3'>
-                            <div className='d-flex'>
-                                <div className='mr-2'><Username username={this.props.user.user && this.props.user.user.username === this.state.job.job_user ? this.state.job.job_client : this.state.job.job_user} color='alt-highlight' /></div>
-                                <div className='mr-2'><strong>Created on:</strong> {moment(this.state.job.job_created_date).format('MM-DD-YYYY')}</div>
-                                {moment(this.state.job.job_due_date).isValid() ? <div className='mr-2'><strong>Expected on:</strong> {moment(this.state.job.job_due_date).format('MM-DD-YYYY')}</div> : ''}
+                            <div>
+                                <div className='d-flex mb-2'>
+                                    <div className='mr-2'><Username username={this.props.user.user && this.props.user.user.username === this.state.job.job_user ? this.state.job.job_client : this.state.job.job_user} color='alt-highlight' /></div>
+                                    {moment(this.state.job.job_due_date).isValid() ? <div className='mr-2'><strong>Expected on:</strong> {moment(this.state.job.job_due_date).format('MM-DD-YYYY')}</div> : ''}
+                                </div>
+                                
+                                <div className='d-flex'>
+                                    <div className='mr-2'><FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /><strong>Created on:</strong> {moment(this.state.job.job_created_date).format('MM-DD-YYYY')}</div>
+                                    <div className='mr-2'><FontAwesomeIcon icon={faUsdSquare} className='text-special mr-1' /><strong>Total Payment:</strong> $<MoneyFormatter value={this.state.job.job_total_price} /> {this.state.job.job_price_currency.toUpperCase()}</div>
+                                    {this.state.job.job_due_date ? <div className='mr-2'><FontAwesomeIcon icon={faCalendarTimes} className='text-special mr-1' /><strong>Expected Delivery Date:</strong> {moment(this.state.job.job_due_date).format('MM-DD-YYYY')}</div> : ''}
+                                </div>
                             </div>
 
-                            {this.props.user.user && this.props.user.user.username === this.state.job.job_user && this.state.job.job_status !== 'Requesting Close' ? <SubmitButton type='button' loading={this.state.status === 'Requesting Close'} value='Close Job' bgColor='danger' onClick={() => this.props.dispatch(ShowConfirmation(`This will send a request to the other party to close the job, proceed?`, false, {action: 'close job'}))} /> : ''}
+                            <div className='text-right'>
+                                {this.props.user.user && this.props.user.user.username === this.state.job.job_user && this.state.job.job_status !== 'Requesting Close' ? <SubmitButton type='button' loading={this.state.status === 'Requesting Close'} value={<nobr>Close Job</nobr>} bgColor='danger' onClick={() => this.props.dispatch(ShowConfirmation(`This will send a request to the other party to close the job, proceed?`, false, {action: 'close job'}))} /> : ''}
+                            </div>
                         </div>
 
                         {this.state.job.job_status === 'Requesting Close' && this.props.user.user && this.props.user.user.username === this.state.job.job_client ? <div className='simple-container no-bg mb-3'>
@@ -240,14 +273,24 @@ class ActiveJobDetails extends Component {
                             </div>
                         </div> : ''}
 
+                        <div className='text-right mb-3'><label><input type='checkbox' onChange={() => this.saveSetting('hide_completed_milestones')} checked={this.props.user.user.hide_completed_milestones} /> Hide completed milestones</label></div>
+
                         {this.props.user.user && this.props.user.user.username === this.state.job.job_client ? <div id='milestone-tracker'>
                             {this.state.milestones.map((milestone, i) => {
+                                if (this.props.user.user && this.props.user.user.hide_completed_milestones && milestone.milestone_status === 'Complete') {
+                                    return null;
+                                }
+
                                 return <MilestoneTrackingRow key={milestone.milestone_id} job={this.state.job} milestone={milestone} index={i + 1} user={this.props.user} changeJobStatus={(status, review) => this.changeJobStatus(status, review)} />
                             })}
                         </div> : ''}
 
                         {this.props.user.user && this.props.user.user.username === this.state.job.job_user ? <div id='milestone-updater'>
                             {this.state.milestones.map((milestone, i) => {
+                                if (this.props.user.user && this.props.user.user.hide_completed_milestones && milestone.milestone_status === 'Complete') {
+                                    return null;
+                                }
+                                
                                 return <MilestoneUpdaterRow key={milestone.milestone_id} job={this.state.job} milestone={milestone} index={i + 1} changeJobStatus={(status) => this.changeJobStatus(status)} user={this.props.user} enableJobClose={() => this.setState({closeJob: true})} />;
                             })}
                         </div> : ''}

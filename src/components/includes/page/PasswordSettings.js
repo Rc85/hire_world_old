@@ -44,7 +44,9 @@ class PasswordSettings extends Component {
         }
 
         return(
-            <div id='password-settings' className='position-relative mb-3'>
+            <div id='password-settings' className='simple-container no-bg position-relative mb-3'>
+                <div className='simple-container-title'>Change Password</div>
+
                 <div>
                     <div className='text-right'>
                         <span style={{fontWeight: 'bold', cursor: 'pointer'}} onClick={() => this.setState({showPassword: !this.state.showPassword})}>{showHide}</span>

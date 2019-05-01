@@ -120,11 +120,11 @@ class FriendsList extends Component {
                                         </div>
                                     </div>
 
-                                    {friend.connected_acct_status === 'Approved' || friend.listing_status === 'Active' ? 
+                                    {friend.link_work_acct_status === 'Approved' || friend.listing_status === 'Active' ? 
                                     <div className='friend-panel-footer'>
                                         <div className='text-right'>
                                         {friend.listing_status === 'Active' ? <span className='mini-badge mini-badge-success ml-1'>Listed</span> : ''}
-                                        {friend.connected_acct_status === 'Approved' ? <span className='mini-badge mini-badge-success ml-1'>Linked</span> : ''}
+                                        {friend.link_work_acct_status === 'Approved' ? <span className='mini-badge mini-badge-success ml-1'>Linked</span> : ''}
                                         </div>
                                     </div>
                                     : ''}

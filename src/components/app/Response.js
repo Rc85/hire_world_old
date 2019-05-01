@@ -42,6 +42,10 @@ class Response extends Component {
                 code = 403;
                 header = 'Forbidden';
                 message = `You're not allowed to access this page`;
+
+                if (this.props.match.params.type === 'link_work') {
+                    message = `Your account has been rejected. Please contact our administrator for more details.`;
+                }
             } else if (this.props.match.params.code === '404') {
                 code = 404;
                 

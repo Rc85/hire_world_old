@@ -12,9 +12,9 @@ class Features extends Component {
                     <div className='site-text'>
                         <h1>Link Work</h1>
 
-                        <p>Link Work is a service that allows you to work with other users from across the world. Services includes messaging, file transfers, and job progress tracking. On top of that, we handle the funds from your client to you whenever you deliver.</p>
+                        <p>Link Work is a service that allows you to work with other users in different countries of the world. Link Work provide features such as messaging, file transfers, and job progress tracking. On top of that, we handle the funds from your client to you whenever you deliver.</p>
 
-                        <p>Service providers is required to have a Link Account to be able use the service. Each account goes through a verification and review process to ensure the service provider is conducting business within terms and is a legitimate business.</p>
+                        <p>Service providers is required to have a Link Account to be able use the service. Each account goes through a verification and review process to ensure that the service provider is conducting business within terms and is a legitimate business.</p>
                     </div>
 
                     <div className='site-section-image'><img src='/images/connect.jpg' /></div>
@@ -26,9 +26,7 @@ class Features extends Component {
                     <div className='site-text'>
                         <h1>Milestones</h1>
 
-                        <p>Jobs are comprised of small and achievable milestones set by service providers and agreed to by clients. Each milestone consists of one or more conditions. Whenever the service provider completes a condition, the condition can be checked off and will be viewable by the client.</p>
-
-                        <p>Job are tracked by milestones. The service provider can upload files in each milestone and only the client is able to download the file through secured authentication.</p>
+                        <p>Jobs are comprised of milestones set by service providers and agreed to by clients. Each milestone consists of one or more conditions. Whenever the service provider completes a condition, the condition can be checked off and will be viewable by the client. The service provider can upload files in each milestone and only the client is authorized to download the file through secured authentication. Once all the conditions in a milestone are marked as complete, the service provider can request payment of amount up to the set in the milestone.</p>
                     </div>
                 </div>
 
@@ -59,12 +57,12 @@ class Features extends Component {
 
                     <div className='site-features-section'>
                         <div className='site-features-image'><img src='/images/bill.jpg' /></div>
-                        <div className='site-features-text'>3 . The service provider uploads any deliverable and requests payment from the client.</div>
+                        <div className='site-features-text'>3 . The service provider uploads any deliverable and requests payment up to the amount set in the milestone.</div>
                     </div>
 
                     <div className='site-features-section'>
                         <div className='site-features-image'><img src='/images/pay.png' /></div>
-                        <div className='site-features-text'>4. The client reviews the deliverable and if it satisfies the agreement, the client releases the funds to the service provider.</div>
+                        <div className='site-features-text'>4. The client reviews the deliverable and if it satisfies the agreement, the client releases the funds to the service provider with one click of a button.</div>
                     </div>
 
                     <div className='site-features-section'>

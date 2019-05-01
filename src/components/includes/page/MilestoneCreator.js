@@ -5,7 +5,7 @@ import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import TextArea from '../../utils/TextArea';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faTrash } from '@fortawesome/pro-solid-svg-icons';
+import { faTimes, faTrash, faPlus } from '@fortawesome/pro-solid-svg-icons';
 import { Alert } from '../../../actions/AlertActions';
 import { connect } from 'react-redux';
 import { faQuestionCircle } from '@fortawesome/pro-regular-svg-icons';
@@ -141,6 +141,8 @@ class MilestoneCreator extends Component {
 
                 {this.state.milestones.length > 1 ? <div className='delete-button'><FontAwesomeIcon icon={faTimes} size='lg' onClick={() => this.deleteMilestone(i)} /></div> : ''}
 
+                <div className='funds-remaining'>Remaining: $<MoneyFormatter value={remainingFunds} /></div>
+
                 <div className='setting-field-container mb-3'>
                     <InputWrapper label='Payment' required>
                         <input type='text' onChange={(e) => this.setPayment(e.target.value, i)} value={milestone.milestone_payment_amount} />
@@ -158,7 +160,9 @@ class MilestoneCreator extends Component {
                             <InputWrapper label={`Condition #${index + 1}`} className='input-container' required={index === 0}>
                                 <input type='text' onChange={(e) => this.setCondition(e.target.value, index, i)} value={condition.condition === null ? '' : condition.condition} />
                             </InputWrapper>
-                            {milestone.conditions.length > 1 ? <button className='delete-button btn btn-danger' type='button' onClick={() => this.deleteCondition(i, index)}><FontAwesomeIcon icon={faTrash} /></button> : ''}
+                            <div className='add-condition-buttons'>
+                                {milestone.conditions.length > 1 ? <button className='condition-button btn btn-danger' type='button' onClick={() => this.deleteCondition(i, index)}><FontAwesomeIcon icon={faTrash} /></button> : ''}
+                            </div>
                         </div>
                     })}
                 </div>
@@ -196,8 +200,16 @@ class MilestoneCreator extends Component {
                     <TextArea value={this.state.details} placeholder={`Add any other details such as specific agreements, terms, deadlines, etc. (Optional)`} onChange={(val) => this.setState({details: val})} className='w-100 mb-3' textAreaClassName='w-100' value={this.state.details} label='Details' />
 
                     <div className='milestone-creator-details'>
-                        <div className='d-flex-center'>
+                        <div className='milestone-creator-detail'>
                             <button type='button' className='btn btn-primary mr-2' onClick={() => this.addMilestone()}>Add Milestone</button>
+                            <div className='mobile-tooltip'>
+                                <ul>
+                                    <li>At least one milestone is required.</li>
+                                    <li>At least one condition is needed for each milestone.</li>
+                                    <li>Delivery dates should need exceed 90 days.</li>
+                                    <li>Be as detail as possible when setting conditions.</li>
+                                </ul>
+                            </div>
                             <Tooltip placement='right-bottom' text={<span>Notes:
                                 <ul>
                                     <li>At least one milestone is required.</li>
@@ -207,13 +219,13 @@ class MilestoneCreator extends Component {
                                 </ul>
                             </span>}><FontAwesomeIcon icon={faQuestionCircle} size='lg' /></Tooltip>
                         </div>
-
-                        <div className='funds-remaining'>Remaining: $<MoneyFormatter value={remainingFunds} /></div>
                     </div>
 
                     <div className='milestone-container mb-3'>
                         {milestones}
                     </div>
+
+                    <div className='mb-3'><button type='button' className='btn btn-primary mr-2' onClick={() => this.addMilestone()}>Add Milestone</button></div>
 
                     <div className='text-right'>
                         <SubmitButton type='submit' loading={this.state.status === 'Submitting'} value={this.props.editing ? 'Save' : 'Submit'} />

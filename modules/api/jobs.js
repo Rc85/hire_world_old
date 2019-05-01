@@ -16,12 +16,13 @@ const formidable = require('formidable');
 const http = require('http');
 const authenticate = require('../utils/auth');
 const moneyFormatter = require('../utils/money-formatter');
+const subscriptionCheck = require('../utils/subscription-check');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 stripe.setApiVersion('2019-02-19');
 
-app.post('/api/job/accounts/create', authenticate, (req, resp) => {
+app.post('/api/job/accounts/create', authenticate, subscriptionCheck, (req, resp) => {
         let supportedCountries = ['AT', 'AU', 'BE', 'CA', 'CH', 'DE', 'DK', 'ES', 'FI', 'FR', 'GB', 'IE', 'IT', 'LU', 'NL', 'NO', 'NZ', 'PT', 'SE', 'US'];
         
         if ((req.body.firstname && !validate.nameCheck.test(req.body.firstname) || (req.body.lastname && !validate.nameCheck.test(req.body.lastname)))) {
@@ -56,8 +57,6 @@ app.post('/api/job/accounts/create', authenticate, (req, resp) => {
 
                 let response = JSON.parse(res.body);
 
-                
-
                 if (response.success) {
                     db.connect((err, client, done) => {
                         if (err) error.log(err, req, resp);
@@ -66,11 +65,9 @@ app.post('/api/job/accounts/create', authenticate, (req, resp) => {
                             try {
                                 await client.query('BEGIN');
 
-                                /* let user = await client.query(`SELECT users.user_email, user_profiles.* FROM users
-                                LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
-                                WHERE username = $1`, [req.session.user.username]);
+                                let user = await client.query(`SELECT account_type FROM users WHERE username = $1`, [req.session.user.username]);
 
-                                if (req.body.individual.first_name && req.body.individual.first_name !== user.rows[0].user_firstname) {
+                                /* if (req.body.individual.first_name && req.body.individual.first_name !== user.rows[0].user_firstname) {
                                     await client.query(`INSERT INTO suspicious_acitivities ()`)
                                 } */
 
@@ -145,8 +142,8 @@ app.post('/api/job/accounts/create', authenticate, (req, resp) => {
 
                                     await stripe.accounts.create(accountObj)
                                     .then(async account => {
-                                        await client.query(`UPDATE users SET connected_id = $1 WHERE username = $2`, [account.id, req.session.user.username]);
-                                        await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [req.session.user.username, `Connected account created`, 'Account']);
+                                        await client.query(`UPDATE users SET link_work_id = $1 WHERE username = $2`, [account.id, req.session.user.username]);
+                                        await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [req.session.user.username, `Link Work account created`, 'Account']);
                                     })
                                     .catch(err => {
                                         throw err;
@@ -175,7 +172,7 @@ app.post('/api/job/accounts/create', authenticate, (req, resp) => {
         }
 });
 
-app.post('/api/job/account/update', authenticate, async(req, resp) => {
+app.post('/api/job/account/update', authenticate, subscriptionCheck, async(req, resp) => {
         // need user validation
         delete req.body.ukBankType;
         delete req.body.useDefault;
@@ -232,37 +229,37 @@ app.post('/api/job/account/update', authenticate, async(req, resp) => {
             delete req.body.individual.id_number;
         }
         
-        let user = await db.query(`SELECT connected_id FROM users WHERE username = $1`, [req.session.user.username]);
+        let user = await db.query(`SELECT link_work_id FROM users WHERE username = $1`, [req.session.user.username]);
 
-        if (user && user.rows[0].connected_id) {
-            await stripe.accounts.update(user.rows[0].connected_id, req.body)
+        if (user && user.rows[0].link_work_id) {
+            await stripe.accounts.update(user.rows[0].link_work_id, req.body)
             .then(account => {
                 resp.send({status: 'success', statusMessage: 'Account updated', account: account});
             })
             .catch(err => error.log(err, req, resp));
-        } else if (!user.rows[0].connected_id) {
-            resp.send({status: 'error', statusMessage: `Connected account does not exist`});
+        } else if (!user.rows[0].link_work_id) {
+            resp.send({status: 'error', statusMessage: `Link Work account does not exist`});
         }
 });
 
-app.post('/api/job/account/payment/add', authenticate, async(req, resp) => {
-        let user = await db.query(`SELECT username, connected_id FROM users WHERE username = $1`, [req.body.user]);
+app.post('/api/job/account/payment/add', authenticate, subscriptionCheck, async(req, resp) => {
+        let user = await db.query(`SELECT username, link_work_id FROM users WHERE username = $1`, [req.body.user]);
 
         if (user && user.rows[0].username === req.session.user.username) {
-            if (user.rows[0].connected_id) {
+            if (user.rows[0].link_work_id) {
                 
                 if (req.body.token) {
-                    await stripe.accounts.createExternalAccount(user.rows[0].connected_id, {
+                    await stripe.accounts.createExternalAccount(user.rows[0].link_work_id, {
                         external_account: req.body.token.id,
                         default_for_currency: true
                     })
                     .then(async(account) => {
                         if (account.object === 'bank_account') {
-                            await db.query(`UPDATE users SET has_connected_bank_acct = true WHERE username = $1`, [user.rows[0].username]);
+                            await db.query(`UPDATE users SET has_link_work_bank_acct = true WHERE username = $1`, [user.rows[0].username]);
                         }
 
-                        await db.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [req.session.user.username, account.object === 'bank_account' ? `Added a bank account to Connected account` : `Added a card ending in ${account.last4} to Connected account`, 'Connected']);
-                        await stripe.accounts.listExternalAccounts(user.rows[0].connected_id)
+                        await db.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [req.session.user.username, account.object === 'bank_account' ? `Added a bank account to Link Work account` : `Added a card ending in ${account.last4} to Link Work account`, 'Link Work']);
+                        await stripe.accounts.listExternalAccounts(user.rows[0].link_work_id)
                         .then(accounts => {
                             resp.send({status: 'success', statusMessage: 'Payment account added', accounts: accounts.data});
                         })
@@ -273,32 +270,32 @@ app.post('/api/job/account/payment/add', authenticate, async(req, resp) => {
                     resp.send({status: 'error', statusMessage: `Error in provided financial information`});
                 }
             } else {
-                resp.send({status: 'error', statusMessage: `Connected account does not exist`});
+                resp.send({status: 'error', statusMessage: `Link Work account does not exist`});
             }
         } else {
             resp.send({status: 'error', statusMessage: `You're not authorized`});
         }
 });
 
-app.post('/api/job/account/payment/default', authenticate, async(req, resp) => {
-        let user = await db.query(`SELECT connected_id FROM users WHERE username = $1`, [req.session.user.username]);
+app.post('/api/job/account/payment/default', authenticate, subscriptionCheck, async(req, resp) => {
+        let user = await db.query(`SELECT link_work_id FROM users WHERE username = $1`, [req.session.user.username]);
 
-        if (user && user.rows[0].connected_id) {
-            await stripe.accounts.updateExternalAccount(user.rows[0].connected_id, req.body.id, {
+        if (user && user.rows[0].link_work_id) {
+            await stripe.accounts.updateExternalAccount(user.rows[0].link_work_id, req.body.id, {
                 default_for_currency: true
             })
             .then(payment => resp.send({status: 'success', statusMessage: 'Default payment account set', payment: payment}))
             .catch(err => error.log(err, req, resp));
         } else {
-            resp.send({status: 'error', statusMessage: `Connected account does not exist`});
+            resp.send({status: 'error', statusMessage: `Link Work account does not exist`});
         }
 });
 
-app.post('/api/job/account/payment/delete', authenticate, async(req, resp) => {
-        let user = await db.query(`SELECT connected_id FROM users WHERE username = $1`, [req.session.user.username]);
+app.post('/api/job/account/payment/delete', authenticate, subscriptionCheck, async(req, resp) => {
+        let user = await db.query(`SELECT link_work_id FROM users WHERE username = $1`, [req.session.user.username]);
 
-        if (user && user.rows[0].connected_id) {
-            await stripe.accounts.deleteExternalAccount(user.rows[0].connected_id, req.body.id)
+        if (user && user.rows[0].link_work_id) {
+            await stripe.accounts.deleteExternalAccount(user.rows[0].link_work_id, req.body.id)
             .then(payment => {
                 if (payment.deleted) {
                     resp.send({status: 'success', statusMessage: 'Payment account deleted'});
@@ -308,11 +305,11 @@ app.post('/api/job/account/payment/delete', authenticate, async(req, resp) => {
             })
             .catch(err => error.log(err, req, resp));
         } else {
-            resp.send({status: 'error', statusMessage: `Connected account does not exist`});
+            resp.send({status: 'error', statusMessage: `Link Work account does not exist`});
         }
 });
 
-app.post('/api/job/create', authenticate, async(req, resp) => {
+app.post('/api/job/create', authenticate, subscriptionCheck, async(req, resp) => {
         let dueDate = new Date(req.body.workDueDate);
 
         if (!validate.titleCheck.test(req.body.workTitle)) {
@@ -353,7 +350,7 @@ app.post('/api/job/create', authenticate, async(req, resp) => {
         }
 });
 
-app.post('/api/job/submit/message', authenticate, (req, resp) => {
+app.post('/api/job/submit/message', authenticate, subscriptionCheck, (req, resp) => {
         db.connect((err, client, done) => {
             if (err) error.log(err, req, resp);
 
@@ -448,8 +445,8 @@ const upload = multer({
     }
 });
 
-app.post('/api/job/account/document/upload', authenticate, async(req, resp) => {
-        let user = await db.query(`SELECT user_id, connected_id FROM users WHERE username = $1`, [req.session.user.username]);
+app.post('/api/job/account/document/upload', authenticate, subscriptionCheck, async(req, resp) => {
+        let user = await db.query(`SELECT user_id, link_work_id FROM users WHERE username = $1`, [req.session.user.username]);
         let uploadFiles;
 
         if (req.headers.front === 'true' & req.headers.back === 'true') {
@@ -471,7 +468,7 @@ app.post('/api/job/account/document/upload', authenticate, async(req, resp) => {
                             type: 'application/octet-stream'
                         }
                     },
-                    {stripe_account: user.rows[0].connected_id})
+                    {stripe_account: user.rows[0].link_work_id})
                     .catch(err => error.log(err, req));
 
                     let back = await stripe.fileUploads.create({
@@ -482,10 +479,10 @@ app.post('/api/job/account/document/upload', authenticate, async(req, resp) => {
                             type: 'application/octet-stream'
                         }
                     },
-                    {stripe_account: user.rows[0].connected_id})
+                    {stripe_account: user.rows[0].link_work_id})
                     .catch(err => error.log(err, req));
 
-                    await stripe.accounts.update(user.rows[0].connected_id, {
+                    await stripe.accounts.update(user.rows[0].link_work_id, {
                         individual: {
                             verification: {
                                 document: {
@@ -504,7 +501,7 @@ app.post('/api/job/account/document/upload', authenticate, async(req, resp) => {
         });
 });
 
-app.post('/api/job/agreement/submit', authenticate, (req, resp) => {
+app.post('/api/job/agreement/submit', authenticate, subscriptionCheck, (req, resp) => {
         let validMilestonePrices = true;
         let validMilestoneDates = true;
         let totalMilestonePrice = 0;
@@ -625,7 +622,7 @@ app.post('/api/job/agreement/submit', authenticate, (req, resp) => {
         }
 });
 
-app.post('/api/job/decline', authenticate, async(req, resp) => {
+app.post('/api/job/decline', authenticate, subscriptionCheck, async(req, resp) => {
         let authorized = await db.query(`SELECT job_user, job_client FROM jobs WHERE job_id = $1`, [req.body.id]);
 
         if (authorized.rows[0].job_user === req.session.user.username || authorized.rows[0].job_client === req.session.user.username) {
@@ -645,7 +642,7 @@ app.post('/api/job/decline', authenticate, async(req, resp) => {
         }
 });
 
-app.post('/api/job/condition/update', authenticate, async(req, resp) => {
+app.post('/api/job/condition/update', authenticate, subscriptionCheck, async(req, resp) => {
         db.connect((err, client, done) => {
             if (err) error.log(err, req, resp);
             (async() => {
@@ -706,7 +703,7 @@ app.post('/api/job/account/close', authenticate, async(req, resp) => {
         if (!req.body.password) {
             resp.send({status: 'error', statusMessage: 'Password required'});
         } else {
-            let authorized = await db.query(`SELECT username, user_password, connected_id FROM users WHERE connected_id = $1`, [req.body.id]);
+            let authorized = await db.query(`SELECT username, user_password, link_work_id FROM users WHERE link_work_id = $1`, [req.body.id]);
 
             if (authorized.rows[0].username === req.body.user && req.body.user === req.session.user.username) {
                 let jobs = await db.query(`SELECT job_id FROM jobs WHERE (job_user = $1 OR job_client = $1) AND job_status IN ('Active', 'Requesting Payment')`, [req.session.user.username]);
@@ -718,12 +715,12 @@ app.post('/api/job/account/close', authenticate, async(req, resp) => {
                         if (err) {
                             error.log(err, req, resp);
                         } else if (matched) {
-                            let account = await stripe.accounts.del(authorized.rows[0].connected_id);
+                            let account = await stripe.accounts.del(authorized.rows[0].link_work_id);
 
                             if (account && account.deleted) {
-                                await db.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Connected account deleted', authorized.rows[0].username, 'Account']);
+                                await db.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Link Work account deleted', authorized.rows[0].username, 'Account']);
                                 await db.query(`UPDATE jobs SET job_status = 'Declined' WHERE job_user = $1 AND job_status IN ('Open', 'New', 'Pending', 'Confirmed')`, [req.session.user.username]);
-                                await db.query(`UPDATE users SET connected_id = null, connected_acct_status = 'Reviewing' WHERE username = $1`, [authorized.rows[0].username])
+                                await db.query(`UPDATE users SET link_work_id = null, link_work_acct_status = 'Reviewing' WHERE username = $1`, [authorized.rows[0].username])
                                 .then(result => {
                                     if (result && result.rowCount === 1) {
                                         resp.send({status: 'success'});
@@ -742,7 +739,7 @@ app.post('/api/job/account/close', authenticate, async(req, resp) => {
         }
 });
 
-app.post('/api/job/payment/request', authenticate, async(req, resp) => {
+app.post('/api/job/payment/request', authenticate, subscriptionCheck, async(req, resp) => {
         db.connect((err, client, done) => {
             if (err) error.log(err, req, resp);
 
@@ -783,7 +780,7 @@ app.post('/api/job/payment/request', authenticate, async(req, resp) => {
         });
 });
 
-app.post('/api/job/pay', authenticate, (req, resp) => {
+app.post('/api/job/pay', authenticate, subscriptionCheck, (req, resp) => {
         db.connect((err, client, done) => {
             if (err) error.log(err, req, resp);
 
@@ -804,7 +801,7 @@ app.post('/api/job/pay', authenticate, (req, resp) => {
                         job_milestones.client_app_fee, 
                         job_milestones.charge_id,
                         job_milestones.milestone_payment_amount,
-                        users.connected_id
+                        users.link_work_id
                     FROM job_milestones
                     LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
                     LEFT JOIN users ON users.username = jobs.job_user
@@ -855,7 +852,7 @@ app.post('/api/job/pay', authenticate, (req, resp) => {
                             let payout = await stripe.payouts.create({
                                 amount: payment,
                                 currency: balance.source.transfer.destination_payment.balance_transaction.currency,
-                            }, {stripe_account: authorized.rows[0].connected_id})
+                            }, {stripe_account: authorized.rows[0].link_work_id})
                             .catch(err => error.log(err, req, resp));
 
                             if (requestedAmount !== amount) {
@@ -930,7 +927,7 @@ app.post('/api/job/pay', authenticate, (req, resp) => {
         });
 });
 
-app.post('/api/job/milestone/start', authenticate, (req, resp) => {
+app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp) => {
         db.connect((err, client, done) => {
             if (err) error.log(err, req, resp);
 
@@ -949,7 +946,7 @@ app.post('/api/job/milestone/start', authenticate, (req, resp) => {
                         jobs.job_price_currency, 
                         users.user_email, 
                         users.stripe_id,
-                        users.connected_id
+                        users.link_work_id
                     FROM jobs
                     LEFT JOIN job_milestones ON jobs.job_id = job_milestones.milestone_job_id
                     LEFT JOIN users ON users.username = jobs.job_client
@@ -1008,7 +1005,7 @@ app.post('/api/job/milestone/start', authenticate, (req, resp) => {
                             // Check if the milestone ID sent from client matches the next milestone in 'Pending' status
                             // This prevents clients from skipping milestones
                             
-                            let user = await client.query(`SELECT jobs.job_user, users.connected_id FROM job_milestones
+                            let user = await client.query(`SELECT jobs.job_user, users.link_work_id FROM job_milestones
                             LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
                             LEFT JOIN users ON jobs.job_user = users.username
                             WHERE milestone_id = $1`, [req.body.id]);
@@ -1095,9 +1092,9 @@ app.post('/api/job/milestone/start', authenticate, (req, resp) => {
                                 application_fee_amount: userFee + clientFee,
                                 currency: authorized.rows[0].job_price_currency.toLowerCase(),
                                 description: `Funds for job ID: ${req.body.job_id} [${authorized.rows[0].job_title}]`,
-                                on_behalf_of: user.rows[0].connected_id,
+                                on_behalf_of: user.rows[0].link_work_id,
                                 transfer_data: {
-                                    destination: user.rows[0].connected_id
+                                    destination: user.rows[0].link_work_id
                                 },
                                 source: req.body.token.id,
                                 receipt_email: authorized.rows[0].user_email,
@@ -1217,7 +1214,6 @@ const jobFileUpload = multer({
 });
 
 app.post('/api/job/check-file-exists', (req, resp) => {
-    
     if (parseInt(req.headers.filesize) > 250000000) {
         resp.send({status: 'error', statusMessage: 'File size limit exceeded'});
     } else if (!/(zip|rar|tar.gz|gz|tgz)$/.test(req.headers.filetype)) {
@@ -1233,157 +1229,185 @@ app.post('/api/job/check-file-exists', (req, resp) => {
     }
 });
 
-app.post('/api/job/upload', authenticate, async(req, resp) => {
-        let uploadFile = jobFileUpload.single('file');
-        
-        uploadFile(req, resp, async(err) => {
-            if (err) {
-                error.log(err, req, resp);
-            } else {
-                let authorized = await db.query(`SELECT job_user, job_client FROM jobs WHERE job_id = $1`, [req.body.job_id]);
-        
-                if (authorized.rows[0].job_user === req.body.user && req.body.user === req.session.user.username) {
-                    if (err) {
-                        error.log(err, req, resp);
-                        fs.unlinkSync(`./job_files/${req.file.originalname}`);
+app.post('/api/job/upload', authenticate, subscriptionCheck, async(req, resp) => {
+    let uploadFile = jobFileUpload.single('file');
+    
+    uploadFile(req, resp, async(err) => {
+        if (err) {
+            error.log(err, req, resp);
+        } else {
+            let authorized = await db.query(`SELECT job_user, job_client FROM jobs WHERE job_id = $1`, [req.body.job_id]);
+    
+            if (authorized.rows[0].job_user === req.body.user && req.body.user === req.session.user.username) {
+                if (err) {
+                    error.log(err, req, resp);
+                    fs.unlinkSync(`./job_files/${req.file.originalname}`);
+                } else {
+                    if (!fs.existsSync(`./job_files/${req.body.job_id}`)) {
+                        fs.mkdirSync(`./job_files/${req.body.job_id}`);
+                        fs.mkdirSync(`./job_files/${req.body.job_id}/${req.body.milestone_id}`);
                     } else {
-                        if (!fs.existsSync(`./job_files/${req.body.job_id}`)) {
-                            fs.mkdirSync(`./job_files/${req.body.job_id}`);
+                        if (!fs.existsSync(`./job_files/${req.body.job_id}/${req.body.milestone_id}`)) {
                             fs.mkdirSync(`./job_files/${req.body.job_id}/${req.body.milestone_id}`);
-                        } else {
-                            if (!fs.existsSync(`./job_files/${req.body.job_id}/${req.body.milestone_id}`)) {
-                                fs.mkdirSync(`./job_files/${req.body.job_id}/${req.body.milestone_id}`);
-                            }
-                        }
-
-                        let encrypt = cryptoJs.AES.encrypt(authorized.rows[0].job_client, process.env.FILE_HASH_SECRET);
-                        let secret = encrypt.toString();
-                        let file;
-                        
-                        if (!req.body.overwrite || req.body.overwrite === 'yes') {
-                            fs.rename(`./job_files/${req.file.originalname}`, `./job_files/${req.body.job_id}/${req.body.milestone_id}/${req.file.originalname}`, async(err) => {
-                                if (err) {
-                                    error.log(err, req, resp);
-                                } else {
-                                    file = await db.query(`INSERT INTO milestone_files (file_hash, file_owner, file_milestone_id, filesize, filename) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (file_milestone_id, filename) DO UPDATE SET file_hash = $1, file_uploaded_date = current_timestamp, filesize = $4 RETURNING *`, [secret, authorized.rows[0].job_client, req.body.milestone_id, req.file.size, req.file.originalname]);
-
-                                    await db.query('UPDATE job_milestones SET have_files = true WHERE milestone_id = $1 RETURNING *', [req.body.milestone_id]);
-            
-                                    resp.send({status: 'success', statusMessage: 'File uploaded', file: file.rows[0]});
-                                }
-                            });
-                        } else if (req.body.overwrite === 'no') {
-                            fs.unlink(`./job_files/${req.body.filename}`, async(err) => {
-                                if (err) {
-                                    error.log(err, req, resp);
-                                } else {
-                                    await db.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `${authorized.rows[0].job_user} uploaded a file named ${req.body.filename} in Job ID: ${req.body.job_id}`, 'Updated']);
-
-                                    resp.send({status: 'success'});
-                                }
-                            });
                         }
                     }
-                } else {
-                    resp.send({status: 'error', statusMessage: `You're not authorized`});
-                    fs.unlinkSync(`./job_files/${req.file.originalname}`);
-                }
-            }
-        });
-});
 
-app.get('/files/:user/:milestone_id/:hash/:filename', authenticate, async(req, resp) => {
+                    let encrypt = cryptoJs.AES.encrypt(authorized.rows[0].job_client, process.env.FILE_HASH_SECRET);
+                    let secret = encrypt.toString();
+                    let file;
+                    
+                    if (!req.body.overwrite || req.body.overwrite === 'yes') {
+                        fs.rename(`./job_files/${req.file.originalname}`, `./job_files/${req.body.job_id}/${req.body.milestone_id}/${req.file.originalname}`, async(err) => {
+                            if (err) {
+                                error.log(err, req, resp);
+                            } else {
+                                file = await db.query(`INSERT INTO milestone_files (file_hash, file_owner, file_milestone_id, filesize, filename) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (file_milestone_id, filename) DO UPDATE SET file_hash = $1, file_uploaded_date = current_timestamp, filesize = $4 RETURNING *`, [secret, authorized.rows[0].job_client, req.body.milestone_id, req.file.size, req.file.originalname]);
+
+                                await db.query('UPDATE job_milestones SET have_files = true WHERE milestone_id = $1 RETURNING *', [req.body.milestone_id]);
         
-        let file = await db.query(`SELECT * FROM milestone_files
-        LEFT JOIN job_milestones
-        ON job_milestones.milestone_id = milestone_files.file_milestone_id
-        WHERE file_milestone_id = $1`, [req.params.milestone_id]);
+                                resp.send({status: 'success', statusMessage: 'File uploaded', file: file.rows[0]});
+                            }
+                        });
+                    } else if (req.body.overwrite === 'no') {
+                        fs.unlink(`./job_files/${req.body.filename}`, async(err) => {
+                            if (err) {
+                                error.log(err, req, resp);
+                            } else {
+                                await db.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `${authorized.rows[0].job_user} uploaded a file named ${req.body.filename} in Job ID: ${req.body.job_id}`, 'Updated']);
 
-        if (req.session.user.username === req.params.user && req.params.user === file.rows[0].file_owner) {
-            resp.sendFile(path.resolve(`./job_files/${file.rows[0].milestone_job_id}/${req.params.milestone_id}/${req.params.filename}`));
-        } else {
-            resp.redirect('/error/file/401');
+                                resp.send({status: 'success'});
+                            }
+                        });
+                    }
+                }
+            } else {
+                resp.send({status: 'error', statusMessage: `You're not authorized`});
+                fs.unlinkSync(`./job_files/${req.file.originalname}`);
+            }
         }
-
+    });
 });
 
-app.post('/api/job/request/close', authenticate, async(req, resp) => {
-        let authorized = await db.query(`SELECT job_user FROM jobs WHERE job_id = $1 AND job_status IN ('Requesting Payment', 'Active')`, [req.body.job_id]);
+app.get('/files/:user/:milestone_id/:hash/:filename', authenticate, subscriptionCheck, async(req, resp) => {   
+    let file = await db.query(`SELECT * FROM milestone_files
+    LEFT JOIN job_milestones
+    ON job_milestones.milestone_id = milestone_files.file_milestone_id
+    WHERE file_milestone_id = $1`, [req.params.milestone_id]);
 
-        if (authorized.rows[0].job_user === req.body.user && req.body.user === req.session.user.username) {
-            await db.query(`UPDATE jobs SET job_status = 'Requesting Close' WHERE job_id = $1`, [req.body.job_id])
-            .then(result => {
-                if (result.rowCount === 1) {
-                    resp.send({status: 'success'});
+    if (req.session.user.username === req.params.user && req.params.user === file.rows[0].file_owner) {
+        resp.sendFile(path.resolve(`./job_files/${file.rows[0].milestone_job_id}/${req.params.milestone_id}/${req.params.filename}`));
+    } else {
+        resp.redirect('/error/file/401');
+    }
+});
+
+app.post('/api/job/request/close', authenticate, subscriptionCheck, async(req, resp) => {
+    let authorized = await db.query(`SELECT job_user FROM jobs WHERE job_id = $1 AND job_status IN ('Requesting Payment', 'Active')`, [req.body.job_id]);
+
+    if (authorized.rows[0].job_user === req.body.user && req.body.user === req.session.user.username) {
+        await db.query(`UPDATE jobs SET job_status = 'Requesting Close' WHERE job_id = $1`, [req.body.job_id])
+        .then(result => {
+            if (result.rowCount === 1) {
+                resp.send({status: 'success'});
+            } else {
+                resp.send({status: 'error', statusMessage: 'Request failed'});
+            }
+        })
+        .catch(err => error.log(err, req, resp));
+    } else {
+        resp.send({status: 'error', statusMessage: `You're not authorized`});
+    }
+});
+
+app.post('/api/job/close', authenticate, subscriptionCheck, async(req, resp) => {
+    db.connect((err, client, done) => {
+        if (err) error.log(err, req, resp);
+
+        (async() => {
+            try{
+                await client.query('BEGIN');
+
+                let authorized = await client.query(`SELECT job_client FROM jobs WHERE job_id = $1 AND job_status = 'Requesting Close'`, [req.body.job_id]);
+
+                if (authorized.rows[0].job_client === req.body.user && req.body.user === req.session.user.username) {
+                    if (req.body.action) {
+                        await client.query(`UPDATE jobs SET job_status = 'Closed' WHERE job_id = $1`, [req.body.job_id]);
+                        let milestone = await client.query(`SELECT * FROM job_milestones WHERE milestone_job_id = $1 AND milestone_status = 'In Progress'`, [req.body.job_id])
+                        let milestones = await client.query(`UPDATE job_milestones SET milestone_status = 'Incomplete' WHERE milestone_job_id = $1 RETURNING milestone_id`, [req.body.job_id]);
+                        let milestoneIds = [];
+
+                        
+
+                        for (let milestone of milestones.rows) {
+                            milestoneIds.push(milestone.milestone_id);
+                        }
+
+                        await client.query(`UPDATE milestone_conditions SET condition_status = 'Incomplete' WHERE condition_parent_id = ANY($1)`, [milestoneIds]);
+
+                        let userFee = Math.round(milestone.rows[0].user_app_fee * 100);
+                        let refundAmount = Math.round(parseFloat(milestone.rows[0].milestone_payment_after_fees) * 100) + userFee;
+
+                        await stripe.applicationFees.createRefund(milestone.rows[0].app_fee_id, {amount: userFee})
+                        .catch(err => error.log(err, req, resp));
+
+
+                        await stripe.refunds.create({
+                            charge: milestone.rows[0].charge_id,
+                            amount: refundAmount,
+                            reason: 'requested_by_customer',
+                            reverse_transfer: true
+                        })
+                        .catch(err => error.log(err, req, resp));
+                    } else {
+                        await client.query(`UPDATE jobs SET job_status = 'Active' WHERE job_id = $1`, [req.body.job_id]);
+                    }
+
+                    await client.query(`COMMIT`)
+                    .then(() => resp.send({status: 'success', closed: req.body.action}));
                 } else {
-                    resp.send({status: 'error', statusMessage: 'Request failed'});
+                    let error = new Error(`You're not authorized`);
+                    let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                    throw errObj;
+                }
+            } catch (e) {
+                await client.query('ROLLBACK');
+                throw e;
+            } finally {
+                done();
+            }
+        })()
+        .catch(err => error.log(err, req, resp));
+    });
+});
+
+/* app.post('/api/link-work/bank/verify', authenticate, async(req, resp) => {
+    let authorized = await db.query(`SELECT link_work_id FROM users WHERE username = $1`, [req.session.user.username]);
+
+    if (authorized.rows.length > 0) {
+        if (authorized.rows[0].link_work_id === req.body.account_id) {
+            await stripe.customers.verifySource(
+                authorized.rows[0].link_work_id,
+                req.body.bank_id,
+                {amounts: [req.body.deposit1, req.body.deposit2]}
+            )
+            .then(account => {
+                if (account.status === 'verified') {
+                    resp.send({status: 'success', statusMessage: 'Verified'});
+                } else if (account.status === 'verification_failed') {
+                    resp.send({status: 'error', statusMessage: 'Verification failed'});
+                } else if (account.status === 'errored') {
+                    resp.send({status: 'error', statusMessage: 'Transfers to the account failed'});
                 }
             })
-            .catch(err => error.log(err, req, resp));
+            .catch(err => {
+                return error.log(err, req, resp);
+            });
         } else {
-            resp.send({status: 'error', statusMessage: `You're not authorized`});
+            resp.send({status: 'error', statusMessage: `That Link Work account does not exist`});
         }
-});
-
-app.post('/api/job/close', authenticate, async(req, resp) => {
-        db.connect((err, client, done) => {
-            if (err) error.log(err, req, resp);
-
-            (async() => {
-                try{
-                    await client.query('BEGIN');
-
-                    let authorized = await client.query(`SELECT job_client FROM jobs WHERE job_id = $1 AND job_status = 'Requesting Close'`, [req.body.job_id]);
-
-                    if (authorized.rows[0].job_client === req.body.user && req.body.user === req.session.user.username) {
-                        if (req.body.action) {
-                            await client.query(`UPDATE jobs SET job_status = 'Closed' WHERE job_id = $1`, [req.body.job_id]);
-                            let milestone = await client.query(`SELECT * FROM job_milestones WHERE milestone_job_id = $1 AND milestone_status = 'In Progress'`, [req.body.job_id])
-                            let milestones = await client.query(`UPDATE job_milestones SET milestone_status = 'Incomplete' WHERE milestone_job_id = $1 RETURNING milestone_id`, [req.body.job_id]);
-                            let milestoneIds = [];
-
-                            
-
-                            for (let milestone of milestones.rows) {
-                                milestoneIds.push(milestone.milestone_id);
-                            }
-
-                            await client.query(`UPDATE milestone_conditions SET condition_status = 'Incomplete' WHERE condition_parent_id = ANY($1)`, [milestoneIds]);
-
-                            let userFee = Math.round(milestone.rows[0].user_app_fee * 100);
-                            let refundAmount = Math.round(parseFloat(milestone.rows[0].milestone_payment_after_fees) * 100) + userFee;
-
-                            await stripe.applicationFees.createRefund(milestone.rows[0].app_fee_id, {amount: userFee})
-                            .catch(err => error.log(err, req, resp));
-
-
-                            await stripe.refunds.create({
-                                charge: milestone.rows[0].charge_id,
-                                amount: refundAmount,
-                                reason: 'requested_by_customer',
-                                reverse_transfer: true
-                            })
-                            .catch(err => error.log(err, req, resp));
-                        } else {
-                            await client.query(`UPDATE jobs SET job_status = 'Active' WHERE job_id = $1`, [req.body.job_id]);
-                        }
-
-                        await client.query(`COMMIT`)
-                        .then(() => resp.send({status: 'success', closed: req.body.action}));
-                    } else {
-                        let error = new Error(`You're not authorized`);
-                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
-                        throw errObj;
-                    }
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                    throw e;
-                } finally {
-                    done();
-                }
-            })()
-            .catch(err => error.log(err, req, resp));
-        });
-});
+    } else {
+        resp.send({status: 'error', statusMessage: `That Link Work account does not exist`});
+    }
+}); */
 
 module.exports = app;

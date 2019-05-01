@@ -2,6 +2,11 @@ import PropTypes from 'prop-types';
 
 const MoneyFormatter = props => {
     let value = parseFloat(props.value);
+
+    if (isNaN(value)) {
+        return (0).toFixed(2);
+    }
+
     let isNegative = false;
 
     if (value < 0) {

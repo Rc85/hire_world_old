@@ -19,9 +19,33 @@ export const LoginUser = (data) => {
             } else if (resp.data.status === 'suspended' || resp.data.status === 'banned') {
                 dispatch(LoginError('error', resp.data.statusMessage));
                 dispatch(Alert('error', resp.data.statusMessage));
+            } else if (resp.data.status === '2fa required') {
+                dispatch(LoginError(resp.data.status, ''));
             }
         })
-        .catch(err => LogError(err, '/api/auth/login'));   
+        .catch(err => {
+            LogError(err, '/api/auth/login');
+            dispatch(LoginError('error', 'An error occurred'));
+        });   
+    }
+}
+
+export const TwoFALogin = val => {
+    return dispatch => {
+        dispatch(LoginBegin('login begin'));
+
+        return fetch.post('/api/auth/2fa/login', {code: val})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                dispatch(LoginSuccess(resp.data.status, resp.data.user));
+            } else if (resp.data.status === 'error') {
+                dispatch(LoginError(resp.data.status, resp.data.statusMessage));
+            }
+        })
+        .catch(err => {
+            LogError(err, '/api/auth/2fa/login');
+            dispatch(LoginError('error', 'An error occurred'));
+        })
     }
 }
 

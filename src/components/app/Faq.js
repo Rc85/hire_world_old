@@ -11,72 +11,104 @@ const Faq = props => {
                 <div className='mb-3'>In this frequently asked questions, "service provider" and "Link Work user" refers to a user providing a service and "client" refers to the user paying/hiring the service provider.</div>
 
                 <div id='questions' className='mb-5'>
-                    <div className='mb-1'>
-                        <a href='#one'>How do I identify a reputable user?</a>
-                    </div>
+                    <div className='mb-3'>
+                        <h1>General</h1>
     
-                    <div className='mb-1'>
-                        <a href='#two'>Is it possible to create more than one listing?</a>
-                    </div>
-                    
-                    <div className='mb-1'>
-                        <a href='#three'>How do reports work?</a>
-                    </div>
-                    
-                    <div className='mb-1'>
-                        <a href='#four'>How can I become a moderator/administrator for Hire World?</a>
-                    </div>
-                    
-                    <div className='mb-1'>
-                        <a href='#five'>I received a warning, what does it mean and how does that affect me?</a>
-                    </div>
-                    
-                    <div className='mb-1'>
-                        <a href='#six'>Can I advertise other things on Hire World other than my listing?</a>
-                    </div>
-                    
-                    <div className='mb-1'>
-                        <a href='#seven'>I was banned, what does it mean? What did I do? And is there a way to become unbanned?</a>
-                    </div>
-                    
-                    <div className='mb-1'>
-                        <a href='#eight'>Why can't I submit more than one review?</a>
-                    </div>
-                    
-                    <div className='mb-1'>
-                        <a href='#nine'>How do I hide my contact info and location?</a>
-                    </div>
-                    
-                    <div className='mb-1'>
-                        <a href='#ten'>How do I delete my account?</a>
+                        <div className='mb-1'>
+                            <a href='#three'>How do reports work?</a>
+                        </div>
+                        
+                        <div className='mb-1'>
+                            <a href='#four'>How can I become a moderator/administrator for Hire World?</a>
+                        </div>
+                        
+                        <div className='mb-1'>
+                            <a href='#six'>Can I advertise other things on Hire World other than my listing?</a>
+                        </div>
+                        
+                        <div className='mb-1'>
+                            <a href='#eight'>Why can't I submit more than one review?</a>
+                        </div>
                     </div>
 
-                    <div className='mb-1'>
-                        <a href='#eleven'>What is Link Work and how does it work?</a>
+                    <div className='mb-3'>
+                        <h1>Account</h1>
+                        
+                        <div className='mb-1'>
+                            <a href='#five'>I received a warning, what does it mean and how does that affect me?</a>
+                        </div>
+                        
+                        <div className='mb-1'>
+                            <a href='#seven'>I was banned, what does it mean? What did I do? And is there a way to become unbanned?</a>
+                        </div>
+                        
+                        <div className='mb-1'>
+                            <a href='#nine'>How do I hide my contact info and location?</a>
+                        </div>
+                        
+                        <div className='mb-1'>
+                            <a href='#ten'>How do I delete my account?</a>
+                        </div>
+                    </div>
+                    
+                    <div className='mb-3'>
+                        <h1>Jobs</h1>
+    
+                        <div className='mb-1'>
+                            <a href='#one'>How do I identify a reputable user?</a>
+                        </div>
+        
+                        <div className='mb-1'>
+                            <a href='#two'>Is it possible to create more than one listing?</a>
+                        </div>
+    
+                        <div className='mb-1'>
+                            <a href='#fourteen'>What is a Job Complete Verified review?</a>
+                        </div>
+    
+                        <div className='mb-1'>
+                            <a href='#nineteen'>Unlimited job posting, is that a joke?</a>
+                        </div>
+
+                        <div className='mb-1'>
+                            <a href='#twentyone'>What is the difference between posting a job and finding my candidate through profiles?</a>
+                        </div>
                     </div>
 
-                    <div className='mb-1'>
-                        <a href='#thirteen'>What happens if the Link Work user does not complete a milestone within 90 days after the funds are deposited?</a>
-                    </div>
+                    <div className='mb-3'>
+                        <h1>Link Work</h1>
+    
+                        <div className='mb-1'>
+                            <a href='#eleven'>What is Link Work and how does it work?</a>
+                        </div>
+    
+                        <div className='mb-1'>
+                            <a href='#eigh'>Can any business use Link Work?</a>
+                        </div>
+    
+                        <div className='mb-1'>
+                            <a href='#thirteen'>What happens if the Link Work user does not complete a milestone within 90 days after the funds are deposited?</a>
+                        </div>
+    
+                        <div className='mb-1'>
+                            <a href='#fifteen'>What if the deliverable does not satisfy the agreed milestone and/or conditions?</a>
+                        </div>
+    
+                        <div className='mb-1'>
+                            <a href='#sixteen'>Why is it important to divide a job into small milestones? What if the job cannot be divided into many milestones?</a>
+                        </div>
+    
+                        <div className='mb-1'>
+                            <a href='#seventeen'>What if the other party doesn't respond after accepting my deliverable?</a>
+                        </div>
 
-                    <div className='mb-1'>
-                        <a href='#fourteen'>What is a Job Complete Verified review?</a>
-                    </div>
+                        <div className='mb-1'>
+                            <a href='#twenty'>I started a job with a service provider, deposited funds, but changed my mind, what are my options?</a>
+                        </div>
 
-                    <div className='mb-1'>
-                        <a href='#fifteen'>What if the deliverable does not satisfy the agreed milestone and/or conditions?</a>
-                    </div>
-
-                    <div className='mb-1'>
-                        <a href='#sixteen'>Why is it important to divide a job into small milestones? What if the job cannot be divided into many milestones?</a>
-                    </div>
-
-                    <div className='mb-1'>
-                        <a href='#seventeen'>What if the other party doesn't respond after accepting my deliverable?</a>
-                    </div>
-
-                    <div className='mb-1'>
-                        <a href='#eighteen'>Why should I reject an applicant?</a>
+                        <div className='mb-1'>
+                            <a href='#twentytwo'>If I want to stop using Link Work, should I cancel my subscription or close my Link Work account?</a>
+                        </div>
                     </div>
                 </div>
 
@@ -242,7 +274,9 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            We restrict one review per user so that a service provider does not get spammed with multiple ratings. Rating plays an important factor to a service provider's reputation and we don't want anyone manipulating it. If you feel the service provider deserves more or less rating than you initially rated, you can always edit your review.
+                            <p>We restrict one review per user so that a service provider does not get spammed with multiple ratings. Rating plays an important factor to a service provider's reputation and we don't want anyone manipulating it. If you feel the service provider deserves more or less rating than you initially rated, you can always edit your review.</p>
+
+                            <p>Users should take notice of the Job Complete Verified counter in the badge. This is an indication that the service provider have received multiple of these reviews and is a strong indicator that the service provider is reputable.</p>
                         </div>
 
                         <div className='text-right'>
@@ -258,7 +292,7 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            Setting them to blank and disabling them in your settings will hide them.
+                            <p>Setting them to blank and disabling them in your settings will hide them.</p>
                         </div>
 
                         <div className='text-right'>
@@ -384,6 +418,92 @@ const Faq = props => {
 
                         <div className='answer'>
                             <p>You can file a case and we will investigate the issue. Keep in mind that it can as long as up to 5 days prior to the day the funds are refunded back to the client to reach a decision.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+
+                    <hr/>
+                    
+                    <div id='eighteen' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>Can any business use Link Work?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>As long as your business doesn't fall under any business in <a href='https://stripe.com/restricted-businesses' target='_blank' rel='noreferer noopener'>Stripe's restricted business</a> list, you can use Link Work. Link Work doesn't only cater to freelancers, but also local contractors who is seeking a "middle man" to secure the funds. There have been cases where clients don't pay their contractors after the job is complete and the contractor have to chase after them for the money. With Link Work, contractors will have the peace of mind that their client has the intention to pay and the money is in the hands of a trusted platform.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div id='nineteen' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>Unlimited job posting, is that a joke?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>No, we are serious. You can as many jobs as you like as long as you're not spamming the same job throughout the sectors and that it falls under the correct sector (although our mods may move it if they feel it is not in the correct sector). Be warned that if you abuse the unlimited posting privilege to spam your job to get noticed, we may suspend your account.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div id='twenty' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>I started a job with a service provider, deposited funds, but changed my mind, what are my options?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>Communication is the key. Discuss with the other party on closing the job and you will get your money back. However, do note that the 3% application fee is not refundable and it is a loss that you have to take for making a mistake on agreeing to start the job.</p>
+
+                            <p>As for the service provider, if clients change their mind and want their money back, we strongly encourage service providers to comply as they do not incur any loss. If they do not comply and forces the service provider to continue on with the job, it opens up many doors of risks that the service provider do not want to take, such as client not responding and will get their money back after 90 days.</p>
+
+                            <p>On the other hand, if the client opens up a case because of such disagreement, chances are Hire World will close the job for them as the decision favors both sides.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div id='twentyone' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>What is the difference between posting a job and finding my candidate through profiles?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>Posting a job opens up positions for candidates that are not only in your area, but for different countries. This is good if you are hiring remotely or through Link Work and that the position is not required to be filled immediately.</p>
+
+                            <p>Searching for your candidate through the profile directory is good when you need a job completed immediately. You don't want to wait for applicants to come in and instead contact a service provider directly.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div id='twentytwo' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>If I want to stop using Link Work, should I cancel my subscription or close my Link Work account?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>You suggest that you cancel your subscription and leave your Link Work account intact. If for any reason you want to close your Link Work account, you may do so once there are no remaining balance on your account.</p>
                         </div>
 
                         <div className='text-right'>

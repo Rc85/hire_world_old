@@ -243,7 +243,7 @@ class MilestoneTrackingRow extends Component {
                     <Elements>
                         <VerifyPayment
                         user={this.props.user}
-                        accept={() => {}} cancel={() => this.setState({startMilestone: false})}
+                        cancel={() => this.setState({startMilestone: false})}
                         submit={(token, save) => this.props.dispatch(ShowConfirmation(`Are you sure you're ready to start this milestone?`, <span>An amount of $<MoneyFormatter value={(this.state.milestone.milestone_payment_amount * 1.03 * 100) / 100} /> ($<MoneyFormatter value={this.state.milestone.milestone_payment_amount} /> + 3%) {this.props.job.job_price_currency} will be charged on the selected payment method</span>, {action: 'start milestone', token: token, id: this.state.milestone.milestone_id, saveAddress: save}))}
                         status={this.state.status} />
                     </Elements>

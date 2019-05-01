@@ -83,6 +83,7 @@ class Jobs extends Component {
         .catch(err => {
             LogError(err, '/api/user/settings/change');
             this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
         });
     }
     

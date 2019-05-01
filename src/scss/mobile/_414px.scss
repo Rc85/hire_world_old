@@ -97,6 +97,15 @@
     }
 
     .job-row {
+        .job-main-row {
+            flex-direction: column;
+            align-items: flex-start;
+
+            .job-status {
+                align-self: flex-end;
+            }
+        }
+
         .job-info-row {
             flex-direction: column;
             align-items: stretch;
@@ -107,16 +116,27 @@
                 .job-info-item {
                     border-bottom: 1px solid black;
                     border-right: 0;
+                    text-align: right;
                 }
             }
 
             .job-info-item {
                 border-bottom: 0;
+                text-align: right
             }
         }
     }
 
-    .view-header-title-details, .job-details-dates, .milestone-creator-details, .connect-footer, .row-container {
+    .mobile-tooltip {
+        display: block;
+    }
+
+    .milestone-creator-detail {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .view-header-title-details, .job-details-dates, .milestone-creator-details, .link-work-footer, .row-container {
         flex-direction: column;
         align-items: stretch;
     }
@@ -171,7 +191,7 @@
         width: 25%;
     }
 
-    .job-post-detail-row, .view-header, .radio-container, .connected-badges {
+    .job-post-detail-row, .view-header, .radio-container, .link-work-badges {
         flex-direction: column;
     }
 
@@ -192,7 +212,7 @@
         }
     }
     
-    .connected-badges {
+    .link-work-badges {
         .mr-2 {
             margin-right: 0;
             margin-bottom: 5px;
@@ -289,6 +309,9 @@
     }
 
     .job-details-subheader {
+        flex-direction: column;
+        align-items: stretch;
+
         .d-flex {
             flex-direction: column;
 

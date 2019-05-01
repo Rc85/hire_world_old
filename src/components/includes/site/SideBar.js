@@ -10,6 +10,7 @@ import BrowseMenu from '../site/BrowseMenu';
 import { ToggleMenu } from '../../../actions/MenuActions';
 import NotificationPanel from '../site/NotificationPanel';
 import LoginPanel from './LoginPanel';
+import TwoFactorLogin from './TwoFactorLogin';
 
 class SideBar extends Component {
     constructor(props) {
@@ -52,66 +53,71 @@ class SideBar extends Component {
             <BrowseMenu show={this.props.menu.id === 'browse-menu' && this.props.menu.show} />
         </div>;
 
+        let sidebarContent = <div id='sidebar-content'>
+            <Loading size='5x' className='mt-5' />
+        </div>;
+
         if (this.props.user.user) {
-            return <section id='sidebar'>
+            sidebarContent = <div id='sidebar-content'>
+                <React.Fragment>
+                    <div id='sidebar-buttons-container'>
+                        <div><FontAwesomeIcon icon={faUserCircle} className='text-highlight mr-1' /> <NavLink to='/dashboard'>{this.props.user.user.username}</NavLink></div>
 
-                <div className='text-center'><NavLink to='/main'><img src='/images/logo_xl.png' id='hireworld-logo' /></NavLink></div>
+                        <div><NavLink to='/dashboard/friends'><FontAwesomeIcon icon={faUserFriends} className={this.props.location.pathname === '/dashboard/friends' ? 'text-highlight' : ''} /></NavLink></div>
 
-                <div id='sidebar-content'>
-                    <React.Fragment>
-                        <div id='sidebar-buttons-container'>
-                            <div><FontAwesomeIcon icon={faUserCircle} className='text-highlight mr-1' /> <NavLink to='/dashboard'>{this.props.user.user.username}</NavLink></div>
-
-                            <div><NavLink to='/dashboard/friends'><FontAwesomeIcon icon={faUserFriends} className={this.props.location.pathname === '/dashboard/friends' ? 'text-highlight' : ''} /></NavLink></div>
-
-                            <div><NavLink to='/dashboard/blocked-users'><FontAwesomeIcon icon={faUserSlash} /></NavLink></div>
-                            
-                            <React.Fragment><div className='notification-button-container' onClick={(e) => this.showNotificationPanel(e)}>{parseInt(this.props.user.notifications) > 0 ? <span className='notification-counter mini-badge mini-badge-danger'>{this.props.user.notifications}</span> : ''}<FontAwesomeIcon icon={faBell} size='lg' id='notification-icon'/><NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} user={this.props.user} /></div></React.Fragment>
-                        </div>
-
-                        <hr className='w-90' />
+                        <div><NavLink to='/dashboard/blocked-users'><FontAwesomeIcon icon={faUserSlash} /></NavLink></div>
                         
-                        <div id='sidebar-links'>
-                            {browseLink}
-                            {this.props.items.map((item, i) => {
-                                if (this.props.user.user && this.props.user.user.connected_id && item.name === 'Link Work') {
-                                    return null;
-                                }
-                                
-                                return <div key={i} className='sidebar-link-container'>
-                                    <Link
-                                    name={item.name}
-                                    text={item.name}
-                                    link={item.link}
-                                    icon={item.icon}
-                                    active={item.active}
-                                    items={item.items}
-                                    messageCount={parseInt(item.messageCount) > 0 ? parseInt(item.messageCount) : false}
-                                    user={this.props.user} />
-                                </div>
-                            })}
+                        <React.Fragment><div className='notification-button-container' onClick={(e) => this.showNotificationPanel(e)}>{parseInt(this.props.user.notifications) > 0 ? <span className='notification-counter mini-badge mini-badge-danger'>{this.props.user.notifications}</span> : ''}<FontAwesomeIcon icon={faBell} size='lg' id='notification-icon'/><NotificationPanel show={this.props.menu.id === 'notification-panel' && this.props.menu.show} user={this.props.user} /></div></React.Fragment>
+                    </div>
 
-                            <div className='sidebar-link-container'>
-                                <Link text={'Logout'} icon={<FontAwesomeIcon icon={faSignOutAlt} />} onClick={() => this.props.dispatch(LogoutUser())} />
+                    <hr className='w-90' />
+                    
+                    <div id='sidebar-links'>
+                        {browseLink}
+                        {this.props.items.map((item, i) => {
+                            if (this.props.user.user && (this.props.user.user.link_work_id || this.props.user.user.account_type === 'User') && item.name === 'Link Work') {
+                                return null;
+                            }
+                            
+                            return <div key={i} className='sidebar-link-container'>
+                                <Link
+                                name={item.name}
+                                text={item.name}
+                                link={item.link}
+                                icon={item.icon}
+                                active={item.active}
+                                items={item.items}
+                                messageCount={parseInt(item.messageCount) > 0 ? parseInt(item.messageCount) : false}
+                                user={this.props.user} />
                             </div>
+                        })}
+
+                        <div className='sidebar-link-container'>
+                            <Link text={'Logout'} icon={<FontAwesomeIcon icon={faSignOutAlt} />} onClick={() => this.props.dispatch(LogoutUser())} />
                         </div>
-                    </React.Fragment>
-                </div>
-            </section>;
+                    </div>
+                </React.Fragment>
+            </div>;
         } else if (this.props.user.status === 'error' || this.props.user.status === 'not logged in' || this.props.user.status === 'access error') {
-            return <section id='sidebar'>
-                <div className='text-center'><NavLink to='/main'><img src='/images/logo_xl.png' id='hireworld-logo' /></NavLink></div>
+            sidebarContent = <div id='sidebar-content'>
+                <React.Fragment>
+                    <div id='sidebar-links'>
+                        {browseLink}
+                    </div>
 
-                <div id='sidebar-content'>
-                    <React.Fragment>
-                        <div id='sidebar-links'>
-                            {browseLink}
-                        </div>
+                    <LoginPanel />
+                </React.Fragment>
+            </div>;
+        } else if (this.props.user.status === '2fa required') {
+            sidebarContent = <div id='sidebar-content'>
+                <React.Fragment>
+                    <div id='sidebar-links'>
+                        {browseLink}
+                    </div>
 
-                        <LoginPanel />
-                    </React.Fragment>
-                </div>
-            </section>;
+                    <TwoFactorLogin />
+                </React.Fragment>
+            </div>
         }
 
         return (
@@ -120,9 +126,7 @@ class SideBar extends Component {
 
                 <div className='text-center'><NavLink to='/main'><img src='/images/logo_xl.png' id='hireworld-logo' /></NavLink></div>
 
-                <div id='sidebar-content'>
-                    <Loading size='5x' className='mt-5' />
-                </div>
+                {sidebarContent}
             </section>
         )
     }
@@ -148,7 +152,7 @@ class Link extends Component {
 
         if (this.props.active && this.props.items) {
             subItems = this.props.items.map((item, i) => {
-                if (this.props.user.user && !this.props.user.user.connected_id && item.name === 'Link Work') {
+                if (this.props.user.user && !this.props.user.user.link_work_id && item.name === 'Link Work') {
                     return null;
                 }
 

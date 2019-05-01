@@ -32,7 +32,7 @@ class LinkWorkSettings extends Component {
         this.branchNumber = '';
         
         this.state = {
-            status: '',
+            status: 'Fetching',
             statusMessage: '',
             user: {},
             business_type: null,
@@ -96,7 +96,7 @@ class LinkWorkSettings extends Component {
     }
     
     componentDidUpdate(prevProps, prevState) {
-        if (this.props.prompt.data && this.props.prompt.data.action === 'close connected account') {
+        if (this.props.prompt.data && this.props.prompt.data.action === 'close link work account') {
             if (this.props.prompt.input !== prevProps.prompt.input) {
                 this.closeAccount();
                 this.props.dispatch(PromptReset());
@@ -105,8 +105,6 @@ class LinkWorkSettings extends Component {
     }
     
     componentDidMount() {
-        this.setState({status: 'Fetching'});
-
         fetch.post('/api/job/accounts/fetch')
         .then(resp => {
             if (resp.data.status === 'success') {
@@ -343,7 +341,9 @@ class LinkWorkSettings extends Component {
         }
 
         if (this.state.status === 'Closed') {
-            return <Redirect to='/connected/account/closed' />;
+            return <Redirect to='/link_work/account/closed' />;
+        } else if (this.state.status === 'Fetching') {
+            return <Loading size='7x' color='black' />;
         }
 
         if (this.props.user.user) {
@@ -451,11 +451,11 @@ class LinkWorkSettings extends Component {
             }
 
             if (this.state.user) {
-                if (this.state.user.connected_acct_status === 'Reviewing') {
+                if (this.state.user.link_work_acct_status === 'Reviewing') {
                     reviewStatus = 'warning';
-                } else if (this.state.user.connected_acct_status === 'Declined') {
+                } else if (this.state.user.link_work_acct_status === 'Declined') {
                     reviewStatus = 'danger';
-                } else if (this.state.user.connected_acct_status === 'Approved') {
+                } else if (this.state.user.link_work_acct_status === 'Approved') {
                     reviewStatus = 'success';
                 }
             }
@@ -513,16 +513,17 @@ class LinkWorkSettings extends Component {
 
             let bankAccountText, bankAccountStatus;
 
-            if (!this.props.user.user.has_connected_bank_acct) {
+            if (this.state.external_accounts && this.state.external_accounts.data.length === 0) {
                 bankAccountText = 'Required';
                 bankAccountStatus = 'danger';
-            } else if (!this.props.user.user.bank_acct_verified) {
-                bankAccountText = 'Unverified';
-                bankAccountStatus = 'secondary';
+            }
+
+            if (this.state.requirements && /^rejected/.test(this.state.requirements.disabled_reason)) {
+                return <Redirect to='/error/link_work/403' />;
             }
 
             return (
-                <section id='connected-settings' className='main-panel'>
+                <section id='link-work-settings' className='main-panel'>
                     {status}
                     
                     <TitledContainer title='Link Work Settings' icon={<FontAwesomeIcon icon={faLink} />} shadow bgColor='lightblue'>
@@ -530,12 +531,12 @@ class LinkWorkSettings extends Component {
                             <h2>{this.state.id}</h2>
                         </div>
 
-                        <div className='connected-badges'>
+                        <div className='link-work-badges'>
                             <div className='mr-2'><LabelBadge label='Account' text={verificationStatusText} status={verificationStatus} /></div>
-                            <div className='mr-2'><LabelBadge label='Review' text={this.state.user.connected_acct_status} status={reviewStatus} /></div>
+                            <div className='mr-2'><LabelBadge label='Review' text={this.state.user.link_work_acct_status} status={reviewStatus} /></div>
                             <div className='mr-2'><LabelBadge label='Payments' text={paymentText} status={paymentStatus} /></div>
                             <div className='mr-2'><LabelBadge label='Payout' text={payoutText} status={payoutStatus} /></div>
-                            <div className='mr-2'><LabelBadge label='Bank' text={bankAccountText} status={bankAccountStatus} /></div>
+                            {bankAccountText === 'Required' ? <div className='mr-2'><LabelBadge label='Bank' text={bankAccountText} status={bankAccountStatus} /></div> : '' }
                         </div>
 
                         {documentsRequired ? <StaticAlert status='warning' text={documentsRequiredText} /> : ''}
@@ -560,7 +561,7 @@ class LinkWorkSettings extends Component {
                                 {this.state.external_accounts && this.state.external_accounts.data.length > 0 ? <React.Fragment>
                                     <hr/>
 
-                                    <div className='financial-accounts'>
+                                    <div className='financial-accounts'>              
                                         {this.state.external_accounts.data.map((account, i) => {
                                             return <React.Fragment key={i}>
                                                 <FinancialAccountRow account={account} setDefault={() => this.setPaymentDefault(account.id, i)} delete={() => this.deletePayment(account.id, i)} />
@@ -569,7 +570,7 @@ class LinkWorkSettings extends Component {
                                             </React.Fragment>;
                                         })}
                                     </div>
-                                </React.Fragment> : ''}
+                                </React.Fragment> : <div className='text-center'>To get approved faster by Hire World, we recommend adding a valid bank account.</div>}
                             </div>
                         </form>
 
@@ -582,7 +583,7 @@ class LinkWorkSettings extends Component {
                             <div className='text-right'>
                                 <SubmitButton type='submit' loading={this.state.status === 'Updating Personal'} value='Update' />
                                 <button className='btn btn-secondary' type='button' onClick={() => this.resetSettings()}>Reset</button>
-                                <button className='btn btn-danger' type='button' onClick={() => this.props.dispatch(PromptOpen(`Password:`, '', {type: 'password', action: 'close connected account'}))} disabled={this.state.status === 'Closing Account'}>Close Account</button>
+                                <button className='btn btn-danger' type='button' onClick={() => this.props.dispatch(PromptOpen(`Password:`, '', {type: 'password', action: 'close link work account'}))} disabled={this.state.status === 'Closing Account'}>Close Account</button>
                             </div>
                         </form>
 

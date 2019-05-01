@@ -19,7 +19,7 @@ app.post('/api/get/user', async(req, resp) => {
                     users.username,
                     users.user_email,
                     users.user_last_login,
-                    users.connected_acct_status,
+                    users.link_work_acct_status,
                     user_profiles.*,
                     user_settings.hide_email,
                     user_settings.display_fullname,
@@ -198,17 +198,18 @@ app.post('/api/get/user/payments', authenticate, async(req, resp) => {
 
 app.post('/api/get/user/subscription', authenticate, async(req, resp) => {
         let user = await db.query(`SELECT subscription_id FROM users WHERE username = $1`, [req.session.user.username]);
+        let plans = await stripe.plans.list();
 
         if (user && user.rows[0].subscription_id) {
             subscription = await stripe.subscriptions.retrieve(user.rows[0].subscription_id)
             .then(subscription => {
                 if (subscription) {
-                    resp.send({status: 'success', subscription: subscription});
+                    resp.send({status: 'success', plans: plans, subscription: subscription});
                 }
             })
             .catch(err => error.log(err, req, resp));
         } else {
-            resp.send('done');
+            resp.send({status: 'success', plans: plans});
         }
 });
 
@@ -272,7 +273,7 @@ app.post('/api/get/user/friends', authenticate, async(req, resp) => {
         OFFSET $2
         LIMIT 30`, [req.session.user.username, req.body.offset]);
 
-        await db.query(`SELECT friends.*, users.user_email, users.user_last_login, user_profiles.*, user_settings.hide_email, user_listings.listing_status, users.connected_acct_status FROM friends
+        await db.query(`SELECT friends.*, users.user_email, users.user_last_login, user_profiles.*, user_settings.hide_email, user_listings.listing_status, users.link_work_acct_status FROM friends
         LEFT JOIN users ON friends.friend_user_2 = users.username
         LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
         LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id

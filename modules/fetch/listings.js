@@ -5,7 +5,7 @@ const validate = require('../utils/validate');
 const authenticate = require('../utils/auth');
 
 app.post('/api/get/listing', authenticate, async(req, resp) => {
-        await db.query(`SELECT user_listings.*, users.connected_acct_status FROM user_listings
+        await db.query(`SELECT user_listings.*, users.link_work_acct_status FROM user_listings
         LEFT JOIN users ON users.username = user_listings.listing_user
         WHERE listing_user = $1 AND listing_status != 'Delete'`, [req.session.user.username])
         .then(result => {
@@ -43,21 +43,16 @@ app.post('/api/get/listings', async(req, resp) => {
             if (req.body.filter) {
                 if (req.body.filter.title && validate.searchUserTitleCheck.test(req.body.filter.title)) {
                     params.push(`%${req.body.filter.title}%`);
-
-                    let index = params.length;
-
                     whereArray.push(`user_title ILIKE $${params.length}`);
                 }
 
                 if (req.body.filter.rating !== 'Any') {
                     params.push(req.body.filter.rating);
-                    let index = params.length;
                     whereArray.push(`rating = $${params.length}`);
                 }
 
                 if (req.body.filter.price) {
                     params.push(req.body.filter.price);
-                    let index = params.length;
 
                     let priceOperator, priceType;
 
@@ -110,47 +105,32 @@ app.post('/api/get/listings', async(req, resp) => {
 
                     params.push(req.body.filter.completedJobs);
 
-                    let index = params.length;
-
                     whereArray.push(`job_complete ${operator} $${params.length}`);
                 }
 
                 if (req.body.filter.noAbandonedJobs) {
                     params.push('0');
-
-                    let index = params.length;
-
                     whereArray.push(`(job_abandoned = $${params.length} OR job_abandoned IS NULL)`);
                 }
 
                 if (req.body.filter.country) {
                     params.push(req.body.filter.country);
-
-                    let index = params.length;
-
                     whereArray.push(`user_country = $${params.length}`);
                 }
 
                 if (req.body.filter.region) {
                     params.push(req.body.filter.region);
-
-                    let index = params.length;
-
                     whereArray.push(`user_region = $${params.length}`);
                 }
 
                 if (req.body.filter.city) {
                     params.push(req.body.filter.city);
-
-                    let index = params.length;
-
                     whereArray.push(`user_city = $${params.length}`);
                 }
 
-                if (req.body.filter.isConnected) {
+                if (req.body.filter.isLinked) {
                     params.push(null);
-                    let index = params.length;
-                    whereArray.push(`connected_id IS NOT $${params.length}`);
+                    whereArray.push(`link_work_id IS NOT $${params.length}`);
                 }
 
                 if (req.body.filter.haveReviews) {
@@ -160,9 +140,7 @@ app.post('/api/get/listings', async(req, resp) => {
         }
 
         if (req.body.offset) {
-            params.push(req.body.offset);
-            let index = params.length;
-    
+            params.push(req.body.offset);    
             offset = `OFFSET $${params.length}`;
         }
 
@@ -177,8 +155,7 @@ app.post('/api/get/listings', async(req, resp) => {
             jobs.job_complete,
             jobs.job_abandoned,
             user_profiles.avatar_url, 
-            users.connected_acct_status,
-            users.bank_acct_verified
+            users.link_work_acct_status
         FROM user_listings
         LEFT JOIN users ON users.username = user_listings.listing_user
         LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
@@ -212,8 +189,7 @@ app.post('/api/get/listings', async(req, resp) => {
             jobs.job_complete, 
             jobs.job_abandoned,
             user_profiles.avatar_url,
-            users.connected_acct_status,
-            users.bank_acct_verified` : ''}
+            users.link_work_acct_status` : ''}
         ${havingArray.length > 0 ? `HAVING ${havingArray.join(' AND ')}` : ''}
         ORDER BY ${orderBy}, listing_id
         ${limit} ${offset}`;

@@ -11,7 +11,7 @@ module.exports = async(req, resp, next) => {
                 try {
                     await client.query('BEGIN');
 
-                    let auth = await client.query(`SELECT user_id, username, user_password, user_this_login, user_status FROM users WHERE username ILIKE $1`, [req.body.username]);
+                    let auth = await client.query(`SELECT user_id, username, user_password, user_this_login, user_status, two_fa_enabled FROM users WHERE username ILIKE $1`, [req.body.username]);
 
                     if (auth.rows.length === 1) {
                         if (auth.rows[0].user_status === 'Suspended') {
@@ -23,18 +23,26 @@ module.exports = async(req, resp, next) => {
                                 if (err) error.log(err, req, resp);
 
                                 if (match) {
-                                    await client.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, auth.rows[0].user_id])
+                                    if (auth.rows[0].two_fa_enabled) {
+                                        req.session.auth = {
+                                            user_id: auth.rows[0].user_id
+                                        }
 
-                                    let session = {
-                                        user_id: auth.rows[0].user_id,
-                                        username: auth.rows[0].username
+                                        await client.query('COMMIT')
+                                        .then(() => resp.send({status: '2fa required'}));
+                                    } else {
+                                        let session = {
+                                            user_id: auth.rows[0].user_id,
+                                            username: auth.rows[0].username
+                                        }
+
+                                        req.session.user = session;    
+                                        
+                                        await db.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE username = $2`, [auth.rows[0].user_this_login, auth.rows[0].username]);
+
+                                        await client.query('COMMIT')
+                                        .then(() => next());
                                     }
-
-                                    req.session.user = session;
-                                    
-                                    
-                                    await client.query('COMMIT')
-                                    .then(() => next());
                                 } else {
                                     await client.query('ROLLBACK');
                                     resp.send({status: 'error', statusMessage: 'Incorrect username or password'});

@@ -116,7 +116,7 @@ class Site extends Component {
                     <NavLink to='/dashboard/blocked-users'><FontAwesomeIcon icon={faUserSlash} className='site-top-user-icon mr-3' size='lg' /></NavLink>
                     <div className='site-top-user-menu p-relative' onClick={this.toggleNotification.bind(this)}>
                         <FontAwesomeIcon icon={faBell} className='site-top-user-icon' size='lg' />
-                        {parseInt(this.props.user.notifications) > 0 ? <div className='notification-counter mini-badge mini-badge-special'>{this.props.user.notifications}</div> : ''}
+                        {parseInt(this.props.user.notifications) > 0 ? <div className='notification-counter mini-badge mini-badge-danger'>{this.props.user.notifications}</div> : ''}
                     </div>
                 </div>
 

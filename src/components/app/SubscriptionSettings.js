@@ -10,24 +10,35 @@ import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationA
 import { connect } from 'react-redux';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSyncAlt, faShoppingCart } from '@fortawesome/pro-solid-svg-icons';
+import { faSyncAlt, faShoppingCart, faCalendarAlt, faCube, faBoxUsd } from '@fortawesome/pro-solid-svg-icons';
 import { Redirect } from 'react-router-dom';
 import Loading from '../utils/Loading';
 import Tooltip from '../utils/Tooltip';
+import VerifyPayment from '../includes/page/VerifyPayment';
+import { ShowLoading, HideLoading } from '../../actions/LoadingActions';
+import { UpdateUser } from '../../actions/LoginActions';
+import InputWrapper from '../utils/InputWrapper';
+import { Alert } from '../../actions/AlertActions';
+import MoneyFormatter from '../utils/MoneyFormatter';
 
 class SubscriptionSettings extends Component {
     constructor(props) {
         super(props);
         
         this.state = {
-            subscription: {}
+            status: 'Loading',
+            subscription: {},
+            plans: []
         }
     }
     
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.confirm.data) {
-            if (nextProps.confirm.data.action === 'unsubscribe' && nextProps.confirm.option) {
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.confirm.data) {
+            if (this.props.confirm.data.action === 'unsubscribe' && this.props.confirm.option && this.props.confirm.option !== prevProps.confirm.option) {
                 this.cancelSubscription();
+                this.props.dispatch(ResetConfirmation());
+            } else if (this.props.confirm.data.action === 'subscribe' && this.props.confirm.option && this.props.confirm.option !== prevProps.confirm.option) {
+                this.subscribe(this.props.confirm.data.token, this.props.confirm.data.saveAddress);
                 this.props.dispatch(ResetConfirmation());
             }
         }
@@ -37,10 +48,36 @@ class SubscriptionSettings extends Component {
         fetch.post('/api/get/user/subscription')
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({subscription: resp.data.subscription});
+                this.setState({status: '', subscription: resp.data.subscription, plans: resp.data.plans.data});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: 'error'});
             }
         })
-        .catch(err => LogError(err, '/api/get/user/subscription'));
+        .catch(err => {
+            LogError(err, '/api/get/user/subscription');
+            this.setState({status: 'error'});
+        });
+    }
+
+    subscribe(token, save) {
+        this.props.dispatch(ShowLoading('Processing payment...'));
+
+        fetch.post('/api/user/subscription/add', {...token, saveAddress: save, plan: this.state.plan})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.setState({status: 'Success'});
+                this.props.dispatch(UpdateUser());
+            } else if (resp.data.status === 'error') {
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+
+            this.props.dispatch(HideLoading());
+        })
+        .catch(err => {
+            LogError(err, '/api/user/payment/submit');
+            this.props.dispatch(HideLoading());
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
     }
 
     cancelSubscription() {
@@ -58,12 +95,24 @@ class SubscriptionSettings extends Component {
         })
         .catch(err => LogError(err, '/api/user/subscription/cancel'));
     }
+
+    selectPlan(e) {
+        let plan = this.state.plans.filter(plan => plan.id === e.target.value);
+
+        this.setState({plan: e.target.value, planName: plan[0].nickname});
+    }
     
     render() {
-        if (this.props.user.status === 'error') {
+        if (this.state.status === 'Loading') {
+            return <Loading size='7x' color='black' />;
+        } else if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
             return <Redirect to='/main' />;
+        } else if (this.state.status === 'error') {
+            return <Redirect to='/error/app/500' />;
+        } else if (this.state.status === 'Success') {
+            return <Redirect to='/payment/success' />;
         }
 
         if (this.props.user.user) {
@@ -84,7 +133,7 @@ class SubscriptionSettings extends Component {
 
                 nickname = this.state.subscription.plan.nickname;
                 price = <React.Fragment>
-                    ${this.state.subscription.plan.amount / 100} {this.state.subscription.plan.currency.toUpperCase()} / {this.state.subscription.plan.interval}
+                    $<MoneyFormatter value={this.state.subscription.plan.amount / 100} /> {this.state.subscription.plan.currency.toUpperCase()} / {this.state.subscription.plan.interval}
                 </React.Fragment>
 
 
@@ -103,21 +152,18 @@ class SubscriptionSettings extends Component {
                             {unsubscribeButton}
                         </div>
 
-                        <div className='setting-field-container'>
-                            <div className='subscription-info'>
-                                <label htmlFor='next-billing' className='mr-2'>{this.state.subscription.status !== 'canceled' ? 'Next Billing Date:' : 'Subscription End Date:'} </label>
-                                {billingDate}
+                        <div className='d-flex'>
+                            <div className='subscription-info mr-2'>
+                                <FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /><strong>{this.state.subscription.status !== 'canceled' ? 'Next Billing Date:' : 'Subscription End Date:'}</strong> {billingDate}
                             </div>
 
-                            <div className='subscription-info'>
-                                <label htmlFor='plan' className='mr-2'>Plan: </label>
-                                {nickname}
+                            <div className='subscription-info mr-2'>
+                                <FontAwesomeIcon icon={faCube} className='text-special mr-1' /><strong>Plan:</strong> {nickname}
                             </div>
 
-                            <div className='subscription-info'>
+                            <div className='subscription-info mr-2'>
                                 <div>
-                                    <label htmlFor='price' className='mr-2'>Price: </label>
-                                    {price}
+                                    <FontAwesomeIcon icon={faBoxUsd} className='text-special mr-1' /><strong>Price:</strong> {price}
                                 </div>
                             </div>
                         </div>
@@ -135,12 +181,27 @@ class SubscriptionSettings extends Component {
                 <section id='subscription-setting' className='main-panel'>
                     <TitledContainer title='Subscription' bgColor='orange' icon={<FontAwesomeIcon icon={faSyncAlt} />} shadow>
                         {subscriptionInfo}
-        
-                        <StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}>
-                            <Elements>
-                                <Checkout user={this.props.user.user} />
-                            </Elements>
-                        </StripeProvider>
+
+                        {!this.props.user.user.is_subscribed ? <React.Fragment>
+                            <InputWrapper label='Plans' required>
+                                <select onChange={this.selectPlan.bind(this)}>
+                                    <option value=''></option>
+                                    {this.state.plans.map((plan) => {
+                                        return <option key={plan.id} value={plan.id}>{plan.nickname} - ${(plan.amount / 100).toFixed(2)} {plan.currency.toUpperCase()}</option>
+                                    })}
+                                </select>
+                            </InputWrapper>
+            
+                            <StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}>
+                                <Elements>
+                                    <VerifyPayment
+                                    user={this.props.user}
+                                    submit={(token, save) => this.props.dispatch(ShowConfirmation(`Are you sure you want to subscribe to the ${this.state.planName} plan?`, false, {action: 'subscribe', token: token, saveAddress: save}))}
+                                    status={this.props.status}
+                                    />
+                                </Elements>
+                            </StripeProvider>
+                        </React.Fragment> : ''}
                     </TitledContainer>
                 </section>
             )

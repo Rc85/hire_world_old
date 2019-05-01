@@ -192,9 +192,9 @@ class App extends Component {
 
 						<Route exact path='/dashboard/settings/payment' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.PaymentSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
 
-						<Route exact path='/dashboard/linkwork' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.LinkWork user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+						<Route exact path='/dashboard/link_work' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.LinkWork user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
 
-						<Route exact path='/dashboard/settings/linkwork' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.LinkWorkSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
+						<Route exact path='/dashboard/settings/link_work' render={() => <Pages.Dashboard user={this.props.user}><StripeProvider apiKey={process.env.REACT_ENV === 'production' ? 'pk_live_wJ7nxOazDSHu9czRrGjUqpep' : 'pk_test_KgwS8DEnH46HAFvrCaoXPY6R'}><Elements><Pages.LinkWorkSettings user={this.props.user} /></Elements></StripeProvider></Pages.Dashboard>} />
 						
 						<Route exact path='/dashboard/subscription' render={() => <Pages.Dashboard user={this.props.user}><Pages.SubscriptionSettings user={this.props.user} /></Pages.Dashboard>} />
 	
@@ -205,10 +205,10 @@ class App extends Component {
 						<Route exact path='/sectors/:type/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
 	
 						<Route exact path='/payment/success' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Thank You!'}>
-							<React.Fragment><div className='mb-3'>We really appreciate your business and hope you will enjoy our service.</div><div><NavLink to='/dashboard/profile'>Start listing now</NavLink></div></React.Fragment>
+							<React.Fragment><div className='mb-3'>We really appreciate your business and hope you will enjoy our service.</div><div><NavLink to='/dashboard/link_work'>Create your Link Work account now</NavLink></div></React.Fragment>
 						</Pages.Response></Pages.Dashboard>} />
 
-						<Route exact path='/connected/job/accepted' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Job Accepted!'}>
+						<Route exact path='/link_work/job/accepted' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Job Accepted!'}>
 							<React.Fragment><div className='mb-3'>The job has been moved to the <NavLink to='/dashboard/jobs/active'>active</NavLink> tab.</div></React.Fragment>
 						</Pages.Response></Pages.Dashboard>} />
 
@@ -221,12 +221,12 @@ class App extends Component {
 						</Pages.Response></Pages.Dashboard>} />
 
 						<Route exact path='/account/created' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Account Created! But...'}>
-							<React.Fragment><div className='mb-3'>Your Link Work account was successfully created and connected to our platform; however, it will be under review and may not be verified yet.</div><div>Please check the settings in your <NavLink to='/dashboard/settings/linkwork'>Link Work Settings</NavLink> for your account status.</div></React.Fragment>
+							<React.Fragment><div className='mb-3'>Your Link Work account has been successfully created and connected to our platform; however, it will be under review and may not be verified yet.</div><div>Please check the settings in your <NavLink to='/dashboard/settings/linkwork'>Link Work Settings</NavLink> for your account status.</div></React.Fragment>
 						</Pages.Response></Pages.Dashboard>} />
 
-						<Route exact path='/connected/account/closed' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Account Closed!'}></Pages.Response></Pages.Dashboard>} />
+						<Route exact path='/link_work/account/closed' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Account Closed!'}></Pages.Response></Pages.Dashboard>} />
 
-						<Route exact path='/connected/job/closed' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Job Closed!'}><div>The job is now closed</div></Pages.Response></Pages.Dashboard>} />
+						<Route exact path='/link_work/job/closed' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Job Closed!'}><div>The job is now closed</div></Pages.Response></Pages.Dashboard>} />
 
 						<Route exact path='/resend' render={() => <Pages.Dashboard user={this.props.user}><Pages.ResendConfirmation /></Pages.Dashboard>} />
 

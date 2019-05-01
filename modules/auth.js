@@ -9,6 +9,8 @@ const request = require('request');
 const controller = require('./utils/controller');
 const fs = require('fs');
 const authenticate = require('./utils/auth');
+const speakeasy = require('speakeasy');
+const qrCode = require('qrcode');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -143,12 +145,38 @@ app.post('/api/auth/login', authenticate, async(req, resp) => {
     resp.send({status: 'success', user: user});
 });
 
+app.post('/api/auth/2fa/login', async(req, resp) => {
+    let auth = await db.query(`SELECT username, two_fa_key, user_this_login FROM users WHERE user_id = $1`, [req.session.auth.user_id]);
+
+    let verified = speakeasy.totp.verify({
+        secret: auth.rows[0].two_fa_key,
+        encoding: 'base32',
+        token: req.body.code,
+        window: 2
+    });
+
+    if (verified) {
+        req.session.user = {
+            user_id: req.session.auth.user_id,
+            username: auth.rows[0].username
+        }
+
+        await db.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, req.session.auth.user_id]);
+        let user = await controller.session.retrieve(false, req.session.auth.user_id);
+
+        req.session.auth = null;
+
+        resp.send({status: 'success', user: user});
+    } else {
+        resp.send({status: 'error', statusMessage: 'Incorrect code'});
+    }
+});
+
 app.all('/api/auth/logout', (req, resp) => {
     req.session = null;
 
     resp.send({status: 'error', statusMessage: `Logged out`});
 });
-
 
 app.post('/api/resend-confirmation', async(req, resp) => {
     request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.RECAPTCHA_SECRET, response: req.body.verified}}, async(err, res, body) => {
@@ -310,8 +338,85 @@ app.post('/api/reset-password', async(req, resp) => {
                 }
             })()
             .catch(err => error.log(err, req, resp));
-        })
+        });
     }
-})
+});
+
+app.post('/api/auth/get/2fa', authenticate, async(req, resp) => {
+    let user = await db.query(`SELECT user_email FROM users WHERE username = $1`, [req.session.user.username]);
+    let secret = speakeasy.generateSecret();
+    let url = speakeasy.otpauthURL({secret: secret.ascii, label: `Hire World (${user.rows[0].user_email})`});
+
+    req.session.user.secret = secret;
+
+    qrCode.toDataURL(url, function(err, data_url) {
+        if (err) return error.log(err, req, resp);
+
+        resp.send({status: 'success', imageUrl: data_url});
+    });
+});
+
+app.post('/api/auth/verify/2fa', authenticate, async(req, resp) => {
+    let verified = speakeasy.totp.verify({
+        secret: req.session.user.secret.base32,
+        encoding: 'base32',
+        token: req.body.code,
+        window: 2
+    });
+
+    if (verified) {
+        await db.query(`UPDATE users SET two_fa_key = $1, two_fa_enabled = true WHERE username = $2`, [req.session.user.secret.base32, req.session.user.username])
+        .then(async result => {
+            if (result && result.rowCount === 1) {
+                let user = await controller.session.retrieve(false, req.session.user.user_id);
+                resp.send({status: 'success', statusMessage: 'Two-factor authentication enabled', user: user});
+            } else {
+                resp.send({status: 'error', statusMessage: 'Fail to save'});
+            }
+        })
+        .catch(err => {
+            return error.log(err, req, resp);
+        });
+    } else {
+        resp.send({status: 'error', statusMessage: 'Incorrect code'});
+    }
+});
+
+app.post('/api/auth/disable/2fa', authenticate, async(req, resp) => {
+    let user = await db.query(`SELECT user_password, two_fa_key FROM users WHERE username = $1`, [req.session.user.username]);
+
+    let verified = speakeasy.totp.verify({
+        secret: user.rows[0].two_fa_key,
+        encoding: 'base32',
+        token: req.body.code,
+        window: 2
+    });
+    
+    if (verified) {
+        bcrypt.compare(req.body.password, user.rows[0].user_password, async(err, matched) => {
+            if (err) return error.log(err, req, resp);
+
+            if (matched) {
+                await db.query(`UPDATE users SET two_fa_key = null, two_fa_enabled = false WHERE username = $1`, [req.session.user.username])
+                .then(async result => {
+                    let user = await controller.session.retrieve(false, req.session.user.user_id);
+
+                    if (result && result.rowCount === 1) {
+                        resp.send({status: 'success', statusMessage: 'Two-factor authentication disabled', user: user});
+                    } else {
+                        resp.send({status: 'error', statusMessage: 'Fail to disable'});
+                    }
+                })
+                .catch(err => {
+                    return error.log(err, req, resp);
+                });
+            } else {
+                resp.send({status: 'error', statusMessage: 'Incorrect password'});
+            }
+        });
+    } else {
+        resp.send({status: 'error', statusMessage: 'Incorrect code'});
+    }
+});
 
 module.exports = app;

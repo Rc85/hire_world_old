@@ -11,7 +11,7 @@ import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faIdCard } from '@fortawesome/pro-regular-svg-icons';
 import SlideToggle from '../utils/SlideToggle';
-import { faBell, faListUl, faCogs, faGlobe } from '@fortawesome/pro-solid-svg-icons';
+import { faBell, faListUl, faCogs, faGlobe, faCalendarStar } from '@fortawesome/pro-solid-svg-icons';
 import { UpdateUser } from '../../actions/LoginActions';
 import InputWrapper from '../utils/InputWrapper';
 import { Alert } from '../../actions/AlertActions';
@@ -27,6 +27,7 @@ class EditUser extends Component {
             activityStatus: 'Loading',
             notifications: [],
             activities: [],
+            events: [],
             notificationOffset: 0,
             activityOffset: 0,
             notificationsFetched: true,
@@ -154,7 +155,7 @@ class EditUser extends Component {
                         </div>
                     </div>
 
-                    <div className='d-flex-between-center'>
+                    <div className='d-flex-end-center'>
                         <small>{moment(n.notification_date).format('MM-DD-YYYY h:mm:ss A')}</small>
                     </div>
 
@@ -186,10 +187,8 @@ class EditUser extends Component {
                         <span className={`mini-badge mini-${type} mr-2`}>{a.activity_type}</span> {a.activity_action}
                     </div>
 
-                    <div className='titled-container-row-detail'>
-                        <div className='activity-timestamp'>{moment(a.activity_date).format('MM-DD-YYYY h:mm:ss A')}</div>
-                    </div>
-
+                     <div className='d-flex-end-center'><small>{moment(a.activity_date).format('MM-DD-YYYY h:mm:ss A')}</small></div>
+                     
                     {i + 1 !== this.state.activities.length ? <hr /> : ''}
                 </div>
             });
@@ -213,7 +212,7 @@ class EditUser extends Component {
                         <EditUserSocialMedia user={this.props.user.user} save={(field, val) => this.saveField(field, val)} dispatch={this.props.dispatch} />
                     </div>
 
-                    <div id='dashboard-panel-container'>
+                    <div className='dashboard-panel-container'>
                         <div id='notifications-panel' className='dashboard-panel-half mb-5'>
                             <TitledContainer title='Notifications' bgColor='purple' shadow scroll={this.state.notifications.length > 0 ? true : false} icon={<FontAwesomeIcon icon={faBell} />}>
                                 {notificationStatus}
@@ -227,6 +226,12 @@ class EditUser extends Component {
                                 {activityStatus}
                                 {this.state.activities.length > 0 ? activities : <h5 className='text-dark text-center'>No activities</h5>}
                                 {!this.state.activitiesFetched ? <div className='load-more-button'><button className='btn btn-primary btn-sm' onClick={() => this.setState({activityOffset: this.state.activityOffset + 5})}>Load more</button></div> : ''}
+                            </TitledContainer>
+                        </div>
+
+                        <div className='dashboard-panel-full mb-5'>
+                            <TitledContainer title='Upcoming Events' bgColor='lime' shadow scroll={this.state.events.length > 0 ? true : false} icon={<FontAwesomeIcon icon={faCalendarStar} />}>
+        
                             </TitledContainer>
                         </div>
                     </div>

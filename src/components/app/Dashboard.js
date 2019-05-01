@@ -1,17 +1,15 @@
 import React, { Component } from 'react';
-import { withRouter, Redirect, NavLink } from 'react-router-dom';
-import Loading from '../utils/Loading';
+import { withRouter, NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import SideBar from '../includes/site/SideBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faColumns, faCommentAlt, faCog, faShoppingCart, faSyncAlt, faBriefcase, faLink } from '@fortawesome/pro-solid-svg-icons';
+import { faCommentAlt, faCog, faSyncAlt, faBriefcase, faLink } from '@fortawesome/pro-solid-svg-icons';
 import BottomBar from '../includes/site/BottomBar';
 import { connect } from 'react-redux';
-import { faListAlt } from '@fortawesome/pro-regular-svg-icons';
 import Response from './Response';
-import { GetSession, GetUserNotificationAndMessageCount, GetSectors } from '../../actions/FetchActions';
 import { faFilePlus, faUser } from '@fortawesome/pro-solid-svg-icons';
 import fetch from 'axios';
+import { PromptOpen, PromptReset } from '../../actions/PromptActions';
 
 class Dashboard extends Component {
     constructor(props) {
@@ -78,12 +76,12 @@ class Dashboard extends Component {
                 {name: 'Completed', active: this.props.location.pathname === '/dashboard/jobs/complete', link: '/dashboard/jobs/complete'},
                 {name: 'Abandoned', active: this.props.location.pathname === '/dashboard/jobs/abandoned', link: '/dashboard/jobs/abandoned'}
             ]},
-            {name: 'Link Work', link: '/dashboard/linkwork', active: this.props.location.pathname === '/dashboard/linkwork', icon: <FontAwesomeIcon icon={faLink} />},
+            {name: 'Link Work', link: '/dashboard/link_work', active: this.props.location.pathname === '/dashboard/link_work', icon: <FontAwesomeIcon icon={faLink} />},
             {name: 'Subscription', link: '/dashboard/subscription', active: this.props.location.pathname === '/dashboard/subscription', icon: <FontAwesomeIcon icon={faSyncAlt} />},
             {name: 'Settings', link: '/dashboard/settings/account', active: /^\/dashboard\/settings/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCog} />, items: [
                 {name: 'Account', active: this.props.location.pathname === '/dashboard/settings/account', link: '/dashboard/settings/account'},
                 {name: 'Payment', active: this.props.location.pathname === '/dashboard/settings/payment', link: '/dashboard/settings/payment'},
-                {name: 'Link Work', active: this.props.location.pathname === '/dashboard/settings/linkwork', link: '/dashboard/settings/linkwork'}
+                {name: 'Link Work', active: this.props.location.pathname === '/dashboard/settings/link_work', link: '/dashboard/settings/link_work'}
             ]}
         ];
 
@@ -115,7 +113,8 @@ Dashboard.propTypes = {
 const mapStateToProps = state => {
     return {
         config: state.Config,
-        user: state.Login
+        user: state.Login,
+        prompt: state.Prompt
     }
 }
 

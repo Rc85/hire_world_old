@@ -29,4 +29,14 @@
     .site-pricing-table, .app-fee-table {
         font-size: 0.7rem;
     }
+
+    .milestone-creator-buttons {
+        flex-direction: column;
+        align-items: flex-end;
+
+        .btn {
+            margin-right: 0;
+            margin-bottom: 5px;
+        }
+    }
 }

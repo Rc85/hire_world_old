@@ -285,146 +285,113 @@ app.post('/api/user/notifications/viewed', authenticate, async(req, resp) => {
 });
 
 app.post('/api/user/subscription/add', authenticate, (req, resp) => {
-        db.connect((err, client, done) => {
-            if (err) error.log(err, req, resp);
+    db.connect(async(err, client, done) => {
+        if (err) error.log(err, req, resp);
 
-            request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.RECAPTCHA_SECRET, response: req.body.verified}}, (err, res, body) => {
-                if (err) error.log(err, req, resp);
-
-                let response = JSON.parse(res.body);
-                
-                if (response.success) {
-                    (async() => {
-                        try {
-                            await client.query('BEGIN');
-
-                            let user = await client.query(`SELECT username, user_email, stripe_id, subscription_end_date, is_subscribed, plan_id, subscription_id, user_profiles.* FROM users
-                            LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
-                            WHERE username = $1`, [req.session.user.username]);
-
-                            if (req.body.saveAddress) {
-                                await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.address_line1, req.body.address_city, req.body.address_state, req.body.address_country, req.body.address_zip, req.session.user.user_id]);
-                            }
-
-                            let customer, subscription, customerParams;
-                            let now = new Date();
-
-                            if (req.body.plan === 'plan_EVUbtmca9pryxy' || req.body.plan === 'plan_EVTJiZUT4rVkCT') {
-                                // Set subscription parameters
-                                let subscriptionParams = {
-                                    customer: null,
-                                    items: [{plan: req.body.plan}],
-                                    trial_end: null
-                                };
-                                
-                                // If user already has a stripe account
-                                if (user.rows[0].stripe_id) {
-                                    subscriptionParams.customer = user.rows[0].stripe_id;
-                                    
-                                    // Set customer parameters with information sent from client
-                                    customerParams = {
-                                        source: req.body.token.id,
-                                        email: user.rows[0].user_email
-                                    }
-
-                                    // If user is using a stored payment method
-                                    if (req.body.usePayment && req.body.usePayment !== 'New') {
-                                        // Set customer default payment to the stored payment method
-                                        customerParams = {
-                                            default_source: req.body.usePayment,
-                                            email: user.rows[0].user_email
-                                        }
-                                    }
-                                } else { // If user doesn't have a stripe account
-                                    // Create a customer account
-                                    customer = await stripe.customers.create({
-                                        source: req.body.token.id,
-                                        email: user.rows[0].user_email,
-                                    });
-                                    
-                                    // Set subscription parameters with new account id
-                                    subscriptionParams.customer = customer.id
-                                }
-                                
-                                // If user is not subscribed
-                                if (user.rows[0].is_subscribed) {
-                                    if (user.rows[0].plan_id === 'plan_EVUbtmca9pryxy' || user.rows[0].plan_id === 'plan_EVTJiZUT4rVkCT') {
-                                        let error = new Error(`You're already subscribed to that plan`);
-                                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
-                                        throw errObj;
-                                    }
-
-                                    // If user still have days left on their subscription
-                                    if (new Date(user.rows[0].subscription_end_date) > now) {
-                                        // Get the different of subscription end date and today
-                                        let dayDiff = moment(user.rows[0].subscription_end_date).unix();
-                                        // Apply the difference to the trial days so user gets billed at the end of their remaining subscription days
-                                        subscriptionParams.trial_end = dayDiff;
-                                    }
-                                } else {
-                                    await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Subscription created', req.session.user.username, 'Subscription']);
-                                    await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_id = $1, subscription_id = $4, plan_id = $5, subscription_end_date = CASE WHEN subscription_end_date > current_timestamp THEN subscription_end_date + interval '31 days' ELSE current_timestamp + interval '31 days' END WHERE username = $2`, [customer.id, req.session.user.username, 'Listing', subscription.id, subscription.plan.id]);
-                                }
-                                
-                                subscription = await stripe.subscriptions.create(subscriptionParams);
-                            } else if (req.body.plan === '30 Day Listing') {
-                                let charge;
-
-                                if (!user.rows[0].stripe_id) {
-                                    charge = await stripe.charges.create({
-                                        amount: 800,
-                                        currency: 'cad',
-                                        source: req.body.token.id,
-                                        receipt_email: user.rows[0].user_email,
-                                        description: 'Hire World 30 Day Listing'
-                                    });
-                                } else if (user.rows[0].stripe_id && !user.rows[0].is_subscribed) {
-                                    charge = await stripe.charges.create({
-                                        amount: 800,
-                                        currency: 'cad',
-                                        customer: user.rows[0].stripe_id,
-                                        source: req.body.token.id
-                                    });
-                                } else if (user.rows[0].stripe_id && user.rows[0].is_subscribed) {
-                                    let error = new Error(`You're already subscribed`);
-                                    let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
-                                    throw errObj;
-                                }
-
-                                if (charge.paid && charge.status === 'succeeded') {
-                                    if (user.rows[0].subscription_end_date && new Date(user.rows[0].subscription_end_date) > now) {
-                                        await client.query(`UPDATE users SET subscription_end_date = subscription_end_date + interval '30 days', account_type = 'Listing' WHERE username = $1`, [req.session.user.username]);
-                                    } else if (user.rows[0].subscription_end_date && new Date(user.rows[0].subscription_end_date) < now || !user.rows[0].subscription_end_date) {
-                                        await client.query(`UPDATE users SET subscription_end_date = current_timestamp + interval '30 days', account_type = 'Listing' WHERE username = $1`, [req.session.user.username]);
-                                    }
-
-                                    await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Purchased 30 Day Listing', req.session.user.username, 'Purchase']);
-                                } else {
-                                    let error = new Error('Failed to process payment');
-                                    let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
-                                    throw errObj;
-                                }
-                            }
-
-                            await client.query('COMMIT')
-                            .then(async() => {
-                                resp.send({status: 'success'});
-                            });
-                        } catch (e) {
-                            await client.query('ROLLBACK');
-                            throw e;
-                        } finally {
-                            done();
-                        }
-                    })()
-                    .catch(err => {
-                         error.log(err, req, resp);
-                    });
-                } else {
-                    resp.send({status: 'error', statusMessage: `You're not human`});
-                }
+        let plans = await stripe.plans.list()
+        .then(list => {
+            return list.data.map(plan => {
+                return plan.id;
             });
+        })
+        .catch(err => {
+            return error.log(err, req, resp);
         });
+
+        if (plans.indexOf(req.body.plan) < 0) {
+            resp.send({status: 'error', statusMessage: `That plan does not exist`});
+        } else {
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+                    
+                    let user = await client.query(`SELECT username, user_email, stripe_id, subscription_end_date, is_subscribed, plan_id, subscription_id, user_profiles.* FROM users
+                    LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+                    WHERE username = $1`, [req.session.user.username]);
+
+                    if (user.rows[0].is_subscribed) {
+                        let error = new Error(`You're already subscribed`);
+                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                        throw errObj;
+                    }
+
+                    if (req.body.saveAddress) {
+                        await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.token.card.address_line1, req.body.token.card.address_city, req.body.token.card.address_state, req.body.token.card.address_country, req.body.token.card.address_zip, req.session.user.user_id]);
+                    }
+
+                    let customer, subscription, customerId;
+
+                    // Set subscription parameters
+                    let subscriptionParams = {
+                        customer: null,
+                        items: [{plan: req.body.plan}]
+                    };
+                    
+                    // If user already has a stripe account
+                    if (user.rows[0].stripe_id) {
+                        subscriptionParams.customer = user.rows[0].stripe_id;
+                        subscriptionParams['default_source'] = req.body.token.id;
+
+                        customerId = user.rows[0].stripe_id;
+                        // Set customer parameters with token ID and email
+                        /* customerParams = {
+                            source: req.body.token.id,
+                            email: user.rows[0].user_email
+                        } */
+
+                        // If user is using a stored payment method
+                        /* if (req.body.usePayment && req.body.usePayment !== 'New') {
+                            // Set customer default payment to the stored payment method
+                            customerParams = {
+                                default_source: req.body.usePayment,
+                            }
+                        } */
+                    } else { // If user doesn't have a stripe account
+                        // Create a customer account
+                        customer = await stripe.customers.create({
+                            source: req.body.token.id,
+                            email: user.rows[0].user_email,
+                        });
+                        
+                        // Set subscription parameters with new account id
+                        subscriptionParams.customer = customer.id
+                        customerId = customer.id;
+                    }
+                    
+                    // If user is not subscribed
+                    if (!user.rows[0].is_subscribed && user.rows[0].subscription_end_date) {
+                        let subscriptionEndDate = new Date(user.rows[0].subscription_end_date);
+                        let now = new Date();
+
+                        if (subscriptionEndDate.getTime() - now.getTime() > 0) {
+                            let dayDiff = moment(user.rows[0].subscription_end_date).unix();
+                            // Apply the difference to the trial days so user gets billed at the end of their remaining subscription days
+                            subscriptionParams['trial_end'] = dayDiff;
+                        }
+                    } else if (!user.rows[0].is_subscribed && !user.rows[0].subscription_end_date) {
+                        await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Subscription created', req.session.user.username, 'Subscription']);
+                    }
+                    
+                    subscription = await stripe.subscriptions.create(subscriptionParams);
+                    
+                    await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_id = $1, subscription_id = $4, plan_id = $5, subscription_end_date = CASE WHEN subscription_end_date > current_timestamp THEN subscription_end_date + interval '31 days' ELSE current_timestamp + interval '31 days' END WHERE username = $2`, [customerId, req.session.user.username, 'Link Work', subscription.id, subscription.plan.id]);
+
+                    await client.query('COMMIT')
+                    .then(async() => {
+                        resp.send({status: 'success'});
+                    });
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                return error.log(err, req, resp);
+            });
+        }
+    });
 });
 
 app.post('/api/user/subscription/cancel', authenticate, (req, resp) => {

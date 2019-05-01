@@ -18,6 +18,8 @@ module.exports = async(req, resp, next) => {
                             resp.send({status: 'suspended', statusMessage: 'Your account has been temporarily banned'});
                         } else if (auth.rows[0].user_status === 'Banned') {
                             resp.send({status: 'banned', statusMessage: `Your account has been permanently banned`});
+                        } else if (auth.rows[0].user_status === 'Pending') {
+                            resp.send({status: 'activation required'});
                         } else if (auth.rows[0].user_status === 'Active') {
                             bcrypt.compare(req.body.password, auth.rows[0].user_password, async(err, match) => {
                                 if (err) error.log(err, req, resp);
@@ -74,6 +76,8 @@ module.exports = async(req, resp, next) => {
                     resp.send({status: 'suspended', statusMessage: 'Your account has been temporarily banned'});
                 } else if (result.rows[0].user_status === 'Banned') {
                     resp.send({status: 'banned', statusMessage: `Your account has been permanently banned`});
+                } else if (result.rows[0].user_status === 'Pending') {
+                    resp.send({status: 'activation required'});
                 }
             } else if (result.rows.length === 0) {
                 resp.send({status: 'error', statusMessage: `Incorrect username or password`});

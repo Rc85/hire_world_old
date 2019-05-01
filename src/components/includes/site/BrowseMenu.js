@@ -20,6 +20,12 @@ class BrowseMenu extends Component {
         if (prevProps.menu.id !== this.props.menu.id && this.props.menu.id !== 'browse-menu') {
             this.setState({type: null});
         }
+
+        if (this.props.menu.id === 'browse-menu') {
+            document.body.style.overflowY = 'hidden';
+        } else {
+            document.body.style.overflowY = 'auto';
+        }
     }
     
     openSectorMenu(e, type) {

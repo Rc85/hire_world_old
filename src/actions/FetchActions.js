@@ -11,7 +11,7 @@ export const GetSession = () => {
         .then(resp => {
             if (resp.data.status === 'success') {
                 dispatch(GetSessionSuccess(resp.data.status, resp.data.user));
-            } else if (resp.data.status === 'error') {
+            } else if (resp.data.status === 'error' || resp.data.status === 'activation required') {
                 dispatch(GetSessionFail(resp.data.status, resp.data.statusMessage));
             } else if (resp.data.status === 'suspended' || resp.data.status === 'banned') {
                 dispatch(LogoutUser());

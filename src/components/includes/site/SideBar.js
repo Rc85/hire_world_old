@@ -20,7 +20,7 @@ class SideBar extends Component {
             hover: false
         }
     }
-
+    
     toggleMenu(e) {
         e.stopPropagation();
 
@@ -75,7 +75,7 @@ class SideBar extends Component {
                     <div id='sidebar-links'>
                         {browseLink}
                         {this.props.items.map((item, i) => {
-                            if (this.props.user.user && this.props.user.user.link_work_id && this.props.user.user.account_type === 'User' && item.name === 'Link Work') {
+                            if (this.props.user.user && (this.props.user.user.link_work_id || this.props.user.user.account_type === 'User') && item.name === 'Link Work') {
                                 return null;
                             }
                             
@@ -98,7 +98,7 @@ class SideBar extends Component {
                     </div>
                 </React.Fragment>
             </div>;
-        } else if (this.props.user.status === 'error' || this.props.user.status === 'not logged in' || this.props.user.status === 'access error') {
+        } else if (this.props.user.status === 'error' || this.props.user.status === 'not logged in' || this.props.user.status === 'activation required') {
             sidebarContent = <div id='sidebar-content'>
                 <React.Fragment>
                     <div id='sidebar-links'>

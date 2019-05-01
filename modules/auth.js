@@ -90,13 +90,11 @@ app.post('/api/auth/register', (req, resp) => {
 
                                     sgMail.send(message);
 
-                                    fs.exists(`./user_files/${user.rows[0].user_id}`, (exist) => {
-                                        if (exist) {
-                                            return false;
-                                        } else {
-                                            fs.mkdirSync(`./user_files/${user.rows[0].user_id}`);
-                                        }
-                                    });
+                                    let dirExist = fs.existsSync(`./user_files/${user.rows[0].user_id}`);
+
+                                    if (!dirExist) {
+                                        fs.mkdirSync(`./user_files/${user.rows[0].user_id}`);
+                                    }
 
                                     await client.query(`COMMIT`)
                                     .then(async() => {

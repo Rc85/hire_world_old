@@ -49,7 +49,7 @@ class Main extends Component {
                         {this.props.sectors.map((sector, i) => {
                             return <div key={i} className='sector-row'>
                                 <div className='sector-row-name'>
-                                    <NavLink to={`/sectors/${sector.sector}`}>{sector.sector}</NavLink>
+                                    <strong>{sector.sector}</strong> - <small><NavLink to={`/sectors/jobs/${sector.sector}`}>Jobs</NavLink> | <NavLink to={`/sectors/profiles/${sector.sector}`}>Profiles</NavLink></small>
                                     {/* <div>{sector.listing_count === null ? 0 : sector.listing_count}</div> */}
                                 </div>
 

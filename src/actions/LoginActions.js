@@ -14,7 +14,7 @@ export const LoginUser = (data) => {
             } else if (resp.data.status === 'error') {
                 dispatch(LoginError(resp.data.status, resp.data.statusMessage));
                 dispatch(Alert(resp.data.status, resp.data.statusMessage));
-            } else if (resp.data.status === 'access error') {
+            } else if (resp.data.status === 'activation required') {
                 dispatch(LoginError(resp.data.status, resp.data.statusMessage));
             } else if (resp.data.status === 'suspended' || resp.data.status === 'banned') {
                 dispatch(LoginError('error', resp.data.statusMessage));

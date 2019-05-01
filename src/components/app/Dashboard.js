@@ -85,8 +85,8 @@ class Dashboard extends Component {
             ]}
         ];
 
-        if (this.props.user.status === 'access error') {
-            dashboard = <Response code={403} header={'Forbidden'} message={this.props.user.statusMessage}>{this.props.user.statusMessage === `You need to activate your account` ? <div><NavLink to='/resend'>Resend Confirmation Email</NavLink></div> : ''}</Response>;
+        if (this.props.user.status === 'activation required') {
+            dashboard = <Response code={403} header={'Forbidden'} message='You need to activate your account'><div><NavLink to='/resend'>Resend Confirmation Email</NavLink></div></Response>;
         } else {
             dashboard = <React.Fragment>
                 {this.props.location.pathname.match(/^\/dashboard\/edit$/) ? <div id='main-panel-bg'></div> : ''}      
@@ -99,6 +99,7 @@ class Dashboard extends Component {
                 {!this.props.config.mobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
 
                 <div id='dashboard-main'>
+                    <div className={`dashboard-main-overlay ${this.props.menu.id === 'browse-menu' ? 'show' : ''}`} />
                     {dashboard}
                 </div>
             </section>
@@ -114,7 +115,8 @@ const mapStateToProps = state => {
     return {
         config: state.Config,
         user: state.Login,
-        prompt: state.Prompt
+        prompt: state.Prompt,
+        menu: state.Menu
     }
 }
 

@@ -5221,8 +5221,8 @@ footer {
   position: relative;
   padding-bottom: 50px;
 }
-#sidebar a, #sidebar a:hover {
-  text-decoration: none;
+#sidebar a:hover {
+  text-decoration: underline;
 }
 
 #sidebar-content {

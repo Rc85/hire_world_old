@@ -4,8 +4,10 @@
     min-height: 100%;
     position: relative;
     padding-bottom: 50px;
-
-    a, a:hover { text-decoration: none; }
+    
+    a:hover {
+        text-decoration: underline;
+    }
 }
 
 #sidebar-content {

@@ -75,7 +75,7 @@ class SideBar extends Component {
                     <div id='sidebar-links'>
                         {browseLink}
                         {this.props.items.map((item, i) => {
-                            if (this.props.user.user && (this.props.user.user.link_work_id || this.props.user.user.account_type === 'User') && item.name === 'Link Work') {
+                            if (this.props.user.user && this.props.user.user.link_work_id && this.props.user.user.account_type === 'User' && item.name === 'Link Work') {
                                 return null;
                             }
                             
@@ -122,8 +122,6 @@ class SideBar extends Component {
 
         return (
             <section id='sidebar'>
-                <BrowseMenu show={this.props.menu.id === 'browse-menu' && this.props.menu.show} />
-
                 <div className='text-center'><NavLink to='/main'><img src='/images/logo_xl.png' id='hireworld-logo' /></NavLink></div>
 
                 {sidebarContent}

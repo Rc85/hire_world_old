@@ -5,8 +5,6 @@ import { LogoutUser, LoginBegin } from './LoginActions';
 
 export const GetSession = () => {
     return dispatch => {
-        dispatch(LoginBegin('login begin'));
-
         return fetch.post('/api/auth/login')
         .then(resp => {
             if (resp.data.status === 'success') {

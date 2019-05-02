@@ -261,6 +261,11 @@ app.post('/api/user/profile/update', authenticate, (req, resp) => {
                 } else if (req.body.field === 'user linkedin') {
                     column = 'user_linkedin';
                 }
+
+                let httpCheck = /^(http:\/\/|https:\/\/){1}/;
+                if (!httpCheck.test(req.body.value)) {
+                    req.body.value = '//' + req.body.value;
+                }
             }
 
             if (valueCheck.test(req.body.value)) {

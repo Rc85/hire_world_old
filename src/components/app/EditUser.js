@@ -327,7 +327,7 @@ class EditUserSocialMedia extends Component {
             input = <div className='edit-user-field-container'>
                 <InputWrapper label={this.state.label}>
                     <form onSubmit={(e) => this.save(e)} className='edit-user-field-form'>
-                        <input type='text' value={this.state.value} onChange={(e) => this.setState({value: e.target.value})} value={this.state.value} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} placeholder='Enter URL' autoFocus />
+                        <input type='text' value={this.state.value} onChange={(e) => this.setState({value: e.target.value})} value={this.state.value} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} placeholder='https:// or http://' autoFocus />
                         <div className='d-flex-end-center'>
                             <button type='submit' className='btn btn-primary btn-sm mr-1'>Save</button>
                             <button type='button' className='btn btn-secondary btn-sm mr-1' onClick={() => this.setState({edit: false})}>Cancel</button>

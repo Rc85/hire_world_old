@@ -11,6 +11,8 @@ const request = require('request');
 const controller = require('../utils/controller');
 const authenticate = require('../utils/auth');
 const sgClient = require('@sendgrid/client');
+const util = require('util');
+const sa = require('../utils/sa');
 
 sgClient.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -371,8 +373,14 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                     } else if (!user.rows[0].is_subscribed && !user.rows[0].subscription_end_date) {
                         await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Subscription created', req.session.user.username, 'Subscription']);
                     }
+
+                    subscriptionParams['expand'] = ['latest_invoice.charge']
                     
                     subscription = await stripe.subscriptions.create(subscriptionParams);
+
+                    if (subscription.latest_invoice.charge.outcome.risk_level === 'elevated') {
+                        await sa.create('Subscription', 'Elevated risk reported by Stripe', req.session.user.username, 4, subscription.latest_invoice.charge.id);
+                    }
                     
                     await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_id = $1, subscription_id = $4, plan_id = $5, subscription_end_date = CASE WHEN subscription_end_date > current_timestamp THEN subscription_end_date + interval '31 days' ELSE current_timestamp + interval '31 days' END WHERE username = $2`, [customerId, req.session.user.username, 'Link Work', subscription.id, subscription.plan.id]);
 

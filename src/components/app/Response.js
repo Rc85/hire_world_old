@@ -27,7 +27,8 @@ import { withRouter } from 'react-router-dom';
  */
 class Response extends Component {
     render() {
-        let code, header, message;
+        let code, header;
+        let message = this.props.message;
 
         if (this.props.match.params.code) {
             if (this.props.match.params.code === '401') {

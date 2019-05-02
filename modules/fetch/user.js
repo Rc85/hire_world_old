@@ -183,34 +183,34 @@ app.post('/api/get/user/notifications', authenticate, async(req, resp) => {
 });
 
 app.post('/api/get/user/payments', authenticate, async(req, resp) => {
-        let user = await db.query(`SELECT stripe_id FROM users WHERE username = $1`, [req.session.user.username])
+    let user = await db.query(`SELECT stripe_id FROM users WHERE username = $1`, [req.session.user.username])
 
-        if (user && user.rows[0].stripe_id) {
-            await stripe.customers.retrieve(user.rows[0].stripe_id)
-            .then(customer => {
-                resp.send({status: 'success', defaultSource: customer.default_source, payments: customer.sources.data});
-            })
-            .catch(err => error.log(err, req, resp));
-        } else {
-            resp.send({status: 'success', payments: []});
-        }
+    if (user && user.rows[0].stripe_id) {
+        await stripe.customers.retrieve(user.rows[0].stripe_id)
+        .then(customer => {
+            resp.send({status: 'success', defaultSource: customer.default_source, payments: customer.sources.data});
+        })
+        .catch(err => error.log(err, req, resp));
+    } else {
+        resp.send({status: 'success', payments: []});
+    }
 });
 
 app.post('/api/get/user/subscription', authenticate, async(req, resp) => {
-        let user = await db.query(`SELECT subscription_id FROM users WHERE username = $1`, [req.session.user.username]);
-        let plans = await stripe.plans.list();
+    let user = await db.query(`SELECT subscription_id FROM users WHERE username = $1`, [req.session.user.username]);
+    let plans = await stripe.plans.list();
 
-        if (user && user.rows[0].subscription_id) {
-            subscription = await stripe.subscriptions.retrieve(user.rows[0].subscription_id)
-            .then(subscription => {
-                if (subscription) {
-                    resp.send({status: 'success', plans: plans, subscription: subscription});
-                }
-            })
-            .catch(err => error.log(err, req, resp));
-        } else {
-            resp.send({status: 'success', plans: plans});
-        }
+    if (user && user.rows[0].subscription_id) {
+        subscription = await stripe.subscriptions.retrieve(user.rows[0].subscription_id)
+        .then(subscription => {
+            if (subscription) {
+                resp.send({status: 'success', plans: plans, subscription: subscription});
+            }
+        })
+        .catch(err => error.log(err, req, resp));
+    } else {
+        resp.send({status: 'success', plans: plans});
+    }
 });
 
 app.post('/api/get/user/activities', authenticate, (req, resp) => {

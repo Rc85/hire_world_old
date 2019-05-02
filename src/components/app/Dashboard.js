@@ -86,7 +86,10 @@ class Dashboard extends Component {
         ];
 
         if (this.props.user.status === 'activation required') {
-            dashboard = <Response code={403} header={'Forbidden'} message='You need to activate your account'><div><NavLink to='/resend'>Resend Confirmation Email</NavLink></div></Response>;
+            dashboard = <Response code={403} header={'Activation Required'}>
+                <div className='mb-3 text-center'>You need to activate your account</div>
+                <div><NavLink to='/resend'>Resend Confirmation Email</NavLink></div>
+            </Response>;
         } else {
             dashboard = <React.Fragment>
                 {this.props.location.pathname.match(/^\/dashboard\/edit$/) ? <div id='main-panel-bg'></div> : ''}      

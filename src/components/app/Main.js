@@ -38,11 +38,11 @@ class Main extends Component {
     render() {
         return (
             <section id='main' className='main-panel'>
-                <TitledContainer title='Featured Profiles' icon={<FontAwesomeIcon icon={faClipboardList} />} shadow bgColor='lime' className='mb-5'>
+                {this.state.profiles.length > 0 ? <TitledContainer title='Featured Profiles' icon={<FontAwesomeIcon icon={faClipboardList} />} shadow bgColor='lime' className='mb-5'>
                     {this.state.profiles.map((profile, i) => {
                         return <ListingRow key={i} listing={profile} />
                     })}
-                </TitledContainer>
+                </TitledContainer> : ''}
 
                 <TitledContainer title='Sectors' icon={<FontAwesomeIcon icon={faThList} />} shadow bgColor='violet'>
                     <div className='sector-rows-container'>

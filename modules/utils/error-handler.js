@@ -1,4 +1,5 @@
 const db = require('../db');
+const sa = require('./sa');
 
 module.exports = {
     log: async (err, req, resp, url, callback) => {
@@ -15,6 +16,14 @@ module.exports = {
 
             if (err.type === 'StripeInvalidRequestError' || err.type === 'validation_error') {
                 message = err.message;
+            }
+
+            if (err.type === 'StripeCardError' && err.code === 'card_declined') {
+                message = err.message;
+
+                if (err.raw.decline_code === 'fraudulent') {
+                    await sa.create('Subscription', 'Possible fraud reported by Stripe', req.session.user.username, 5, err.raw.charge);
+                }
             }
         }
 

@@ -11,6 +11,7 @@ import { ToggleMenu } from '../../../actions/MenuActions';
 import NotificationPanel from '../site/NotificationPanel';
 import LoginPanel from './LoginPanel';
 import TwoFactorLogin from './TwoFactorLogin';
+import moment from 'moment';
 
 class SideBar extends Component {
     constructor(props) {
@@ -53,9 +54,7 @@ class SideBar extends Component {
             <BrowseMenu show={this.props.menu.id === 'browse-menu' && this.props.menu.show} />
         </div>;
 
-        let sidebarContent = <div id='sidebar-content'>
-            <Loading size='5x' className='mt-5' />
-        </div>;
+        let sidebarContent;
 
         if (this.props.user.user) {
             sidebarContent = <div id='sidebar-content'>
@@ -75,7 +74,7 @@ class SideBar extends Component {
                     <div id='sidebar-links'>
                         {browseLink}
                         {this.props.items.map((item, i) => {
-                            if (this.props.user.user && (this.props.user.user.link_work_id || this.props.user.user.account_type === 'User') && item.name === 'Link Work') {
+                            if (this.props.user.user && (this.props.user.user.link_work_id || moment(this.props.user.user.subscription_end_date).diff(moment(), 'days') < 0) && item.name === 'Link Work') {
                                 return null;
                             }
                             
@@ -118,6 +117,10 @@ class SideBar extends Component {
                     <TwoFactorLogin />
                 </React.Fragment>
             </div>
+        } else if (this.props.user.status === 'login begin') {
+            sidebarContent = <div id='sidebar-content'>
+                <Loading size='5x' className='mt-5' />
+            </div>;
         }
 
         return (

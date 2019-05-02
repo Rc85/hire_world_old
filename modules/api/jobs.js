@@ -456,27 +456,33 @@ app.post('/api/job/account/document/upload', authenticate, subscriptionCheck, as
                 error.log(err, req, resp);
             } else {
                 fs.readdir(`user_files/${user.rows[0].user_id}/documents`, async(err, files) => {
-                    let front = await stripe.fileUploads.create({
-                        purpose: 'identity_document',
-                        file: {
-                            data: fs.readFileSync(`user_files/${user.rows[0].user_id}/documents/${files.find(value => /^front/.test(value))}`),
-                            name: files.find(value => /^front/.test(value)),
-                            type: 'application/octet-stream'
-                        }
-                    },
-                    {stripe_account: user.rows[0].link_work_id})
-                    .catch(err => error.log(err, req));
+                    let front, back;
 
-                    let back = await stripe.fileUploads.create({
-                        purpose: 'identity_document',
-                        file: {
-                            data: fs.readFileSync(`user_files/${user.rows[0].user_id}/documents/${files.find(value => /^back/.test(value))}`),
-                            name: files.find(value => /^back/.test(value)),
-                            type: 'application/octet-stream'
+                    if (files.length >= 1 && fs.readFileSync(`user_files/${user.rows[0].user_id}/documents/${files.find(value => /^front/.test(value))}`)) {
+                        front = await stripe.fileUploads.create({
+                            purpose: 'identity_document',
+                            file: {
+                                data: fs.readFileSync(`user_files/${user.rows[0].user_id}/documents/${files.find(value => /^front/.test(value))}`),
+                                name: files.find(value => /^front/.test(value)),
+                                type: 'application/octet-stream'
+                            }
+                        },
+                        {stripe_account: user.rows[0].link_work_id})
+                        .catch(err => error.log(err, req));
+
+                        if (files.length > 1 && fs.readFileSync(`user_files/${user.rows[0].user_id}/documents/${files.find(value => /^back/.test(value))}`)) {
+                            back = await stripe.fileUploads.create({
+                                purpose: 'identity_document',
+                                file: {
+                                    data: fs.readFileSync(`user_files/${user.rows[0].user_id}/documents/${files.find(value => /^back/.test(value))}`),
+                                    name: files.find(value => /^back/.test(value)),
+                                    type: 'application/octet-stream'
+                                }
+                            },
+                            {stripe_account: user.rows[0].link_work_id})
+                            .catch(err => error.log(err, req));
                         }
-                    },
-                    {stripe_account: user.rows[0].link_work_id})
-                    .catch(err => error.log(err, req));
+                    }
 
                     await stripe.accounts.update(user.rows[0].link_work_id, {
                         individual: {

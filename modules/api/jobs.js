@@ -457,6 +457,7 @@ app.post('/api/job/account/document/upload', authenticate, subscriptionCheck, as
             } else {
                 fs.readdir(`user_files/${user.rows[0].user_id}/documents`, async(err, files) => {
                     let front, back;
+                    let document = {};
 
                     if (files.length >= 1 && fs.readFileSync(`user_files/${user.rows[0].user_id}/documents/${files.find(value => /^front/.test(value))}`)) {
                         front = await stripe.fileUploads.create({
@@ -470,6 +471,8 @@ app.post('/api/job/account/document/upload', authenticate, subscriptionCheck, as
                         {stripe_account: user.rows[0].link_work_id})
                         .catch(err => error.log(err, req));
 
+                        document['front'] = front.id;
+
                         if (files.length > 1 && fs.readFileSync(`user_files/${user.rows[0].user_id}/documents/${files.find(value => /^back/.test(value))}`)) {
                             back = await stripe.fileUploads.create({
                                 purpose: 'identity_document',
@@ -481,16 +484,15 @@ app.post('/api/job/account/document/upload', authenticate, subscriptionCheck, as
                             },
                             {stripe_account: user.rows[0].link_work_id})
                             .catch(err => error.log(err, req));
+
+                            document['back'] = back.id;
                         }
                     }
 
                     await stripe.accounts.update(user.rows[0].link_work_id, {
                         individual: {
                             verification: {
-                                document: {
-                                    front: front.id,
-                                    back: back.id
-                                }
+                                document: document
                             }
                         }
                     })

@@ -131,9 +131,13 @@ class LinkWorkSettings extends Component {
                 account_number: this.state.accountNumber,
                 account_holder_name: this.state.accountHolder
             });
-        } else {
+        } else if (this.state.accountType === 'debit') {
             token = await this.props.stripe.createToken({
                 name: this.state.accountHolder,
+                currency: this.state.accountCurrency
+            });
+        } else if (this.state.accountType === 'sepa') {
+            token = await this.props.stripe.createToken({
                 currency: this.state.accountCurrency
             });
         }

@@ -427,7 +427,7 @@ const upload = multer({
             if (filesize < 5000000) {
                 if (!fs.existsSync(dir)) {
                     fs.mkdir(dir, (err) => {
-                        if (err) error.log(err, req, resp);
+                        if (err) error.log(err, req);
                     });
                 }
 

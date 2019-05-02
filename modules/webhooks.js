@@ -69,7 +69,7 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
             } else if (event.type === 'invoice.payment_failed') {
                 await db.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Failed to renew subscription', user.rows[0].username, 'Subscription']);
 
-                let message = {
+                /* let message = {
                     to: user.rows[0].user_email,
                     from: 'admin@hireworld.ca',
                     subject: 'Notice: Subscription Renewing Soon',
@@ -85,13 +85,13 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
                     }
                 }
         
-                sgMail.send(message);
+                sgMail.send(message); */
             }
 
             resp.json({received: true});
             await db.query(`UPDATE stripe_events SET event_status = 'Processed' WHERE event_id = $1`, [event.id]);
         } catch (e) {
-            error.log(err, req);
+            error.log(e, req);
             resp.status(400).end();
         }
     }

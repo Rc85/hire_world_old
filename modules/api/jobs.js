@@ -254,10 +254,6 @@ app.post('/api/job/account/payment/add', authenticate, subscriptionCheck, async(
                         default_for_currency: true
                     })
                     .then(async(account) => {
-                        if (account.object === 'bank_account') {
-                            await db.query(`UPDATE users SET has_link_work_bank_acct = true WHERE username = $1`, [user.rows[0].username]);
-                        }
-
                         await db.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [req.session.user.username, account.object === 'bank_account' ? `Added a bank account to Link Work account` : `Added a card ending in ${account.last4} to Link Work account`, 'Link Work']);
                         await stripe.accounts.listExternalAccounts(user.rows[0].link_work_id)
                         .then(accounts => {

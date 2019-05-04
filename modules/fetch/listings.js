@@ -179,7 +179,7 @@ app.post('/api/get/listings', async(req, resp) => {
             FROM jobs LIMIT 1
         ) AS jobs
         ON jobs.job_user = user_listings.listing_user
-        WHERE ${whereArray.join(' AND ')}${whereArray.length > 0 ? ` AND ` : ' '}users.subscription_end_date > current_timestamp AND listing_status = 'Active'
+        WHERE ${whereArray.join(' AND ')}${whereArray.length > 0 ? ` AND ` : ' '}listing_status = 'Active'
         ${havingArray.length > 0 ? `GROUP BY 
             users.subscription_end_date, 
             user_listings.listing_id, 
@@ -386,46 +386,6 @@ app.post('/api/get/saved_listings', async(req, resp) => {
         }
     })
     .catch(err => error.log(err, req, resp));
-});
-
-app.post('/api/get/user/listings', authenticate, (req, resp) => {
-        db.connect((err, client, done) => {
-            if (err) error.log(err, req, resp);
-
-            (async() => {
-                try {
-                    await client.query('BEGIN');
-
-                    let listings;
-                    let user = await client.query(`SELECT subscription_end_date, account_type FROM users WHERE username = $1`, [req.body.user]);
-
-                    if (user.rows[0].subscription_end_date && (user.rows[0].account_type === 'Listing' || user.rows[0].account_type === 'Recruiter')) {
-                        if (new Date(user.rows[0].subscription_end_date) > new Date()) {
-                            listings = await client.query('SELECT listing_id, listing_title, listing_created_date, listing_renewed_date, listing_sector, listing_status, listing_price, listing_price_currency, listing_price_type, listing_purpose, listing_detail, listing_negotiable FROM user_listings WHERE listing_user = $1', [req.body.user]);
-                        } else {
-                            let error = new Error(`Your subscription has ended`);
-                            errorObject = {error: error, type: 'CUSTOM', stack: error.stack};
-                            throw errorObject;
-                        }
-                    } else if (user.rows[0].account_type === 'User') {
-                        let error = new Error(`You're not subscribed`);
-                        errorObject = {error: error, type: 'CUSTOM', stack: error.stack};
-                        throw errorObject;
-                    }
-
-                    await client.query('COMMIT')
-                    .then(() => resp.send({status: 'success', listings: listings.rows}));
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                    throw e;
-                } finally {
-                    done();
-                }
-            })()
-            .catch(err => {
-                error.log(err, req, resp);
-            });
-        });
 });
 
 module.exports = app;

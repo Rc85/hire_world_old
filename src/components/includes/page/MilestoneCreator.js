@@ -141,16 +141,16 @@ class MilestoneCreator extends Component {
 
                 {this.state.milestones.length > 1 ? <div className='delete-button'><FontAwesomeIcon icon={faTimes} size='lg' onClick={() => this.deleteMilestone(i)} /></div> : ''}
 
-                <div className='funds-remaining'>Remaining: $<MoneyFormatter value={remainingFunds} /></div>
+                <div className='funds-remaining mb-3'>Remaining: $<MoneyFormatter value={remainingFunds} /></div>
 
                 <div className='setting-field-container mb-3'>
                     <InputWrapper label='Payment' required>
                         <input type='text' onChange={(e) => this.setPayment(e.target.value, i)} value={milestone.milestone_payment_amount} />
                     </InputWrapper>
     
-                    <InputWrapper label='Expected Date'>
+                    <InputWrapper label='Expected Date' className='pb-1 pr-1 pl-1'>
                         <DatePicker dropdownMode='select' onChange={(val) => this.setDeliveryDate(val, i)} selected={moment(milestone.milestone_due_date).isValid() ? moment(milestone.milestone_due_date) : null} />
-                        {milestone.milestone_due_date ? <div className='pb-1 pr-1'><button className='btn btn-danger ml-1' type='button' onClick={() => this.unsetDeliveryDate(i)}><FontAwesomeIcon icon={faTimes} /></button></div> : ''}
+                        {milestone.milestone_due_date ? <div><button className='btn btn-danger btn-sm ml-1' type='button' onClick={() => this.unsetDeliveryDate(i)}><FontAwesomeIcon icon={faTimes} /></button></div> : ''}
                     </InputWrapper>
                 </div>
 
@@ -206,16 +206,18 @@ class MilestoneCreator extends Component {
                                 <ul>
                                     <li>At least one milestone is required.</li>
                                     <li>At least one condition is needed for each milestone.</li>
-                                    <li>Delivery dates should need exceed 90 days.</li>
+                                    <li>Delivery dates should not exceed 90 days.</li>
                                     <li>Be as detail as possible when setting conditions.</li>
+                                    <li>Expected date will be entered into your upcoming events</li>
                                 </ul>
                             </div>
                             <Tooltip placement='right-bottom' text={<span>Notes:
                                 <ul>
                                     <li>At least one milestone is required.</li>
                                     <li>At least one condition is needed for each milestone.</li>
-                                    <li>Delivery dates should need exceed 90 days.</li>
+                                    <li>Delivery dates should not exceed 90 days.</li>
                                     <li>Be as detail as possible when setting conditions.</li>
+                                    <li>Expected date will be entered into your upcoming events</li>
                                 </ul>
                             </span>}><FontAwesomeIcon icon={faQuestionCircle} size='lg' /></Tooltip>
                         </div>

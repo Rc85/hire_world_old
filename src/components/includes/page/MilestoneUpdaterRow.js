@@ -266,6 +266,7 @@ class MilestoneUpdaterRow extends Component {
     }
         
     render() {
+        console.log(this.state)
         let fundStatus, details;
 
         if (this.state.milestone.balance && this.state.showDetails) {
@@ -287,8 +288,10 @@ class MilestoneUpdaterRow extends Component {
 
                     {this.state.milestone.milestone_status === 'Requesting Payment'
                         ? <div className='detail-child'>
-                            <strong>Requested Amount:</strong> ${this.state.milestone.requested_payment_amount 
-                                ? <span>$<MoneyFormatter value={this.state.milestone.requested_payment_amount} /></span>
+                            <strong>Requested Amount:</strong> {this.state.milestone.requested_payment_amount 
+                                ? this.state.milestone.requested_payment_amount === this.state.milestone.milestone_payment_after_fees 
+                                    ? <span>$<MoneyFormatter value={parseFloat(this.state.milestone.requested_payment_amount)} /> {this.state.milestone.balance.currency.toUpperCase()}</span>
+                                    : <span>$<MoneyFormatter value={parseFloat(this.state.milestone.requested_payment_amount) + parseFloat(this.state.milestone.user_app_fee)} /> {this.state.milestone.balance.currency.toUpperCase()}</span>
                                 : <span>$<MoneyFormatter value={this.state.milestone.balance.net / 100} /> {this.state.milestone.balance.currency.toUpperCase()}</span>}
                         </div>
                         : ''}

@@ -68,7 +68,7 @@ const ViewUserProfile = props => {
 
                         <div className='view-user-listing-location mb-3'>
                             {props.user.listing_local ? <span className='mini-badge mini-badge-orange mr-1'>Local</span> : ''}
-                            {props.user.listing_online ? <span className='mini-badge mini-badge-purple mr-1'>Linked</span> : ''}
+                            {props.user.listing_online ? <span className='mini-badge mini-badge-purple mr-1'>Link Work</span> : ''}
                             {props.user.listing_remote ? <span className='mini-badge mini-badge-green mr-1'>Remote</span> : ''}
                         </div>
                     </div>

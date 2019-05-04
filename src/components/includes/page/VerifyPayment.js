@@ -99,7 +99,7 @@ class VerifyPayment extends Component {
         }
 
         if (!this.state.defaultAddress) {
-            addressInput = <AddressInput info={this.state} saveable={true} set={(key, val) => this.set(key, val)} />;
+            addressInput = <AddressInput info={this.state} saveable={true} set={(key, val) => this.set(key, val)} required />;
         }
 
         return (

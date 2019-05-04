@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter, Redirect } from 'react-router-dom';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileAlt, faComments, faCalendarAlt, faHandHoldingUsd } from '@fortawesome/pro-solid-svg-icons';
+import { faFileAlt, faComments, faCalendarAlt, faHandHoldingUsd, faUsdSquare, faCalendarEdit } from '@fortawesome/pro-solid-svg-icons';
 import { LogError } from '../utils/LogError';
 import fetch from 'axios';
 import moment from 'moment';
@@ -145,7 +145,7 @@ class OpenJobDetails extends Component {
             this.setState({status: 'Verifying'});
             this.props.dispatch(ShowLoading(`Processing`));
 
-            fetch.post('/api/job/milestone/start', {job_id: this.state.job.job_id, job_modified_date: this.state.job.job_modified_date, id: this.state.milestones[0].milestone_id, ...token, user: this.props.user.user.username, accept: true, saveAdress: save})
+            fetch.post('/api/job/milestone/start', {job_id: this.state.job.job_id, job_modified_date: this.state.job.job_modified_date, id: this.state.milestones[0].milestone_id, ...token, user: this.props.user.user.username, accept: true, saveAdress: save, milestone_due_date: this.state.milestones[0].milestone_due_date})
             .then(resp => {
                 if (resp.data.status === 'success') {
                     this.setState({status: 'Job Accepted'});
@@ -261,15 +261,15 @@ class OpenJobDetails extends Component {
                         </Elements>
                     </StripeProvider>;
                 } else if (this.state.status === 'Confirmed' && this.props.user.user && this.props.user.user.username !== this.state.job.job_client) {
-                    details = <h3 className='text-dark text-center'>Waiting for other party to transfer funds...</h3>;
+                    details = <h3 className='text-dark text-center'>Waiting for other party to transfer funds</h3>;
                 }
 
                 jobDetails = <React.Fragment>
                     <div className='job-details-dates'>
-                        <div className='mr-2'><FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /><strong>Job Created Date:</strong> {moment(this.state.job.job_created_date).format('MM-DD-YYYY')}</div>
-                        {moment(this.state.job.job_due_date).isValid() ? <div className='mr-2'><strong>Expected Delivery Date:</strong> {moment(this.state.job.job_due_date).format('MM-DD-YYYY')}</div> : ''}
+                        <div className='mr-2'><FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /><strong>Job Created Date:</strong> {moment.utc(this.state.job.job_created_date).format('MM-DD-YYYY')}</div>
+                        {moment(this.state.job.job_due_date).isValid() ? <div className='mr-2'><strong>Expected Delivery Date:</strong> {moment.utc(this.state.job.job_due_date).format('MM-DD-YYYY')}</div> : ''}
                         <div className='mr-2'><FontAwesomeIcon icon={faHandHoldingUsd} className='text-special mr-1' /><strong>Offered Price:</strong> {this.state.job.job_offer_price ? <span>$<MoneyFormatter value={this.state.job.job_offer_price} /> {this.state.job.job_price_currency}</span> : 'No offer price'}</div>
-                        {this.state.job.job_total_price ? <div className='mr-2'><strong>Total Payment:</strong> $<MoneyFormatter value={this.state.job.job_total_price} /> {this.state.job.job_price_currency}</div> : ''}
+                        {this.state.job.job_total_price ? <div className='mr-2'><FontAwesomeIcon icon={faUsdSquare} className='text-special mr-1' /><strong>Total Payment:</strong> $<MoneyFormatter value={this.state.job.job_total_price} /> {this.state.job.job_price_currency}</div> : ''}
                     </div>
 
                     {details}

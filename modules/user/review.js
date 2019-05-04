@@ -3,11 +3,15 @@ const db = require('../db');
 const cryptoJs = require('crypto-js');
 const error = require('../utils/error-handler');
 const authenticate = require('../utils/auth');
+const validate = require('../utils/validate');
 
 app.post('/api/authentic/review/submit', authenticate, (req, resp) => {
-        db.connect((err, client, done) => {
-            if (err) error.log(err, req, resp);
+    db.connect((err, client, done) => {
+        if (err) error.log(err, req, resp);
 
+        if (validate.blankCheck.test(req.body.review)) {
+            resp.send({status: 'Please write a review'});
+        } else {
             (async() => {
                 try {
                     await client.query(`BEGIN`);
@@ -53,7 +57,8 @@ app.post('/api/authentic/review/submit', authenticate, (req, resp) => {
                 }
             })()
             .catch(err => error.log(err, req, resp));
-        });
+        }
+    });
 });
 
 app.post('/api/review/submit', authenticate, (req, resp) => {

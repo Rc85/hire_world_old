@@ -302,6 +302,28 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
 
         if (plans.indexOf(req.body.plan) < 0) {
             resp.send({status: 'error', statusMessage: `That plan does not exist`});
+        } else if (req.body.token.card && !validate.locationCheck.test(req.body.token.card.address_city)) {
+            resp.send({status: 'error', statusMessage: 'City is invalid'});
+        } else if (req.body.token.card && !validate.locationCheck.test(req.body.token.card.address_state)) {
+            resp.send({status: 'error', statusMessage: 'Region is invalid'});
+        } else if (req.body.token.card && !validate.addressCheck.test(req.body.token.card.address_line1)) {
+            resp.send({status: 'error', statusMessage: 'Address line 1 is invalid'});
+        } else if (req.body.token.card && req.body.token.card.address_line2 && !validate.addressCheck.test(req.body.token.card.address_line2)) {
+            resp.send({status: 'error', statusMessage: 'Address line 2 is invalid'});
+        } else if (req.body.token.card && !validate.locationCheck.test(req.body.token.card.address_country)) {
+            resp.send({status: 'error', statusMessage: 'Country is invalid'});
+        } else if (req.body.token.card && !validate.cityCodeCheck.test(req.body.token.card.address_zip)) {
+            resp.send({status: 'error', statusMessage: 'Postal/zip code is invalid'});
+        } else if (req.body.token.card && (validate.blankCheck.test(req.body.token.card.adress_line1) || !req.body.token.card.address_line1)) {
+            resp.send({status: 'error', statusMessage: 'An address is required'});
+        } else if (req.body.token.card && (validate.blankCheck.test(req.body.token.card.address_country) || !req.body.token.card.address_country)) {
+            resp.send({status: 'error', statusMessage: 'Country is required'});
+        } else if (req.body.token.card && (validate.blankCheck.test(req.body.token.card.address_state) || !req.body.token.card.address_state)) {
+            resp.send({status: 'error', statusMessage: 'Region is required'});
+        } else if (req.body.token.card && (validate.blankCheck.test(req.body.token.card.address_city) || !req.body.token.card.address_city)) {
+            resp.send({status: 'error', statusMessage: 'City is required'});
+        } else if (req.body.token.card && (validate.blankCheck.test(req.body.token.card.address_zip) || !req.body.token.card.address_zip)) {
+            resp.send({status: 'error', statusMessage: 'Postal/zip code is required'});
         } else {
             (async() => {
                 try {
@@ -321,7 +343,7 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                         await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.token.card.address_line1, req.body.token.card.address_city, req.body.token.card.address_state, req.body.token.card.address_country, req.body.token.card.address_zip, req.session.user.user_id]);
                     }
 
-                    let customer, subscription, customerId;
+                    let customer, subscription, customerId, stripeAccount;
 
                     // Set subscription parameters
                     let subscriptionParams = {
@@ -331,23 +353,25 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                     
                     // If user already has a stripe account
                     if (user.rows[0].stripe_id) {
-                        subscriptionParams.customer = user.rows[0].stripe_id;
-                        subscriptionParams['default_source'] = req.body.token.id;
+                        stripeAccount = await stripe.customers.retrieve(user.rows[0].stripe_id);
+                    }
 
-                        customerId = user.rows[0].stripe_id;
-                        // Set customer parameters with token ID and email
-                        /* customerParams = {
-                            source: req.body.token.id,
-                            email: user.rows[0].user_email
-                        } */
+                    if (stripeAccount) {
+                        if (stripeAccount.sources.data.length > 0) {
+                            subscriptionParams.customer = user.rows[0].stripe_id;
+                            subscriptionParams['default_source'] = req.body.token.id;
 
-                        // If user is using a stored payment method
-                        /* if (req.body.usePayment && req.body.usePayment !== 'New') {
-                            // Set customer default payment to the stored payment method
-                            customerParams = {
-                                default_source: req.body.usePayment,
-                            }
-                        } */
+                            customerId = user.rows[0].stripe_id;
+                        } else {
+                            let source = await stripe.customers.createSource(user.rows[0].stripe_id, {
+                                source: req.body.token.id
+                            });
+
+                            subscriptionParams.customer = source.customer;
+                            subscriptionParams['default_source'] = source.id;
+
+                            customerId = source.customer;
+                        }
                     } else { // If user doesn't have a stripe account
                         // Create a customer account
                         customer = await stripe.customers.create({

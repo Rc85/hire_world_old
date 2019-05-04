@@ -77,38 +77,28 @@ app.post('/api/listing/create', authenticate, (req, resp) => {
 });
 
 app.post('/api/listing/toggle', authenticate, async(req, resp) => {
-        let user = await db.query(`SELECT users.user_status, user_listings.listing_id, users.subscription_end_date, account_type FROM users LEFT JOIN user_listings ON users.username = user_listings.listing_user WHERE users.username = $1`, [req.session.user.username]);
+    let listing = await db.query(`SELECT listing_status FROM user_listings WHERE listing_user = $1`, [req.session.user.username]);
+    let status;
 
-        if (user.rows[0].subscription_end_date && new Date(user.rows[0].subscription_end_date) < new Date()) {
-            resp.send({status: 'error', statusMessage: `Your subscription has ended`});
-        } else if (!user.rows[0].subscription_end_date && user.rows[0].account_type === 'User') {
-            resp.send({status: 'error', statusMessage: 'Please purchase a 30 day listing plan'});
-        } else if (user.rows[0].user_status === 'Suspend') {
-            resp.send({status: 'error', statusMessage: `You're temporary banned`});
-        } else {
-            let listing = await db.query(`SELECT listing_status FROM user_listings WHERE listing_user = $1`, [req.session.user.username]);
-            let status;
-
-            if (listing.rows.length === 1) {
-                if (listing.rows[0].listing_status === 'Active') {
-                    status = 'Inactive';
-                } else if (listing.rows[0].listing_status === 'Inactive') {
-                    status = 'Active';
-                }
-
-                await db.query(`UPDATE user_listings SET listing_status = $1 WHERE listing_user = $2 RETURNING listing_status`, [status, req.session.user.username])
-                .then(result => {
-                    if (result && result.rowCount === 1) {
-                        resp.send({status: 'success', listing_status: result.rows[0].listing_status});
-                    } else {
-                        resp.send({status: 'error', statusMessage: 'Failed to update'});
-                    }
-                })
-                .catch(err => error.log(err, req, resp));
-            } else if (listing.rows.length === 0) {
-                resp.send({status: 'error', statusMessage: `You need to save your list settings`});
-            }
+    if (listing.rows.length === 1) {
+        if (listing.rows[0].listing_status === 'Active') {
+            status = 'Inactive';
+        } else if (listing.rows[0].listing_status === 'Inactive') {
+            status = 'Active';
         }
+
+        await db.query(`UPDATE user_listings SET listing_status = $1 WHERE listing_user = $2 RETURNING listing_status`, [status, req.session.user.username])
+        .then(result => {
+            if (result && result.rowCount === 1) {
+                resp.send({status: 'success', listing_status: result.rows[0].listing_status});
+            } else {
+                resp.send({status: 'error', statusMessage: 'Failed to update'});
+            }
+        })
+        .catch(err => error.log(err, req, resp));
+    } else if (listing.rows.length === 0) {
+        resp.send({status: 'error', statusMessage: `You need to save your list settings`});
+    }
 });
 
 app.post('/api/listing/edit', authenticate, (req, resp) => {

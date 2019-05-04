@@ -22,16 +22,19 @@ class JobTimelineDetails extends Component {
     }
     
     render() {
+        console.log(this.props.job);
         return (
             <div id='job-timeline-month-detail' className={`simple-container no-bg ${this.state.showDetails ? 'show' : ''}`}>
                 <div className='simple-container-title'>{this.props.job.job_title}</div>
 
                 <div className='d-flex-between-start mb-3'>
                     <div>
-                        {this.props.user.user.username === this.props.job.job_user ? <span className='mini-badge mini-badge-violet mr-2'>I was Hired</span> : <span className='mini-badge mini-badge-orange mr-2'>I Hired</span>}
-                        {this.props.job.review_job_id ? <span className='mini-badge mini-badge-success'>Reviewed</span> : ''}
+                        {this.props.job.token_status === 'Invalid' ? <span className='mini-badge mini-badge-success'>Reviewed</span> : ''}
                     </div>
-                    <Username username={this.props.user.user.username === this.props.job.job_user ? this.props.job.job_client : this.props.job.job_user} color={'alt-highlight'} right />
+                    
+                    <div>
+                        {this.props.user.user.username === this.props.job.job_user ? <strong>Client:</strong> : <strong>Service Provider:</strong>} <Username username={this.props.user.user.username === this.props.job.job_user ? this.props.job.job_client : this.props.job.job_user} color={'alt-highlight'} right />
+                    </div>
                 </div>
 
                 <div className='job-timeline-detail-container mb-3'>
@@ -43,11 +46,11 @@ class JobTimelineDetails extends Component {
 
                     <div className='job-timeline-detail'><strong>Total Payment: </strong> $<MoneyFormatter value={this.props.job.job_total_price} /> {this.props.job.job_price_currency}</div>
 
-                    {this.props.user.user.username === this.props.job.job_client ? <div className='job-timeline-detail'><strong>Application Fee:</strong> $<MoneyFormatter value={his.props.job.total_client_fee} /> {this.props.job.job_price_currency}</div> : ''}
+                    {this.props.user.user.username === this.props.job.job_client ? <div className='job-timeline-detail'><strong>Application Fee:</strong> $<MoneyFormatter value={this.props.job.client_app_fee} /> {this.props.job.job_price_currency}</div> : ''}
 
-                    {this.props.user.user.username === this.props.job.job_user ? <div className='job-timeline-detail'><strong>Application Fee:</strong> $<MoneyFormatter value={this.props.job.total_user_fee} /> {this.props.job.job_price_currency}</div> : ''}
+                    {this.props.user.user.username === this.props.job.job_user ? <div className='job-timeline-detail'><strong>Application Fee:</strong> $<MoneyFormatter value={this.props.job.user_app_fee} /> {this.props.job.job_price_currency}</div> : ''}
 
-                    <div className='job-timeline-detail'>{this.props.user.user.username === this.props.job.job_user ? <strong>Earned:</strong> : <strong>Paid:</strong>} $<MoneyFormatter value={this.props.job.total_payment} /> {this.props.job.job_price_currency}</div>
+                    <div className='job-timeline-detail'>{this.props.user.user.username === this.props.job.job_user ? <strong>Earning:</strong> : <strong>Paid:</strong>} $<MoneyFormatter value={this.props.job.total_payment} /> {this.props.job.job_price_currency}</div>
 
                     <div className='job-timeline-detail'><strong>Milestones:</strong> {this.props.job.milestone_count}</div>
                 </div>

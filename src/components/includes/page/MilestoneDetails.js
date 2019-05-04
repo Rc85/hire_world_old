@@ -4,7 +4,7 @@ import moment from 'moment';
 import SubmitButton from '../../utils/SubmitButton';
 import MilestoneCreator from './MilestoneCreator';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown, faCaretUp } from '@fortawesome/pro-solid-svg-icons';
+import { faCaretDown, faCaretUp, faCalendarEdit, faCalendarAlt } from '@fortawesome/pro-solid-svg-icons';
 import MilestoneDetailsRow from './MilestoneDetailsRow';
 
 class MilestoneDetails extends Component {
@@ -39,13 +39,17 @@ class MilestoneDetails extends Component {
             <div className='simple-container no-bg mb-3'>
                 <div className='simple-container-title'>Agreement</div>
 
-                <div className='text-right mb-3'>
-                    {this.props.user.user && this.props.user.user.username === this.props.job.job_user
-                        ? this.state.edit 
-                            ? <button className='btn btn-secondary' onClick={() => this.setState({edit: false})}>Cancel</button> 
-                            : <button className='btn btn-primary' onClick={() => this.setState({edit: true})}>Edit</button>
-                        : ''}
-                    {this.state.edit ? '' :<button className='btn btn-info' type='button' onClick={() => this.setState({showDetails: !this.state.showDetails})}><FontAwesomeIcon icon={this.state.showDetails ? faCaretUp : faCaretDown} /></button>}
+                <div className='milestone-agreement-buttons mb-3'>
+                    <div><FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /><strong>Milestone Created:</strong> {moment.utc(this.props.job.milestones_created_date).format('MM-DD-YYYY')}</div>
+
+                    <div>
+                        {this.props.user.user && this.props.user.user.username === this.props.job.job_user
+                            ? this.state.edit 
+                                ? <button className='btn btn-secondary' onClick={() => this.setState({edit: false})}>Cancel</button> 
+                                : <button className='btn btn-primary' onClick={() => this.setState({edit: true})}>Edit</button>
+                            : ''}
+                        {this.state.edit ? '' :<button className='btn btn-info' type='button' onClick={() => this.setState({showDetails: !this.state.showDetails})}><FontAwesomeIcon icon={this.state.showDetails ? faCaretUp : faCaretDown} /></button>}
+                    </div>
                 </div>
 
                 {this.state.edit 

@@ -21,8 +21,9 @@ class JobSummary extends Component {
     }
     
     componentDidMount() {
-        fetch.post('/api/jobs/summary', {type: 'all'})
+        fetch.post('/api/jobs/summary')
         .then(resp => {
+            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', summary: resp.data});
             } else if (resp.data.status === 'error') {
@@ -39,13 +40,10 @@ class JobSummary extends Component {
         if (year) {
             this.setState({status: 'Getting Jobs'});
 
-            fetch.post('/api/jobs/summary', {type: 'jobs', year: year})
+            fetch.post('/api/get/jobs/summary', {year: year})
             .then(resp => {
                 if (resp.data.status === 'success') {
-                    let summary = {...this.state.summary};
-                    summary['jobs'] = resp.data.jobs
-
-                    this.setState({status: '', summary: summary});
+                    this.setState({status: '', summary : {...this.state.summary, jobs: resp.data.jobs}});
                 } else if (resp.data.status === 'error') {
                     this.setState({status: 'error'});
                 }
@@ -55,10 +53,7 @@ class JobSummary extends Component {
                 this.setState({status: 'error'});
             });
         } else {
-            let summary = {...this.state.summary};
-            summary['jobs'] = null;
-
-            this.setState({summary: summary});
+            return;
         }
     }
     
@@ -122,28 +117,65 @@ class JobSummary extends Component {
                         <div className='simple-container no-bg'>
                             <div className='simple-container-title'>Payments</div>
 
-                            <div className='job-summary-stats mb-1'>
-                                <strong>Total Payment for Services:</strong> {!this.state.summary.total_payment.total_payment ? <span>$0</span> : <span>$<MoneyFormatter value={this.state.summary.total_payment.total_payment} /> {this.state.summary.total_payment.job_price_currency}</span>}
+                            <div className='job-summary-stats mb-3'>
+                                <div className='mb-1'><strong>Total Payment for Services:</strong></div>
+                                <div className='d-flex ml-3'>
+                                    {this.state.summary.finance.map((job, i) => {
+                                        return <div key={i} className='mr-3'>
+                                            {!job.total_payment ? <span>$0.00</span> : <span>$<MoneyFormatter value={job.total_payment} /></span>} {job.currency}
+                                        </div>
+                                    })} 
+                                </div>
                             </div>
 
-                            <div className='job-summary-stats mb-1'>
-                                <strong>Total Application Fees Paid:</strong> {!isNaN(appFee) ? <span>$<MoneyFormatter value={appFee} /></span> : <span>$0</span>} CAD
+                            <div className='job-summary-stats mb-3'>
+                                <div className='mb-1'><strong>Total Application Fees Paid:</strong></div>
+                                <div className='d-flex ml-3'>
+                                    {this.state.summary.finance.map((obj, i) => {
+                                        let userFee = obj.total_user_fee ? obj.total_user_fee : 0;
+                                        let clientFee = obj.total_client_fee ? obj.total_client_fee : 0;
+                                        return <div key={i} className='mr-3'>
+                                            <span>$<MoneyFormatter value={userFee + clientFee} /> {obj.currency}</span>
+                                        </div>
+                                    })} 
+                                </div>
                             </div>
                         </div>
 
                         <div className='simple-container no-bg'>
                             <div className='simple-container-title'>Income</div>
 
-                            <div className='job-summary-stats mb-1'>
-                                <strong>Total Earnings:</strong> {!this.state.summary.payout_received ? <span>$0</span> : <span>$<MoneyFormatter value={this.state.summary.payout_received} /></span>}
+                            <div className='job-summary-stats mb-3'>
+                                <div className='mb-1'><strong>Total Earnings:</strong></div>
+                                <div className='d-flex ml-3'>
+                                    {this.state.summary.finance.map((obj, i) => {
+                                        return <div key={i} className='mr-3'>
+                                            <span>$<MoneyFormatter value={obj.total_earnings} /> {obj.currency}</span>
+                                        </div>
+                                    })} 
+                                </div>
                             </div>
 
-                            <div className='job-summary-stats mb-1'>
-                                <strong>Funds Available Soon:</strong> {!this.state.summary.balance_pending ? <span>$0</span> : <span>$<MoneyFormatter value={this.state.summary.balance_pending} /></span>}
+                            <div className='job-summary-stats mb-3'>
+                                <div className='mb-1'><strong>Funds Available Soon:</strong></div>
+                                <div className='d-flex ml-3'>
+                                    {this.state.summary.finance.map((obj, i) => {
+                                        return <div key={i} className='mr-3'>
+                                            <span>$<MoneyFormatter value={obj.pending_balance} /> {obj.currency}</span>
+                                        </div>
+                                    })} 
+                                </div>
                             </div>
 
-                            <div className='job-summary-stats mb-1'>
-                                <strong>Funds Available for Payout:</strong> {!this.state.summary.balance_available ? <span>$0</span> : <span>$<MoneyFormatter value={this.state.summary.balance_available} /></span>}
+                            <div className='job-summary-stats mb-3'>
+                                <div className='mb-1'><strong>Funds Available for Payout:</strong></div>
+                                <div className='d-flex ml-3'>
+                                    {this.state.summary.finance.map((obj, i) => {
+                                        return <div key={i} className='mr-3'>
+                                            <span>$<MoneyFormatter value={obj.available_balance} /> {obj.currency}</span>
+                                        </div>
+                                    })} 
+                                </div>
                             </div>
                         </div> 
 

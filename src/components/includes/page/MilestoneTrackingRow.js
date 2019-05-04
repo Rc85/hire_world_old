@@ -150,6 +150,7 @@ class MilestoneTrackingRow extends Component {
     }
     
     render() {
+        console.log(this.state)
         let status, fundStatus;
         let complete = [];
 
@@ -184,7 +185,7 @@ class MilestoneTrackingRow extends Component {
 
                 {this.state.milestone.milestone_status === 'Complete' ? <div className='detail-child'><strong>Paid on:</strong> {moment(this.state.milestone.balance.created * 1000).format('MM-DD-YYYY')}</div>: ''}
 
-                {this.state.milestone.milestone_status === 'Requesting Payment' ? <div className='detail-child'><strong>Requested Payment:</strong> $<MoneyFormatter value={this.state.milestone.requested_payment_amount} /> {this.state.milestone.balance.currency.toUpperCase()}</div> : ''}
+                {this.state.milestone.milestone_status === 'Requesting Payment' ? <div className='detail-child'><strong>Requested Payment:</strong> $<MoneyFormatter value={parseFloat(this.state.milestone.requested_payment_amount) + parseFloat(this.state.milestone.user_app_fee)} /> {this.state.milestone.balance.currency.toUpperCase()}</div> : ''}
             </div>;
         } else if (this.state.milestone.milestone_status === 'Pending') {
             details = <div className='milestone-progress-details'>
@@ -233,7 +234,7 @@ class MilestoneTrackingRow extends Component {
 
                     <div>
                         {complete.indexOf('In Progress') < 0 && this.state.milestone.balance && this.state.milestone.balance.status === 'available' && this.state.milestone.milestone_status === 'Requesting Payment' ? 
-                        <SubmitButton type='button' loading={this.state.status === 'Paying'} value='Pay' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to release your funds?`, <span>An amount of $<MoneyFormatter value={this.state.milestone.requested_payment_amount} /> {this.state.milestone.balance.currency.toUpperCase()} will be paid out to {this.props.job.job_user}</span>, {action: 'pay user', id: this.state.milestone.milestone_id}))} bgColor='success' /> : ''}
+                        <SubmitButton type='button' loading={this.state.status === 'Paying'} value='Pay' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to release your funds?`, <span>An amount of $<MoneyFormatter value={parseFloat(this.state.milestone.requested_payment_amount) + parseFloat(this.state.milestone.user_app_fee)} /> {this.state.milestone.balance.currency.toUpperCase()} will be paid out to {this.props.job.job_user}</span>, {action: 'pay user', id: this.state.milestone.milestone_id}))} bgColor='success' /> : ''}
                         {this.state.milestone.milestone_status === 'Pending' ? <button className='btn btn-primary milestone-button' type='button' onClick={() => this.setState({startMilestone: true})}>Start Milestone</button> : ''}
                         {this.state.milestone.milestone_status === 'Complete' ? <button className='btn btn-info' onClick={this.toggleDetails.bind(this)}><FontAwesomeIcon icon={this.state.showDetails ? faCaretUp : faCaretDown} /></button> : ''}
                     </div>

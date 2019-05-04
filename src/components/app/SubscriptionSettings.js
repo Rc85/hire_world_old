@@ -102,6 +102,14 @@ class SubscriptionSettings extends Component {
 
         this.setState({plan: e.target.value, planName: plan[0].nickname});
     }
+
+    confirmSubscription(token, save) {
+        if (!this.state.plan) {
+            this.props.dispatch(Alert('error', 'Please choose a plan'));
+        } else {
+            this.props.dispatch(ShowConfirmation(`Are you sure you want to subscribe to the ${this.state.planName} plan?`, false, {action: 'subscribe', token: token, saveAddress: save}))
+        }
+    }
     
     render() {
         if (this.state.status === 'Loading') {
@@ -197,7 +205,7 @@ class SubscriptionSettings extends Component {
                                 <Elements>
                                     <VerifyPayment
                                     user={this.props.user}
-                                    submit={(token, save) => this.props.dispatch(ShowConfirmation(`Are you sure you want to subscribe to the ${this.state.planName} plan?`, false, {action: 'subscribe', token: token, saveAddress: save}))}
+                                    submit={(token, save) => this.confirmSubscription(token, save)}
                                     status={this.props.status}
                                     />
                                 </Elements>

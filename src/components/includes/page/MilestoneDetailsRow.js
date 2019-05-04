@@ -22,7 +22,7 @@ class MilestoneDetailsRow extends Component {
                     <div className='milestone-number mb-3'>{this.props.index + 1}</div>
 
                     <div className='mb-1'><FontAwesomeIcon icon={faMoneyCheckAlt} className='text-special mr-1' /> <strong>Payment:</strong> $<MoneyFormatter value={this.props.milestone.milestone_payment_amount} /></div>
-                    <div className='mb-1'><FontAwesomeIcon icon={faCalendarExclamation} className='text-special mr-1' /> <strong>Expected Delivery Date:</strong> {this.props.milestone.milestone_due_date ? moment(this.props.milestone.milestone_due_date).format('MM-DD-YYYY') : 'N/A'}</div>
+                    <div className='mb-1'><FontAwesomeIcon icon={faCalendarExclamation} className='text-special mr-1' /> <strong>Expected Delivery Date:</strong> {this.props.milestone.milestone_due_date ? <React.Fragment><br />{moment(this.props.milestone.milestone_due_date).format('MM-DD-YYYY')}</React.Fragment> : 'N/A'}</div>
                 </div>
 
                 <div className='milestone-condition-container'>

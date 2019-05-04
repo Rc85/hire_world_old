@@ -102,7 +102,7 @@ class Dashboard extends Component {
                 {!this.props.config.mobile ? <SideBar user={this.props.user} items={items} /> : <BottomBar user={this.props.user} items={items} />}
 
                 <div id='dashboard-main'>
-                    <div className={`dashboard-main-overlay ${this.props.menu.id === 'browse-menu' ? 'show' : ''}`} />
+                    <div className={`dashboard-main-overlay ${this.props.menu.id === 'browse-menu' ? 'show' : ''}`} style={{top: window.pageYOffset + 'px'}} />
                     {dashboard}
                 </div>
             </section>

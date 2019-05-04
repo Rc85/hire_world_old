@@ -17,6 +17,7 @@ import Loading from '../utils/Loading';
 import { IsTyping } from '../../actions/ConfigActions';
 import { CountryDropdown } from 'react-country-region-selector';
 import AddBankAccount from '../includes/page/AddBankAccount';
+import NewPaymentForm from '../includes/page/NewPaymentForm';
 
 class PaymentSettings extends Component {
     constructor(props) {
@@ -81,9 +82,9 @@ class PaymentSettings extends Component {
                 let payments = [...this.state.payments];
                 payments.push(resp.data.card);
 
-                this.CardExpiryElement.clear();
+                /* this.CardExpiryElement.clear();
                 this.CardNumberElement.clear();
-                this.CardCVCElement.clear();
+                this.CardCVCElement.clear(); */
                 this.setState({status: '', name: '', address_line1: '', address_country: '', address_city: '', address_state: '', address_zip: '', payments: payments, defaultSource: resp.data.defaultSource});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
@@ -107,7 +108,7 @@ class PaymentSettings extends Component {
         this.setState(obj);
     }
 
-    useDefaultAdress() {
+    useDefaultAddress() {
         if (!this.props.user.user.user_address || !this.props.user.user.user_city || !this.props.user.user.user_region || !this.props.user.user.user_country || !this.props.user.user.user_city_code) {
             this.props.dispatch(Alert('error', 'No address to use'));
         } else {
@@ -186,7 +187,7 @@ class PaymentSettings extends Component {
             let address, paymentMethods, paymentType;
 
             if (!this.state.defaultAddress) {
-                address = <AddressInput saveable={true} info={this.state} set={(key, val) => this.set(key, val)} />;
+                address = <AddressInput saveable={true} info={this.state} set={(key, val) => this.set(key, val)} required />;
             }
 
             if (this.state.payments.length > 0) {
@@ -198,7 +199,8 @@ class PaymentSettings extends Component {
             let supportedCountries = ['AU', 'AT', 'BE', 'BR', 'CA', 'DK', 'FI', 'FR', 'DE', 'GI', 'HK', 'IE', 'IT', 'LU', 'MX', 'NL', 'NZ', 'NO', 'PT', 'ES', 'SE', 'CH', 'GB', 'US'];
 
             if (this.state.type === 'card') {
-                paymentType = <React.Fragment>
+                paymentType = <NewPaymentForm name={(val) => this.setState({name: val})} useDefaultAddress={() => this.useDefaultAddress()} defaultAddress={this.state.defaultAddress} />
+                /* <React.Fragment>
                     <div className='payment-icons'>
                         <img src='/images/powered_by_stripe.png' className='payment-icon mr-1' />
                         <img src='/images/payment_methods.png' className='payment-icon' />
@@ -223,7 +225,7 @@ class PaymentSettings extends Component {
                             <InputWrapper label='CVC' required className='pl-1 pb-1 pr-1'><CardCVCElement onReady={el => this.CardCVCElement = el} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} className='w-100' /></InputWrapper>
                         </div>
                     </div>
-                </React.Fragment>;
+                </React.Fragment> */;
             } else if (this.state.type === 'bank') {
                 paymentType = <AddBankAccount
                 accountCountry={this.state.accountCountry}
@@ -244,7 +246,7 @@ class PaymentSettings extends Component {
                         }}>
                             {paymentType}
             
-                            <div className='setting-child mb-3'><label><input type='checkbox' name='default-address' id='useDefaultAddress' onChange={() => this.useDefaultAdress()} checked={this.state.defaultAddress} /> Use address registered with this account</label></div>
+                            {/* <div className='setting-child mb-3'><label><input type='checkbox' name='default-address' id='useDefaultAddress' onChange={() => this.useDefaultAddress()} checked={this.state.defaultAddress} /> Use address registered with this account</label></div> */}
             
                             {address}
             

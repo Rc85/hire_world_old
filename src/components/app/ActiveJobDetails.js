@@ -42,8 +42,11 @@ class ActiveJobDetails extends Component {
     
     componentDidUpdate(prevProps, prevState) {
         if (this.props.confirm.data) {
-            if (this.props.confirm.data.action === 'close job' && this.props.confirm.option && this.props.confirm.option !== prevProps.confirm.option) {
+            if (this.props.confirm.data.action === 'request close job' && this.props.confirm.option && this.props.confirm.option !== prevProps.confirm.option) {
                 this.requestCloseJob()
+                this.props.dispatch(ResetConfirmation());
+            } else if (this.props.confirm.data.action === 'close job' && this.props.confirm.option && this.props.confirm.option !== prevProps.confirm.option) {
+                this.closeJob(true)
                 this.props.dispatch(ResetConfirmation());
             }
         }
@@ -258,7 +261,7 @@ class ActiveJobDetails extends Component {
                             </div>
 
                             <div className='text-right'>
-                                {this.props.user.user && this.props.user.user.username === this.state.job.job_user && this.state.job.job_status !== 'Requesting Close' ? <SubmitButton type='button' loading={this.state.status === 'Requesting Close'} value={<nobr>Close Job</nobr>} bgColor='danger' onClick={() => this.props.dispatch(ShowConfirmation(`This will send a request to the other party to close the job, proceed?`, false, {action: 'close job'}))} /> : ''}
+                                {this.props.user.user && this.props.user.user.username === this.state.job.job_user && this.state.job.job_status !== 'Requesting Close' ? <SubmitButton type='button' loading={this.state.status === 'Requesting Close'} value={<nobr>Close Job</nobr>} bgColor='danger' onClick={() => this.props.dispatch(ShowConfirmation(`This will send a request to the other party to close the job, proceed?`, false, {action: 'request close job'}))} /> : ''}
                             </div>
                         </div>
 

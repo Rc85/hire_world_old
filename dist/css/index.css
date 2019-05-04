@@ -4512,6 +4512,7 @@ footer {
 
 .milestone-condition-container {
   flex-grow: 1;
+  flex-basis: 100%;
   padding: 15px;
   border: 1px solid #2988BC;
 }
@@ -4530,6 +4531,12 @@ footer {
   padding-bottom: 5px;
   margin-bottom: 5px;
   border-bottom: 1px solid #2988BC;
+}
+
+.milestone-agreement-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .job-row {
@@ -7602,6 +7609,10 @@ footer {
   .milestone-creator-buttons .btn {
     margin-right: 0;
     margin-bottom: 5px;
+  }
+
+  .two-fa-qr {
+    width: 100%;
   }
 }
 @font-face {

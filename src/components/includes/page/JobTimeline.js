@@ -36,6 +36,7 @@ class JobTimeline extends Component {
     }
     
     render() {
+        console.log(this.props.jobs)
         let status, monthDiv;
 
         if (this.props.status === 'Getting Jobs') {
@@ -54,30 +55,36 @@ class JobTimeline extends Component {
             {name: 'Sep', jobs: {}},
             {name: 'Oct', jobs: {}},
             {name: 'Nov', jobs: {}},
-            {name: 'Dec', jobs: {}},
-        ];
+            {name: 'Dec', jobs: {}}
+        ]
 
         if (this.props.jobs) {
             months.map((month, i) => {
-                for (let job of this.props.jobs) {
-                    let jobComplete = moment.utc(job.job_end_date).format('DD');
-                    let jobMonth = moment.utc(job.job_end_date).month();
+                for (let obj of this.props.jobs) {
+                    for (let job of obj.jobs) {
+                        let jobMonth = moment(job.job_end_date).month();
+                        let jobDay = moment(job.job_end_date).format('DD');
 
-                    if (jobMonth === i) {
-                        if (months[i].jobs[jobComplete]) {
-                            for (let key in months[i].jobs) {
-                                if (key === jobComplete) {
-                                    months[i].jobs[jobComplete].push(job);
-                                } else {
-                                    months[i].jobs[key] = [job];
-                                }
+                        if (i === jobMonth) {
+                            if (months[i].jobs[jobDay]) {
+                                months[i].jobs[jobDay].push(job);
+                            } else {
+                                months[i].jobs[jobDay] = [job];
                             }
-                        } else {
-                            months[i].jobs[jobComplete] = [job];
                         }
                     }
+
+                    let sorted = {};
+
+                    Object.keys(months[i].jobs).sort().forEach((key) => {
+                        return sorted[key] = months[i].jobs[key];
+                    });
+
+                    months[i].jobs = sorted;
                 }
             });
+
+            console.log(months);
 
             monthDiv = months.map((month, i) => {
                 let jobs = [];
@@ -110,6 +117,8 @@ class JobTimeline extends Component {
                 </div>
             });
         }
+
+        //console.log(months[4].jobs);
 
         return (
             <div id='job-timeline'>

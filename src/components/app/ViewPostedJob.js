@@ -228,7 +228,7 @@ class ViewPostedJob extends Component {
                                 <div className='view-header-title-details'>
                                     <div className='mr-2'>
                                         {this.state.job.job_is_local ? <span className='mini-badge mini-badge-orange mr-1'>Local</span> : ''}
-                                        {this.state.job.job_is_online ? <span className='mini-badge mini-badge-purple mr-1'>Linked</span> : ''}
+                                        {this.state.job.job_is_online ? <span className='mini-badge mini-badge-purple mr-1'>Link Work</span> : ''}
                                         {this.state.job.job_is_remote ? <span className='mini-badge mini-badge-green mr-1'>Remote</span> : ''}
                                     </div>
 

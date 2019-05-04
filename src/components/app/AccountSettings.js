@@ -142,7 +142,7 @@ class AccountSettings extends Component {
             twoFactorConfig = <div className='text-center'><FontAwesomeIcon icon={faCircleNotch} size='5x' spin /></div>;
         } else if (this.state.imageUrl && this.state.configure2fa) {
             twoFactorConfig = <div className='mt-3'>
-                <div className='text-center mb-3'><img src={this.state.imageUrl} /></div>
+                <div className='text-center mb-3'><img className='two-fa-qr' src={this.state.imageUrl} /></div>
 
                 <div className='mb-3'>Please scan the QR code into your authenticator app. Then, enter the 6 digits shown on your app into the field below and press Verify.</div>
 

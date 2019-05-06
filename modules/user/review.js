@@ -9,8 +9,8 @@ app.post('/api/authentic/review/submit', authenticate, (req, resp) => {
     db.connect((err, client, done) => {
         if (err) error.log(err, req, resp);
 
-        if (validate.blankCheck.test(req.body.review)) {
-            resp.send({status: 'Please write a review'});
+        if (validate.blankCheck.test(req.body.review) || !req.body.review) {
+            resp.send({status: 'error', statusMessage: 'Please write a review'});
         } else {
             (async() => {
                 try {

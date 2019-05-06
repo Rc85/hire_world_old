@@ -32,7 +32,7 @@ app.post('/api/get/posted/job', async(req, resp) => {
     let saved = await db.query(`SELECT saved_id FROM saved_job_posts WHERE saved_by = $1 AND saved_job_post_id = $2`, [req.session.user.username, req.body.id]);
     let reported = await db.query(`SELECT report_id FROM reports WHERE reported_content_link = $1 AND reporter = $2 AND report_type = 'Job Posting' AND report_status = 'Pending'`, [req.body.url, req.session.user.username]);
 
-    await db.query(`SELECT job_postings.*, user_profiles.avatar_url, user_profiles.user_facebook, user_profiles.user_github, user_profiles.user_twitter, user_profiles.user_instagram, user_profiles.user_website, user_profiles.user_linkedin, users.user_email, users.is_subscribed, user_settings.hide_email FROM job_postings
+    await db.query(`SELECT job_postings.*, user_profiles.avatar_url, user_profiles.user_facebook, user_profiles.user_github, user_profiles.user_twitter, user_profiles.user_instagram, user_profiles.user_website, user_profiles.user_linkedin, users.user_email, user_settings.hide_email FROM job_postings
     LEFT JOIN users ON users.username = job_postings.job_post_user
     LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
     LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id

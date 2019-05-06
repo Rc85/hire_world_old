@@ -238,7 +238,7 @@ class ActiveJobDetails extends Component {
 
             return (
                 <section id='job-details-container' className='main-panel'>
-                    <TitledContainer title='Job Details' shadow bgColor='purple' icon={<FontAwesomeIcon icon={faFileAlt} />} id='job-details' minimizable minimized={this.state.job.job_status === 'Complete'} className='mb-5'>
+                    <TitledContainer title='Job Details' shadow bgColor='purple' icon={<FontAwesomeIcon icon={faFileAlt} />} id='job-details' minimizable className='mb-5'>
                         <div className='job-details-header'>
                             <div className='d-flex-center'>
                                 <h2>{this.state.job.job_title}</h2>

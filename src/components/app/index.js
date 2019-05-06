@@ -33,5 +33,6 @@ import ViewPostedJob from './ViewPostedJob';
 import AppliedJobs from './AppliedJobs';
 import SavedPosts from './SavedPosts';
 import ResetPassword from './ResetPassword';
+import Refer from './Refer';
 
-export { Dashboard, EditUser, Conversations, Login, Response, FriendsList, Sectors, AccountSettings, ViewUser, PaymentSettings, SubscriptionSettings, Profile, Register, Faq, TermsOfService, PrivacyPolicy, About, Main, ResendConfirmation, ActivateAccount, ForgotPassword, BlockedUsers, Jobs, LinkWorkSettings, JobSummary, OpenJobDetails, ActiveJobDetails, LinkWork, PostJob, PostedJobs, EditPostedJob, ViewPostedJob, AppliedJobs, SavedPosts, ResetPassword }
+export { Dashboard, EditUser, Conversations, Login, Response, FriendsList, Sectors, AccountSettings, ViewUser, PaymentSettings, SubscriptionSettings, Profile, Register, Faq, TermsOfService, PrivacyPolicy, About, Main, ResendConfirmation, ActivateAccount, ForgotPassword, BlockedUsers, Jobs, LinkWorkSettings, JobSummary, OpenJobDetails, ActiveJobDetails, LinkWork, PostJob, PostedJobs, EditPostedJob, ViewPostedJob, AppliedJobs, SavedPosts, ResetPassword, Refer }

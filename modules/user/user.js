@@ -11,9 +11,11 @@ const request = require('request');
 const controller = require('../utils/controller');
 const authenticate = require('../utils/auth');
 const sgClient = require('@sendgrid/client');
+const sgMail = require('@sendgrid/mail');
 const util = require('util');
 const sa = require('../utils/sa');
 
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 sgClient.setApiKey(process.env.SENDGRID_API_KEY);
 
 stripe.setApiVersion('2019-02-19');
@@ -127,12 +129,6 @@ app.post('/api/user/profile-pic/delete', authenticate, async(req, resp) => {
             try {
                 await client.query('UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2', ['/images/profile.png', req.session.user.user_id]);
 
-                /* let user = await client.query(`SELECT users.username, users.user_email, users.account_type, users.user_status, users.is_subscribed, users.plan_id, users.user_last_login, users.user_level, users.subscription_end_date, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
-                LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
-                LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
-                LEFT JOIN user_listings ON users.username = user_listings.listing_user
-                WHERE users.user_id = $1`, [req.session.user.user_id]); */
-
                 let user = await controller.session.retrieve(client, req.session.user.user_id);
 
                 await client.query('COMMIT')
@@ -173,12 +169,6 @@ app.post('/api/user/edit', authenticate, (req, resp) => {
                 try {
                     await client.query(`BEGIN`);
                     await client.query(`UPDATE user_profiles SET ${type} = $1 WHERE user_profile_id = $2`, [req.body.value, req.session.user.user_id]);
-
-                    /* let user = await client.query(`SELECT users.username, users.user_email, users.account_type, users.user_status, users.is_subscribed, users.plan_id, users.user_last_login, users.user_level, users.subscription_end_date, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
-                    LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
-                    LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
-                    LEFT JOIN user_listings ON users.username = user_listings.listing_user
-                    WHERE users.user_id = $1`, [req.session.user.user_id]); */
 
                     let user = await controller.session.retrieve(client, req.session.user.user_id);
 
@@ -329,8 +319,9 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                 try {
                     await client.query('BEGIN');
                     
-                    let user = await client.query(`SELECT username, user_email, stripe_id, subscription_end_date, is_subscribed, plan_id, subscription_id, user_profiles.* FROM users
+                    let user = await client.query(`SELECT username, user_email, stripe_id, subscription_end_date, CASE WHEN subscriptions.sub_id IS NOT NULL THEN true ELSE false END AS is_subscribed, subscriptions.*, user_profiles.* FROM users
                     LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
+                    LEFT JOIN subscriptions ON users.username = subscriptions.subscriber
                     WHERE username = $1`, [req.session.user.username]);
 
                     if (user.rows[0].is_subscribed) {
@@ -406,7 +397,8 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                         await sa.create('Subscription', 'Elevated risk reported by Stripe', req.session.user.username, 4, subscription.latest_invoice.charge.id);
                     }
                     
-                    await client.query(`UPDATE users SET account_type = $3, is_subscribed = true, stripe_id = $1, subscription_id = $4, plan_id = $5, subscription_end_date = CASE WHEN subscription_end_date > current_timestamp THEN subscription_end_date + interval '31 days' ELSE current_timestamp + interval '31 days' END WHERE username = $2`, [customerId, req.session.user.username, 'Link Work', subscription.id, subscription.plan.id]);
+                    await client.query(`UPDATE users SET account_type = $3, stripe_id = $1 WHERE username = $2`, [customerId, req.session.user.username, 'Link Work', subscription.id, subscription.plan.id]);
+                    await client.query(`INSERT INTO subscriptions (subscription_id, subscription_end_date, subscriber) VALUES ($1, $2, $3) ON CONFLICT (subscription_id) DO UPDATE SET subscription_end_date = CASE WHEN subscription_end_date < current_timestamp THEN current_timestamp + interval '1 month' END, subscription_created_date = current_timestamp`);
 
                     await client.query('COMMIT')
                     .then(async() => {
@@ -434,13 +426,9 @@ app.post('/api/user/subscription/cancel', authenticate, (req, resp) => {
                 try {
                     await client.query('BEGIN');
 
-                    let subscriptionId = await client.query('SELECT subscription_id FROM users WHERE username = $1', [req.session.user.username]);
+                    let subscriptionId = await client.query('SELECT subscription_id FROM subscriptions WHERE subscriber = $1', [req.session.user.username]);
 
-                    let subscription = await stripe.subscriptions.del(subscriptionId.rows[0].subscription_id);
-
-                    if (subscription.status === 'canceled') {
-                        await client.query(`UPDATE users SET is_subscribed = false WHERE username = $1`, [req.session.user.username]);
-                    }
+                    await stripe.subscriptions.del(subscriptionId.rows[0].subscription_id);
 
                     await client.query('COMMIT')
                     .then(async() => {
@@ -608,13 +596,15 @@ app.post('/api/user/payment/delete', authenticate, (req, resp) => {
                 try {
                     await client.query('BEGIN');
 
-                    let user = await client.query(`SELECT stripe_id, is_subscribed FROM users WHERE username = $1`, [req.session.user.username]);
+                    let user = await client.query(`SELECT stripe_id, CASE WHEN subscriptions.sub_id IS NOT NULL THEN true ELSE false END AS is_subscribed FROM users
+                    LEFT JOIN subscriptions ON user.username = subscriptions.subscriber
+                    WHERE username = $1`, [req.session.user.username]);
 
                     if (user && user.rows[0].stripe_id) {
                         let customer = await stripe.customers.retrieve(user.rows[0].stripe_id);
 
                         if (user.rows[0].is_subscribed && customer.sources.data.length === 1) {
-                            let error = new Error(`This card cannot be deleted`);
+                            let error = new Error(`At least one card is required for an active subscription`);
                             let errObj = {error: error, type: 'CUSTOM', stack: error.stack};;
                             throw errObj;
                         } else if (!user.rows[0].is_subscribed && customer.sources.data.length > 0) {
@@ -751,5 +741,70 @@ app.post('/api/email/subscribe', async(req, resp) => {
         }
     });
 });
+
+app.post('/api/refer', authenticate, (req, resp) => {
+    db.connect((err, client, done) => {
+        if (err) return error.log(err, req, resp);
+
+        let hasEmail = false;
+
+        for (let email of req.body) {
+            if (email.email || !/^\s*$/.test(email.email)) {
+                hasEmail = true;
+                break;
+            }
+        }
+
+        if (hasEmail) {
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let emails = [];
+
+                    for (let email of req.body) {
+                        let referral = await client.query(`INSERT INTO referrals (referer, referred_email, referral_key) VALUES ($1, $2, $3) ON CONFLICT (referer, referred_email) DO UPDATE SET referral_created_date = current_timestamp RETURNING *`, [req.session.user.username, email.email, email.referKey]);
+
+                        if (referral && referral.rows.length === 1) {
+                            emails.push({
+                                to: email.email,
+                                from: 'admin@hireworld.ca',
+                                templateId: 'd-da70ebb683ad4f399599acc12678fc97',
+                                dynamicTemplateData: {
+                                    url: process.env.SITE_URL,
+                                    referKey: referral.rows[0].referral_key
+                                },
+                                trackSettings: {
+                                    clickTracking: {
+                                        enable: false
+                                    }
+                                }
+                            });
+                        }
+                    }
+
+                    sgMail.send(emails)
+                    .catch(err => {
+                        throw err;
+                    });
+
+                    await client.query('COMMIT')
+                    .then(() => resp.send({status: 'success', statusMessage: 'Referral(s) sent'}));
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                return error.log(err, req, resp);
+            });
+        } else {
+            resp.send({status: 'error', statusMessage: 'At least one email is required'});
+        }
+    });
+});
+
 
 module.exports = app;

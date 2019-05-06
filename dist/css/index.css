@@ -6041,6 +6041,13 @@ footer {
 .site-section h1, .site-section-div-container h1, .site-section-col h1, .site-section h3, .site-section-div-container h3, .site-section-col h3 {
   color: #2988BC;
 }
+.site-section a, .site-section-div-container a, .site-section-col a {
+  color: #2988BC;
+}
+.site-section a:hover, .site-section-div-container a:hover, .site-section-col a:hover {
+  text-decoration: underline;
+  color: #2988BC;
+}
 
 .site-section-col {
   flex-direction: column;

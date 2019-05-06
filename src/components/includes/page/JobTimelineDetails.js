@@ -44,13 +44,13 @@ class JobTimelineDetails extends Component {
 
                     {this.props.job.job_offer_price ? <div className='job-timeline-detail'><strong>Offered Price:</strong> {isNaN(this.props.job.job_offer_price) ? <span>$0</span> : <span>$<MoneyFormatter value={this.props.job.job_offer_price} /></span>}</div> : ''}
 
-                    <div className='job-timeline-detail'><strong>Total Payment: </strong> $<MoneyFormatter value={this.props.job.job_total_price} /> {this.props.job.job_price_currency}</div>
+                    <div className='job-timeline-detail'><strong>Job Price: </strong> $<MoneyFormatter value={this.props.job.job_total_price} /> {this.props.job.job_price_currency}</div>
 
-                    {this.props.user.user.username === this.props.job.job_client ? <div className='job-timeline-detail'><strong>Application Fee:</strong> $<MoneyFormatter value={this.props.job.client_app_fee} /> {this.props.job.job_price_currency}</div> : ''}
+                    {this.props.user.user.username === this.props.job.job_client ? <div className='job-timeline-detail'><strong>Application Fee:</strong> $<MoneyFormatter value={this.props.job.total_client_fee} /> {this.props.job.job_price_currency}</div> : ''}
 
-                    {this.props.user.user.username === this.props.job.job_user ? <div className='job-timeline-detail'><strong>Application Fee:</strong> $<MoneyFormatter value={this.props.job.user_app_fee} /> {this.props.job.job_price_currency}</div> : ''}
+                    {this.props.user.user.username === this.props.job.job_user ? <div className='job-timeline-detail'><strong>Application Fee:</strong> $<MoneyFormatter value={this.props.job.total_user_fee} /> {this.props.job.job_price_currency}</div> : ''}
 
-                    <div className='job-timeline-detail'>{this.props.user.user.username === this.props.job.job_user ? <strong>Earning:</strong> : <strong>Paid:</strong>} $<MoneyFormatter value={this.props.job.total_payment} /> {this.props.job.job_price_currency}</div>
+                    <div className='job-timeline-detail'><strong>Payout:</strong> $<MoneyFormatter value={this.props.job.total_payment} /> {this.props.job.job_price_currency}</div>
 
                     <div className='job-timeline-detail'><strong>Milestones:</strong> {this.props.job.milestone_count}</div>
                 </div>

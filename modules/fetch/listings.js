@@ -147,7 +147,6 @@ app.post('/api/get/listings', async(req, resp) => {
         let totalListings = await db.query(`SELECT COUNT(listing_id) AS count FROM user_listings WHERE listing_sector = $1`, [req.body.sector]);
 
         let query = `SELECT
-            users.subscription_end_date, 
             user_listings.*, 
             user_profiles.user_title, 
             user_reviews.rating, 
@@ -181,7 +180,6 @@ app.post('/api/get/listings', async(req, resp) => {
         ON jobs.job_user = user_listings.listing_user
         WHERE ${whereArray.join(' AND ')}${whereArray.length > 0 ? ` AND ` : ' '}listing_status = 'Active'
         ${havingArray.length > 0 ? `GROUP BY 
-            users.subscription_end_date, 
             user_listings.listing_id, 
             user_profiles.user_title, 
             user_reviews.rating, 

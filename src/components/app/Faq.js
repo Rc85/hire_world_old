@@ -29,6 +29,14 @@ const Faq = props => {
                         <div className='mb-1'>
                             <a href='#eight'>Why can't I submit more than one review?</a>
                         </div>
+                        
+                        <div className='mb-1'>
+                            <a href='#twentythree'>What is "suspicious activity"?</a>
+                        </div>
+                        
+                        <div className='mb-1'>
+                            <a href='#twentyfour'>After reaching the qualified date of a promotion, I realized that high level of suspicious activity were found on my account, will I still be eligible for the promotion?</a>
+                        </div>
                     </div>
 
                     <div className='mb-3'>
@@ -503,7 +511,41 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            <p>You suggest that you cancel your subscription and leave your Link Work account intact. If for any reason you want to close your Link Work account, you may do so once there are no remaining balance on your account.</p>
+                            <p>We suggest that you cancel your subscription and leave your Link Work account intact. If for any reason you want to close your Link Work account, you may do so once there are no remaining balance on your account.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div id='twentythree' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>What is "suspicious activity"?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>Suspicious activities can involve many things from using a stolen credit card, entering address during payments that do not match the card, and using a different name than your Hire World's account name to sign up for Link Work. We understand that under some circumstances, some activities that are deemed suspicious will happen on Hire World. We measure suspicious activities from level one to five, five being severe. For example, using a different name to create a Link Work account will be considered suspicious activity, but is at a level of 1 and it is not considered "high". High level of suspicious activity fall in level 4 and higher. However, suspicious activities that have a low level can also be considered high by our administrators. For example, multiple failures of CVC check when entering payment information can be considered as high level of suspicious activity.</p>
+
+                            <p>We have multiple systems in place to monitor all sorts of suspicious activities in order to provide the best experience and safe platform for our users. When high level of suspicious activity is detected, we may notify you by email that such detection has occurred on your account. Upon receiving an email regarding suspicious activity on your account, reply to the email with an explanation to our admin that the "suspicious activity" was performed by you so that we can remove it from your account.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div id='twentyfour' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>After reaching the qualified date of a promotion, I realized that high level of suspicious activity were found on my account, will I still be eligible for the promotion?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>We understand that sometimes emails and notifications can become buried by other emails and notifications. If under any circumstances that you realized after the notice regarding high level of suspicious activity on your account that may be the cause of your disqualification of a promotion, you can contact us to resolve the suspicious activity on your account in addition to an explanation of the disqualification of a promotion and we will happily restore your eligibility of the promotion.</p>
                         </div>
 
                         <div className='text-right'>

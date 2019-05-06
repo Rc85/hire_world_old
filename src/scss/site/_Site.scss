@@ -148,6 +148,15 @@
     h1, h3 {
         color: $theme-highlight;
     }
+
+    a {
+        color: $theme-highlight;
+
+        &:hover {
+            text-decoration: underline;
+            color: $theme-highlight;
+        }
+    }
 }
 
 .site-section-col {

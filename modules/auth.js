@@ -63,6 +63,18 @@ app.post('/api/auth/register', (req, resp) => {
                                 try {
                                     await client.query(`BEGIN`);
 
+                                    if (req.body.key) {
+                                        let referral = await client.query(`SELECT * FROM referrals WHERE referred_email = $1 AND referral_key = $2`, [req.body.email, req.body.key]);
+            
+                                        if (referral && referral.rows.length === 1) {
+                                            await client.query(`UPDATE referrals SET referral_accepted_date = current_timestamp, referral_status = 'Activated' WHERE referral_id = $1`, [referral.rows[0].referral_id]);
+                                        } else {
+                                            let error = new Error(`The email does not match the referred email`);
+                                            let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                                            throw errObj;
+                                        }
+                                    }
+
                                     let encrypted = cryptoJS.AES.encrypt(req.body.email, process.env.ACTIVATE_ACCOUNT_SECRET);
                                     let regKeyString = encrypted.toString();
                                     let registrationKey = encodeURIComponent(regKeyString);
@@ -109,21 +121,7 @@ app.post('/api/auth/register', (req, resp) => {
                                 }
                             })()
                             .catch(err => {
-                                error.log(err, req, null, null, (err) => {
-                                    let message = `An error occurred`;
-                                
-                                    if (err.code === '23505') {
-                                        if (err.constraint === 'unique_email') {
-                                            message = 'Email already taken';
-                                        } else if (err.constraint === 'unique_username') {
-                                            message = 'Username already taken';
-                                        }
-                                    } else if (err.code === '23502') {
-                                        message = 'All fields are required';
-                                    }
-
-                                    resp.send({status: 'error', statusMessage: message});
-                                });
+                                return error.log(err, req, resp);
                             });
                         });
                     });

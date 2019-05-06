@@ -197,7 +197,7 @@ app.post('/api/get/user/payments', authenticate, async(req, resp) => {
 });
 
 app.post('/api/get/user/subscription', authenticate, async(req, resp) => {
-    let user = await db.query(`SELECT subscription_id FROM users WHERE username = $1`, [req.session.user.username]);
+    let user = await db.query(`SELECT subscription_id FROM subscriptions WHERE subscriber = $1`, [req.session.user.username]);
     let plans = await stripe.plans.list();
 
     if (user && user.rows[0].subscription_id) {

@@ -8,6 +8,16 @@ module.exports = {
         let message = 'An error occurred';
         let status = 'error';
 
+        if (err.code === '23505') {
+            if (err.constraint === 'unique_email') {
+                message = 'Email already taken';
+            } else if (err.constraint === 'unique_username') {
+                message = 'Username already taken';
+            }
+        } else if (err.code === '23502') {
+            message = 'All fields are required';
+        }
+
         if (err.type === 'CUSTOM') {
             message = err.error.message;
         } else {

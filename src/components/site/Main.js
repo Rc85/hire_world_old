@@ -13,8 +13,8 @@ class Main extends Component {
                     <div className='site-main-banner'>
                         <div className='site-main-headline'>
                             <div className='text-right'>
-                                <h1>Talent, job, service, or work</h1>
-                                <span>We are aimed to provide services to assist you on growing your business</span>
+                                <h1>Start your business</h1>
+                                <span>We have all the services to assist you on starting and growing your business</span>
 
                                 <div className='text-right mt-2'><NavLink to='/register'><button type='button' className='btn btn-primary'>Get Started</button></NavLink></div>
                             </div>

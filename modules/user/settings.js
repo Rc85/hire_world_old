@@ -30,12 +30,6 @@ app.post('/api/user/settings/profile/save', authenticate, (req, resp) => {
                         await client.query(`BEGIN`);
 
                         await client.query(`UPDATE user_profiles SET user_business_name = $1, user_address = $2, user_phone = $3, user_city_code = $4, user_country = $6, user_region = $7, user_city = $8 WHERE user_profile_id = $5 RETURNING *`, [req.body.businessName, req.body.address, req.body.phone, req.body.code, req.session.user.user_id, req.body.country, req.body.region, req.body.city])
-                        
-                        /* let user = await client.query(`SELECT users.username, users.user_email, users.account_type, users.user_status, users.is_subscribed, users.plan_id, users.user_last_login, users.user_level, users.subscription_end_date, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
-                        LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
-                        LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
-                        LEFT JOIN user_listings ON users.username = user_listings.listing_user
-                        WHERE users.user_id = $1`, [req.session.user.user_id]); */
 
                         let user = await controller.session.retrieve(client, req.session.user.user_id);
 
@@ -195,12 +189,6 @@ app.post('/api/user/settings/change', authenticate, (req, resp) => {
                             }
                         }
 
-                        /* let user = await client.query(`SELECT users.username, users.user_email, users.account_type, users.user_status, users.is_subscribed, users.plan_id, users.user_last_login, users.user_level, users.subscription_end_date, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
-                        LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
-                        LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
-                        LEFT JOIN user_listings ON users.username = user_listings.listing_user
-                        WHERE users.user_id = $1`, [req.session.user.user_id]); */
-
                         let user = await controller.session.retrieve(client, req.session.user.user_id);
 
                         await client.query('COMMIT')
@@ -274,12 +262,6 @@ app.post('/api/user/profile/update', authenticate, (req, resp) => {
                         await client.query('COMMIT');
 
                         await client.query(`UPDATE user_profiles SET ${column} = $1 WHERE user_profile_id = $2`, [req.body.value, req.session.user.user_id])
-
-                        /* let user = await client.query(`SELECT users.username, users.user_email, users.account_type, users.user_status, users.is_subscribed, users.plan_id, users.user_last_login, users.user_level, users.subscription_end_date, user_profiles.*, user_settings.*, user_listings.listing_status FROM users
-                        LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
-                        LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
-                        LEFT JOIN user_listings ON users.username = user_listings.listing_user
-                        WHERE users.user_id = $1`, [req.session.user.user_id]); */
 
                         let user = await controller.session.retrieve(client, req.session.user.user_id);
                         

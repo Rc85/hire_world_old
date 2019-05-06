@@ -65,7 +65,7 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
 
             if (event.type === 'invoice.payment_succeeded') {
                 await db.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Subscription renewed', user.rows[0].username, 'Subscription']);
-                await db.query(`UPDATE users SET subscription_end_date = subscription_end_date + interval '1 month' WHERE stripe_id = $1`, [event.data.object.customer]);
+                await db.query(`UPDATE subscriptions SET subscription_end_date = subscription_end_date + interval '1 month' WHERE subscriber = $1`, [user.rows[0].username]);
             } else if (event.type === 'invoice.payment_failed') {
                 await db.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Failed to renew subscription', user.rows[0].username, 'Subscription']);
 

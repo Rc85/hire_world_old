@@ -43,7 +43,7 @@ class SubmitReview extends Component {
                     </div>
 
                     {this.props.review && this.props.review.review && this.props.review.review_rating && parseInt(this.props.review.review_count) > 1 && this.props.review.token_status === 'Valid' ?
-                    <div className='mb-3'><em>You already reviewed this user. By submitting another will, the rating and your review will be overwritten by this one and a +1 will be added to the counter in the review. The more pluses, the better!</em></div> : ''}
+                    <div className='mb-3'><em>You already reviewed this user. By submitting another review, the rating and your review will be updated to this one and a +1 will be added to the counter in the review. The more pluses, the better!</em></div> : ''}
     
                     <TextArea defaultValue={this.state.review} onChange={(val) => this.setState({review: val})} textAreaClassName='w-100 mb-2' placeholder={this.props.placeholder} />
 

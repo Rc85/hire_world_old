@@ -8,7 +8,7 @@ import SubmitButton from '../utils/SubmitButton';
 import fetch from 'axios';
 import { Alert } from '../../actions/AlertActions';
 import { LogError } from '../utils/LogError';
-import { Redirect, NavLink } from 'react-router-dom';
+import { Redirect, NavLink, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import Loading from '../utils/Loading';
@@ -24,7 +24,8 @@ class Register extends Component {
         
         this.state = {
             status: '',
-            statusMessage: ''
+            statusMessage: '',
+            key: this.props.match.params.key
         }
     }
 
@@ -53,6 +54,7 @@ class Register extends Component {
     }
     
     render() {
+        console.log(this.state);
         if (this.state.status === 'Registered') {
             return <Redirect to='/registration/success' />;
         }
@@ -149,4 +151,4 @@ class Register extends Component {
     }
 }
 
-export default connect()(Register);
+export default withRouter(connect()(Register));

@@ -17,13 +17,12 @@ module.exports = {
                 users.user_email,
                 users.account_type,
                 users.user_status,
-                users.is_subscribed,
-                users.plan_id,
                 users.user_this_login,
                 users.user_level,
-                users.subscription_end_date,
                 users.link_work_acct_status,
                 users.link_work_id,
+                CASE WHEN subscriptions.sub_id IS NOT NULL THEN true ELSE false END AS is_subscribed,
+                subscriptions.subscription_end_date,
                 users.two_fa_enabled,
                 user_profiles.*,
                 user_settings.*,
@@ -32,6 +31,7 @@ module.exports = {
             LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
             LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
             LEFT JOIN user_listings ON users.username = user_listings.listing_user
+            LEFT JOIN subscriptions ON users.username = subscriptions.subscriber
             WHERE users.user_id = $1
             ORDER BY user_listings.listing_status = 'Active'
             LIMIT 1`, [id])

@@ -5,6 +5,7 @@ const stripe = require('stripe')(process.env.STRIPE_API_KEY);
 const cryptoJs = require('crypto-js');
 const util = require('util');
 const authenticate = require('../utils/auth');
+const moneyFormatter = require('../utils/money-formatter');
 
 stripe.setApiVersion('2019-02-19');
 

@@ -158,7 +158,7 @@ class App extends Component {
 
 						<Route exact path='/main' render={() => <Pages.Dashboard user={this.props.user}><Pages.Main user={this.props.user} sectors={this.props.sectors} /></Pages.Dashboard>} />
 
-						<Route exact path='/register' render={() => <Pages.Dashboard user={this.props.user}><Pages.Register user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/register/:key?' render={() => <Pages.Dashboard user={this.props.user}><Pages.Register user={this.props.user} /></Pages.Dashboard>} />
 	
 						<Route exact path='/dashboard' render={() => <Pages.Dashboard user={this.props.user}><Pages.EditUser user={this.props.user} /></Pages.Dashboard>} />
 
@@ -203,6 +203,8 @@ class App extends Component {
 						<Route exact path='/job/:id' render={() => <Pages.Dashboard user={this.props.user}><Pages.ViewPostedJob user={this.props.user} /></Pages.Dashboard>} />
 		
 						<Route exact path='/sectors/:type/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
+
+						<Route exact path='/refer' render={() => <Pages.Dashboard user={this.props.user}><Pages.Refer user={this.props.user} /></Pages.Dashboard>} />
 	
 						<Route exact path='/payment/success' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Thank You!'}>
 							<React.Fragment><div className='mb-3'>We really appreciate your business and hope you will enjoy our service.</div><div><NavLink to='/dashboard/link_work'>Create your Link Work account now</NavLink></div></React.Fragment>

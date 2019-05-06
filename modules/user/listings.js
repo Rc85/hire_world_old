@@ -220,14 +220,7 @@ app.post('/api/listing/save', authenticate, async(req, resp) => {
                 try {
                     await client.query('BEGIN');
 
-                    let user = await client.query(`SELECT account_type, subscription_end_date FROM users WHERE username = $1`, [req.session.user.username]);
-                    let queryString, status;
-
-                    if (user.rows[0].account_type === 'Listing' && new Date(user.rows[0].subscription_end_date) > new Date()) {
-                        status = 'Active';
-                    } else {
-                        status = 'Inactive';
-                    }
+                    let queryString;
 
                     let userListing = await client.query(`SELECT listing_id FROM user_listings WHERE listing_user = $1 AND listing_status != 'Deleted'`, [req.session.user.username]);
 
@@ -239,7 +232,7 @@ app.post('/api/listing/save', authenticate, async(req, resp) => {
                         queryString = 'INSERT INTO user_listings (listing_title, listing_sector, listing_price, listing_price_type, listing_price_currency, listing_negotiable, listing_detail, listing_user, listing_remote, listing_local, listing_status, listing_online) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *';
                     }
 
-                    let listing = await client.query(queryString, [req.body.listing_title, req.body.listing_sector, price, req.body.listing_price_type, req.body.listing_price_currency.toUpperCase(), req.body.listing_negotiable, req.body.listing_detail, req.session.user.username, req.body.listing_remote, req.body.listing_local, status, req.body.listing_online]);
+                    let listing = await client.query(queryString, [req.body.listing_title, req.body.listing_sector, price, req.body.listing_price_type, req.body.listing_price_currency.toUpperCase(), req.body.listing_negotiable, req.body.listing_detail, req.session.user.username, req.body.listing_remote, req.body.listing_local, 'Active', req.body.listing_online]);
 
                     if (listing.rows.length === 1) {
                         await client.query('COMMIT')

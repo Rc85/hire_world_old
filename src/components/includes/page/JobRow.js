@@ -33,7 +33,7 @@ class JobRow extends Component {
         }
 
         if (this.props.job.token_status === 'Valid') {
-            review = <span className='mini-badge mini-badge-warning mr-1'>Review Available</span>
+            review = <span className='mini-badge mini-badge-warning mr-1'>Pending Review</span>
         }
 
         return (

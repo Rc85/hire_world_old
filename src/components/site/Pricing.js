@@ -19,7 +19,7 @@ class Pricing extends Component {
 
                     <div className='mb-3'>
                         <h3>Bring a Friend <sup><small>1</small></sup></h3>
-                        <p>For a limited time, for every client you refer who susbcribes for 3 consescutive months, you will receive a credit to waive the application fee of a job. Terms and conditions apply.</p>
+                        <p>For a limited time, for every client you refer who reaches 3 consecutive months of subscription, you will receive a credit to waive the application fee of a job. Terms and conditions apply.</p>
                     </div>
 
                     <div>

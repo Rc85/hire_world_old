@@ -978,7 +978,7 @@ app.post('/api/job/pay', authenticate, subscriptionCheck, (req, resp) => {
                                 await client.query(`UPDATE jobs SET job_status = 'Active' WHERE job_id = $1`, [authorized.rows[0].job_id]);
                             }
 
-                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, `A ${payment !== balance.source.transfer.destination_payment.balance_transaction.net ? 'partial' : ''} payment amount of $${moneyFormatter(requestedAmount / 100)} has been paid to you for completing a milestone in Job ID: ${authorized.rows[0].job_id}`, 'Update']);
+                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, `A ${payment !== balance.source.transfer.destination_payment.balance_transaction.net ? 'partial' : ''} payment amount of $${moneyFormatter(requestedAmount)} has been paid to you for completing a milestone in Job ID: ${authorized.rows[0].job_id}`, 'Update']);
                             await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, jobComplete ? `You completed a job` : `You completed a milestone`, 'Job']);
                             await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, jobComplete ? `You completed a job` : `You completed a milestone`, 'Job']);
 
@@ -1217,7 +1217,7 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
                             await client.query(`UPDATE jobs SET job_status = 'Active' WHERE job_id = $1`, [req.body.job_id]);
 
                             // Create notification
-                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `An amount of $${(amount * 1.03 / 100).toFixed(2)} was charged on card ending with ${charge.payment_method_details.card.last4}`, 'Update']);
+                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `An amount of $${moneyFormatter(amount * 1.03)} was charged on card ending with ${charge.payment_method_details.card.last4}`, 'Update']);
 
                             // Add to recent activities
                             await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, req.body.accept ? `You accepted a job` : `You started a milestone`, 'Job']);

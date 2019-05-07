@@ -1,4 +1,4 @@
-require('dot-env').config();
+require('dotenv').config();
 const db = require('../modules/db');
 const error = require('../modules/utils/error-handler');
 

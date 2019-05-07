@@ -319,7 +319,7 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                 try {
                     await client.query('BEGIN');
                     
-                    let user = await client.query(`SELECT username, user_email, stripe_id, subscription_end_date, CASE WHEN subscriptions.sub_id IS NOT NULL THEN true ELSE false END AS is_subscribed, subscriptions.*, user_profiles.* FROM users
+                    let user = await client.query(`SELECT username, user_email, stripe_id, subscription_end_date, CASE WHEN subscriptions.sub_id IS NOT NULL AND subscriptions.subscription_status = 'Active' THEN true ELSE false END AS is_subscribed, subscriptions.*, user_profiles.* FROM users
                     LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
                     LEFT JOIN subscriptions ON users.username = subscriptions.subscriber
                     WHERE username = $1`, [req.session.user.username]);
@@ -596,7 +596,7 @@ app.post('/api/user/payment/delete', authenticate, (req, resp) => {
                 try {
                     await client.query('BEGIN');
 
-                    let user = await client.query(`SELECT stripe_id, CASE WHEN subscriptions.sub_id IS NOT NULL THEN true ELSE false END AS is_subscribed FROM users
+                    let user = await client.query(`SELECT stripe_id, CASE WHEN subscriptions.sub_id IS NOT NULL AND subscriptions.subscription_status = 'Active' THEN true ELSE false END AS is_subscribed FROM users
                     LEFT JOIN subscriptions ON user.username = subscriptions.subscriber
                     WHERE username = $1`, [req.session.user.username]);
 

@@ -166,7 +166,19 @@ class AccountSettings extends Component {
         
                         <div className='setting-field-container stretched mb-3'>
                             <div className='settings-col'><PasswordSettings /></div>
-                            <div className='settings-col'><EmailSettings user={this.props.user.user} /></div>
+                            <div className='settings-col'>
+                                <div className='simple-container no-bg'>
+                                    <div className='simple-container-title'>Security</div>
+
+                                    <div className='d-flex-between-center'>
+                                        <label>Two-factor Authentication</label>
+            
+                                        {this.props.user.user && this.props.user.user.two_fa_enabled ? <button className='btn btn-danger' onClick={() => this.props.dispatch(PromptOpen(`Enter your password:`, '', {action: 'disable 2fa 1', type: 'password'}))}>Disable</button> : <button className='btn btn-primary' onClick={this.configure2fa.bind(this)}>{this.state.configure2fa ? 'New QR' : 'Configure'}</button>}
+                                    </div>
+
+                                    {twoFactorConfig}
+                                </div>
+                            </div>
                         </div>
         
                         <div className='simple-container no-bg setting-field-container mb-3'>
@@ -210,20 +222,6 @@ class AccountSettings extends Component {
                                         <SlideToggle status={this.props.user.user && this.props.user.user.allow_messaging ? this.props.user.user.allow_messaging : false} onClick={() => this.saveSetting('allow_messaging')} />
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div className='simple-container no-bg'>
-                            <div className='simple-container-title'>Security</div>
-
-                            <div className='settings-col'>
-                                <div className='setting-col-field'>
-                                    <label>Two-factor Authentication</label>
-        
-                                    {this.props.user.user && this.props.user.user.two_fa_enabled ? <button className='btn btn-danger' onClick={() => this.props.dispatch(PromptOpen(`Enter your password:`, '', {action: 'disable 2fa 1', type: 'password'}))}>Disable</button> : <button className='btn btn-primary' onClick={this.configure2fa.bind(this)}>{this.state.configure2fa ? 'New QR' : 'Configure'}</button>}
-                                </div>
-
-                                {twoFactorConfig}
                             </div>
                         </div>
                     </TitledContainer>

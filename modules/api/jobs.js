@@ -1227,22 +1227,23 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
                                 await userEvents.create(client, `Milestone Due Date`, req.body.milestone_due_date, authorized.rows[0].job_user, 'Job', req.body.job_id, `A milestone [ID: ${milestone.milestone_id}] is expected to be delivered`);
                             }
 
-                            // email user that a milestone has started
-                            /* let message = {
+                            // Email user that a milestone has started
+                            let message = {
                                 to: req.body.email,
                                 from: 'admin@hireworld.ca',
-                                subject: 'Welcome to Hire World',
-                                templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
-                                dynamicTemplateData: {
-                                    url: process.env.SITE_URL,
-                                    regkey: registrationKey
-                                },
+                                subject: 'A milestone has begun!',
+                                content: `A client has deposited funds for the next milestone in job ID: ${req.body.job_id}. The funds may or may not yet be available. Please ensure that it is available before you begin work. This can take up to 7 days from when you received this email.`,
+                                templateId: 'd-9459cc1fde43454ca77670ea97ee2d5a',
                                 trackingSettings: {
                                     clickTracking: {
                                         enable: false
                                     }
                                 }
-                            } */
+                            }
+
+                            sgMail.send(message);
+
+                            await client.query(`INSERT INTO system_events (event_name, event_reference, event_execute_date) VALUES ($1, $2, current_timestamp + interval '60 days')`, ['check_milestone_funds', charge.id]);
 
                             let conditions = await client.query(`SELECT * FROM milestone_conditions WHERE condition_parent_id = $1`, [req.body.id]);
                             let files = await client.query(`SELECT * FROM milestone_files WHERE file_milestone_id = $1 ORDER BY filename`, [req.body.milestone_id]);

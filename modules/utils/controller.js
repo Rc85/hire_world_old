@@ -21,7 +21,7 @@ module.exports = {
                 users.user_level,
                 users.link_work_acct_status,
                 users.link_work_id,
-                CASE WHEN subscriptions.sub_id IS NOT NULL THEN true ELSE false END AS is_subscribed,
+                CASE WHEN subscriptions.sub_id IS NOT NULL AND subscriptions.subscription_status = 'Active' THEN true ELSE false END AS is_subscribed,
                 subscriptions.subscription_end_date,
                 users.two_fa_enabled,
                 user_profiles.*,

@@ -296,34 +296,28 @@ app.post('/api/jobs/summary', authenticate, (req, resp) => {
                 let jobYears = await client.query(`SELECT DISTINCT DATE_PART('year', job_created_date) AS year FROM jobs WHERE (job_client = $1 OR job_user = $1) ORDER BY year`, [req.session.user.username]);
                 
                 let finance = await client.query(`SELECT
-                    currencies.currency,
-                    jsonb_agg(ust.*) AS jobs,
+                    jobs.job_price_currency AS currency,
                     uft.total_user_fee,
                     cft.total_client_fee,
                     et.total_earnings,
                     pt.total_payment,
                     pb.pending_balance,
                     ab.available_balance
-                FROM currencies
-                RIGHT JOIN (
-                    SELECT jobs.job_price_currency FROM jobs
-                    WHERE jobs.job_status = 'Complete'
-                    AND (job_client = $1 OR job_user = $1)
-                ) AS ust ON ust.job_price_currency = currencies.currency
+                FROM jobs
                 LEFT JOIN (
                     SELECT sum(user_app_fee) AS total_user_fee, jobs.job_price_currency FROM job_milestones
                     LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
                     WHERE job_user = $1
                     AND job_status = 'Complete'
                     GROUP BY job_price_currency
-                ) AS uft ON currencies.currency = uft.job_price_currency
+                ) AS uft ON uft.job_price_currency = jobs.job_price_currency
                 LEFT JOIN (
                     SELECT sum(client_app_fee) AS total_client_fee, jobs.job_price_currency FROM job_milestones
                     LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
                     WHERE job_client = $1
                     AND job_status = 'Complete'
                     GROUP BY job_price_currency
-                ) AS cft ON currencies.currency = cft.job_price_currency
+                ) AS cft ON cft.job_price_currency = jobs.job_price_currency
                 LEFT JOIN (
                     SELECT sum(payout_amount) AS total_earnings, jobs.job_price_currency FROM job_milestones
                     LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
@@ -331,29 +325,29 @@ app.post('/api/jobs/summary', authenticate, (req, resp) => {
                     AND payout_status = 'paid'
                     AND job_user = $1
                     GROUP BY job_price_currency
-                ) AS et ON currencies.currency = et.job_price_currency
+                ) AS et ON et.job_price_currency = jobs.job_price_currency
                 LEFT JOIN (
                     SELECT sum(payout_amount) AS total_payment, jobs.job_price_currency FROM job_milestones
                     LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
                     WHERE job_status = 'Complete'
                     AND job_client = $1
                     GROUP BY job_price_currency
-                ) AS pt ON currencies.currency = pt.job_price_currency
+                ) AS pt ON pt.job_price_currency = jobs.job_price_currency
                 LEFT JOIN (
                     SELECT sum(milestone_payment_after_fees) AS pending_balance, jobs.job_price_currency FROM job_milestones
                     LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
                     WHERE job_user = $1
                     AND payout_status = 'pending'
                     GROUP BY job_price_currency
-                ) AS pb ON currencies.currency = pb.job_price_currency
+                ) AS pb ON pb.job_price_currency = jobs.job_price_currency
                 LEFT JOIN (
                     SELECT sum(milestone_payment_after_fees) AS available_balance, jobs.job_price_currency FROM job_milestones
                     LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
                     WHERE job_user = $1
                     AND payout_status = 'available'
                     GROUP BY job_price_currency
-                ) AS ab ON currencies.currency = ab.job_price_currency
-                GROUP BY currencies.currency, uft.total_user_fee, cft.total_client_fee, et.total_earnings, pt.total_payment, pb.pending_balance, ab.available_balance`, [req.session.user.username]);
+                ) AS ab ON ab.job_price_currency = jobs.job_price_currency
+                GROUP BY jobs.job_price_currency, uft.total_user_fee, cft.total_client_fee, et.total_earnings, pt.total_payment, pb.pending_balance, ab.available_balance`, [req.session.user.username]);
 
                 await client.query('COMMIT')
                 .then(() => resp.send({
@@ -382,9 +376,9 @@ app.post('/api/get/jobs/summary', authenticate, async(req, resp) => {
     let end = new Date(thisYear, 11, 31);
 
     await db.query(`SELECT
-        currencies.currency,
+        jobs.job_price_currency AS currency,
         jsonb_agg(ust.*) AS jobs
-    FROM currencies
+    FROM jobs
     RIGHT JOIN (
         SELECT jobs.*, COUNT(job_milestones.milestone_id) AS milestone_count, SUM(job_milestones.user_app_fee) AS total_user_fee, SUM(job_milestones.client_app_fee) AS total_client_fee, SUM(requested_payment_amount) AS total_payment, r.token_status FROM jobs
         LEFT JOIN job_milestones ON jobs.job_id = job_milestones.milestone_job_id
@@ -396,8 +390,8 @@ app.post('/api/get/jobs/summary', authenticate, async(req, resp) => {
         AND jobs.job_created_date >= $2 AND jobs.job_created_date <= $3
         GROUP BY jobs.job_id, r.token_status
         ORDER BY jobs.job_end_date
-    ) AS ust ON ust.job_price_currency = currencies.currency
-    GROUP BY currencies.currency`, [req.session.user.username, beginning, end])
+    ) AS ust ON ust.job_id = jobs.job_id
+    GROUP BY jobs.job_price_currency`, [req.session.user.username, beginning, end])
     .then(result => {
         if (result) {
             resp.send({status: 'success', jobs: result.rows});

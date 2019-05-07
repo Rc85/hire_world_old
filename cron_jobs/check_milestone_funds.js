@@ -9,7 +9,8 @@ db.query(`SELECT system_events.*, users.user_email, jobs.job_id, job_milestones.
 LEFT JOIN job_milestones ON job_milestones.charge_id = system_events.event_reference
 LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
 LEFT JOIN users ON jobs.job_user = users.username
-WHERE CAST(event_execute_date AS date) - current_date IS IN (0, 1)
+WHERE event_name = 'check_milestone_funds'
+AND CAST(event_execute_date AS date) - current_date IS IN (0, 1)
 AND job_milestones.payout_status = 'available'
 AND event_status = 'Queued'`)
 .then(result => {

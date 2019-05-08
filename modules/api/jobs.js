@@ -1234,7 +1234,8 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
                                 to: req.body.email,
                                 from: 'admin@hireworld.ca',
                                 subject: 'A milestone has begun!',
-                                content: `A client has deposited funds for the next milestone in job ID: ${req.body.job_id}. The funds may or may not yet be available. Please ensure that it is available before you begin work. This can take up to 7 days from when you received this email.`,
+                                text: `A client has deposited funds for the next milestone in job ID: ${req.body.job_id}. The funds may or may not yet be available. Please ensure that it is available before you begin work. This can take up to 7 days from when you received this email.`,
+                                html: `A client has deposited funds for the next milestone in job ID: ${req.body.job_id}. The funds may or may not yet be available. Please ensure that it is available before you begin work. This can take up to 7 days from when you received this email.`,
                                 templateId: 'd-9459cc1fde43454ca77670ea97ee2d5a',
                                 trackingSettings: {
                                     clickTracking: {

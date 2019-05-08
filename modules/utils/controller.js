@@ -20,7 +20,7 @@ module.exports = {
                 users.user_level,
                 users.link_work_acct_status,
                 users.link_work_id,
-                CASE WHEN subscriptions.subscription_end_date >= current_timestamp THEN true ELSE false END AS is_subscribed,
+                subscriptions.is_subscribed,
                 subscriptions.subscription_end_date,
                 subscription_name AS account_type,
                 users.two_fa_enabled,

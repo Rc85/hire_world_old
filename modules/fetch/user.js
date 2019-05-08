@@ -202,16 +202,20 @@ app.post('/api/get/user/subscription', authenticate, async(req, resp) => {
     let user = await db.query(`SELECT subscription_id FROM subscriptions WHERE subscriber = $1`, [req.session.user.username]);
     let plans = await stripe.plans.list();
 
-    if (user && user.rows[0].subscription_id) {
-        subscription = await stripe.subscriptions.retrieve(user.rows[0].subscription_id)
-        .then(subscription => {
-            if (subscription) {
-                resp.send({status: 'success', plans: plans, subscription: subscription});
-            }
-        })
-        .catch(err => error.log(err, req, resp));
+    if (user && user.rows.length === 1) {
+        if (user && user.rows[0].subscription_id) {
+            subscription = await stripe.subscriptions.retrieve(user.rows[0].subscription_id)
+            .then(subscription => {
+                if (subscription) {
+                    resp.send({status: 'success', plans: plans, subscription: subscription});
+                }
+            })
+            .catch(err => error.log(err, req, resp));
+        } else {
+            resp.send({status: 'success', plans: plans});
+        }
     } else {
-        resp.send({status: 'success', plans: plans});
+        resp.send({status: 'success', subscription: {}, plans: plans});
     }
 });
 

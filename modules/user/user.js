@@ -399,7 +399,7 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                     }
                     
                     await client.query(`UPDATE users SET stripe_id = $1 WHERE username = $2`, [customerId, req.session.user.username]);
-                    await client.query(`INSERT INTO subscriptions (subscription_id, subscription_created_date, subscription_end_date, subscriber, subscription_name) VALUES ($1, current_timestamp, current_timestamp + interval '1 month', $2, $3) ON CONFLICT (subscription_id, subscriber) DO UPDATE SET subscription_end_date = CASE WHEN subscriptions.subscription_end_date < current_timestamp THEN current_timestamp + interval '1 month' END, subscription_created_date = current_timestamp`, [subscription.id, req.session.user.username, subscription.plan.nickname]);
+                    await client.query(`INSERT INTO subscriptions (subscription_id, subscription_created_date, subscription_end_date, subscriber, subscription_name) VALUES ($1, current_timestamp, current_timestamp + interval '1 month', $2, $3) ON CONFLICT (subscription_name, subscriber) DO UPDATE SET subscription_end_date = CASE WHEN subscriptions.subscription_end_date < current_timestamp THEN current_timestamp + interval '1 month' END, subscription_created_date = current_timestamp`, [subscription.id, req.session.user.username, subscription.plan.nickname]);
 
                     await client.query('COMMIT')
                     .then(async() => {

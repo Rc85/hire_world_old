@@ -72,19 +72,26 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
             if (user.rows.length === 1) {
                 if (event.type === 'invoice.payment_succeeded') {
                     await db.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Subscription renewed', user.rows[0].username, 'Subscription']);
-                    await db.query(`UPDATE subscriptions SET subscription_end_date = subscription_end_date + interval '1 month' WHERE subscriber = $1`, [user.rows[0].username]);
+                    await db.query(`UPDATE subscriptions SET subscription_end_date = subscription_end_date + interval '1 month' WHERE subscriber = $1 AND subscription_id = $2`, [user.rows[0].username, event.data.object.subscription]);
                 } else if (event.type === 'invoice.payment_failed') {
                     await db.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Failed to renew subscription', user.rows[0].username, 'Subscription']);
+                    await db.query(`UPDATE subscriptions SET is_subscribed = false WHERE subscriber = $1 AND subscription_id = $2`, [user.rows[0].username, event.data.object.subscription]);
 
-                    /* let message = {
+                    let message = {
                         to: user.rows[0].user_email,
                         from: 'admin@hireworld.ca',
-                        subject: 'Notice: Subscription Renewing Soon',
-                        templateId: 'd-f9a740ac97e34c759bf9d321ad47a12f',
-                        dynamicTemplateData: {
-                            config_url: `${process.env.SITE_URL}/dashboard/settings/subscription`,
-                            renew_date: renewalDate
-                        },
+                        subject: 'Notice: Renewal failed',
+                        text: `This is a notice to let you know that your subscription at Hire World did not successfully renewed. This could be due to a couple of reasons: 
+                        1. Your default payment card has expired
+                        2. Your default payment card issuer declined the charge
+                        If you don't think any of these reasons apply to the failure of renewal, please contact our administrator and we'll be happy to assist you.`,
+                        html: `This is a notice to let you know that your subscription at Hire World did not successfully renewed. This could be due to a couple of reasons: 
+                        <ol>
+                            <li>Your default payment card has expired</li>
+                            <li>Your default payment card issuer declined the charge</li>
+                        </ol>
+                        If you don't think any of these reasons apply to the failure of renewal, please contact our administrator and we'll be happy to assist you.`,
+                        templateId: 'd-9459cc1fde43454ca77670ea97ee2d5a',
                         trackingSettings: {
                             clickTracking: {
                                 enable: false
@@ -92,7 +99,7 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
                         }
                     }
             
-                    sgMail.send(message); */
+                    sgMail.send(message);
                 }
             }
 

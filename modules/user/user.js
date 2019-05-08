@@ -392,8 +392,9 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                     subscriptionParams['expand'] = ['latest_invoice.charge']
                     
                     subscription = await stripe.subscriptions.create(subscriptionParams);
+                    console.log(util.inspect(subscription, false, null, true));
 
-                    if (subscription.latest_invoice.charge.outcome.risk_level === 'elevated') {
+                    if (subscription.latest_invoice.charge && subscription.latest_invoice.charge.outcome.risk_level === 'elevated') {
                         await sa.create('Subscription', 'Elevated risk reported by Stripe', req.session.user.username, 4, subscription.latest_invoice.charge.id);
                     }
                     
@@ -429,6 +430,8 @@ app.post('/api/user/subscription/cancel', authenticate, (req, resp) => {
                     let subscriptionId = await client.query('SELECT subscription_id FROM subscriptions WHERE subscriber = $1', [req.session.user.username]);
 
                     await stripe.subscriptions.del(subscriptionId.rows[0].subscription_id);
+
+                    await client.query(`UPDATE subscriptions SET is_subscribed = false WHERE subscriber = $1`, [req.session.user.username]);
 
                     await client.query('COMMIT')
                     .then(async() => {

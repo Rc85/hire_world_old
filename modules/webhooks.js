@@ -81,17 +81,16 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
                         to: user.rows[0].user_email,
                         from: 'admin@hireworld.ca',
                         subject: 'Notice: Renewal failed',
-                        text: `This is a notice to let you know that your subscription at Hire World did not successfully renewed. This could be due to a couple of reasons: 
-                        1. Your default payment card has expired
-                        2. Your default payment card issuer declined the charge
-                        If you don't think any of these reasons apply to the failure of renewal, please contact our administrator and we'll be happy to assist you.`,
-                        html: `This is a notice to let you know that your subscription at Hire World did not successfully renewed. This could be due to a couple of reasons: 
-                        <ol>
-                            <li>Your default payment card has expired</li>
-                            <li>Your default payment card issuer declined the charge</li>
-                        </ol>
-                        If you don't think any of these reasons apply to the failure of renewal, please contact our administrator and we'll be happy to assist you.`,
                         templateId: 'd-9459cc1fde43454ca77670ea97ee2d5a',
+                        dynamicTemplateData: {
+                            content: `This is a notice to let you know that your subscription at Hire World did not successfully renewed. This could be due to a couple of reasons: 
+                            <ol>
+                                <li>Your default payment card has expired</li>
+                                <li>Your default payment card issuer declined the charge</li>
+                            </ol>
+                            If you don't think any of these reasons apply to the failure of renewal, please contact our administrator and we'll be happy to assist you.`,
+                            subject: 'Notice: Renewal failed'
+                        },
                         trackingSettings: {
                             clickTracking: {
                                 enable: false

@@ -1220,23 +1220,26 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
 
                             // Create notification
                             await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `An amount of $${moneyFormatter(amount * 1.03)} was charged on card ending with ${charge.payment_method_details.card.last4}`, 'Update']);
+                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, `${req.body.accept ? `Job ID: ${req.body.job_id} was accepted and the client has deposited` : `Milestone ID: ${milestone.milsetone_id} has started and the client has deposited`} $${moneyFormatter(amount * 1.03)}`, 'Update']);
 
                             // Add to recent activities
                             await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, req.body.accept ? `You accepted a job` : `You started a milestone`, 'Job']);
 
                             // If an expected delivery date is set, add to upcoming events
                             if (req.body.milestone_due_date) {
-                                await userEvents.create(client, `Milestone Due Date`, req.body.milestone_due_date, authorized.rows[0].job_user, 'Job', req.body.job_id, `A milestone [ID: ${milestone.milestone_id}] is expected to be delivered`);
+                                await userEvents.create(client, `Milestone Due Date`, req.body.milestone_due_date, authorized.rows[0].job_user, 'Job', req.body.job_id, `A milestone ID: ${milestone.milestone_id} is expected to be delivered`);
                             }
 
                             // Email user that a milestone has started
                             let message = {
-                                to: req.body.email,
+                                to: 'rogerchin85@gmail.com',
                                 from: 'admin@hireworld.ca',
                                 subject: 'A milestone has begun!',
-                                text: `A client has deposited funds for the next milestone in job ID: ${req.body.job_id}. The funds may or may not yet be available. Please ensure that it is available before you begin work. This can take up to 7 days from when you received this email.`,
-                                html: `A client has deposited funds for the next milestone in job ID: ${req.body.job_id}. The funds may or may not yet be available. Please ensure that it is available before you begin work. This can take up to 7 days from when you received this email.`,
                                 templateId: 'd-9459cc1fde43454ca77670ea97ee2d5a',
+                                dynamicTemplateData: {
+                                    content: req.body.accept ? `A client has accept the job ID: ${req.body.job_id} and has deposited funds equal to $${moneyFormatter(amount)}. The funds may or may not yet be available. Please ensure that it is available before you begin work. This can take up to 7 days from when you received this email.` : `A client has deposited funds equal to $${moneyFormatter(amount)} for the next milestone in job ID: ${req.body.job_id}. The funds may or may not yet be available. Please ensure that it is available before you begin work. This can take up to 7 days from when you received this email.`,
+                                    subject: req.body.accept ? 'A client has accepted a job!' : 'A milestone has begun!'
+                                },
                                 trackingSettings: {
                                     clickTracking: {
                                         enable: false

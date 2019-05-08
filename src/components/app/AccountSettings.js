@@ -206,7 +206,7 @@ class AccountSettings extends Component {
 
                             <div className='settings-col'>
                                 <div className='setting-col-field mb-3'>
-                                    <Tooltip text='You will receive email when you have new messages and when changes are made to your account.' placement='top'><label>Email notifications: <FontAwesomeIcon icon={faQuestionCircle} id='email-notification-tips' className='tooltip-icon' /></label></Tooltip>
+                                    <label>Receive Hire World emails:</label>
         
                                     <div className='d-flex'>
                                         {this.state.status === 'email_notifications' ? <div className='p-relative mr-2'><Loading /></div> : ''}

@@ -66,11 +66,13 @@ app.post('/api/job/accounts/create', authenticate, subscriptionCheck, (req, resp
                             try {
                                 await client.query('BEGIN');
 
-                                let user = await client.query(`SELECT account_type FROM users WHERE username = $1`, [req.session.user.username]);
+                                let user = await client.query(`SELECT link_work_id FROM users WHERE username = $1`, [req.session.user.username]);
 
-                                /* if (req.body.individual.first_name && req.body.individual.first_name !== user.rows[0].user_firstname) {
-                                    await client.query(`INSERT INTO suspicious_acitivities ()`)
-                                } */
+                                if (user && user.rows.length === 1 && user.rows[0].link_work_id) {
+                                    let error = new Error(`You already have a Link Work account`);
+                                    let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                                    throw errObj;
+                                }
 
                                 let currency;
 

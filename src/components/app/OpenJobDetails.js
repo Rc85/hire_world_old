@@ -28,7 +28,7 @@ class OpenJobDetails extends Component {
         super(props);
         
         this.state = {
-            status: '',
+            status: 'Fetching',
             sendStatus: '',
             job: {},
             messages: [],
@@ -53,8 +53,6 @@ class OpenJobDetails extends Component {
     }
     
     componentDidMount() {
-        this.setState({status: 'Fetching'});
-
         fetch.post('/api/get/job/details', {id: this.props.match.params.id, stage: this.props.match.params.stage})
         .then(resp => {
             if (resp.data.status === 'success') {
@@ -194,9 +192,9 @@ class OpenJobDetails extends Component {
     }
 
     render() {
-        let jobDetails;
-        
-        if (this.props.user.status === 'error') {
+        if (this.state.status === 'Fetching') {
+            return <Loading size='7x' color='black' />
+        } if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
             return <Redirect to='/main' />;
@@ -211,7 +209,7 @@ class OpenJobDetails extends Component {
         }
 
         if (this.props.user.user) {
-            let jobStatus;
+            let jobStatus, jobDetails;
 
             if (this.state.job.job_status === 'New' || this.state.job.job_status === 'Open') {
                 jobStatus = <span className='mini-badge mini-badge-warning ml-1'>Awaiting Response...</span>;

@@ -45,7 +45,13 @@ class Response extends Component {
                 message = `You're not allowed to access this page`;
 
                 if (this.props.match.params.type === 'link_work') {
-                    message = `Your account has been rejected. Please contact our administrator for more details.`;
+                    message = <React.Fragment>
+                        <span>Your cannot access this page. Reasons may include:</span>
+                        <ul className='w-75 mx-auto'>
+                            <li className='text-left'>You're not subscribed to a Link Work plan.</li>
+                            <li className='text-left'>If you had an account and are now seeing this page, your account has been rejected. Please contact our administrator for more details.</li>
+                        </ul>
+                    </React.Fragment>;
                 }
             } else if (this.props.match.params.code === '404') {
                 code = 404;

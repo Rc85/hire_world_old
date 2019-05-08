@@ -41,7 +41,7 @@ const ListingRow = props => {
                 <div className='listing-row-detail'>
                     <div className='listing-row-detail-child'>
                         <Username color='highlight' username={props.listing.listing_user} /> ({props.listing.user_title})
-                        {props.listing.link_work_acct_status === 'Approved' ? <div className='linked-status mini-badge mini-badge-success ml-1'>Linked</div> : ''}
+                        {props.listing.link_work_acct_status === 'Approved' && new Date(props.listing.subscription_end_date) >= new Date() ? <div className='linked-status mini-badge mini-badge-success ml-1'>Linked</div> : ''}
                     </div>
     
                     <div className='listing-row-detail-child'>

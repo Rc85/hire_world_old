@@ -117,6 +117,10 @@ const Faq = props => {
                         <div className='mb-1'>
                             <a href='#twentytwo'>If I want to stop using Link Work, should I cancel my subscription or close my Link Work account?</a>
                         </div>
+
+                        <div className='mb-1'>
+                            <a href='#twentyfive'>Does Hire World support hourly billing?</a>
+                        </div>
                     </div>
                 </div>
 
@@ -546,6 +550,22 @@ const Faq = props => {
 
                         <div className='answer'>
                             <p>We understand that sometimes emails and notifications can become buried by other emails and notifications. If under any circumstances that you realized after the notice regarding high level of suspicious activity on your account that may be the cause of your disqualification of a promotion, you can contact us to resolve the suspicious activity on your account in addition to an explanation of the disqualification of a promotion and we will happily restore your eligibility of the promotion.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div id='twentyfive' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>Does Hire World support hourly billing?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>At the moment we do not have a time tracking software to support hourly billing. It is a goal we plan to accomplish on the horizon as our user base increases.</p>
                         </div>
 
                         <div className='text-right'>

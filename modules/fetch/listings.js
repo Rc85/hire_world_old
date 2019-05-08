@@ -130,7 +130,7 @@ app.post('/api/get/listings', async(req, resp) => {
 
                 if (req.body.filter.isLinked) {
                     params.push(null);
-                    whereArray.push(`link_work_id IS NOT $${params.length}`);
+                    whereArray.push(`link_work_id IS NOT $${params.length} AND subscriptions.subscription_end_date >= current_timestamp`);
                 }
 
                 if (req.body.filter.haveReviews) {
@@ -154,10 +154,12 @@ app.post('/api/get/listings', async(req, resp) => {
             jobs.job_complete,
             jobs.job_abandoned,
             user_profiles.avatar_url, 
-            users.link_work_acct_status
+            users.link_work_acct_status,
+            subscriptions.subscription_end_date
         FROM user_listings
         LEFT JOIN users ON users.username = user_listings.listing_user
         LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
+        LEFT JOIN subscriptions ON users.username = subscriptions.subscriber
         LEFT JOIN (
             SELECT reviewing, SUM(review_rating) / COUNT(review_id) AS rating, COUNT(review_id) AS review_count
             FROM user_reviews

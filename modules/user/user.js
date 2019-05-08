@@ -319,7 +319,7 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                 try {
                     await client.query('BEGIN');
                     
-                    let user = await client.query(`SELECT username, user_email, stripe_id, subscription_end_date, CASE WHEN subscriptions.sub_id IS NOT NULL AND subscriptions.subscription_status = 'Active' THEN true ELSE false END AS is_subscribed, subscriptions.*, user_profiles.* FROM users
+                    let user = await client.query(`SELECT username, user_email, stripe_id, subscription_end_date, CASE WHEN subscriptions.subscription_end_date >= current_timestamp THEN true ELSE false END AS is_subscribed, subscriptions.*, user_profiles.* FROM users
                     LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id
                     LEFT JOIN subscriptions ON users.username = subscriptions.subscriber
                     WHERE username = $1`, [req.session.user.username]);
@@ -397,8 +397,8 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                         await sa.create('Subscription', 'Elevated risk reported by Stripe', req.session.user.username, 4, subscription.latest_invoice.charge.id);
                     }
                     
-                    await client.query(`UPDATE users SET account_type = $3, stripe_id = $1 WHERE username = $2`, [customerId, req.session.user.username, 'Link Work', subscription.id, subscription.plan.id]);
-                    await client.query(`INSERT INTO subscriptions (subscription_id, subscription_end_date, subscriber) VALUES ($1, $2, $3) ON CONFLICT (subscription_id) DO UPDATE SET subscription_end_date = CASE WHEN subscription_end_date < current_timestamp THEN current_timestamp + interval '1 month' END, subscription_created_date = current_timestamp`);
+                    await client.query(`UPDATE users SET stripe_id = $1 WHERE username = $2`, [customerId, req.session.user.username]);
+                    await client.query(`INSERT INTO subscriptions (subscription_id, subscription_end_date, subscriber, subscription_name) VALUES ($1, $2, $3, $4) ON CONFLICT (subscription_id) DO UPDATE SET subscription_end_date = CASE WHEN subscription_end_date < current_timestamp THEN current_timestamp + interval '1 month' END, subscription_created_date = current_timestamp`, [subscription.id, `current_timestamp + interval '1 month'`, req.session.user.username, subscription.plan.nickname]);
 
                     await client.query('COMMIT')
                     .then(async() => {
@@ -596,7 +596,7 @@ app.post('/api/user/payment/delete', authenticate, (req, resp) => {
                 try {
                     await client.query('BEGIN');
 
-                    let user = await client.query(`SELECT stripe_id, CASE WHEN subscriptions.sub_id IS NOT NULL AND subscriptions.subscription_status = 'Active' THEN true ELSE false END AS is_subscribed FROM users
+                    let user = await client.query(`SELECT stripe_id, CASE WHEN subscriptions.subscription_end_date >= current_timestamp THEN true ELSE false END AS is_subscribed FROM users
                     LEFT JOIN subscriptions ON user.username = subscriptions.subscriber
                     WHERE username = $1`, [req.session.user.username]);
 

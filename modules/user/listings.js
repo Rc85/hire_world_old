@@ -4,7 +4,7 @@ const validate = require('../utils/validate');
 const error = require('../utils/error-handler');
 const authenticate = require('../utils/auth');
 
-app.post('/api/listing/create', authenticate, (req, resp) => {
+/* app.post('/api/listing/create', authenticate, (req, resp) => {
 
         let title = req.body.listing_title.trim();
 
@@ -74,7 +74,7 @@ app.post('/api/listing/create', authenticate, (req, resp) => {
                 .catch(err => error.log(err, req, resp));
             });
         }
-});
+}); */
 
 app.post('/api/listing/toggle', authenticate, async(req, resp) => {
     let listing = await db.query(`SELECT listing_status FROM user_listings WHERE listing_user = $1`, [req.session.user.username]);

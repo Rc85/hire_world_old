@@ -128,7 +128,7 @@ class Site extends Component {
                         <div className='site-top-user-menu-item'><FontAwesomeIcon icon={faCommentAlt} className='mr-2' /> <NavLink to='/dashboard/conversations'>Conversations</NavLink> {parseInt(this.props.user.messages) > 0 ? <span className='mini-indicator ml-1'></span> : ''}</div>
                         <div className='site-top-user-menu-item'><FontAwesomeIcon icon={faFilePlus} className='mr-2' /> <NavLink to='/dashboard/post/job'>Post a Job</NavLink></div>
                         <div className='site-top-user-menu-item'><FontAwesomeIcon icon={faBriefcase} className='mr-2' /> <NavLink to='/dashboard/jobs'>My Jobs</NavLink> {parseInt(this.props.user.job_messages.opened_job_message_count) + parseInt(this.props.user.job_messages.active_job_message_count) + parseInt(this.props.user.proposals) > 0 ? <span className='mini-indicator ml-1'></span> : ''}</div>
-                        <div className='site-top-user-menu-item'><FontAwesomeIcon icon={faLink} className='mr-2' /> <NavLink to='/dashboard/link'>Link</NavLink></div>
+                        {this.props.user.user && this.props.user.user.is_subscribed && !this.props.user.user.link_work_id ? <div className='site-top-user-menu-item'><FontAwesomeIcon icon={faLink} className='mr-2' /> <NavLink to='/dashboard/link'>Link</NavLink></div> : ''}
                         <div className='site-top-user-menu-item'><FontAwesomeIcon icon={faSyncAlt} className='mr-2' /> <NavLink to='/dashboard/subscription'>Subscription</NavLink></div>
                         <div className='site-top-user-menu-item'><FontAwesomeIcon icon={faCog} className='mr-2' /> <NavLink to='/dashboard/settings/account'>Settings</NavLink></div>
                         <div className='site-top-user-menu-item' onClick={this.logout.bind(this)}><FontAwesomeIcon icon={faSignOut} className='mr-2' /> <strong>Logout</strong></div>
@@ -243,7 +243,7 @@ class Site extends Component {
                     </div>
 
                     <div className='site-main-sub-footer'>
-                        <div className='mr-5'><strong className='mr-2'>Follow us</strong> <a href='https://www.facebook.com/hireworld' target='_blank' rel='noreferer noopener'><FontAwesomeIcon icon={faFacebook} className='text-blue' /></a></div>
+                        <div className='mr-5'><strong className='mr-2'>Stay up to date</strong> <a href='https://www.facebook.com/hireworld' target='_blank' rel='noreferer noopener'><FontAwesomeIcon icon={faFacebook} className='text-blue' /></a></div>
 
                         <div>
                             <form onSubmit={(e) => {

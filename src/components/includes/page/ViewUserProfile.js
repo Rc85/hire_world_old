@@ -53,7 +53,7 @@ const ViewUserProfile = props => {
                     <div id='view-user-title'>
                         <div className='d-flex-start'>
                             <h3 className='mr-1'>{props.user.user_title}</h3>
-                            {props.user.link_work_acct_status === 'Approved' ? <div className='linked-status mini-badge mini-badge-success'>Linked</div> : ''}
+                            {props.user.link_work_acct_status === 'Approved' && new Date(props.user.subscription_end_date) > new Date() ? <div className='linked-status mini-badge mini-badge-success'>Linked</div> : ''}
                         </div>
 
                         <div id='view-user-rating' className='mb-3'><UserRating rating={props.stats.rating || 0} /> ({props.stats.job_count})</div>

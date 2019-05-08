@@ -14,7 +14,7 @@ class Main extends Component {
                         <div className='site-main-headline'>
                             <div className='text-right'>
                                 <h1>Start your business</h1>
-                                <span>We have all the services to assist you on starting and growing your business</span>
+                                <span>We have the services to assist you on starting and growing your business</span>
 
                                 <div className='text-right mt-2'><NavLink to='/register'><button type='button' className='btn btn-primary'>Get Started</button></NavLink></div>
                             </div>
@@ -27,21 +27,21 @@ class Main extends Component {
                         <div className='text-center mb-1'><FontAwesomeIcon icon={faSearchDollar} size='3x' className='text-highlight' /></div>
                         <div className='text-center mb-3'><h3>No Hidden Fees</h3></div>
 
-                        <p>No VAT, processing fees, administration fees, refund fees, currency exchange fees, partial payment fees, or "we need more money" fees.</p>
+                        <p>No processing fees, administration fees, refund fees, currency exchange fees, partial payment fees, VAT, or "more profit" fees. Our fees are simple and transparent.</p>
                     </div>
 
                     <div className='site-section-div'>
                         <div className='text-center mb-1'><FontAwesomeIcon icon={faThumbsUp} size='3x' className='text-highlight' /></div>
-                        <div className='text-center mb-3'><h3>Hassle-free</h3></div>
+                        <div className='text-center mb-3'><h3>No Obligations</h3></div>
 
-                        <p>No invoices, no billings, no paper work. Releasing funds is as easy as a click of a button.</p>
+                        <p>You're not obligated to use Hire World as a form of contact with your clients. On top of that, the network you build on Hire World is yours to keep should you choose to stop using our services.</p>
                     </div>
 
                     <div className='site-section-div'>
                         <div className='text-center mb-1'><FontAwesomeIcon icon={faShieldAlt} size='3x' className='text-highlight' /></div>
-                        <div className='text-center mb-3'><h3>Secured</h3></div>
+                        <div className='text-center mb-3'><h3>No Worries</h3></div>
 
-                        <p>Your funds are secured no matter where you are so you can focus primarily on your business.</p>
+                        <p>Your funds are secured with us no matter where you are, so you can focus primarily on your business while we take care of the billing and transfers.</p>
                     </div>
                 </div>
 
@@ -49,7 +49,7 @@ class Main extends Component {
                     <div className='site-text'>
                         <h1>Freelancers</h1>
 
-                        <p>Whether you're looking for work locally, remotely, or on Hire World, we have the services to help with your business from communications, payments, and file transfers.</p>
+                        <p>Whether you're looking for work locally, remotely, or through <NavLink to='/features'>Link Work</NavLink>, we have the services to help with your business from communications, payments, and file transfers.</p>
                     </div>
 
                     <div className='site-section-image'>
@@ -63,17 +63,17 @@ class Main extends Component {
                     </div>
 
                     <div className='site-text'>
-                        <h1>Contractors</h1>
+                        <h1>Service Providers</h1>
 
-                        <p>Create your profile and clients can find your profile in our profiles directory. The directory can be filter by a number of parameters such as price and location.</p>
+                        <p>If you're a contractor, have a service to offer, or want to start a side business, our platform can help you gain exposure to potential clients. Whether your professional profile is branding yourself, your product or service, your talent and skill, or your business name, we have a directory for you to list your profile absolutely free.</p>
                     </div>
                 </div>
 
                 <div className='site-section'>
                     <div className='site-text'>
-                        <h1>Recruiters and Service Providers</h1>
+                        <h1>Recruiters</h1>
 
-                        <p>Recruiters can post jobs looking for specific talents for full-time, part-time, or even just for a project. Applying is never easier than one click of a button.</p>
+                        <p>Recruiters can post jobs looking for specific talents for full-time, part-time, or even just for a project. Applicants can apply on your job posting with one click of a button.</p>
                     </div>
 
                     <div className='site-section-image'>

@@ -25,11 +25,13 @@ app.post('/api/get/user', async(req, resp) => {
                     user_settings.display_fullname,
                     user_settings.allow_messaging,
                     user_settings.display_business_hours,
-                    user_listings.*
+                    user_listings.*,
+                    subscriptions.subscription_end_date
                 FROM users
                 LEFT JOIN user_profiles ON user_profiles.user_profile_id = users.user_id
                 LEFT JOIN user_settings ON user_settings.user_setting_id = users.user_id
                 LEFT JOIN user_listings ON users.username = user_listings.listing_user
+                LEFT JOIN subscriptions ON users.username = subscriptions.subscriber
                 WHERE users.username = $1 AND users.user_status = 'Active' AND user_listings.listing_status = 'Active'`, [req.body.username]);
 
                 if (user && user.rows.length === 1) {

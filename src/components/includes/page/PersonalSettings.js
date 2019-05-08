@@ -92,17 +92,14 @@ class PersonalSettings extends Component {
     }
 
     render() {
-        let status;
-
         if (this.state.status === 'Loading') {
-            status = <Loading size='5x' />;
+            return <Loading size='5x' />;
         }
 
         return(
             <div id='profile-settings' className='simple-container no-bg'>
                 <div className='simple-container-title'>Personal Settings</div>
-                
-                {status}
+
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child three-quarter'>
                         <InputWrapper label='Address'>

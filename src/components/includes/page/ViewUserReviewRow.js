@@ -69,10 +69,6 @@ class ViewUserReviewRow extends Component {
     render() {
         let buttons, badge, review, status, reviewer, reportButton, reviewUserType;
 
-        if (this.state.status === 'Sending') {
-            status = <Loading size='3x' />;
-        }
-
         if (this.props.user.user && this.props.user.user.username === this.props.review.reviewer) {
             buttons = <FontAwesomeIcon icon={faEdit} onClick={() => this.setState({editing: true})} className='user-review-buttons' />;
             reviewer = true;
@@ -119,7 +115,6 @@ class ViewUserReviewRow extends Component {
                 </div>
 
                 <div className={`user-review-container ${reviewer ? 'user-review-owner' : ''}`}>
-                    {status}
                     <div className='user-review-profile-pic'>
                         <div className='profile-pic' style={{background: `url(${this.props.review.avatar_url}) center top / cover`}}></div>
                     </div>

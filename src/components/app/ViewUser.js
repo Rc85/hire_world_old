@@ -193,7 +193,7 @@ class ViewUser extends Component {
     }
 
     render() {
-        let status, contacts, profile, reportButton, message, friendIcon, businessHours, jobs, blockIcon;
+        let contacts, profile, reportButton, message, friendIcon, businessHours, jobs, blockIcon;
 
         if (this.state.status === 'access error') {
             return <Redirect to={`/error/listing/404`} />
@@ -251,8 +251,6 @@ class ViewUser extends Component {
         
         return(
             <div id='view-user' className='main-panel'>
-                {status}
-                
                 <div id='view-user-details-container'>
                     <div id='view-user-main'>
                         {<TitledContainer title={this.state.user ? this.state.user.username : ''} bgColor='yellow' icon={<FontAwesomeIcon icon={faUserCircle} />} shadow>

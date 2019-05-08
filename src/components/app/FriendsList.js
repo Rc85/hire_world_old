@@ -83,18 +83,13 @@ class FriendsList extends Component {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
             return <Redirect to='/main' />;
+        } else if (this.state.status === 'Loading') {
+            return <Loading size='7x' color='black' />;
         }
 
         if (this.props.user.user) {
-            let status;
-
-            if (this.state.status === 'Loading') {
-                status = <Loading size='5x' />;
-            }
-
             return(
                 <section id='friends-list' className='main-panel'>
-                    {status}
                     <TitledContainer title='Friends List' icon={<FontAwesomeIcon icon={faUserFriends} />} bgColor='lightblue'>
                         <div className='filter-container'>
                             <AlphaNumericFilter filter={(letter) => this.setState({filtering: letter})} currentLetter={this.state.filtering} />

@@ -90,15 +90,12 @@ class MessageDetails extends Component {
     }
     
     render() {
-        let status;
-
-        if (this.state.status === 'Loading Message') {
-            status = <Loading size='5x' color='black' />;
+        if (this.state.status === 'Loading') {
+            return <Loading size='5x' />;
         }
-
+        
         return (
             <div id='message-details'>
-                {status}
                 {this.state.reply ? '' : <div id='reply-button' className='text-right mb-3'><button className='btn btn-primary btn-sm' onClick={() => this.setState({reply: true})}>Reply</button></div>}
 
                 <MessageSender key={this.state.messages.length} id='reply-container' className={this.state.reply ? 'show' : ''} subject={this.state.messages.length > 0 ? this.props.conversation.conversation_subject : ''} send={(message, verified) => this.reply(message, verified)} status={this.state.sendStatus} cancel={this.state.reply ? () => this.setState({reply: false}) : null} placeholder='Type your reply here' />

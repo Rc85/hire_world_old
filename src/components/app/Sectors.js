@@ -109,7 +109,7 @@ class Sectors extends Component {
     }
 
     render() {
-        let status, listings;
+        let listings;
         
         if (this.props.match.params.type === 'profiles') {
             listings = this.state.listings.map((listing, i) => {
@@ -124,14 +124,12 @@ class Sectors extends Component {
         if (this.state.status === 'access error') {
             return <Redirect to='/error/app/500' />
         } else if (this.state.status === 'Loading') {
-            status = <Loading size='5x' />;
+            return <Loading size='7x' color='black' />;
         }
 
         return(
             <React.Fragment>
                 <FilterListings filter={(data) => this.setState({filter: data})} status={this.state.status} type={this.props.match.params.type} />
-
-                {status}
                 
                 <section id='listings' className='main-panel mt-5'>
                     <TitledContainer title={this.props.match.params.type.charAt(0).toUpperCase() + this.props.match.params.type.substr(1)} secondaryTitle={this.props.match.params.sector} bgColor='primary' icon={<FontAwesomeIcon icon={faThList} />}shadow >

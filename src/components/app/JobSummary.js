@@ -62,16 +62,14 @@ class JobSummary extends Component {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
             return <Redirect to='/main' />;
-        }
-        
-        if (this.state.status === 'Loading') {
-            status = <Loading size='5x' />;
+        } else if (this.state.status === 'Loading') {
+            return <Loading size='7x' color='black' />;
         } else if (this.state.status === 'error') {
             return <Redirect to='/error/app/500' />;
         }
 
         if (this.props.user.user && this.state.summary) {
-            let status, appFee, userFee, clientFee;
+            let appFee, userFee, clientFee;
 
             if (this.state.summary.user_app_fee && !isNaN(parseFloat(this.state.summary.user_app_fee))) {
                 userFee = parseFloat(this.state.summary.user_app_fee);
@@ -90,8 +88,6 @@ class JobSummary extends Component {
             return (
                 <section id='jobs' className='main-panel'>
                     <TitledContainer title='Job Summary' bgColor='orange' icon={<FontAwesomeIcon icon={faClipboardList} />}>
-                        {status}
-
                         <div className='simple-container no-bg'>
                             <div className='simple-container-title'>Stats</div>
 

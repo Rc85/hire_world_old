@@ -87,15 +87,11 @@ class BlockedUsers extends Component {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
             return <Redirect to='/main' />;
+        } else if (this.state.status === 'Fetching') {
+            return <Loading size='7x' color='black' />;
         }
 
         if (this.props.user.user) {
-            let status;
-
-            if (this.state.status === 'Fetching') {
-                status = <Loading size='5x' />;
-            }
-
             let users = this.state.users.map((user, i) => {
                 return <div key={i} className='user-container'>
                     <Username username={user.blocked_user} color='highlight' />
@@ -105,7 +101,6 @@ class BlockedUsers extends Component {
 
             return (
                 <section id='blocked-users' className='main-panel'>
-                    {status}
                     <TitledContainer title='Blocked Users' icon={<FontAwesomeIcon icon={faUserSlash} />} bgColor='danger' shadow>
                         <div className='filter-container'>
                             <AlphaNumericFilter filter={(letter) => this.setState({filtering: letter})} currentLetter={this.state.filtering} />

@@ -355,10 +355,6 @@ class LinkWorkSettings extends Component {
 
             let supportedCountries = ['AT', 'AU', 'BE', 'CA', 'CH', 'DE', 'DK', 'ES', 'FI', 'FR', 'GB', 'IE', 'IT', 'LU', 'NL', 'NO', 'NZ', 'PT', 'SE', 'US'];
 
-            if (this.state.status === 'Fetching') {
-                status = <Loading size='5x' />;
-            }
-
             if (this.state.accountType === 'debit') {
                 financialForm = <div className='mb-3'>
                     <div className='mb-3'>Only Debit Mastercard or Visa Debit can be used to accept payouts</div>
@@ -528,8 +524,6 @@ class LinkWorkSettings extends Component {
 
             return (
                 <section id='link-work-settings' className='main-panel'>
-                    {status}
-                    
                     <TitledContainer title='Link Work Settings' icon={<FontAwesomeIcon icon={faLink} />} shadow bgColor='lightblue'>
                         <div className='account-id mb-3'>
                             <h2>{this.state.id}</h2>

@@ -122,12 +122,12 @@ class Checkout extends Component {
     }
 
     render() {
-        let addressInput, status, choosePaymentMethod, newPayment;
+        let addressInput, choosePaymentMethod, newPayment;
 
         if (this.state.status === 'Success') {
             return <Redirect to='/payment/success' />;
         } else if (this.state.status === 'Sending') {
-            status = <Loading size='5x' />;
+            return <Loading size='7x' color='black' />;
         }
 
         if (!this.state.defaultAddress) {
@@ -159,7 +159,6 @@ class Checkout extends Component {
         // test plan id plan_EAIyF94Yhy1BLB
         return (
             <div className='checkout mt-3'>
-                {status}
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child'>
                         <InputWrapper label='Choose Plan' required>

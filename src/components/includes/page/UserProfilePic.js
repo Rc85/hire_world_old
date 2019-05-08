@@ -74,7 +74,7 @@ class UserProfilePic extends Component {
     }
 
     render() {
-        let dropzoneRef, status, dropzone, button, deleteButton;
+        let dropzoneRef, dropzone, button, deleteButton;
 
         if (this.props.editable) {
             dropzone = <div className='dropzone'><Dropzone ref={(node) => { dropzoneRef = node; }} onDrop={this.onDrop.bind(this)} style={{height: '100%', width: '100%'}} name='profile_pic' /></div>;
@@ -83,13 +83,12 @@ class UserProfilePic extends Component {
         }
 
         if (this.state.status === 'Loading') {
-            status = <Loading size='3x' />;
+            return <Loading size='3x' />;
         }
 
         return(
             <div className={`profile-pic-container ${this.props.bordered ? `bordered ${this.props.borderColor ? this.props.borderColor : 'black'}` : ''}`}>
                 <div className={`profile-pic ${this.props.square ? 'square' : ''}`} style={{background: `url(${this.props.url}) center top / cover`}}>
-                    {status}
                     {dropzone}
     
                     <div className='profile-pic-buttons'>

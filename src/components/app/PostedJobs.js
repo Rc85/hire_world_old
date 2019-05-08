@@ -80,18 +80,14 @@ class PostedJobs extends Component {
         }
         
         if (this.state.status === 'Loading') {
-            status = <Loading size='5x' />;
+            return <Loading size='7x' color='black' />;
         } else if (this.state.status === 'error') {
             return <Redirect to='/error/app/500' />;
         }
         
         if (this.props.user.user) {
-            let status;
-
             return (
                 <section id='posted-jobs' className='main-panel'>
-                    {status}
-
                     <TitledContainer title='Posted Jobs' bgColor='violet' icon={<FontAwesomeIcon icon={faFolderOpen} />} shadow>
                         {this.state.jobs.map((job, i) => {
                             let local, remote, online;

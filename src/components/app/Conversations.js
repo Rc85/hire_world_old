@@ -174,16 +174,14 @@ class Conversations extends Component {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
             return <Redirect to='/main' />;
+        } else if (this.state.status === 'Loading') {
+            return <Loading size='5x' />;
+        } else if (this.state.status === 'access error') {
+            return <Redirect to='/error/app/500' />
         }
 
         if (this.props.user.user) {
-            let status, body, message, loadingMessageStatus;
-
-            if (this.state.status === 'Loading') {
-                status = <Loading size='5x' className='bg-blue' />;
-            } else if (this.state.status === 'access error') {
-                return <Redirect to='/error/app/500' />
-            }
+            let body, message, loadingMessageStatus;
 
             let messages = this.state.conversations.map((message, i) => {
                 let pinned = false;
@@ -218,7 +216,6 @@ class Conversations extends Component {
                     <div id='message-list-toggle-up-down'><FontAwesomeIcon icon={this.state.showConversationsList ? faChevronUp : faChevronDown} size='3x' onClick={() => this.toggleMessageList(!this.state.showConversationsList)} /></div>
 
                     <div id='message-list-column-container'>
-                        {status}
                         <div id='message-list-column' className={this.state.showConversationsList ? '' : 'hide'}>
                             <div id='message-list-main-column'>
                                 <div className='message-filter-buttons-container'>

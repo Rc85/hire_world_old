@@ -161,7 +161,7 @@ class Profile extends Component {
 
     render() {
         if (this.state.status === 'Loading') {
-            status = <Loading size='7x' />;
+            return <Loading size='7x' color='black' />;
         } else if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
@@ -171,7 +171,7 @@ class Profile extends Component {
         } 
 
         if (this.props.user.user) {
-            let status, sectors, renewButton;
+            let sectors, renewButton;
 
             if (this.props.sectors) {
                 sectors = this.props.sectors.map((sector, i) => {
@@ -193,8 +193,6 @@ class Profile extends Component {
             return(
                 <section id='list-settings' className='main-panel'>
                     <TitledContainer title='Profile' bgColor='danger' icon={<FontAwesomeIcon icon={faUser} />} shadow>
-                        {status}
-
                         <div className='setting-container'>
                             <div className='list-setting-container'>
                                 <div className='d-flex-end-center mb-3'>

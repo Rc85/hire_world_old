@@ -21,6 +21,9 @@ import StaticAlert from '../utils/StaticAlert';
 import AddBankAccount from '../includes/page/AddBankAccount';
 import { PromptOpen, PromptReset } from '../../actions/PromptActions';
 import { ShowLoading, HideLoading } from '../../actions/LoadingActions';
+import CreditCardInput from '../utils/CreditCardInput';
+import CCExpiryDateInput from '../utils/CCExpiryDateInput';
+import CVCInput from '../utils/CVCInput';
 
 let financialResetButton;
 
@@ -382,21 +385,15 @@ class LinkWorkSettings extends Component {
 
                     <div className='setting-field-container mb-3'>
                         <div className='setting-child'>
-                            <InputWrapper label='Card Number' required className='pl-1 pb-1 pr-1'>
-                                <CardNumberElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
-                            </InputWrapper>
+                            <CreditCardInput />
                         </div>
 
                         <div className='setting-child one-third'>
-                            <InputWrapper label='Expiry Date' required className='pl-1 pb-1 pr-1'>
-                                <CardExpiryElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
-                            </InputWrapper>
+                            <CCExpiryDateInput />
                         </div>
 
                         <div className='setting-child one-third'>
-                            <InputWrapper label='CVC' required className='pl-1 pb-1 pr-1'>
-                                <CardCVCElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
-                            </InputWrapper>
+                            <CVCInput />
                         </div>
                     </div>
 

@@ -19,7 +19,9 @@ class CCExpiryDateInput extends Component {
     }
 
     setRef() {
-        this.props.setRef(this.CardExpiryElement)
+        if (this.props.setRef) {
+            this.props.setRef(this.CardExpiryElement)
+        }
     }
 
     render() {

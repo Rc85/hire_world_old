@@ -19,7 +19,9 @@ class CVCInput extends Component {
     }
 
     setRef() {
-        this.props.setRef(this.CardCVCElement)
+        if (this.props.setRef) {
+            this.props.setRef(this.CardCVCElement)
+        }
     }
 
     render() {

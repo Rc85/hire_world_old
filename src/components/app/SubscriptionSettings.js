@@ -156,7 +156,7 @@ class SubscriptionSettings extends Component {
 
                     subscriptionInfo = <React.Fragment>
                         <div className='d-flex-between-center mb-3'>
-                            <h4>{subscriptionStatus}</h4>
+                            <h4>{subscriptionStatus}{moment(this.state.subscription.trial_end * 1000).diff(moment(), 'days') >= 0 ? <span className='med-badge mini-badge-info ml-1'>Trial Period</span> : ''}</h4>
                             {unsubscribeButton}
                         </div>
 

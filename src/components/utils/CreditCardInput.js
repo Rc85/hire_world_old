@@ -20,7 +20,9 @@ class CreditCardInput extends Component {
     }
 
     setRef() {
-        this.props.setRef(this.CardNumberElement)
+        if (this.props.setRef) {
+            this.props.setRef(this.CardNumberElement);
+        }
     }
     
     render() {

@@ -75,12 +75,12 @@ class VerifyPayment extends Component {
             token['token']['id'] = this.state.usePayment;
         } else {
             token = await this.props.stripe.createToken({
-                name: this.state.name ? this.state.name : `${this.props.user.user_firstname} ${this.props.user.user_lastname}`,
-                address_line1: this.state.defaultAddress ? this.props.user.user_address : this.state.address_line1,
-                address_city: this.state.defaultAddress ? this.props.user.user_city : this.state.address_city,
-                address_state: this.state.defaultAddress ? this.props.user.user_region : this.state.address_state,
-                address_zip: this.state.defaultAddress ? this.props.user.user_city_code : this.state.address_zip,
-                address_country: this.state.defaultAddress ? this.props.user.user_country : this.state.address_country
+                name: this.state.name ? this.state.name : `${this.props.user.user.user_firstname} ${this.props.user.user.user_lastname}`,
+                address_line1: this.state.defaultAddress ? this.props.user.user.user_address : this.state.address_line1,
+                address_city: this.state.defaultAddress ? this.props.user.user.user_city : this.state.address_city,
+                address_state: this.state.defaultAddress ? this.props.user.user.user_region : this.state.address_state,
+                address_zip: this.state.defaultAddress ? this.props.user.user.user_city_code : this.state.address_zip,
+                address_country: this.state.defaultAddress ? this.props.user.user.user_country : this.state.address_country
             });
         }
 
@@ -88,6 +88,7 @@ class VerifyPayment extends Component {
     }
     
     render() {
+        console.log(this.props.user)
         let payments, addressInput;
 
         if (this.state.status === 'Getting Payments') {

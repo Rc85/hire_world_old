@@ -287,6 +287,7 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
         .catch(err => {
             return error.log(err, req, resp);
         });
+        console.log(req.body);
 
         if (plans.indexOf(req.body.plan) < 0) {
             resp.send({status: 'error', statusMessage: `That plan does not exist`});
@@ -333,14 +334,18 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                     }
 
                     let customer, subscription, customerId, stripeAccount;
-                    let trialEnd = moment().add(30, 'days').unix();
-
+                    
                     // Set subscription parameters
                     let subscriptionParams = {
                         customer: null,
                         items: [{plan: req.body.plan}],
-                        trial_end: trialEnd
                     };
+
+                    let trialEnd = moment().add(30, 'days').unix();
+
+                    if (!user.rows[0].sub_id) {
+                        subscriptionParams['trial_end'] = trialEnd;
+                    }
                     
                     // If user already has a stripe account
                     if (user.rows[0].stripe_id) {
@@ -348,7 +353,7 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                     }
 
                     if (stripeAccount) {
-                        if (stripeAccount.sources.data.length > 0) {
+                        if (!req.body.token.card) {
                             subscriptionParams.customer = user.rows[0].stripe_id;
                             subscriptionParams['default_source'] = req.body.token.id;
 
@@ -396,7 +401,7 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                     }
                     
                     await client.query(`UPDATE users SET stripe_id = $1 WHERE username = $2`, [customerId, req.session.user.username]);
-                    await client.query(`INSERT INTO subscriptions (subscription_id, subscription_created_date, subscription_end_date, subscriber, subscription_name) VALUES ($1, current_timestamp, current_timestamp + interval '1 month', $2, $3) ON CONFLICT (subscription_name, subscriber) DO UPDATE SET subscription_end_date = CASE WHEN subscriptions.subscription_end_date < current_timestamp THEN current_timestamp + interval '1 month' END, subscription_created_date = current_timestamp`, [subscription.id, req.session.user.username, subscription.plan.nickname]);
+                    await client.query(`INSERT INTO subscriptions (subscription_id, subscription_created_date, subscription_end_date, subscriber, subscription_name) VALUES ($1, current_timestamp, current_timestamp + interval '1 month', $2, $3) ON CONFLICT (subscription_name, subscriber) DO UPDATE SET subscription_id = $1, subscription_end_date = to_timestamp($4), subscription_created_date = current_timestamp, is_subscribed = true`, [subscription.id, req.session.user.username, subscription.plan.nickname, subscription.trial_end]);
 
                     await client.query('COMMIT')
                     .then(async() => {

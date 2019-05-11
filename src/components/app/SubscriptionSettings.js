@@ -107,7 +107,7 @@ class SubscriptionSettings extends Component {
         if (!this.state.plan) {
             this.props.dispatch(Alert('error', 'Please choose a plan'));
         } else {
-            this.props.dispatch(ShowConfirmation(`Are you sure you want to subscribe to the ${this.state.planName} plan?`, false, {action: 'subscribe', token: token, saveAddress: save}))
+            this.props.dispatch(ShowConfirmation(`Are you sure you want to subscribe to the ${this.state.planName} plan?`, `This card will be used as the default payment method for this subscription`, {action: 'subscribe', token: token, saveAddress: save}))
         }
     }
     

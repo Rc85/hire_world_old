@@ -24,14 +24,15 @@ class FinancialAccountRow extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.confirm.data && nextProps.confirm.option) {
-            if (nextProps.confirm.data.action === 'delete payment' && nextProps.confirm.data.id === this.props.account.id) {
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.confirm.data && this.props.confirm.option && prevProps.confirm.option !== this.props.confirm.option) {
+            if (this.props.confirm.data.action === 'delete payment' && this.props.confirm.data.id === this.props.account.id) {
                 this.props.delete();
                 this.props.dispatch(ResetConfirmation());
             }
         }
     }
+
 
     /* verify() {
         this.setState({status: 'Verifying'});

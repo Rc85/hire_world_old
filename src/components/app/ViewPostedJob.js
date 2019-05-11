@@ -177,7 +177,7 @@ class ViewPostedJob extends Component {
         if (this.state.job.job_post_budget_threshold === 'Exactly') {
             payment = <React.Fragment><strong>{this.state.job.job_post_payment_type}:</strong> <span>$<MoneyFormatter value={this.state.job.job_post_budget} /></span></React.Fragment>;
         } else if (this.state.job.job_post_budget_threshold === 'Between') {
-            payment = <React.Fragment><strong>{this.state.job.job_post_payment_type}:</strong> {this.state.job.job_post_budget_threshold} <span>$<MoneyFormatter value={this.state.job.job_post_budget} /> to $<MoneyFormatter value={this.state.job.job_post_budget_end} /></span></React.Fragment>;
+            payment = <React.Fragment><strong>{this.state.job.job_post_payment_type}:</strong> <span>$<MoneyFormatter value={this.state.job.job_post_budget} /> to $<MoneyFormatter value={this.state.job.job_post_budget_end} /></span></React.Fragment>;
         } else if (this.state.job.job_post_budget_threshold === 'To Be Discussed') {
             payment = <strong>{this.state.job.job_post_budget_threshold}</strong>;
         }

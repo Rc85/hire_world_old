@@ -86,7 +86,10 @@ app.post('/api/auth/register', (req, resp) => {
 
                                     let message = {
                                         to: req.body.email,
-                                        from: 'admin@hireworld.ca',
+                                        from: {
+                                            name: 'Hire World',
+                                            email: 'admin@hireworld.ca'
+                                        },
                                         subject: 'Welcome to Hire World',
                                         templateId: 'd-4994ab4fd122407ea5ba295506fc4b2a',
                                         dynamicTemplateData: {
@@ -197,7 +200,10 @@ app.post('/api/resend-confirmation', async(req, resp) => {
                             
                             let message = {
                                 to: req.body.email,
-                                from: 'admin@hireworld.ca',
+                                from: {
+                                    name: 'Hire World',
+                                    email: 'admin@hireworld.ca'
+                                },
                                 subject: 'Reset Password',
                                 templateId: 'd-d299977ec2404a5d9952b08a21576be5',
                                 dynamicTemplateData: {

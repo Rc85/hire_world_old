@@ -193,6 +193,7 @@ class ActiveJobDetails extends Component {
     }
     
     render() {
+        console.log(this.state)
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
@@ -221,19 +222,21 @@ class ActiveJobDetails extends Component {
                     jobStatus = <span className='mini-badge mini-badge-info ml-1'>Details Received</span>;
                 }
             } else if (this.state.job.job_status === 'Confirmed') {
-                jobStatus = <span className='mini-badge mini-badge-info ml-1'>Awaiting Funds...</span>;
+                jobStatus = <span className='mini-badge mini-badge-info ml-1'>Awaiting Funds</span>;
             } else if (this.state.job.job_status === 'Active') {
                 jobStatus = <span className='mini-badge mini-badge-warning ml-1'>In Progress</span>;
             } else if (this.state.job.job_status === 'Requesting Close') {
-                jobStatus = <span className='mini-badge mini-badge-danger ml-1'>Requesting Close...</span>;    
-            } else if (this.state.job.job_status === 'Complete') {
+                jobStatus = <span className='mini-badge mini-badge-danger ml-1'>Requesting Close</span>;    
+            } else if (this.state.job.job_status === 'Complete' || (this.state.job.job_status === 'Error' && this.state.job.job_client === this.props.user.user.username)) {
                 jobStatus = <span className='mini-badge mini-badge-success ml-1'>Complete</span>;
             } else if (this.state.job.job_status === 'Abandoned') {
                 jobStatus = <span className='mini-badge mini-badge-danger ml-1'>Abandoned</span>;
             } else if (this.state.job.job_status === 'Declined') {
                 jobStatus = <span className='mini-badge mini-badge-danger ml-1'>Declined</span>;
             } else if (this.state.job.job_status === 'Requesting Payment') {
-                jobStatus = <span className='mini-badge mini-badge-info ml-1'>Requesting Payment...</span>;
+                jobStatus = <span className='mini-badge mini-badge-info ml-1'>Requesting Payment</span>;
+            } else if (this.state.job.job_status === 'Error' && this.state.job.job_client !== this.props.user.user.username) {    
+                jobStatus = <span className='mini-badge mini-badge-danger ml-1'>Error</span>;
             }
 
             return (

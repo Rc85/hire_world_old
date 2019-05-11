@@ -155,6 +155,7 @@ class LinkWorkSettings extends Component {
             state.accountRoutingNumber = '';
             state.accountNumber = '';
             state.accountHolder = '';
+            state.accountType = '';
             
             if (resp.data.status === 'success') {
                 state.external_accounts.data = resp.data.accounts;

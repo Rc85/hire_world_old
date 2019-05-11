@@ -98,7 +98,7 @@ class ViewUserReviewRow extends Component {
 
         return(
             <div className={`simple-container mb-3 ${this.props.user.user && this.props.review.reviewer === this.props.user.user.username ? 'bg-alt-highlight text-black' : ''}`}>
-                <div className='simple-container-title'>{this.props.review.reviewer}</div>
+                <div className='simple-container-title'><Username username={this.props.review.reviewer} /></div>
 
                 <div className='user-review-header'>
                     <div className='user-review-header-info'>

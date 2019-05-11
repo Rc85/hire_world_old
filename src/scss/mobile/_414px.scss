@@ -48,6 +48,10 @@
         flex-direction: column;
     }
 
+    .blocked-user-container {
+        grid-template-columns: 1fr;
+    }
+
     .message-row.owner, .message-row.sender {
         .message-row-profile-pic { display: none; }
     

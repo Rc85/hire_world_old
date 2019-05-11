@@ -259,7 +259,7 @@ class ViewUser extends Component {
                             {this.props.user.user && this.state.user && this.props.user.user.username !== this.state.user.username ?
                                 <div className='text-right'>
                                     {this.state.message != 'message' && this.state.user.allow_messaging ? <button className='btn btn-primary' onClick={() => this.setState({message: 'message'})}>Message</button> : ''}
-                                    {this.state.message != 'propose a job' && this.state.user && this.state.user.link_work_acct_status === 'Approved' && new Date(this.state.user.subscription_end_date) > new Date() ? <button className='btn btn-success' onClick={() => this.setState({message: 'propose a job'})}>Start A Job</button> : ''}
+                                    {this.state.message != 'propose a job' && this.state.user && this.state.user.link_work_acct_status === 'Approved' && this.props.user.user && new Date(this.props.user.user.subscription_end_date) >= new Date() && new Date(this.state.user.subscription_end_date) >= new Date() ? <button className='btn btn-success' onClick={() => this.setState({message: 'propose a job'})}>Start A Job</button> : ''}
                                 </div>
                             : ''}
 

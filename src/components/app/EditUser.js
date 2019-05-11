@@ -231,7 +231,7 @@ class EditUser extends Component {
 
                         <div className='dashboard-panel-full mb-5'>
                             <TitledContainer title='Upcoming Events' bgColor='lime' shadow scroll={this.state.events.length > 0 ? true : false} icon={<FontAwesomeIcon icon={faCalendarStar} />}>
-        
+                                <h5 className='text-dark text-center'>No upcoming events</h5>
                             </TitledContainer>
                         </div>
                     </div>

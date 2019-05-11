@@ -7,8 +7,6 @@ const util = require('util');
 const authenticate = require('../utils/auth');
 const moneyFormatter = require('../utils/money-formatter');
 
-stripe.setApiVersion('2019-02-19');
-
 app.post('/api/job/accounts/fetch', authenticate, async(req, resp) => {
     let user = await db.query('SELECT link_work_id, link_work_acct_status FROM users WHERE username = $1', [req.session.user.username]);
 
@@ -34,7 +32,7 @@ app.post('/api/jobs/fetch', authenticate, async(req, resp) => {
     } else if (req.body.stage === 'active') {
         // 'Active' are jobs that have been started and the first milestone payment transferred
         // 'Requesting Payment' is when the user submitted a request for payment to the client
-        statusParam = `job_status IN ('Active', 'Requesting Payment', 'Requesting Close')`;
+        statusParam = `job_status IN ('Active', 'Requesting Payment', 'Requesting Close', 'Error')`;
     } else if (req.body.stage === 'complete') {
         statusParam = `job_status IN ('Complete')`;
     } else if (req.body.stage === 'abandoned') {
@@ -87,7 +85,7 @@ app.post('/api/get/job/details', authenticate, (req, resp) => {
         } else if (req.body.stage === 'active') {
             // 'Active' are jobs that have been started and the first milestone payment transferred
             // 'Requesting Payment' is when the user submitted a request for payment to the client
-            statusParam = `job_status IN ('Active', 'Requesting Payment', 'Requesting Close')`;
+            statusParam = `job_status IN ('Active', 'Requesting Payment', 'Requesting Close', 'Error')`;
         } else if (req.body.stage === 'complete') {
             statusParam = `job_status IN ('Complete')`;
         } else if (req.body.stage === 'abandoned') {
@@ -102,7 +100,7 @@ app.post('/api/get/job/details', authenticate, (req, resp) => {
 
                 if (authorized.rows.length > 0) {
                     if (authorized.rows[0].job_user === req.session.user.username) {
-                        await client.query(`UPDATE jobs SET job_status = 'Open' WHERE job_id = $1 AND job_status NOT IN ('Requesting Payment', 'Requesting Close', 'Declined', 'Pending', 'Active', 'Complete', 'Abandoned')`, [req.body.id]);
+                        await client.query(`UPDATE jobs SET job_status = 'Open' WHERE job_id = $1 AND job_status = 'New'`, [req.body.id]);
                     }
 
                     if (authorized.rows[0].job_user === req.session.user.username || authorized.rows[0].job_client === req.session.user.username) {
@@ -138,74 +136,51 @@ app.post('/api/get/job/details', authenticate, (req, resp) => {
                         await client.query(`UPDATE job_messages SET job_message_status = 'Viewed' WHERE job_message_parent_id = $1 AND job_message_creator != $2 AND job_message_status = 'New'`, [req.body.id, req.session.user.username]);
                         
                         let jobDetails = await client.query(`SELECT * FROM jobs WHERE job_id = $1 AND ${statusParam}`, [req.body.id]);
-                        
-                        let balanceIds = [];
-                        let balances = [];
-                        
-                        // Insert into balanceIds with objects in the form of {id: '1', type: 'balance' || 'payout'}
-                        for (let milestone of milestones.rows) {
-                            /* if (milestone.milestone_status === 'Complete' && milestone.payout_id) {
-                                balanceIds.push({type: 'payout', id: milestone.payout_id});            
-                            } else  */if ((milestone.milestone_status === 'In Progress' || milestone.milestone_status === 'Requesting Payment') && milestone.balance_txn_id) {
-                                balanceIds.push({type: 'balance', id: milestone.balance_txn_id});
+
+                        for (let i in milestones.rows) {
+                            if (milestones.rows[i].balance_txn_id) {
+                                milestones.rows[i]['balance'] = await stripe.balance.retrieveTransaction(milestones.rows[i].balance_txn_id, {expand: ['source.transfer.destination_payment.balance_transaction']})
+                                .then(balance => {
+                                    return balance.source.transfer.destination_payment.balance_transaction;
+                                })
+                                .catch(err => {
+                                    throw err;
+                                });
+                            } else {
+                                milestones.rows[i]['balance'] = {};
                             }
-                            
-                            // If there are no files for the milestone, the row returns null and it needs to be removed
-                            for (let i in milestone.files) {
-                                if (milestone.files[i] === null) {
-                                    milestone.files.splice(i, 1);
+
+                            if (milestones.rows[i].payout_id) {
+                                milestones.rows[i]['payout'] = await stripe.payouts.retrieve(milestones.rows[i].payout_id, {stripe_account: authorized.rows[0].link_work_id})
+                                .then(async payout => {
+                                    //--- This may not be needed in production
+                                    if (payout.status === 'failed') {
+                                        milestones.rows[i].milestone_status = 'Unpaid';
+                                        let milestone = await client.query(`UPDATE job_milestones SET milestone_status = 'Unpaid' WHERE milestone_status != 'Unpaid' AND payout_id = $1 RETURNING milestone_job_id`, [payout.id]);
+                                        await client.query(`UPDATE job_milestones SET milestone_status = 'Unpaid' WHERE milestone_status != 'Unpaid' AND payout_id = $1`, [payout.id]);
+                                    }
+                                    //---
+                                    return payout;
+                                })
+                                .catch(err => {
+                                    throw err;
+                                });
+                            } else {
+                                milestones.rows[i]['payout'] = {};
+                            }
+
+                            for (let index in milestones.rows[i].files) {
+                                if (milestones.rows[i].files[index] === null) {
+                                    milestones.rows[i].files.splice(index, 1);
                                 }
                             }
                             
                             // Sort files by filename
-                            milestone.files.sort((a, b) => {
+                            milestones.rows[i].files.sort((a, b) => {
                                 return a.filename > b.filename;
                             });
                         }
                         
-                        // Get the balance or payout object from Stripe and push it to balance
-                        for (let obj of balanceIds) {
-                            let balance;
-
-                            if (obj.type === 'balance') {
-                                balance = await stripe.balance.retrieveTransaction(obj.id, {expand: ['source.transfer.destination_payment.balance_transaction']})
-                                .catch(err => error.log(err, req, resp));
-                            } else if (obj.type === 'payout') {
-                                balance = await stripe.payouts.retrieve(obj.id, {stripe_account: authorized.rows[0].link_work_id});
-                            }
-
-                            balances.push(balance);
-                        }
-
-                        /* await stripe.accounts.retrieve('acct_1EPh8eH8F9F7RoKQ')
-                        .then(account => 
-                        .then(err => error.log(err, req, resp)); */
-
-                        /* await stripe.transfers.create({
-                            amount: 357,
-                            currency: 'aud',
-                            destination: 'acct_1EPuqnLoWtSpj474',
-                        })
-                        .then(transfer => 
-                        .catch(err => error.log(err, req, resp)); */
-                        
-                        /* await stripe.payouts.create({
-                            amount: 255,
-                            currency: 'aud'
-                        }, {stripe_account: 'acct_1ER9NgJwYtxNRzbE'}) */
-
-                        // Loop through balance and our milestone query to match the id and balance_txn_id field, and create a new balance key with the balance object
-                        for (let milestone of milestones.rows) {
-                            for (let balance of balances) {
-                                if (milestone.balance_txn_id === balance.id) {
-                                    milestone['balance'] = balance.source.transfer.destination_payment.balance_transaction;
-                                } else if (milestone.payout_id === balance.id) {
-                                    balance['net'] = balance.amount;
-                                    milestone['balance'] = balance;
-                                }
-                            }
-                        }
-
                         // Get the review associate with the job only when jobs are complete, otherwise this is .rows[0] is null
                         let review = await client.query(`SELECT user_reviews.*, review_tokens.* FROM user_reviews
                         LEFT JOIN jobs
@@ -247,6 +222,7 @@ app.post('/api/jobs/summary', authenticate, (req, resp) => {
         (async() => {
             try {
                 await client.query('BEGIN');
+                let user = await client.query(`SELECT link_work_id FROM users WHERE username = $1`, [req.session.user.username]);
 
                 let jobStats, balanceAvailable, balancePending, totalPayment, payoutReceived, clientAppFee, userAppFee;
 
@@ -260,18 +236,29 @@ app.post('/api/jobs/summary', authenticate, (req, resp) => {
                     SELECT COUNT(job_id) AS job_declined FROM jobs WHERE job_status = 'Declined' AND (job_user = $1 OR job_client = $1)
                 ) FROM jobs
                 LIMIT 1`, [req.session.user.username]);
+                let availableBalance = {};
+                let pendingBalance = {};
 
-                balanceAvailable = await client.query(`SELECT SUM(milestone_payment_after_fees) AS balance_available
-                FROM job_milestones
-                LEFT JOIN jobs
-                ON jobs.job_id = job_milestones.milestone_job_id
-                WHERE job_user = $1 AND payout_status = 'available'`, [req.session.user.username]);
+                if (user.rows[0].link_work_id) {
+                    await stripe.balance.retrieve({stripe_account: user.rows[0].link_work_id})
+                    .then(balance => {
+                        for (let b of balance.available) {
+                            if (availableBalance[b.currency]) {
+                                availableBalance[b.currency] += b.amount;
+                            } else {
+                                availableBalance[b.currency] = b.amount;
+                            }
+                        }
 
-                balancePending = await client.query(`SELECT SUM(milestone_payment_after_fees) AS balance_pending
-                FROM job_milestones
-                LEFT JOIN jobs
-                ON jobs.job_id = job_milestones.milestone_job_id
-                WHERE job_user = $1 AND payout_status = 'pending'`, [req.session.user.username]);
+                        for (let p of balance.pending) {
+                            if (pendingBalance[p.currency]) {
+                                pendingBalance[p.currency] += p.amount;
+                            } else {
+                                pendingBalance[p.currency] = p.amount;
+                            }
+                        }
+                    })
+                }
                 
                 /* payoutReceived = await client.query(`SELECT SUM(payout_amount) AS total_payout
                 FROM job_milestones
@@ -300,61 +287,46 @@ app.post('/api/jobs/summary', authenticate, (req, resp) => {
                     uft.total_user_fee,
                     cft.total_client_fee,
                     et.total_earnings,
-                    pt.total_payment,
-                    pb.pending_balance,
-                    ab.available_balance
+                    pt.total_payment
                 FROM jobs
                 LEFT JOIN (
                     SELECT sum(user_app_fee) AS total_user_fee, jobs.job_price_currency FROM job_milestones
                     LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
                     WHERE job_user = $1
-                    AND job_status = 'Complete'
+                    AND milestone_status IN ('Complete')
                     GROUP BY job_price_currency
                 ) AS uft ON uft.job_price_currency = jobs.job_price_currency
                 LEFT JOIN (
                     SELECT sum(client_app_fee) AS total_client_fee, jobs.job_price_currency FROM job_milestones
                     LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
                     WHERE job_client = $1
-                    AND job_status = 'Complete'
+                    AND milestone_status IN ('Complete')
                     GROUP BY job_price_currency
                 ) AS cft ON cft.job_price_currency = jobs.job_price_currency
                 LEFT JOIN (
-                    SELECT sum(payout_amount) AS total_earnings, jobs.job_price_currency FROM job_milestones
+                    SELECT sum(requested_payment_amount) AS total_earnings, jobs.job_price_currency FROM job_milestones
                     LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
-                    WHERE job_status = 'Complete'
-                    AND payout_status = 'paid'
+                    WHERE milestone_status IN ('Complete')
                     AND job_user = $1
                     GROUP BY job_price_currency
                 ) AS et ON et.job_price_currency = jobs.job_price_currency
                 LEFT JOIN (
-                    SELECT sum(payout_amount) AS total_payment, jobs.job_price_currency FROM job_milestones
+                    SELECT sum(requested_payment_amount) AS total_payment, jobs.job_price_currency FROM job_milestones
                     LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
-                    WHERE job_status = 'Complete'
+                    WHERE  milestone_status IN ('Complete')
                     AND job_client = $1
                     GROUP BY job_price_currency
                 ) AS pt ON pt.job_price_currency = jobs.job_price_currency
-                LEFT JOIN (
-                    SELECT sum(milestone_payment_after_fees) AS pending_balance, jobs.job_price_currency FROM job_milestones
-                    LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
-                    WHERE job_user = $1
-                    AND payout_status = 'pending'
-                    GROUP BY job_price_currency
-                ) AS pb ON pb.job_price_currency = jobs.job_price_currency
-                LEFT JOIN (
-                    SELECT sum(milestone_payment_after_fees) AS available_balance, jobs.job_price_currency FROM job_milestones
-                    LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
-                    WHERE job_user = $1
-                    AND payout_status = 'available'
-                    GROUP BY job_price_currency
-                ) AS ab ON ab.job_price_currency = jobs.job_price_currency
-                GROUP BY jobs.job_price_currency, uft.total_user_fee, cft.total_client_fee, et.total_earnings, pt.total_payment, pb.pending_balance, ab.available_balance`, [req.session.user.username]);
+                GROUP BY jobs.job_price_currency, uft.total_user_fee, cft.total_client_fee, et.total_earnings, pt.total_payment`, [req.session.user.username]);
+
+
 
                 await client.query('COMMIT')
                 .then(() => resp.send({
                     status: 'success',
                     stats: jobStats.rows.length > 0 ? jobStats.rows[0] : {},
-                    balance_available: balanceAvailable.rows[0].balance_available,
-                    balance_pending: balancePending.rows[0].balance_pending,
+                    balance_available: availableBalance,
+                    balance_pending: pendingBalance,
                     job_years: jobYears.rows,
                     finance: finance.rows
                 }));

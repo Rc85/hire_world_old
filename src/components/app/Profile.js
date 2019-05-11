@@ -38,9 +38,9 @@ class Profile extends Component {
             listing_status: '',
             listing_title: '',
             listing_purpose: '',
-            listing_location: '',
             listing_local: false,
-            listing_remote: false
+            listing_remote: false,
+            listing_online: false
         };
         
         this.state = {
@@ -61,7 +61,8 @@ class Profile extends Component {
                 listing_title: '',
                 listing_purpose: '',
                 listing_local: false,
-                listing_remote: false
+                listing_remote: false,
+                listing_online: false
             },
             initialSettings: {
                 listing_negotiable: false,
@@ -76,9 +77,9 @@ class Profile extends Component {
                 listing_status: '',
                 listing_title: '',
                 listing_purpose: '',
-                listing_location: '',
                 listing_local: false,
-                listing_remote: false
+                listing_remote: false,
+                listing_online: false
             }
         }
     }
@@ -210,11 +211,11 @@ class Profile extends Component {
                                     this.saveSetting();
                                 }}>
                                     <div className='setting-field-container mb-3'>
-                                        <InputWrapper label='List Title' id='listing-title' required>
+                                        <InputWrapper label='Title' id='listing-title' required>
                                             <input type='text' value={this.state.newSettings.listing_title} onChange={(e) => this.setSetting('listing_title', e.target.value)} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} maxLength='60' placeholder='60 characters max' />
                                         </InputWrapper>
             
-                                        <InputWrapper label='Type of Business' id='listing-location' required>
+                                        <InputWrapper label='Availability' id='listing-location' required>
                                             <div className='checkbox-label-container'>
                                                 <label className={`checkbox-label ${this.state.newSettings.listing_online ? 'active' : ''} ${this.state.onlineFocused ? 'hovered' : ''}`}>
                                                     <input type='checkbox' value='Online' onChange={(e) => this.setSetting('listing_online', !this.state.newSettings.listing_online)} checked={this.state.newSettings.Listing_online} onFocus={() => this.setState({onlineFocused: true})} onBlur={() => this.setState({onlineFocused: false})} />
@@ -247,13 +248,13 @@ class Profile extends Component {
                                     </div>
                         
                                     <div className='mb-3'>
-                                        <InputWrapper label='List Sector' required>
+                                        <InputWrapper label='Sector' required>
                                             <select onChange={(e) => this.setSetting('listing_sector', e.target.value)} value={this.state.newSettings.listing_sector}>{sectors}</select>
                                         </InputWrapper>
                                     </div>
                         
                                     <div className='setting-field-container mb-3'>
-                                        <InputWrapper label='Pay Frequency' id='listing-price-type' required>
+                                        <InputWrapper label='Type of Salary' id='listing-price-type' required>
                                             <select onChange={(e) => this.setSetting('listing_price_type', e.target.value)} value={this.state.newSettings.listing_price_type}>
                                                 <option value='To Be Discussed'>To Be Discussed</option>
                                                 <option value='Hourly'>Hourly</option>
@@ -262,7 +263,7 @@ class Profile extends Component {
                                         </InputWrapper>
                         
                                         {this.state.newSettings.listing_price_type !== 'To Be Discussed' ? <React.Fragment>
-                                            <InputWrapper label='Price Rate' id='listing-price'>
+                                            <InputWrapper label='Expected Rate' id='listing-price'>
                                                 <input type='number' onChange={(e) => this.setSetting('listing_price', e.target.value)} value={this.state.newSettings.listing_price} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                                             </InputWrapper>
                             

@@ -25,7 +25,7 @@ class PaymentSettings extends Component {
         
         this.state = {
             status: 'Loading',
-            defaultAddress: this.props.user.user && this.props.user.user.user_address && this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code || false,
+            defaultAddress: this.props.user.user && this.props.user.user.user_address && this.props.user.user.user_city && this.props.user.user.user_region && this.props.user.user.user_country && this.props.user.user.user_city_code ? true : false,
             saveAddress: false,
             payments: [],
             name: '',

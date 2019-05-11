@@ -11,6 +11,8 @@ import InputWrapper from '../../utils/InputWrapper';
 import SubmitButton from '../../utils/SubmitButton';
 import { ShowConfirmation, ResetConfirmation } from '../../../actions/ConfirmationActions';
 import Loading from '../../utils/Loading';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleNotch } from '@fortawesome/pro-solid-svg-icons';
 
 class VerifyPayment extends Component {
     constructor(props) {
@@ -89,7 +91,7 @@ class VerifyPayment extends Component {
         let payments, addressInput;
 
         if (this.state.status === 'Getting Payments') {
-            return <div className='p-relative'><Loading size='7x' /></div>;
+            return <div className='text-center'><FontAwesomeIcon icon={faCircleNotch} size='7x' spin /></div>;
         }
 
         if (this.state.payments.length > 0) {

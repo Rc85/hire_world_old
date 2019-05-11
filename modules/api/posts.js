@@ -53,7 +53,7 @@ app.post('/api/post/job', authenticate, (req, resp) => {
         } else if (!moment(req.body.expire).isValid()) {
             resp.send({status: 'error', statusMessage: 'Expiration date is invalid'});
         } else if (moment(req.body.expire).diff(moment(), 'month') > 6) {
-            resp.send({status: 'error', statusMessage: 'Expiration date be longer than 6 months from now'});
+            resp.send({status: 'error', statusMessage: 'Expiration date cannot be longer than 6 months from now'});
         } else {
             request.post('https://www.google.com/recaptcha/api/siteverify', {form: {secret: process.env.RECAPTCHA_SECRET, response: req.body.verified}}, (err, res, body) => {
                 if (err) error.log(err, req, resp);
@@ -67,6 +67,10 @@ app.post('/api/post/job', authenticate, (req, resp) => {
                         (async() => {
                             try {
                                 await client.query('BEGIN');
+
+                                if (req.body.website && !validate.httpCheck.test(req.body.website)) {
+                                    req.body.website = '//' + req.body.website;
+                                }
 
                                 await client.query(`INSERT INTO job_postings (job_post_title, job_post_user, job_post_sector, job_post_details, job_post_budget, job_post_as_user, job_is_local, job_is_remote, job_is_online, job_post_company, job_post_company_website, job_post_country, job_post_region, job_post_city, job_post_budget_threshold, job_post_notification, job_post_position_num, job_post_payment_type, job_post_budget_end, job_post_type, job_post_expiration_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)`, [req.body.title, req.session.user.username, req.body.sector, req.body.details, req.body.budget, req.body.postAsUser, req.body.local, req.body.remote, req.body.online, req.body.company, req.body.website, req.body.country, req.body.region, req.body.city, req.body.budgetThreshold, req.body.notification, req.body.positions, req.body.paymentType, req.body.budgetEnd, req.body.type, req.body.expire]);
 
@@ -152,7 +156,7 @@ app.post('/api/posted/job/update', authenticate, async(req, resp) => {
         } else if (!moment(req.body.expire).isValid()) {
             resp.send({status: 'error', statusMessage: 'Expiration date is invalid'});
         } else if (moment(req.body.expire).diff(moment(), 'month') > 6) {
-            resp.send({status: 'error', statusMessage: 'Expiration date be longer than 6 months from now'});
+            resp.send({status: 'error', statusMessage: 'Expiration date cannot be longer than 6 months from now'});
         } else {
             let authorized = await db.query(`SELECT * FROM job_postings WHERE job_post_id = $1`, [req.body.id]);
 
@@ -196,7 +200,10 @@ app.post('/api/posted/job/apply', authenticate, (req, resp) => {
                             if (job.rows[0].job_post_notification) {
                                 let message = {
                                     to: user.rows[0].user_email,
-                                    from: 'admin@hireworld.ca',
+                                    from: {
+                                        name: 'Hire World',
+                                        email: 'admin@hireworld.ca'
+                                    },
                                     subject: 'You Have an Applicant at Hire World!',
                                     templateId: 'd-c6d7c9b6779f4268a673f103d50bfa81',
                                     dynamicTemplateData: {

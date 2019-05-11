@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter, Redirect } from 'react-router-dom';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileAlt, faComments, faCalendarAlt, faHandHoldingUsd, faUsdSquare, faCalendarEdit } from '@fortawesome/pro-solid-svg-icons';
+import { faFileAlt, faComments, faCalendarAlt, faHandHoldingUsd, faUsdSquare, faCalendarEdit, faCalendarMinus } from '@fortawesome/pro-solid-svg-icons';
 import { LogError } from '../utils/LogError';
 import fetch from 'axios';
 import moment from 'moment';
@@ -265,7 +265,7 @@ class OpenJobDetails extends Component {
                 jobDetails = <React.Fragment>
                     <div className='job-details-dates'>
                         <div className='mr-2'><FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /><strong>Job Created Date:</strong> {moment.utc(this.state.job.job_created_date).format('MM-DD-YYYY')}</div>
-                        {moment(this.state.job.job_due_date).isValid() ? <div className='mr-2'><strong>Expected Delivery Date:</strong> {moment.utc(this.state.job.job_due_date).format('MM-DD-YYYY')}</div> : ''}
+                        {moment(this.state.job.job_due_date).isValid() ? <div className='mr-2'><FontAwesomeIcon icon={faCalendarMinus} className='text-special mr-1' /><strong>Expected Delivery Date:</strong> {moment.utc(this.state.job.job_due_date).format('MM-DD-YYYY')}</div> : ''}
                         <div className='mr-2'><FontAwesomeIcon icon={faHandHoldingUsd} className='text-special mr-1' /><strong>Offered Price:</strong> {this.state.job.job_offer_price ? <span>$<MoneyFormatter value={this.state.job.job_offer_price} /> {this.state.job.job_price_currency}</span> : 'No offer price'}</div>
                         {this.state.job.job_total_price ? <div className='mr-2'><FontAwesomeIcon icon={faUsdSquare} className='text-special mr-1' /><strong>Total Payment:</strong> $<MoneyFormatter value={this.state.job.job_total_price} /> {this.state.job.job_price_currency}</div> : ''}
                     </div>

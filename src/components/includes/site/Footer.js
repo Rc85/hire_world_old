@@ -9,7 +9,7 @@ const Footer = props => {
                     <div><NavLink to='/faq'>FAQ</NavLink></div>
                     <div><NavLink to='/tos'>Terms of Service</NavLink></div>
                     <div><NavLink to='/privacy'>Privacy Policy</NavLink></div>
-                    <div><NavLink to='/refer'>Refer a Friend</NavLink></div>
+                    {props.user.user ? <div><NavLink to='/refer'>Refer a Friend</NavLink></div> : ''}
                     <div><NavLink to='/about'>About</NavLink></div>
                 </div>
     

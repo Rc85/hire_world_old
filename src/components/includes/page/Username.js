@@ -4,7 +4,7 @@ import fetch from 'axios';
 import { LogError } from '../../utils/LogError';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBuilding, faIdBadge, faCheckCircle } from '@fortawesome/pro-regular-svg-icons';
+import { faBuilding, faIdBadge, faCheckCircle, faTimesCircle } from '@fortawesome/pro-regular-svg-icons';
 import { faBan, faCircleNotch, faTimes, faThumbsDown, faThumbsUp, faUserPlus, faUserMinus, faUserTimes, faUser, faUserCheck } from '@fortawesome/pro-solid-svg-icons';
 import UserProfilePic from './UserProfilePic';
 import { connect } from 'react-redux';
@@ -113,16 +113,60 @@ class Username extends Component {
         }
     }
 
+    blockUser(action) {
+        this.setState({status: 'Blocking'});
+
+        fetch.post('/api/user/block', {user: this.state.user.username, action: action})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                let user = {...this.state.user};
+                    let value;
+
+                    if (action === 'block') {
+                        value = '1';
+                    } else if (action === 'unblock') {
+                        value = '0';
+                    }
+
+                    let userString = localStorage.getItem(this.state.user.username);
+                    let userObj = JSON.parse(userString);
+                    userObj.user.is_blocked = value;
+
+                    localStorage.setItem(this.state.user.username, JSON.stringify(userObj));
+                    user.is_blocked = value;
+
+                    this.setState({status: '', user: user});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => {
+            this.setState({status: ''});
+            LogError(err, '/api/user/block');
+        });
+    }
+
     render() {
-        let popup, icon;
+        console.log(this.state)
+        let popup, friendIcon, blockedIcon;
 
         if (this.props.user.user) {
             if (this.state.status === 'Adding') {
-                icon = <FontAwesomeIcon icon={faCircleNotch} spin className='text-dark' />;
+                friendIcon = <FontAwesomeIcon icon={faCircleNotch} spin className='text-dark' />;
             } else if (this.state.user.is_friend === '1') { 
-                icon = <FontAwesomeIcon icon={faUserMinus} className='text-alt-highlight mr-1 username-popup-icon' onClick={() => this.friendUser('remove')} />;
+                friendIcon = <FontAwesomeIcon icon={faUserMinus} className='text-alt-highlight mr-1 username-popup-icon' onClick={() => this.friendUser('remove')} />;
             } else if (this.state.user.is_friend === '0') {
-                icon = <FontAwesomeIcon icon={faUserPlus} className='text-alt-highlight mr-1 username-popup-icon' onClick={() => this.friendUser('add')} />;
+                friendIcon = <FontAwesomeIcon icon={faUserPlus} className='text-alt-highlight mr-1 username-popup-icon' onClick={() => this.friendUser('add')} />;
+            }
+
+            if (this.state.status === 'Blocking') {
+                blockedIcon = <FontAwesomeIcon icon={faCircleNotch} spin className='text-dark' />;
+            } else if (this.state.user.is_blocked === '1') { 
+                blockedIcon = <FontAwesomeIcon icon={faTimesCircle} className='text-danger mr-1 username-popup-icon' onClick={() => this.blockUser('unblock')} />;
+            } else if (this.state.user.is_blocked === '0') {
+                blockedIcon = <FontAwesomeIcon icon={faTimesCircle} className='text-dark mr-1 username-popup-icon' onClick={() => this.blockUser('block')} />;
             }
         }
 
@@ -155,7 +199,9 @@ class Username extends Component {
     
                             <div className='username-popup-body-child'><FontAwesomeIcon icon={faBan} className='text-danger mr-1' /> {this.state.user.job_abandoned}</div>
 
-                            <div className='username-popup-body-child'>{icon}</div>
+                            <div className='username-popup-body-child'>{friendIcon}</div>
+
+                            <div className='username-popup-body-child'>{blockedIcon}</div>
                         </div>
                     </div>
                 </div>;

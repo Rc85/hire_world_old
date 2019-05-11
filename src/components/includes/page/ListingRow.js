@@ -51,7 +51,7 @@ const ListingRow = props => {
                     {price}
     
                     <div className='listing-row-detail-child'>
-                        <strong>{props.listing.job_complete}</strong> {parseInt(props.listing.job_complete) === 1 ? 'Job' : 'Jobs'} completed
+                        <strong>{props.listing.job_complete}</strong> {parseInt(props.listing.job_complete) === 1 ? 'Job' : 'Jobs'} completee
                     </div>
                 </div>
             </div>

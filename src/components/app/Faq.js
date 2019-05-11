@@ -8,8 +8,6 @@ const Faq = props => {
     return(
         <section id='faq' className='main-panel'>
             <TitledContainer title='FAQ' shadow icon={<FontAwesomeIcon icon={faQuestionCircle} />} bgColor='danger'>
-                <div className='mb-3'>In this frequently asked questions, "service provider" and "Link Work user" refers to a user providing a service and "client" refers to the user paying/hiring the service provider.</div>
-
                 <div id='questions' className='mb-5'>
                     <div className='mb-3'>
                         <h1>General</h1>
@@ -65,10 +63,6 @@ const Faq = props => {
                         <div className='mb-1'>
                             <a href='#one'>How do I identify a reputable user?</a>
                         </div>
-        
-                        <div className='mb-1'>
-                            <a href='#two'>Is it possible to create more than one listing?</a>
-                        </div>
     
                         <div className='mb-1'>
                             <a href='#fourteen'>What is a Job Complete Verified review?</a>
@@ -95,7 +89,7 @@ const Faq = props => {
                         </div>
     
                         <div className='mb-1'>
-                            <a href='#thirteen'>What happens if the Link Work user does not complete a milestone within 90 days after the funds are deposited?</a>
+                            <a href='#thirteen'>What happens if the service provider does not complete a milestone within 90 days after the funds are deposited?</a>
                         </div>
     
                         <div className='mb-1'>
@@ -121,6 +115,18 @@ const Faq = props => {
                         <div className='mb-1'>
                             <a href='#twentyfive'>Does Hire World support hourly billing?</a>
                         </div>
+
+                        <div className='mb-1'>
+                            <a href='#twentysix'>How is the service provider application fee calculated?</a>
+                        </div>
+
+                        <div className='mb-1'>
+                            <a href='#twentyseven'>What happens if a payout fails?</a>
+                        </div>
+
+                        <div className='mb-1'>
+                            <a href='#twentyeight'>Am I obligated to use Hire World as my primary source of contact wth my clients?</a>
+                        </div>
                     </div>
                 </div>
 
@@ -131,7 +137,7 @@ const Faq = props => {
                 <div id='question'>
                     <div id='one' className='mb-3'>
                         <div className='mb-3'>
-                            <strong>How do I identify a reputable user?</strong>
+                            <strong>How do I identify a reputable service provider?</strong>
                         </div>
 
                         <div className='answer'>
@@ -143,31 +149,15 @@ const Faq = props => {
                                 </li>
         
                                 <li>
-                                    <strong>Rating</strong> - The 5 star rating given by their client(s).
+                                    <strong>Rating</strong> - The 5 star rating on their profile.
                                 </li>
         
                                 <li>
-                                    <strong>Reviews</strong> - Reviews from their client(s) are the most significant factor to identity if a service provider is reputable.
+                                    <strong>Reviews</strong> - Reviews with a <strong>Job Complete Verified</strong> badge are the most significant factor to identity if a service provider is reputable.
                                 </li>
                             </ul>
     
                             Be aware that low numbers should be taken into consideration as service providers can create alternate accounts to give them the needed factors mentioned above. We monitor suspicious activity daily to try to prevent these actions.
-                        </div>
-
-                        <div className='text-right'>
-                            <a href='#top'>Top</a>
-                        </div>
-                    </div>
-
-                    <hr/>
-                    
-                    <div id='two' className='mb-3'>
-                        <div className='mb-3'>
-                            <strong>Is it possible to create more than one listing?</strong>
-                        </div>
-
-                        <div className='answer'>
-                            Currently, a profile can only be listed once under one sector.
                         </div>
 
                         <div className='text-right'>
@@ -183,7 +173,7 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            Reports can be made against two things; Service providers' profiles and reviews (more may be added in the future). When you click the report button and specify a reason, a report is sent to the administration panel for investigation. Only one report can be made by a user for each of the two mentioned until an administrator has reviewed and filed your report.
+                            When you click the report button and specify a reason, a report is sent to the administration panel for investigation. Only one report can be made by a user for each reportable content until an administrator has reviewed and filed your report.
                         </div>
 
                         <div className='text-right'>
@@ -199,7 +189,7 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            If you would like to volunteer as a moderator at Hire World, you can contact us and our support will be happy to assist you through the process. Moderator holds the privilege to send warnings to users in advance regarding their actions before it is reported by other users. In the future, Hire World may offer paid job opportunities for administrators. Administrators have access to the admin area where they can control a wide variety of things on Hire World.
+                            If you would like to volunteer as a moderator at Hire World, you can contact us and our support will be happy to assist you through the process. Moderator holds the privilege to send warnings to users in advance regarding their actions before it is reported by other users. In the future, Hire World may offer paid job opportunities for administrators. Administrators have access to the admin area where they can control a wide variety of configurations on Hire World.
                         </div>
 
                         <div className='text-right'>
@@ -215,7 +205,7 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            A warning to you is not publicly displayed, so it does not impact your reputation. A warning is simply just a warning to you. However, if you receive many warnings for the same reason, it may result in a temporary ban and being temporary banned repeatedly can result in a permanent ban. If you have email notifications turned on, you will receive an email regarding the warning.
+                            A warning to you is not publicly displayed, so it does not impact your reputation. A warning is simply just to warn you that your action may result in further action such as being banned. If you receive many warnings for the same reason, it may result in a temporary ban and being temporary banned repeatedly can result in a permanent ban. If you have email notifications turned on, you will receive an email regarding the warning.
                         </div>
 
                         <div className='text-right'>
@@ -231,7 +221,7 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            Hire World does not have an ad campaign but may implement one in the future. Currently, you can only advertise whatever you include in your listing details.
+                            Hire World does not have an ad campaign but may implement one in the future. Currently, you can only advertise your service or product that you include in your proile details.
                         </div>
 
                         <div className='text-right'>
@@ -264,13 +254,13 @@ const Faq = props => {
                                 <strong>Permanent Ban </strong> - Permanent bans are given without a reason. You may receive a permanent ban for, and not limited to the following:
 
                                 <ul>
-                                    <li>Fraud activities</li>
+                                    <li>Fraudulent activities</li>
                                     <li>You violated the Terms of Service that have zero-tolerance for. See the <NavLink to='/tos'>Terms of Service</NavLink> for more information</li>
                                     <li>You have received multiple temporary bans already</li>
                                 </ul>
                             </div>
                         
-                            Bans cannot be appealed. If you are temporary banned, you cannot use any of Hire World's features that requires login. If you have an active listing, it will be deactivated and your messages will not be retrieved.
+                            <p>Bans cannot be appealed. If you are temporary banned, your profile and all your posted jobs will brought offline and you will be removed from any jobs that you applied for. When your ban is over, you will reappear on the jobs that you applied for. However, your posted jobs and profile will need to be manually re-enabled.</p>
                         </div>
 
                         <div className='text-right'>
@@ -320,7 +310,7 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            We do not delete accounts entirely because often, accounts are tied to reviews are important for a service provider's reputation as well as to others who would like to work with the service provider in the future. However, you have full control of the personal information on your account to be displayed and stored. Please see our <NavLink to='/privacy'>Privacy Policy</NavLink> regarding how data are handled at Hire World.
+                            We do not delete accounts entirely because often, accounts are tied to reviews that are important to a service provider's reputation as well as to others who would like to work with the service provider in the future. However, you have full control of the personal information on your account to be displayed and stored. Please see our <NavLink to='/privacy'>Privacy Policy</NavLink> regarding how data are handled at Hire World.
                         </div>
 
                         <div className='text-right'>
@@ -336,9 +326,9 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            <p>Link Work is a service powered by <a href='https://stripe.com/connect' rel='noopener noreferrer' target='_blank'>Stripe Connect</a> that ensures a service provider is paid when completing a job. The service is available to service providers working with clients who are cities or countries apart or service providers doing business with clients in-person but want to use Hire World to secure the payment.</p>
+                            <p>Link Work is a service powered by <a href='https://stripe.com/connect' rel='noopener noreferrer' target='_blank'>Stripe Connect</a> that ensures a service provider is paid when completing a job. The service is available to any business that needs a trusted platform to secure funds from their clients before any work begins.</p>
 
-                            <p>Users on Hire World will need to be subscribed to the Link Work plan. Once subscribed, users will need to create a Link Work account that will be verified by Stripe and approved by Hire World. Clients can then start a job by submitting a job proposal with the work title and description to the Link Work user for review. The Link Work user creates milestones, preferrably small milestones that can be completed within 90 days, and sends it back to the client. If the client agrees, the job will move to the active stage. During the active stage, whenever the Link Work user completes a condition in the milestone, the condition should be checked off. This allows both parties to see the progress of the job. Only when all the conditions are completed, the Link Work user can send a payment request to the client. If the client is satisfied, the client can release the agreed funds to the Link Work user.</p>
+                            <p>All users who wants to use the Link Work service will need to be subscribed to the Link Work plan. Only the service provider is required to have a Link Work account in order for clients to start a job with the service provider. Clients can start a job by submitting a job proposal with the work title and description to the service provider to review. The service provider will then create milestones, preferrably small milestones that can be completed within 90 days, based on the job description. If the client agrees, the job will move to the active stage. During the active stage, whenever the service provider completes a condition in the milestone, the condition must be checked off. This allows both parties to see the progress of the job and only when all the conditions are checked, the service provider can request for payment from the client. If the client is satisfied, the client can release the agreed funds to the service provider.</p>
 
                             <p>Once all milestones are completed, the job will be completed and the client will have the chance to submit a Job Complete Verified review.</p>
                         </div>
@@ -352,12 +342,12 @@ const Faq = props => {
                     
                     <div id='thirteen' className='mb-3'>
                         <div className='mb-3'>
-                            <strong>What happens if the Link Work user does not complete a milestone within 90 days after the funds are deposited?</strong>
+                            <strong>What happens if the service provider does not complete a milestone within 90 days after the funds are deposited?</strong>
                         </div>
 
                         <div className='answer'>
-                            <p>We will send a reminder by email to the Link Work user 15 days prior to the 90 days is up regarding the funds status. If the Link Work user does not complete the milestone or if the milestone is not paid within the 90, the funds will be refunded back to the client.</p>
-                            <p>If partial work is completed, we encourage clients to discuss with the Link Work user and see if the two can agree upon a partial payment. If an agreement cannot be established, the job will be abandoned once the funds are refunded back to the client.</p>
+                            <p>We will send a reminder by email to the service provider 30 days prior to the 90 days is up regarding the funds status. If the service provider does not complete the milestone or if the milestone is not paid within the 90, the funds will be refunded back to the client 1 day prior to the 90 days.</p>
+                            <p>If partial work is completed, we encourage clients to discuss with the service provider and see if the two can agree upon a partial payment. If an agreement cannot be established, the job will be abandoned once the funds are refunded back to the client.</p>
                         </div>
 
                         <div className='text-right'>
@@ -373,7 +363,7 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            <p>A Job Complete Verified review holds a badge indicating that the review was submitted after a job has been completed. If one does not exist already for a service provider, the client can submit a new rating and review. Each completed job holds a Job Complete Verified review. Submitting any subsequent review after the first one will overwrite the old one and add a +1 counter next to the badge to show that the client has complete that many jobs with the service provider.</p>
+                            <p>A Job Complete Verified review holds a badge indicating that the review was submitted after a job has been completed. If one does not exist already for a service provider, the client can submit a new rating and review. Each completed job holds a Job Complete Verified review. Submitting any subsequent review after the first one will overwrite the old one and add a +1 (incrementing as more reviews from the same client are submitted) next to the badge to show that the client has complete that many jobs with the service provider.</p>
                         </div>
 
                         <div className='text-right'>
@@ -389,9 +379,9 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            <p>We encourage clients to communicate with the Link Work user and try to come to an agreement for a partial payment.</p>
-                            <p>If the Link Work user does not agree to send a request for partial payment, clients have the option to file a case for Hire World to step in and investigate the issue.</p>
-                            <p>Keep in mind that filing a dispute doesn't not necessarily mean that it will favor the user that files it.</p>
+                            <p>We encourage clients to communicate with the service provider and try to come to an agreement for a reasonable payment for the work done.</p>
+                            <p>If the service provider does not agree to send a request for partial payment, clients have the option to file a case for Hire World to step in and investigate the issue.</p>
+                            <p>Keep in mind that filing a dispute does not necessarily mean that it will favor the user that files it.</p>
                         </div>
 
                         <div className='text-right'>
@@ -407,11 +397,11 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            <p>Whether it's for the client or the Link Work user, small milestones benefit both parties in events where scams are involved to reduce financial or work loss. We limit the milestone payment to $500 to protect both parties financial loss.</p>
+                            <p>Whether it's for the client or the service provider, small milestones benefit both parties in events where scams are involved to reduce financial or work loss.</p>
 
-                            <p>As a Link Work user, deliverable for a milestone should only equal up to the amount of the milestone, nothing more, nothing less. If the job cannot be divided into multiple small milestones, then the total of all milestone payments can only equal the total job price. For example, if the total job price is $2000, and you can only create two milestones for the job, we advise communicating with the client to agree on down payments or other strategies to satisfy the job. However, we are certain that if a job is priced $2000, it can be divided into at least 4 milestones.</p>
+                            <p>As a service provider, deliverable for a milestone should only equal up to the amount of the milestone, nothing more, nothing less.</p>
 
-                            <p>As a client, be aware when a Link Work user is asking for down payments due to not being able to create more milestones. Clients can always suggest to the Link Work user on creating milestones that the Link Work user did not thought of. If clients agree to put a down payment to get the job down, down payments should not exceed 50% of the total job price.</p>
+                            <p>As a client, be aware when a service provider is asking for down payments. Clients can always suggest to the service provider on creating milestones that the service provider did not thought of in place of a down payment. If clients agree to put a down payment to get the job done, down payments should not exceed 50% of the total job price.</p>
 
                             <p>In the end, the strategy is yours to protect your losses.</p>
                         </div>
@@ -445,7 +435,7 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            <p>As long as your business doesn't fall under any business in <a href='https://stripe.com/restricted-businesses' target='_blank' rel='noreferer noopener'>Stripe's restricted business</a> list, you can use Link Work. Link Work doesn't only cater to freelancers, but also local contractors who is seeking a "middle man" to secure the funds. There have been cases where clients don't pay their contractors after the job is complete and the contractor have to chase after them for the money. With Link Work, contractors will have the peace of mind that their client has the intention to pay and the money is in the hands of a trusted platform.</p>
+                            <p>As long as your business doesn't fall under any business in <a href='https://stripe.com/restricted-businesses' target='_blank' rel='noreferer noopener'>Stripe's restricted business</a> list, you can use Link Work. Link Work doesn't only cater to freelancers, but to anyone who are seeking a "middle man" to secure the funds for a business transaction. There have been cases where clients don't pay their service providers after the job is complete and the service providers have to chase after their clients for the money. With Link Work, service providers will have the peace of mind that their clients have the intention to pay and the money is in the hands of a trusted platform.</p>
                         </div>
 
                         <div className='text-right'>
@@ -461,7 +451,7 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            <p>No, we are serious. You can as many jobs as you like as long as you're not spamming the same job throughout the sectors and that it falls under the correct sector (although our mods may move it if they feel it is not in the correct sector). Be warned that if you abuse the unlimited posting privilege to spam your job to get noticed, we may suspend your account.</p>
+                            <p>No, we are serious. You can post as many jobs as you like as long as you're not spamming the same job throughout the sectors and that it falls under the correct sector (although our mods may move it if they feel it is not in the correct sector). Be warned that if you abuse the unlimited posting privilege to spam your job to get noticed, we may suspend your account.</p>
                         </div>
 
                         <div className='text-right'>
@@ -477,9 +467,9 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            <p>Communication is the key. Discuss with the other party on closing the job and you will get your money back. However, do note that the 3% application fee is not refundable and it is a loss that you have to take for making a mistake on agreeing to start the job.</p>
+                            <p>Communication is the key. Discuss with the other party on closing the job and you will get your money back. However, do note that the 3% application fee will not be refunded.</p>
 
-                            <p>As for the service provider, if clients change their mind and want their money back, we strongly encourage service providers to comply as they do not incur any loss. If they do not comply and forces the service provider to continue on with the job, it opens up many doors of risks that the service provider do not want to take, such as client not responding and will get their money back after 90 days.</p>
+                            <p>As for the service provider, if clients change their mind and want their money back, we strongly encourage service providers to comply as they do not incur any loss. If they do not comply and forces the service provider to continue on with the job, it opens up many doors of risks that the service provider do not want to take, such as client not responding and will eventually get their money back after 90 days.</p>
 
                             <p>On the other hand, if the client opens up a case because of such disagreement, chances are Hire World will close the job for them as the decision favors both sides.</p>
                         </div>
@@ -533,7 +523,7 @@ const Faq = props => {
                         <div className='answer'>
                             <p>Suspicious activities can involve many things from using a stolen credit card, entering address during payments that do not match the card, and using a different name than your Hire World's account name to sign up for Link Work. We understand that under some circumstances, some activities that are deemed suspicious will happen on Hire World. We measure suspicious activities from level one to five, five being severe. For example, using a different name to create a Link Work account will be considered suspicious activity, but is at a level of 1 and it is not considered "high". High level of suspicious activity fall in level 4 and higher. However, suspicious activities that have a low level can also be considered high by our administrators. For example, multiple failures of CVC check when entering payment information can be considered as high level of suspicious activity.</p>
 
-                            <p>We have multiple systems in place to monitor all sorts of suspicious activities in order to provide the best experience and safe platform for our users. When high level of suspicious activity is detected, we may notify you by email that such detection has occurred on your account. Upon receiving an email regarding suspicious activity on your account, reply to the email with an explanation to our admin that the "suspicious activity" was performed by you so that we can remove it from your account.</p>
+                            <p>We have multiple systems in place to monitor all sorts of suspicious activities in order to provide the best experience and safe platform for our users. When high level of suspicious activity is detected, we may notify your account and you by email that such detection has occurred on your account. Upon receiving an email regarding suspicious activity on your account, reply to the email with an explanation to our admin that the "suspicious activity" was performed by you so that we can flag it as "resolved".</p>
                         </div>
 
                         <div className='text-right'>
@@ -566,6 +556,67 @@ const Faq = props => {
 
                         <div className='answer'>
                             <p>At the moment we do not have a time tracking software to support hourly billing. It is a goal we plan to accomplish on the horizon as our user base increases.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div id='twentysix' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>How is the service provider application fee calculated?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>The service provider application fee is calculated by the lifetime transaction amount with a client where the milestone in relation to the transaction must be either complete or unpaid.</p>
+
+                            <p>All calculations are based on previous requested amount plus the service provider application fee. The 3% client application fee are not taken into account and the currency of the application fee will be in the currency of the charge.</p>
+
+                            <p>Here is an example scenario considering transactions with the same client:</p>
+
+                            <ul>
+                                <li>You completed your first ever milestone priced at $600. Your application fee will be $82.50 (15% of $500 and 7.5% of the remaining $100).</li>
+                                <li>You completed another milestone priced at $300. Your application fee will be $22.50 (7.5%). Your lifetime transaction amount is now at $900.</li>
+                                <li>You completed another milestone priced at $9,200. Your application will be $686.25 (7.5% of $9100 and 3.75% of the remaining $100). Your lifetime amount is now $10,100</li>
+                                <li>You completed another milestone at $500. Your application fee will be $18.75 (3.75% of $500).</li>
+                            </ul>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div id='twentyseven' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>What happens if a payout fails?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>The reason for a "failed" payout is often related to the service provider's account to where the payout is sent. Common reasons may include the account does not accept the payout currency, the account does not allow debit transactions, incorrect information such as account number or the account holder's name, and restricted bank account type such as a savings account or non-chequing account. Note that these are not the only reasons.</p>
+
+                            <p>When a payout fails, the milestone will be placed in a "Unpaid" state where the service provider will be allow to request to be paid again without the approval of the client to release the funds. In addition, if the funds have been held for 90 days or more, it will attempt to pay out the funds. Make sure to add a new valid bank account and try again.</p>
+                        </div>
+
+                        <div className='text-right'>
+                            <a href='#top'>Top</a>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div id='twentyeight' className='mb-3'>
+                        <div className='mb-3'>
+                            <strong>Am I obligated to use Hire World as my primary source of contact wth my clients?</strong>
+                        </div>
+
+                        <div className='answer'>
+                            <p>No, you can use your personal email, phone number, or any messaging service as you wish. Do note that if you file a case, we will consider any communications and files handled outside of Hire World. We strongly advise you use Hire World as your pirmary source of communication to protect yourself if a case does arise.</p>
                         </div>
 
                         <div className='text-right'>

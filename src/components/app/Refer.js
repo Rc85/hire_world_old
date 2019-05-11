@@ -9,6 +9,8 @@ import { Alert } from '../../actions/AlertActions';
 import { connect } from 'react-redux';
 import fetch from 'axios';
 import { LogError } from '../utils/LogError';
+import Loading from '../utils/Loading';
+import { Redirect } from 'react-router-dom';
 
 class Refer extends Component {
     constructor(props) {
@@ -89,31 +91,34 @@ class Refer extends Component {
     }
     
     render() {
-        console.log(this.state);
-        return (
-            <section id='refer-a-friend' className='main-panel'>
-                <TitledContainer title='Refer a Friend' icon={<FontAwesomeIcon icon={faUsersMedical} />} bgColor='orange' shadow>
-                    <div className='text-right mb-3'><button className='btn btn-info' type='button' onClick={this.addEmailInput.bind(this)}><FontAwesomeIcon icon={faPlus} /></button></div>
+        if (this.props.user.user) {
+            return (
+                <section id='refer-a-friend' className='main-panel'>
+                    <TitledContainer title='Refer a Friend' icon={<FontAwesomeIcon icon={faUsersMedical} />} bgColor='orange' shadow>
+                        <div className='text-right mb-3'><button className='btn btn-info' type='button' onClick={this.addEmailInput.bind(this)}><FontAwesomeIcon icon={faPlus} /></button></div>
 
-                    <form onSubmit={this.submit.bind(this)}>
-                        {this.state.emailInput.map((input, i) => {
-                            return <div key={input.id} className='d-flex-center mb-1'>
-                                <InputWrapper label='Email' className='fg-1'>
-                                    <input type='email' onChange={this.handleEmailChange.bind(this, i)} placeholder='Email' value={input.email} />
-                                </InputWrapper>
-    
-                                {this.state.emailInput.length > 1 ? <button className='btn btn-secondary ml-2' type='button' onClick={this.removeEmailInput.bind(this, i)}><FontAwesomeIcon icon={faTrash} /></button> : ''}
+                        <form onSubmit={this.submit.bind(this)}>
+                            {this.state.emailInput.map((input, i) => {
+                                return <div key={input.id} className='d-flex-center mb-1'>
+                                    <InputWrapper label='Email' className='fg-1'>
+                                        <input type='email' onChange={this.handleEmailChange.bind(this, i)} placeholder='Email' value={input.email} />
+                                    </InputWrapper>
+        
+                                    {this.state.emailInput.length > 1 ? <button className='btn btn-secondary ml-2' type='button' onClick={this.removeEmailInput.bind(this, i)}><FontAwesomeIcon icon={faTrash} /></button> : ''}
+                                </div>
+                            })}
+
+                            <div className='text-right'>
+                                <SubmitButton type='submit' loading={this.state.status === 'Sending'} value='Send' />
+                                <button className='btn btn-secondary' type='button' onClick={this.reset.bind(this)}>Reset</button>
                             </div>
-                        })}
-
-                        <div className='text-right'>
-                            <SubmitButton type='submit' loading={this.state.status === 'Sending'} value='Send' />
-                            <button className='btn btn-secondary' type='button' onClick={this.reset.bind(this)}>Reset</button>
-                        </div>
-                    </form>
-                </TitledContainer>
-            </section>
-        );
+                        </form>
+                    </TitledContainer>
+                </section>
+            );
+        } else {
+            return <Redirect to='/error/app/404' />;
+        }
     }
 }
 

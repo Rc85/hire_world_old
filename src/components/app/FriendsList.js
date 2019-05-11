@@ -28,14 +28,12 @@ class FriendsList extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (prevState.offset !== this.state.offset || prevState.filtering !== this.state.filtering) {
-            this.setState({status: 'Loading'});
+            this.setState({status: 'Fetching'});
             
             fetch.post('/api/get/user/friends', {letter: this.state.filtering, offset: this.state.offset})
             .then(resp => {
                 if (resp.data.status === 'success') {
-                    let friendsList = [...this.state.friends, ...resp.data.friends];
-
-                    this.setState({status: '', friends: friendsList});
+                    this.setState({status: '', friends: resp.data.friends});
                 } else if (resp.data.status === 'error') {
                     this.setState({status: 'error'});
                 }
@@ -96,7 +94,9 @@ class FriendsList extends Component {
                         </div>
 
                         <div className='friend-list-container'>
-                            {this.state.friends.map((friend, i) => {
+                            {this.state.status === 'Fetching' 
+                                ? <div className='text-center'><FontAwesomeIcon icon={faCircleNotch} size='5x' spin /></div> 
+                                : this.state.friends.map((friend, i) => {
                                 return <div className='friend-panel' key={i}>
                                     <div className='friend-panel-buttons'>
                                         {this.state.status === 'Removing' ? <FontAwesomeIcon icon={faCircleNotch} className='text-black' spin /> : <FontAwesomeIcon icon={faUserMinus} className='text-highlight' onClick={() => this.removeFriend(friend.friend_user_2, i)} />}

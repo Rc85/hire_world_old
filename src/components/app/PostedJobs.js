@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { LogError } from '../utils/LogError';
 import { connect } from 'react-redux';
 import fetch from 'axios';
-import PostedJobRow from '../includes/page/PostedJobRow';
 import Loading from '../utils/Loading';
 import Row from '../includes/page/Row';
 import { NavLink } from 'react-router-dom';
@@ -116,7 +115,7 @@ class PostedJobs extends Component {
                             }
                             details={
                                 <React.Fragment>
-                                    <div className='row-detail'><FontAwesomeIcon icon={faUserCircle} className='text-special mr-1' /> {job.job_post_as_user ? <Username username={job.job_post_user} color='alt-highlight' /> : job.job_post_company}</div>
+                                    <div className='row-detail'><FontAwesomeIcon icon={faUserCircle} className='text-special mr-1' /> {job.job_post_as_user ? <Username username={job.job_post_user} color='alt-highlight' /> : <NavLink to={job.job_post_company_website}>{job.job_post_company}</NavLink>}</div>
                                     <div className='row-detail'><FontAwesomeIcon icon={faThList} className='text-special mr-1' /> {job.job_post_sector}</div>
                                     <div className='row-detail'><FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /> {moment(job.job_post_date).format('MM-DD-YYYY')}</div>
                                 </React.Fragment>

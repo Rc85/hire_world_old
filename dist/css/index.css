@@ -1846,29 +1846,27 @@
 .input-group-container .input-container-header {
   display: flex;
   position: absolute;
+  top: 0px;
+  margin-left: 5px;
+  transition: all 0.25s ease-in-out;
+}
+.input-group-container .input-container-header.focused {
   top: -14px;
-  margin-left: 10px;
+}
+.input-group-container .input-container-header.focused label {
+  border: 1px solid black;
+  background-color: #2988BC;
+}
+.input-group-container .input-container-header.focused .required-label {
+  border: 1px solid black;
+  border-left: 0;
+  background-color: white;
 }
 .input-group-container .input-container-header label {
   font-weight: bold;
   font-size: 0.8rem;
   padding: 5px;
-}
-.input-group-container .input-container-header label:first-child {
-  color: white;
-  border: 1px solid black;
-  background-color: #2988BC;
-}
-.input-group-container .input-container-header .alt-label {
-  border: 1px solid black;
-  border-left: 0;
-  background-color: #9b9b9b;
-  color: white;
-}
-.input-group-container .input-container-header .required-label {
-  border: 1px solid black;
-  border-left: 0;
-  background-color: white;
+  color: black;
 }
 .input-group-container .input-group {
   display: flex;
@@ -1950,29 +1948,36 @@
 .input-container .input-container-header {
   display: flex;
   position: absolute;
-  top: -14px;
+  top: 0px;
   margin-left: 10px;
+  transition: all 0.25s ease-in-out;
+}
+.input-container .input-container-header.focused {
+  top: -14px;
+}
+.input-container .input-container-header.focused label {
+  font-weight: bold;
+  font-size: 0.8rem;
+  padding: 5px;
+  color: black;
+  border: 1px solid black;
+  background-color: #2988BC;
+}
+.input-container .input-container-header.focused .alt-label {
+  border: 1px solid black;
+  border-left: 0;
+  background-color: #9b9b9b;
+}
+.input-container .input-container-header.focused .required-label {
+  border: 1px solid black;
+  border-left: 0;
+  background-color: white;
 }
 .input-container .input-container-header label {
   font-weight: bold;
   font-size: 0.8rem;
   padding: 5px;
-}
-.input-container .input-container-header label:first-child {
-  color: white;
-  border: 1px solid black;
-  background-color: #2988BC;
-}
-.input-container .input-container-header .alt-label {
-  border: 1px solid black;
-  border-left: 0;
-  background-color: #9b9b9b;
-  color: white;
-}
-.input-container .input-container-header .required-label {
-  border: 1px solid black;
-  border-left: 0;
-  background-color: white;
+  color: black;
 }
 .input-container .input-required {
   position: absolute;
@@ -2046,9 +2051,6 @@
   color: white;
   border-color: #00c900;
   background-color: #00c900;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 .input-container .checkbox-label-container .checkbox-label.active .checkbox {
   border-color: #00c900;
@@ -3856,8 +3858,9 @@
 }
 
 .blocked-user-container {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 15px;
 }
 
 .user-container {
@@ -3867,7 +3870,6 @@
   padding: 5px;
   background-color: #DFDFDF;
   border: 1px solid black;
-  width: 30%;
 }
 
 .unblock-button {
@@ -7027,6 +7029,10 @@ footer {
   #view-user-listing-info {
     align-items: center;
     flex-direction: column;
+  }
+
+  .blocked-user-container {
+    grid-template-columns: 1fr;
   }
 
   .message-row.owner .message-row-profile-pic, .message-row.sender .message-row-profile-pic {

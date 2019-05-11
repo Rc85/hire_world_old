@@ -5,8 +5,6 @@ const stripe = require('stripe')(process.env.STRIPE_API_KEY);
 const controller = require('../utils/controller');
 const authenticate = require('../utils/auth');
 
-stripe.setApiVersion('2019-02-19');
-
 app.post('/api/get/user', async(req, resp) => {
     db.connect((err, client, done) => {
         if (err) error.log(err, req, resp);
@@ -319,7 +317,6 @@ app.post('/api/get/user/minimal', async(req, resp) => {
     LEFT JOIN user_settings AS us ON users.user_id = us.user_setting_id
     WHERE users.username = $1`, [req.body.user, req.session.user ? req.session.user.username : null])
     .then(result => {
-        
         if (result && result.rows.length === 1) {
             if (result.rows[0].hide_email) {
                 delete result.rows[0].user_email;

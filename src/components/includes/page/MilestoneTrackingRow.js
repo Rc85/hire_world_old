@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileDownload, faCheckSquare, faMoneyCheckAlt, faCaretDown, faCaretUp, faCircleNotch } from '@fortawesome/pro-solid-svg-icons';
+import { faCheckSquare, faCaretDown, faCaretUp, faCircleNotch } from '@fortawesome/pro-solid-svg-icons';
 import Tooltip from '../../utils/Tooltip';
 import { faSquare } from '@fortawesome/pro-regular-svg-icons';
 import moment from 'moment';
@@ -12,7 +12,6 @@ import { ShowConfirmation, ResetConfirmation } from '../../../actions/Confirmati
 import VerifyPayment from './VerifyPayment';
 import { StripeProvider, Elements } from 'react-stripe-elements';
 import { LogError } from '../../utils/LogError';
-import { PromptOpen, PromptReset } from '../../../actions/PromptActions';
 import SubmitButton from '../../utils/SubmitButton';
 import download from 'js-file-download';
 import { ShowLoading, HideLoading } from '../../../actions/LoadingActions';
@@ -121,7 +120,7 @@ class MilestoneTrackingRow extends Component {
 
     toggleDetails() {
         if (!this.state.showDetails) {
-            if (this.state.milestone.milestone_status === 'Complete' && !this.state.milestone.balance) {
+            if ((this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Unpaid') && !this.state.milestone.balance) {
                 this.setState({status: 'Getting Milestone Details', showDetails: true});
 
                 fetch.post('/api/get/milestone/details', {id: this.state.milestone.milestone_id})
@@ -141,7 +140,7 @@ class MilestoneTrackingRow extends Component {
                     this.setState({status: '', showDetails: false});
                     this.props.dispatch(Alert('error', 'An error occurred'));
                 });
-            } else if (this.state.milestone.milestone_status === 'Complete' && this.state.milestone.balance) {
+            } else if ((this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Unpaid') && this.state.milestone.balance) {
                 this.setState({showDetails: true});
             }
         } else {
@@ -156,34 +155,37 @@ class MilestoneTrackingRow extends Component {
 
         if (this.state.milestone.milestone_status === 'In Progress') {
             status = <span className='mini-badge mini-badge-warning mb-1'>In Progress</span>;
-        } else if (this.state.milestone.milestone_status === 'Complete') {
+        } else if (this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Unpaid') {
             status = <span className='mini-badge mini-badge-success mb-1'>Complete</span>;
         } else if (this.state.milestone.milestone_status === 'Requesting Payment') {
-            status = <span className='mini-badge mini-badge-info mb-1'>Requesting Payment...</span>;
+            status = <span className='mini-badge mini-badge-info mb-1'>Requesting Payment</span>;
+        } else if (this.state.milestone.milestone_status === 'Payment Sent') {
+            status = <span className='mini-badge mini-badge-info mb-1'>Payment Sent</span>;
         }
         
-        if (this.state.milestone.balance && this.state.milestone.balance.status === 'available') {
+        if (this.state.milestone.balance.status === 'available') {
             fundStatus = <span className='mini-badge mini-badge-primary ml-1'>Available</span>;
-        } else if (this.state.milestone.balance && this.state.milestone.balance.status === 'pending') {
+        } else if (this.state.milestone.balance.status === 'pending') {
             fundStatus = <span className='mini-badge mini-badge-warning ml-1'>Pending</span>;
-        } else if (this.state.milestone.balance && this.state.milestone.balance.status === 'paid') {
-            fundStatus = <span className='mini-badge mini-badge-success ml-1'>Paid</span>;
         }
 
         let details;
 
         if (this.state.status === 'Getting Milestone Details') {
             details = <FontAwesomeIcon icon={faCircleNotch} size='lg' spin />;    
-        } else if ((this.state.milestone.milestone_status !== 'Pending' && this.state.milestone.balance && this.state.showDetails) || (this.state.milestone.milestone_status === 'In Progress' || this.state.milestone.milestone_status === 'Requesting Payment')) {
+        } else if ((this.state.milestone.milestone_status !== 'Pending') || (this.state.milestone.milestone_status === 'In Progress' || this.state.milestone.milestone_status === 'Requesting Payment')) {
             details = <div className='milestone-progress-details'>
-                <div className='mr-2'>
+                {this.state.milestone.milestone_status === 'In Progress' || this.state.milestone.milestone_status === 'Requesting Payment' ? <div className='mr-2'>
                     <strong>Payment:</strong> <span>{this.state.milestone.balance ? <span>$<MoneyFormatter value={this.state.milestone.balance.net / 100} /> {this.state.milestone.balance.currency.toUpperCase()}</span> : ''}</span>
                     {fundStatus}
-                </div>
+                </div> : ''}
 
-                {this.state.milestone.milestone_status !== 'Complete' ? <div className='mr-2'><strong>Funds On-hold:</strong> <span>{moment(this.state.milestone.milestone_fund_due_date).diff(moment(), 'days') + ' days left'}</span></div> : ''}
+                {this.state.milestone.milestone_status === 'In Progress' || this.state.milestone.milestone_status === 'Requesting Payment' ? <div className='mr-2'><strong>Funds On-hold:</strong> <span>{moment(this.state.milestone.milestone_fund_due_date).diff(moment(), 'days') + ' days left'}</span></div> : ''}
 
-                {this.state.milestone.milestone_status === 'Complete' ? <div className='detail-child'><strong>Paid on:</strong> {moment(this.state.milestone.balance.created * 1000).format('MM-DD-YYYY')}</div>: ''}
+                {this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Unpaid' || this.state.milestone.milestone_status === 'Payment Sent' ? <React.Fragment>
+                    <div className='mr-2'><strong>Paid:</strong> $<MoneyFormatter value={this.state.milestone.milestone_payment_amount} /> {this.props.job.job_price_currency.toUpperCase()}</div>
+                    <div><strong>Paid on:</strong> {moment(this.state.milestone.balance.created * 1000).format('MM-DD-YYYY')}</div>
+                </React.Fragment>: ''}
 
                 {this.state.milestone.milestone_status === 'Requesting Payment' ? <div className='detail-child'><strong>Requested Payment:</strong> $<MoneyFormatter value={parseFloat(this.state.milestone.requested_payment_amount) + parseFloat(this.state.milestone.user_app_fee)} /> {this.state.milestone.balance.currency.toUpperCase()}</div> : ''}
             </div>;
@@ -197,7 +199,7 @@ class MilestoneTrackingRow extends Component {
 
         return (
             <React.Fragment>
-                <div className={`milestone-tracking-row ${this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' ? 'disabled' : ''}`}>
+                <div className={`milestone-tracking-row ${this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Payment Sent' || this.state.milestone.milestone_status === 'Unpaid' ? 'disabled' : ''}`}>
                     <div className='milestone-number opaque'><h3>{this.props.index}</h3></div>
     
                     <div className='milestone-progress-container'>
@@ -236,7 +238,6 @@ class MilestoneTrackingRow extends Component {
                         {complete.indexOf('In Progress') < 0 && this.state.milestone.balance && this.state.milestone.balance.status === 'available' && this.state.milestone.milestone_status === 'Requesting Payment' ? 
                         <SubmitButton type='button' loading={this.state.status === 'Paying'} value='Pay' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to release your funds?`, <span>An amount of $<MoneyFormatter value={parseFloat(this.state.milestone.requested_payment_amount) + parseFloat(this.state.milestone.user_app_fee)} /> {this.state.milestone.balance.currency.toUpperCase()} will be paid out to {this.props.job.job_user}</span>, {action: 'pay user', id: this.state.milestone.milestone_id}))} bgColor='success' /> : ''}
                         {this.state.milestone.milestone_status === 'Pending' ? <button className='btn btn-primary milestone-button' type='button' onClick={() => this.setState({startMilestone: true})}>Start Milestone</button> : ''}
-                        {this.state.milestone.milestone_status === 'Complete' ? <button className='btn btn-info' onClick={this.toggleDetails.bind(this)}><FontAwesomeIcon icon={this.state.showDetails ? faCaretUp : faCaretDown} /></button> : ''}
                     </div>
                 </div>
 

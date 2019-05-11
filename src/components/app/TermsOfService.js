@@ -36,8 +36,8 @@ const TermsOfService = props => {
                 <div className='mb-1'><a href='#changes'>Changes to the Website and Services</a></div>
                 <div className='mb-1'><a href='#use'>Your Use of the Service</a></div>
                 <div className='mb-1'><a href='#cantdo'>What You Can't Do</a></div>
-                <div className='mb-1'><a href='#promotions'>Promotions</a></div>
-                <div className='mb-1'><a href='#fees'>Fees</a></div>
+                <div className='mb-1'><a href='#promotions'>Promotions and Referral Program</a></div>
+                <div className='mb-1'><a href='#fees'>Fees and Credits</a></div>
                 <div className='mb-1'><a href='#purchases'>Payments, Purchases, and Subscriptions</a></div>
                 <div className='mb-1'><a href='#refunds'>Refunds, Chargebacks, and Disputes</a></div>
                 <div className='mb-1'><a href='#content'>Content</a></div>
@@ -122,21 +122,25 @@ const TermsOfService = props => {
 
                 <hr/>
 
-                <h2 id='promotions'>Promotions</h2>
+                <h2 id='promotions'>Promotions and Referral Program</h2>
 
-                <p>Hire World is not obligated to state, announce, notify users, or remind users the end date of a promotion. We have every right to terminate a promotion at any time and a notice may or may not be provided to you.</p>
+                <p>Hire World is not obligated to state, announce, notify users, or remind users the end date of a promotion. Hire World reserve the rights to terminate a promotion at any time and a notice may or may not be provided to you. Hire World reserve the rights to dishonor any promotion(s) we feel that are qualified by being involved in suspicious activities of any nature.</p>
 
-                <p>Promotional codes have no value and are not to be sold, traded, and/or profited in any way to the user distributing it.</p>
+                <p>Promotion codes have no value and are not to be sold, traded, and/or profited in any way to the user distributing it.</p>
+
+                <p>Our referral program offers referred account an additonal free month of subscription. If within the first month, the referred account receives a suspension or has high level of suspicious activity that are not resolved, the referred account will not be eligible for the free month.</p>
 
                 <div className='text-right'><a href='#top'>Top</a></div>
 
                 <hr/>
 
-                <h2 id='fees'>Fees</h2>
+                <h2 id='fees'>Fees and Credits</h2>
 
                 <p>When using services at Hire World, non-refundable fees may be charged. These fees may include application fee, Stripe processing fee, currency exchange fees, and payout fees for domestic and internation accounts.</p>
 
                 <p>When using our service to handle payments between you and another party, you hereby acknowledge that if no payments are made to the other party, the fee to transfer funds between you and our platform will not be refunded.</p>
+
+                <p>All credits will expire 90 day after it is credited and will be removed from your account. You will receive notice prior to the expiration of the credit. Credits are revocable, non-renewable, non-refundable, and non-transferable and cannot be applied to the client 3% application fee. When redeeming credits, the account must not have received any suspension and/or must not have any high level of suspicious activity that are not resolved. Hire World reserve the rights to revoke or reject any credit at any time with or without notice.</p>
 
                 <div className='text-right'><a href='#top'>Top</a></div>
 

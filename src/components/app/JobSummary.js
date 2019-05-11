@@ -25,7 +25,7 @@ class JobSummary extends Component {
         .then(resp => {
             console.log(resp);
             if (resp.data.status === 'success') {
-                this.setState({status: '', summary: resp.data});
+                this.setState({status: '', ...resp.data});
             } else if (resp.data.status === 'error') {
                 this.setState({status: 'error'});
             }
@@ -43,7 +43,7 @@ class JobSummary extends Component {
             fetch.post('/api/get/jobs/summary', {year: year})
             .then(resp => {
                 if (resp.data.status === 'success') {
-                    this.setState({status: '', summary : {...this.state.summary, jobs: resp.data.jobs}});
+                    this.setState({status: '', jobs: resp.data.jobs});
                 } else if (resp.data.status === 'error') {
                     this.setState({status: 'error'});
                 }
@@ -58,6 +58,7 @@ class JobSummary extends Component {
     }
     
     render() {
+        console.log(this.state);
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
@@ -68,17 +69,17 @@ class JobSummary extends Component {
             return <Redirect to='/error/app/500' />;
         }
 
-        if (this.props.user.user && this.state.summary) {
+        if (this.props.user.user) {
             let appFee, userFee, clientFee;
 
-            if (this.state.summary.user_app_fee && !isNaN(parseFloat(this.state.summary.user_app_fee))) {
-                userFee = parseFloat(this.state.summary.user_app_fee);
+            if (this.state.user_app_fee && !isNaN(parseFloat(this.state.user_app_fee))) {
+                userFee = parseFloat(this.state.user_app_fee);
             } else {
                 userFee = 0;
             }
 
-            if (this.state.summary.client_app_fee && !isNaN(parseFloat(this.state.summary.client_app_fee))) {
-                clientFee = parseFloat(this.state.summary.client_app_fee);
+            if (this.state.client_app_fee && !isNaN(parseFloat(this.state.client_app_fee))) {
+                clientFee = parseFloat(this.state.client_app_fee);
             } else {
                 userFee = 0;
             }
@@ -93,30 +94,30 @@ class JobSummary extends Component {
 
                             <div className='job-summary-stats-container'>
                                 <div className='job-summary-stats'>
-                                    <strong>Total Jobs:</strong> {this.state.summary.stats.total_jobs ? this.state.summary.stats.total_jobs : 0}
+                                    <strong>Total Jobs:</strong> {this.state.stats.total_jobs ? this.state.stats.total_jobs : 0}
                                 </div>
 
                                 <div className='job-summary-stats'>
-                                    <strong>Jobs Complete:</strong> {this.state.summary.stats.job_complete ? this.state.summary.stats.job_complete : 0}
+                                    <strong>Jobs Complete:</strong> {this.state.stats.job_complete ? this.state.stats.job_complete : 0}
                                 </div>
 
                                 <div className='job-summary-stats'>
-                                    <strong>Jobs Abandoned:</strong> {this.state.summary.stats.job_abandoned ? this.state.summary.stats.job_abandoned : 0}
+                                    <strong>Jobs Abandoned:</strong> {this.state.stats.job_abandoned ? this.state.stats.job_abandoned : 0}
                                 </div>
 
                                 <div className='job-summary-stats'>
-                                    <strong>Jobs Declined:</strong> {this.state.summary.stats.job_declined ? this.state.summary.stats.job_declined : 0}
+                                    <strong>Jobs Declined:</strong> {this.state.stats.job_declined ? this.state.stats.job_declined : 0}
                                 </div>
                             </div>
                         </div>
 
                         <div className='simple-container no-bg'>
-                            <div className='simple-container-title'>Payments</div>
+                            <div className='simple-container-title'>Paid</div>
 
                             <div className='job-summary-stats mb-3'>
                                 <div className='mb-1'><strong>Total Payment for Services:</strong></div>
                                 <div className='d-flex ml-3'>
-                                    {this.state.summary.finance.map((job, i) => {
+                                    {this.state.finance.map((job, i) => {
                                         return <div key={i} className='mr-3'>
                                             {!job.total_payment ? <span>$0.00</span> : <span>$<MoneyFormatter value={job.total_payment} /></span>} {job.currency}
                                         </div>
@@ -127,7 +128,7 @@ class JobSummary extends Component {
                             <div className='job-summary-stats mb-3'>
                                 <div className='mb-1'><strong>Total Application Fees Paid:</strong></div>
                                 <div className='d-flex ml-3'>
-                                    {this.state.summary.finance.map((obj, i) => {
+                                    {this.state.finance.map((obj, i) => {
                                         let userFee = obj.total_user_fee ? obj.total_user_fee : 0;
                                         let clientFee = obj.total_client_fee ? obj.total_client_fee : 0;
                                         return <div key={i} className='mr-3'>
@@ -139,12 +140,12 @@ class JobSummary extends Component {
                         </div>
 
                         <div className='simple-container no-bg'>
-                            <div className='simple-container-title'>Income</div>
+                            <div className='simple-container-title'>Earned</div>
 
                             <div className='job-summary-stats mb-3'>
                                 <div className='mb-1'><strong>Total Earnings:</strong></div>
                                 <div className='d-flex ml-3'>
-                                    {this.state.summary.finance.map((obj, i) => {
+                                    {this.state.finance.map((obj, i) => {
                                         return <div key={i} className='mr-3'>
                                             <span>$<MoneyFormatter value={obj.total_earnings} /> {obj.currency}</span>
                                         </div>
@@ -155,22 +156,18 @@ class JobSummary extends Component {
                             <div className='job-summary-stats mb-3'>
                                 <div className='mb-1'><strong>Funds Available Soon:</strong></div>
                                 <div className='d-flex ml-3'>
-                                    {this.state.summary.finance.map((obj, i) => {
-                                        return <div key={i} className='mr-3'>
-                                            <span>$<MoneyFormatter value={obj.pending_balance} /> {obj.currency}</span>
-                                        </div>
-                                    })} 
+                                    {Object.keys(this.state.balance_pending).length > 0 ? Object.keys(this.state.balance_pending).map((key, i) => {
+                                        return <div key={i}>$<MoneyFormatter value={this.state.balance_pending[key] / 100} /> {key.toUpperCase()}</div>
+                                    }) : 'N/A'} 
                                 </div>
                             </div>
 
                             <div className='job-summary-stats mb-3'>
                                 <div className='mb-1'><strong>Funds Available for Payout:</strong></div>
                                 <div className='d-flex ml-3'>
-                                    {this.state.summary.finance.map((obj, i) => {
-                                        return <div key={i} className='mr-3'>
-                                            <span>$<MoneyFormatter value={obj.available_balance} /> {obj.currency}</span>
-                                        </div>
-                                    })} 
+                                {Object.keys(this.state.balance_available).length > 0 ? Object.keys(this.state.balance_available).map((key, i) => {
+                                        return <div key={i}>$<MoneyFormatter value={this.state.balance_available[key] / 100} /> {key.toUpperCase()}</div>
+                                    }) : 'N/A'} 
                                 </div>
                             </div>
                         </div> 
@@ -178,7 +175,7 @@ class JobSummary extends Component {
                         <div className='simple-container no-bg'>
                             <div className='simple-container-title'>Job History</div>
 
-                            <JobTimeline status={this.state.status} jobs={this.state.summary.jobs} getJobs={(year) => this.getJobs(year)} years={this.state.summary.job_years} />
+                            <JobTimeline status={this.state.status} jobs={this.state.jobs} getJobs={(year) => this.getJobs(year)} years={this.state.job_years} />
                         </div>
                     </TitledContainer>
                 </section>

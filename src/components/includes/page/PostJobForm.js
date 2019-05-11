@@ -34,7 +34,7 @@ class PostJobForm extends Component {
             </React.Fragment>
         } else if (this.props.data.budgetThreshold === 'Less than' || this.props.data.budgetThreshold === 'Approximately' || this.props.data.budgetThreshold === 'Exactly') {
             budgetInput = <input type='text' onChange={(e) => this.props.set('budget', e.target.value)} value={this.props.data.budget === null ? '' : this.props.data.budget} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} required />;
-        } else {
+        } else if (this.props.data.budgetThreshold !== 'To Be Discussed') {
             budgetInput = <input type='text' value={this.props.data.budget === null ? '' : this.props.data.budget} />
         }
 
@@ -93,7 +93,7 @@ class PostJobForm extends Component {
                     </div>
 
                     <div className='setting-child quarter'>
-                        <InputWrapper label='Expire Date' required>
+                        <InputWrapper label='Expire Date' required className='pb-1'>
                         <DatePicker dropdownMode='select' onChange={(val) => this.props.set('expire', val)} selected={this.props.data.expire} value={moment(this.props.data.expire).isValid() ? moment(this.props.data.expire).format('MM-DD-YYYY') : ''} />
                         </InputWrapper>
                     </div>

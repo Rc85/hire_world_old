@@ -195,10 +195,14 @@ app.post('/api/listing/save', authenticate, async(req, resp) => {
     db.connect((err, client, done) => {
         if (err) error.log(err, req, resp);
 
+        console.log(req.body);
+
         if (validate.blankCheck.test(req.body.listing_title)) {
             resp.send({status: 'error', statusMessage: 'Title cannot be blank'});
+        } else if (!req.body.listing_online && !req.body.listing_remote && !req.body.listing_local) {
+            resp.send({status: 'error', statusMessage: 'At least one availability is required'});
         } else if (typeof req.body.listing_online !== 'boolean' || typeof req.body.listing_remote !== 'boolean' || typeof req.body.listing_local !== 'boolean') {
-            resp.send({status: 'error', statusMessage: 'That business type is not allowed'});
+            resp.send({status: 'error', statusMessage: 'Invalid availability'});
         } else if (!validate.titleCheck.test(req.body.listing_title)) {
             resp.send({status: 'error', statusMessage: 'Invalid characters in title'});
         } else if (req.body.listing_price_type !== 'To Be Discussed' && !validate.priceCheck.test(req.body.listing_price)) {

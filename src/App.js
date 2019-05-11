@@ -223,7 +223,7 @@ class App extends Component {
 						</Pages.Response></Pages.Dashboard>} />
 
 						<Route exact path='/account/created' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Account Created! But...'}>
-							<React.Fragment><div className='mb-3'>Your Link Work account has been successfully created and connected to our platform; however, it will be under review and may not be verified yet.</div><div>Please check the settings in your <NavLink to='/dashboard/settings/linkwork'>Link Work Settings</NavLink> for your account status.</div></React.Fragment>
+							<React.Fragment><div className='mb-3'>Your Link Work account has been successfully created and connected to our platform; however, it will be under review and may not be verified yet.</div><div>Please check the settings in your <NavLink to='/dashboard/settings/link_work'>Link Work Settings</NavLink> for your account status.</div></React.Fragment>
 						</Pages.Response></Pages.Dashboard>} />
 
 						<Route exact path='/link_work/account/closed' render={() => <Pages.Dashboard user={this.props.user}><Pages.Response code={200} header={'Account Closed!'}></Pages.Response></Pages.Dashboard>} />
@@ -262,7 +262,7 @@ class App extends Component {
 					<div className='alert-container'>{alerts}</div>
 				</div>
 
-				<Footer />
+				<Footer user={this.props.user} />
 			</React.Fragment>
 		);
 	}

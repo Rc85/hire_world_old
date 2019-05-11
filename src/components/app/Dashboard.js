@@ -86,7 +86,7 @@ class Dashboard extends Component {
         ];
 
         if (this.props.user.status === 'activation required') {
-            dashboard = <Response code={403} header={'Activation Required'}>
+            dashboard = <Response header={'Activation Required'}>
                 <div className='mb-3 text-center'>You need to activate your account</div>
                 <div><NavLink to='/resend'>Resend Confirmation Email</NavLink></div>
             </Response>;

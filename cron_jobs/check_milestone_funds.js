@@ -11,6 +11,7 @@ LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
 LEFT JOIN users ON jobs.job_user = users.username
 WHERE event_name = 'check_milestone_funds'
 AND CAST(event_execute_date AS date) - current_date BETWEEN 0 AND 1
+AND job_milestones.milestone_status IN ('In Progress', 'Requesting Payment')
 AND job_milestones.payout_status = 'available'
 AND event_status = 'Queued'`)
 .then(result => {

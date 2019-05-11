@@ -15,32 +15,40 @@
     .input-container-header {
         display: flex;
         position: absolute;
-        top: -14px;
+        top: 0px;
         margin-left: 10px;
+        transition: all 0.25s ease-in-out;
+
+        &.focused {
+            top: -14px;
+
+            label {
+                font-weight: bold;
+                font-size: 0.8rem;
+                padding: 5px;
+                color: black;
+                border: 1px solid black;
+                background-color: $theme-highlight;
+            }
+    
+            .alt-label {
+                border: 1px solid black;
+                border-left: 0;
+                background-color: $theme-medgrey;
+            }
+    
+            .required-label {
+                border: 1px solid black;
+                border-left: 0;
+                background-color: white;
+            }
+        }
 
         label {
             font-weight: bold;
             font-size: 0.8rem;
             padding: 5px;
-        }
-
-        label:first-child {
-            color: white;
-            border: 1px solid black;
-            background-color: $theme-highlight;
-        }
-
-        .alt-label {
-            border: 1px solid black;
-            border-left: 0;
-            background-color: $theme-medgrey;
-            color: white;
-        }
-
-        .required-label {
-            border: 1px solid black;
-            border-left: 0;
-            background-color: white;
+            color: black;
         }
     }
 
@@ -133,9 +141,6 @@
                     color: white;
                     border-color: $success;
                     background-color: $success;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
                 }
             }
 

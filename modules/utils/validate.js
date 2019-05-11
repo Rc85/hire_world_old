@@ -17,5 +17,6 @@ module.exports = {
     searchUserTitleCheck: /^[a-zA-Z0-9À-ž,'().\-\s]{1,}$/,
     dobYearCheck: /^(1|2){1}[0-9]{3}$/,
     currencyCheck: /^[a-zA-Z]{3}$/,
-    integerCheck: /^[0-9]*$/
+    integerCheck: /^[0-9]*$/,
+    httpCheck: /^(http:\/\/|https:\/\/){1}/
 }

@@ -23,7 +23,7 @@ class BrowseMenu extends Component {
 
         if (this.props.menu.id === 'browse-menu') {
             document.body.style.overflowY = 'hidden';
-        } else {
+        } else if (this.props.menu.id !== 'browse-menu' && !this.props.loading.show) {
             document.body.style.overflowY = 'auto';
         }
     }
@@ -74,7 +74,8 @@ class BrowseMenu extends Component {
 const mapStateToProps = state => {
     return {
         sectors: state.Sectors.sectors,
-        menu: state.Menu
+        menu: state.Menu,
+        loading: state.Loading
     }
 }
 

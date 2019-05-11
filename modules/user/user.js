@@ -18,8 +18,6 @@ const sa = require('../utils/sa');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 sgClient.setApiKey(process.env.SENDGRID_API_KEY);
 
-stripe.setApiVersion('2019-02-19');
-
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let dir = `./user_files/${req.session.user.user_id}`;
@@ -335,11 +333,13 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                     }
 
                     let customer, subscription, customerId, stripeAccount;
+                    let trialEnd = moment().add(30, 'days').unix();
 
                     // Set subscription parameters
                     let subscriptionParams = {
                         customer: null,
-                        items: [{plan: req.body.plan}]
+                        items: [{plan: req.body.plan}],
+                        trial_end: trialEnd
                     };
                     
                     // If user already has a stripe account
@@ -385,14 +385,11 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
                             // Apply the difference to the trial days so user gets billed at the end of their remaining subscription days
                             subscriptionParams['trial_end'] = dayDiff;
                         }
-                    } else if (!user.rows[0].is_subscribed && !user.rows[0].subscription_end_date) {
-                        await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, ['Subscription created', req.session.user.username, 'Subscription']);
                     }
 
                     subscriptionParams['expand'] = ['latest_invoice.charge']
                     
                     subscription = await stripe.subscriptions.create(subscriptionParams);
-                    console.log(util.inspect(subscription, false, null, true));
 
                     if (subscription.latest_invoice.charge && subscription.latest_invoice.charge.outcome.risk_level === 'elevated') {
                         await sa.create('Subscription', 'Elevated risk reported by Stripe', req.session.user.username, 4, subscription.latest_invoice.charge.id);
@@ -771,7 +768,10 @@ app.post('/api/refer', authenticate, (req, resp) => {
                         if (referral && referral.rows.length === 1) {
                             emails.push({
                                 to: email.email,
-                                from: 'admin@hireworld.ca',
+                                from: {
+                                    name: 'Hire World',
+                                    email: 'admin@hireworld.ca'
+                                },
                                 templateId: 'd-da70ebb683ad4f399599acc12678fc97',
                                 dynamicTemplateData: {
                                     url: process.env.SITE_URL,

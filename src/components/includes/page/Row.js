@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import UserProfilePic from './UserProfilePic';
 
 class Row extends Component {
     render() {
         return (
             <div className='row'>
                 <div className='row-container'>
+                    {this.props.url ? <UserProfilePic url={this.props.url} /> : ''}
                     <div className='row-main'>
                         <div className='row-title'>
                             {this.props.title}

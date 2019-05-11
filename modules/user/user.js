@@ -464,18 +464,14 @@ app.post('/api/user/payment/add', authenticate, (req, resp) => {
                             await client.query(`UPDATE user_profiles SET user_address = $1, user_city = $2, user_region = $3, user_country = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.address_line1, req.body.address_city, req.body.address_state, req.body.address_country, req.body.address_zip, req.session.user.user_id]);
                         }
 
+                        let customer, last4, card;
+
                         if (user && user.rows[0].stripe_id) {
-                            let card = await stripe.customers.createSource(user.rows[0].stripe_id, {source: req.body.token.id});
-
-                            let customer = await stripe.customers.retrieve(user.rows[0].stripe_id);
-
-                            await client.query('COMMIT')
-                            .then(async() => {
-                                await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a card ending in ${card.last4}`, req.session.user.username, 'Payment']);
-                                resp.send({status: 'success', card: card, defaultSource: customer.default_source});
-                            });
+                            card = await stripe.customers.createSource(user.rows[0].stripe_id, {source: req.body.token.id});
+                            last4 = card.last4;
+                            customer = await stripe.customers.retrieve(user.rows[0].stripe_id);
                         } else if (user && !user.rows[0].stripe_id) {
-                            let customer = await stripe.customers.create({
+                            customer = await stripe.customers.create({
                                 source: req.body.token.id,
                                 email: user.rows[0].user_email,
                                 shipping: {
@@ -490,14 +486,17 @@ app.post('/api/user/payment/add', authenticate, (req, resp) => {
                                 }
                             });
 
-                            await client.query(`UPDATE users SET stripe_id = $1 WHERE username = $2`, [customer.id, req.session.user.username]);
+                            last4 = customer.sources.data[customer.sources.data.length - 1].last4;
+                            card = customer.sources.data[0];
 
-                            await client.query('COMMIT')
-                            .then(async() => {
-                                await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a card ending in ${customer.sources.data[customer.sources.data.length - 1].last4}`, req.session.user.username, 'Payment']);
-                                resp.send({status: 'success', statusMessage: 'Card added', defaultSource: customer.default_source, card: customer.sources.data[0]});
-                            });
+                            await client.query(`UPDATE users SET stripe_id = $1 WHERE username = $2`, [customer.id, req.session.user.username]);
                         }
+
+                        await client.query('COMMIT')
+                        .then(async() => {
+                            await client.query(`INSERT INTO activities (activity_action, activity_user, activity_type) VALUES ($1, $2, $3)`, [`Added a card ending in ${last4}`, req.session.user.username, 'Payment']);
+                            resp.send({status: 'success', statusMessage: 'Card added', defaultSource: customer.default_source, card: card});
+                        });
                     } catch (e) {
                         await client.query('ROLLBACK');
                         throw e;
@@ -596,9 +595,11 @@ app.post('/api/user/payment/delete', authenticate, (req, resp) => {
                 try {
                     await client.query('BEGIN');
 
-                    let user = await client.query(`SELECT stripe_id, is_subscribed FROM users
-                    LEFT JOIN subscriptions ON user.username = subscriptions.subscriber
+                    let user = await client.query(`SELECT stripe_id FROM users
+                    LEFT JOIN subscriptions ON users.username = subscriptions.subscriber
                     WHERE username = $1`, [req.session.user.username]);
+
+                    console.log(user.rows)
 
                     if (user && user.rows[0].stripe_id) {
                         let customer = await stripe.customers.retrieve(user.rows[0].stripe_id);
@@ -607,7 +608,7 @@ app.post('/api/user/payment/delete', authenticate, (req, resp) => {
                             let error = new Error(`At least one card is required for an active subscription`);
                             let errObj = {error: error, type: 'CUSTOM', stack: error.stack};;
                             throw errObj;
-                        } else if (!user.rows[0].is_subscribed && customer.sources.data.length > 0) {
+                        } else if (customer.sources.data.length > 0) {
                             card = await stripe.customers.deleteCard(user.rows[0].stripe_id, req.body.id);
 
                             if (card.deleted) {

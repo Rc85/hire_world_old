@@ -5,6 +5,27 @@
     color: black;
     padding: 20px 0px 0px 0px;
     margin-top: 15px;
+
+    &:focus-within {
+        .inputer-container-header {
+            top: -14px;
+
+            label {
+                font-weight: bold;
+                font-size: 0.8rem;
+                padding: 5px;
+                border: 1px solid black;
+                background-color: $theme-highlight;
+                color: white;
+            }
+    
+            .required-label {
+                border: 1px solid black;
+                border-left: 0;
+                background-color: white;
+            }
+        }
+    }
     
     .input-container-header {
         display: flex;
@@ -17,10 +38,14 @@
             top: -14px;
 
             label {
+                font-weight: bold;
+                font-size: 0.8rem;
+                padding: 5px;
                 border: 1px solid black;
                 background-color: $theme-highlight;
+                color: white;
             }
-
+    
             .required-label {
                 border: 1px solid black;
                 border-left: 0;
@@ -32,7 +57,12 @@
             font-weight: bold;
             font-size: 0.8rem;
             padding: 5px;
-            color: black;
+            color: $theme-medgrey;
+            transition: all 0.25s ease-in-out;
+        }
+
+        .required-label {
+            transition: all 0.25s ease-in-out;
         }
     }
 

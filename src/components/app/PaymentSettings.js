@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { CardNumberElement, CardCVCElement, CardExpiryElement, injectStripe } from 'react-stripe-elements';
+import { injectStripe } from 'react-stripe-elements';
 import { Redirect } from 'react-router-dom';
 import SubmitButton from '../utils/SubmitButton';
 import fetch from 'axios';
@@ -12,10 +12,7 @@ import { connect } from 'react-redux';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard } from '@fortawesome/pro-regular-svg-icons';
-import InputWrapper from '../utils/InputWrapper';
 import Loading from '../utils/Loading';
-import { IsTyping } from '../../actions/ConfigActions';
-import { CountryDropdown } from 'react-country-region-selector';
 import AddBankAccount from '../includes/page/AddBankAccount';
 import NewPaymentForm from '../includes/page/NewPaymentForm';
 
@@ -82,23 +79,27 @@ class PaymentSettings extends Component {
                 let payments = [...this.state.payments];
                 payments.push(resp.data.card);
 
-                /* this.CardExpiryElement.clear();
-                this.CardNumberElement.clear();
-                this.CardCVCElement.clear(); */
-                this.setState({status: '', name: '', address_line1: '', address_country: '', address_city: '', address_state: '', address_zip: '', payments: payments, defaultSource: resp.data.defaultSource});
+                this.clear();
+                this.setState({status: '', name: '', address_line1: '', address_line2: '', address_country: '', address_city: '', address_state: '', address_zip: '', payments: payments, defaultSource: resp.data.defaultSource});
             } else if (resp.data.status === 'error') {
                 this.setState({status: ''});
-                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
             }
+
+            console.log(resp);
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => LogError(err, '/api/user/payment/add'));
+        .catch(err => {
+            LogError(err, '/api/user/payment/add');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
     }
 
     clear() {
         this.CardExpiryElement.clear();
         this.CardNumberElement.clear();
         this.CardCVCElement.clear(); 
-        this.setState({status: '', name: '', address_line1: '', address_country: '', address_city: '', address_state: '', address_zip: ''});
     }
 
     set(key, val) {
@@ -129,7 +130,11 @@ class PaymentSettings extends Component {
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => LogError(err, '/api/user/payment/default'));
+        .catch(err => {
+            LogError(err, '/api/user/payment/default');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
     }
 
     delete(index, id) {
@@ -148,7 +153,11 @@ class PaymentSettings extends Component {
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => LogError(err, '/api/user/payment/delete'));
+        .catch(err => {
+            LogError(err, '/api/user/payment/delete');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
     }
 
     edit(data, index) {
@@ -165,7 +174,11 @@ class PaymentSettings extends Component {
             this.setState({status: '', payments: payments});
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => LogError(err, '/api/user/payment/edit'));
+        .catch(err => {
+            LogError(err, '/api/user/payment/edit');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
     }
 
     setRoutingNumber(type, val) {
@@ -199,7 +212,7 @@ class PaymentSettings extends Component {
             let supportedCountries = ['AU', 'AT', 'BE', 'BR', 'CA', 'DK', 'FI', 'FR', 'DE', 'GI', 'HK', 'IE', 'IT', 'LU', 'MX', 'NL', 'NZ', 'NO', 'PT', 'ES', 'SE', 'CH', 'GB', 'US'];
 
             if (this.state.type === 'card') {
-                paymentType = <NewPaymentForm name={(val) => this.setState({name: val})} useDefaultAddress={() => this.useDefaultAddress()} defaultAddress={this.state.defaultAddress} />
+                paymentType = <NewPaymentForm name={(val) => this.setState({name: val})} useDefaultAddress={() => this.useDefaultAddress()} defaultAddress={this.state.defaultAddress} setExpRef={(el) => this.CardExpiryElement = el} setCardRef={(el) => this.CardNumberElement = el} setCvcRef={(el) => this.CardCVCElement = el} />
                 /* <React.Fragment>
                     <div className='payment-icons'>
                         <img src='/images/powered_by_stripe.png' className='payment-icon mr-1' />
@@ -240,7 +253,7 @@ class PaymentSettings extends Component {
             return (
                 <section id='payment-settings' className='main-panel'>
                     <TitledContainer title='Payment Settings' bgColor='green' icon={<FontAwesomeIcon icon={faCreditCard} />} shadow>
-                        <form onSubmit={(e) => {
+                        <form  onSubmit={(e) => {
                             e.preventDefault();
                             this.save();
                         }}>

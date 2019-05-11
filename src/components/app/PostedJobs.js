@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import fetch from 'axios';
 import Loading from '../utils/Loading';
 import Row from '../includes/page/Row';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Redirect } from 'react-router-dom';
 import Username from '../includes/page/Username';
 import SlideToggle from '../utils/SlideToggle';
 import moment from 'moment';

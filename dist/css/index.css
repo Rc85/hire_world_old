@@ -1843,6 +1843,22 @@
   padding: 20px 0px 0px 0px;
   margin-top: 15px;
 }
+.input-group-container:focus-within .inputer-container-header {
+  top: -14px;
+}
+.input-group-container:focus-within .inputer-container-header label {
+  font-weight: bold;
+  font-size: 0.8rem;
+  padding: 5px;
+  border: 1px solid black;
+  background-color: #2988BC;
+  color: white;
+}
+.input-group-container:focus-within .inputer-container-header .required-label {
+  border: 1px solid black;
+  border-left: 0;
+  background-color: white;
+}
 .input-group-container .input-container-header {
   display: flex;
   position: absolute;
@@ -1854,8 +1870,12 @@
   top: -14px;
 }
 .input-group-container .input-container-header.focused label {
+  font-weight: bold;
+  font-size: 0.8rem;
+  padding: 5px;
   border: 1px solid black;
   background-color: #2988BC;
+  color: white;
 }
 .input-group-container .input-container-header.focused .required-label {
   border: 1px solid black;
@@ -1866,7 +1886,11 @@
   font-weight: bold;
   font-size: 0.8rem;
   padding: 5px;
-  color: black;
+  color: #9b9b9b;
+  transition: all 0.25s ease-in-out;
+}
+.input-group-container .input-container-header .required-label {
+  transition: all 0.25s ease-in-out;
 }
 .input-group-container .input-group {
   display: flex;
@@ -1959,9 +1983,9 @@
   font-weight: bold;
   font-size: 0.8rem;
   padding: 5px;
-  color: black;
   border: 1px solid black;
   background-color: #2988BC;
+  color: white;
 }
 .input-container .input-container-header.focused .alt-label {
   border: 1px solid black;
@@ -1978,6 +2002,10 @@
   font-size: 0.8rem;
   padding: 5px;
   color: black;
+  transition: all 0.15s ease-in-out;
+}
+.input-container .input-container-header .required-label {
+  transition: all 0.15s ease-in-out;
 }
 .input-container .input-required {
   position: absolute;

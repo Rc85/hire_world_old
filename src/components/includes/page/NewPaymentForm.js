@@ -3,9 +3,29 @@ import PropTypes from 'prop-types';
 import InputWrapper from '../../utils/InputWrapper';
 import { connect } from 'react-redux';
 import { IsTyping } from '../../../actions/ConfigActions';
-import { CardNumberElement, CardExpiryElement, CardCVCElement, injectStripe } from 'react-stripe-elements';
+import CreditCardInput from '../../utils/CreditCardInput';
+import CCExpiryDateInput from '../../utils/CCExpiryDateInput';
+import CVCInput from '../../utils/CVCInput';
 
 class NewPaymentForm extends Component {
+    constructor(props) {
+        super(props);
+        
+        this.state = {
+            ccFocused: false,
+            ccExpFocused: false,
+            cvcFocused: false
+        }
+    }
+
+    handleFocus(type, bool) {
+        let obj = {};
+        obj[type] = bool;
+
+        this.setState(obj);
+        this.props.dispatch(IsTyping(bool));
+    }
+    
     render() {
         return (
             <React.Fragment>
@@ -18,19 +38,19 @@ class NewPaymentForm extends Component {
                     <InputWrapper label='Name on Card'><input type='text' onChange={(e) => this.props.name(e.target.value)} autoComplete='ccname' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} placeholder='Your name on your profile will be used if left blank' /></InputWrapper>
                 </div>
 
-                <label><input type='checkbox' checked={this.props.defaultAddress} onChange={() => this.props.useDefaultAddress()} /> Use address registered with this account</label>
+                <label><input type='checkbox' checked={this.props.defaultAddress} onChange={() => this.props.useDefaultAddress()} /> Same address as this account</label>
 
                 <div className='setting-field-container mb-3'>
                     <div className='setting-child'>
-                        <InputWrapper label='Credit Card Number' required className='pl-1 pb-1 pr-1'><CardNumberElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} /></InputWrapper>
+                        <CreditCardInput setRef={(el) => this.props.setCardRef(el)} />
                     </div>
 
                     <div className='setting-child quarter'>
-                        <InputWrapper label='Expiry Date' required className='pl-1 pb-1 pr-1'><CardExpiryElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} /></InputWrapper>
+                        <CCExpiryDateInput setRef={(el) => this.props.setExpRef(el)} />
                     </div>
 
                     <div className='setting-child quarter'>
-                        <InputWrapper label='CVC' required className='pl-1 pb-1 pr-1'><CardCVCElement className='w-100' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} /></InputWrapper>
+                        <CVCInput setRef={(el) => this.props.setCvcRef(el)} />
                     </div>
                 </div>
             </React.Fragment>

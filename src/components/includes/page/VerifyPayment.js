@@ -123,13 +123,13 @@ class VerifyPayment extends Component {
                                 </select>
                             </InputWrapper> :
                             <React.Fragment>
-                                <NewPaymentForm name={(val) => this.setState({name: val})} useDefaultAddress={() => this.useDefaultAddress()} defaultAddress={this.state.defaultAddress} />
+                                <NewPaymentForm name={(val) => this.setState({name: val})} useDefaultAddress={() => this.useDefaultAddress()} defaultAddress={this.state.defaultAddress} setExpRef={(el) => this.CardExpiryElement = el} setCardRef={(el) => this.CardNumberElement = el} setCvcRef={(el) => this.CardCVCElement = el} />
                                 {addressInput}
                             </React.Fragment>
                             }
 
                             {this.state.usePayment === 'New' ? <React.Fragment>
-                                <NewPaymentForm name={(val) => this.setState({name: val})} useDefaultAddress={() => this.useDefaultAddress()} defaultAddress={this.state.defaultAddress} />
+                                <NewPaymentForm name={(val) => this.setState({name: val})} useDefaultAddress={() => this.useDefaultAddress()} defaultAddress={this.state.defaultAddress} setExpRef={(el) => this.CardExpiryElement = el} setCardRef={(el) => this.CardNumberElement = el} setCvcRef={(el) => this.CardCVCElement = el} />
                                 {addressInput}
                             </React.Fragment> : ''}
                         </div>

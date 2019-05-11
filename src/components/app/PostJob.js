@@ -12,6 +12,7 @@ import PostJobForm from '../includes/page/PostJobForm';
 import SubmitButton from '../utils/SubmitButton';
 import moment from 'moment';
 import Loading from '../utils/Loading';
+import { Redirect } from 'react-router-dom';
 
 let recaptchaInstance;
 const onloadCallback = () => {

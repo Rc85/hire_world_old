@@ -9,7 +9,7 @@ import { LogError } from '../utils/LogError';
 import { Alert } from '../../actions/AlertActions';
 import PostJobForm from '../includes/page/PostJobForm';
 import SubmitButton from '../utils/SubmitButton';
-import { withRouter, NavLink } from 'react-router-dom';
+import { withRouter, NavLink, Redirect } from 'react-router-dom';
 import SlideToggle from '../utils/SlideToggle';
 import moment from 'moment';
 import Loading from '../utils/Loading';

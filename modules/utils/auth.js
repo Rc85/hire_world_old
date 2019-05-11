@@ -80,7 +80,7 @@ module.exports = async(req, resp, next) => {
                     resp.send({status: 'activation required'});
                 }
             } else if (result.rows.length === 0) {
-                resp.send({status: 'error', statusMessage: `Incorrect username or password`});
+                return resp.send({status: 'error', statusMessage: `Incorrect username or password`});
             }
         });
     } else {

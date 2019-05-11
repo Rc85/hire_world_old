@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StripeProvider, Elements } from 'react-stripe-elements';
-import Checkout from '../includes/page/Checkout';
 import fetch from 'axios';
 import { LogError } from '../utils/LogError';
 import moment from 'moment';
@@ -10,7 +9,7 @@ import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationA
 import { connect } from 'react-redux';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSyncAlt, faShoppingCart, faCalendarAlt, faCube, faBoxUsd } from '@fortawesome/pro-solid-svg-icons';
+import { faSyncAlt, faCalendarAlt, faCube, faBoxUsd } from '@fortawesome/pro-solid-svg-icons';
 import { Redirect } from 'react-router-dom';
 import Loading from '../utils/Loading';
 import Tooltip from '../utils/Tooltip';

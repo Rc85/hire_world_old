@@ -28,7 +28,7 @@ class InputWrapper extends Component {
     render() {
         return(
             <div onFocus={this.handleParentFocus.bind(this)} onBlur={this.handleParentBlur.bind(this)} onMouseDown={this.handleParentClick.bind(this)} id={this.props.id} className={`input-container ${this.props.className ? this.props.className : ''} ${this.props.disabled ? 'disabled' : ''} ${this.state.focused ? '' : ''}`}>
-                <div className={`input-container-header ${this.state.parentFocused ? 'focused' : ''}`}>
+                <div className={`input-container-header ${this.state.parentFocused || this.props.focused ? 'focused' : ''}`}>
                     <label className={`${this.props.labelBgColor ? `bg-${this.props.labelBgColor}` : ''}`}>{this.props.label}</label>
                     {this.props.altLabel ? <label className={`alt-label ${this.props.altLabelClassName ? this.props.altLabelClassName : ''}`}>{this.props.altLabel}</label> : ''}
                     {this.props.required ? <label className='required-label'><span className='text-special'>*</span></label> : ''}

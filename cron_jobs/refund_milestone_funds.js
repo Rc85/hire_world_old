@@ -23,7 +23,8 @@ AND CAST(event_execute_date AS date) - current_date BETWEEN 0 AND 1`)
 .then(result => {
     if (result && result.rows.length > 0) {
         for (let row of result.rows) {
-            stripe.refunds.create(row.charge_id, {
+            stripe.refunds.create({
+                charge: row.charge_id,
                 reason: 'requested_by_customer',
                 refund_application_fee: true,
                 reverse_transfer: true,

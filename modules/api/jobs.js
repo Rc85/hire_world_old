@@ -607,7 +607,7 @@ app.post('/api/job/agreement/submit', authenticate, subscriptionCheck, (req, res
                             await client.query(`UPDATE jobs SET milestones_modified_date = current_timestamp WHERE job_id = $1`, [req.body.jobId]);
                         }
 
-                        await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [job.rows[0].job_client, req.body.edit ? `Details for a job has been modified [ID: ${req.body.jobId}]`: `You received details a job [ID: ${req.body.jobId}]`, 'Update']);
+                        await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [job.rows[0].job_client, req.body.edit ? `Details for a job has been modified [ID: ${req.body.jobId}]`: `You received details for job [ID: ${req.body.jobId}]`, 'Update']);
 
                         await client.query('COMMIT')
                         .then(() => resp.send({status: 'success', statusMessage: req.body.edit ? 'Job details updated' : 'Job details sent', job: job.rows[0], milestones: milestones.rows}));
@@ -965,6 +965,9 @@ app.post('/api/job/pay', authenticate, subscriptionCheck, (req, resp) => {
                             await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, jobComplete ? `You completed a job` : `You completed a milestone`, 'Job']);
                             await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, jobComplete ? `You completed a job` : `You completed a milestone`, 'Job']);
 
+                            await client.query(`UPDATE system_events SET event_status = 'Canceled' WHERE event_name = 'check_milestone_funds' AND event_reference = $1`, [milestone.rows[0].charge_id]);
+                            await client.query(`UPDATE system_events SET event_status = 'Canceled' WHERE event_name = 'refund_milestone_funds' AND event_reference = $1`, [milestone.rows[0].charge_id]);
+
                             // email user that a payout was made
 
                             let conditions = await client.query(`SELECT * FROM milestone_conditions WHERE condition_parent_id = $1`, [req.body.milestone_id]);
@@ -1239,6 +1242,7 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
                             sgMail.send(message);
 
                             await client.query(`INSERT INTO system_events (event_name, event_reference, event_execute_date) VALUES ($1, $2, current_timestamp + interval '60 days')`, ['check_milestone_funds', charge.id]);
+                            await client.query(`INSERT INTO system_events (event_name, event_reference, event_execute_date) VALUES ($1, $2, current_timestamp + interval '89 days')`, ['refund_milestone_funds', charge.id]);
 
                             let conditions = await client.query(`SELECT * FROM milestone_conditions WHERE condition_parent_id = $1`, [req.body.id]);
                             let files = await client.query(`SELECT * FROM milestone_files WHERE file_milestone_id = $1 ORDER BY filename`, [req.body.milestone_id]);

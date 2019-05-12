@@ -176,7 +176,7 @@ class MilestoneTrackingRow extends Component {
         } else if ((this.state.milestone.milestone_status !== 'Pending') || (this.state.milestone.milestone_status === 'In Progress' || this.state.milestone.milestone_status === 'Requesting Payment')) {
             details = <div className='milestone-progress-details'>
                 {this.state.milestone.milestone_status === 'In Progress' || this.state.milestone.milestone_status === 'Requesting Payment' ? <div className='mr-2'>
-                    <strong>Payment:</strong> <span>{this.state.milestone.balance ? <span>$<MoneyFormatter value={this.state.milestone.balance.net / 100} /> {this.state.milestone.balance.currency.toUpperCase()}</span> : ''}</span>
+                    <strong>Payment:</strong> <span>{this.state.milestone.balance ? <span>$<MoneyFormatter value={this.state.milestone.milestone_payment_amount} /> {this.state.milestone.balance.currency.toUpperCase()}</span> : ''}</span>
                     {fundStatus}
                 </div> : ''}
 

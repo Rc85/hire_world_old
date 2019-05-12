@@ -105,7 +105,7 @@ class Jobs extends Component {
                 let jobStatus, review;
         
                 if (job.job_status === 'New' || job.job_status === 'Open') {
-                    jobStatus = <span className='mini-badge mini-badge-warning'>Awaiting Response...</span>;
+                    jobStatus = <span className='mini-badge mini-badge-warning'>Awaiting Response</span>;
                 } else if (job.job_status === 'Pending') {
                     if (this.props.user.user && this.props.user.user.username === job.job_user) {
                         jobStatus = <span className='mini-badge mini-badge-info'>Details Sent</span>;
@@ -113,7 +113,7 @@ class Jobs extends Component {
                         jobStatus = <span className='mini-badge mini-badge-info'>Details Received</span>;
                     }
                 } else if (job.job_status === 'Confirmed') {
-                    jobStatus = <span className='mini-badge mini-badge-info'>Awaiting Funds...</span>;
+                    jobStatus = <span className='mini-badge mini-badge-info'>Awaiting Funds</span>;
                 } else if (job.job_status === 'Active') {
                     jobStatus = <span className='mini-badge mini-badge-warning'>In Progress</span>;
                 } else if (job.job_status === 'Requesting Close') {
@@ -125,7 +125,7 @@ class Jobs extends Component {
                 } else if (job.job_status === 'Declined') {
                     jobStatus = <span className='mini-badge mini-badge-danger'>Declined</span>;
                 } else if (job.job_status === 'Requesting Payment') {
-                    jobStatus = <span className='mini-badge mini-badge-info'>Requesting Payment...</span>;
+                    jobStatus = <span className='mini-badge mini-badge-info'>Requesting Payment</span>;
                 } else if (job.job_status === 'Error' && this.props.user.user && this.props.user.user.username !== job.job_client) {
                     jobStatus = <span className='mini-badge mini-badge-danger'>Error</span>;
                 }

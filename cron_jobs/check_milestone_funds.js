@@ -27,8 +27,11 @@ AND event_status = 'Queued'`)
                         email: 'admin@hireworld.ca'
                     },
                     subject: 'Milestone funds will be refunded soon!',
-                    content: `This is a reminder that the funds equal to the amount of $${moneyFormatter(row.milestone_payment_amount)} for milestone ID ${row.milestone_id} in job ID: ${row.job_id} will be refunded on ${moment(row.milestone_fund_due_date).format('MM-DD-YYYY')}. If you feel you will not complete the milestone by then, please communicate with the other party regarding partial payment for partial work completed. If you need more time to complete the milestone, we suggest you politely ask the other party to start another job to do so.`,
-                    templateId: 'd-9459cc1fde43454ca77670ea97ee2d5a',
+                    dynamicTemplateData: {
+                        content: `This is a reminder that the funds equal to the amount of $${moneyFormatter(row.milestone_payment_amount)} for milestone ID ${row.milestone_id} in job ID: ${row.job_id} will be refunded on ${moment(row.milestone_fund_due_date).format('MM-DD-YYYY')}. If you feel you will not complete the milestone by then, please communicate with the other party regarding partial payment for partial work completed. If you need more time to complete the milestone, we suggest you politely ask the other party to start another job to do so.`,
+                        templateId: 'd-9459cc1fde43454ca77670ea97ee2d5a',
+                        subject: 'Milestone funds will be refunded soon!'
+                    },
                     trackingSettings: {
                         clickTracking: {
                             enable: false

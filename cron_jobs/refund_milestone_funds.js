@@ -44,15 +44,18 @@ AND CAST(event_execute_date AS date) - current_date BETWEEN 0 AND 1`)
                             email: 'admin@hireworld.ca'
                         },
                         subject: 'Milestone was incomplete',
-                        content: `It is our regret to inform you that milestone ID: ${row.milestone_id} in job ID: ${row.job_id} did not complete on time. As a result, we refunded the amount of $${moneyFormatter(row.milestone_payment_amount)} ${refund.currency.toUpperCase()} back to the client and the job has been flagged as "Abandoned". Abandoned jobs will slightly impact your completion rate and a low completion rate is not a good indicator on your profile. We hope that in the future, you can set milestones with conditions that are achievable because we sincerely want our customers to build and grow their business on Hire World.
-                        
-                        <p>For more information on "Abandoned" jobs, refer to our <a href='https://hireworld.ca/faq'>FAQ</a>.
-                        
-                        <p>
-                            <div><small style='color: darkgrey;'>Refund ID: ${refund.id}</small></div>
-                            <div><small style='color: darkgrey;'>Charge ID: ${refund.charge}</small></div>
-                        </p>`,
                         templateId: 'd-9459cc1fde43454ca77670ea97ee2d5a',
+                        dynamicTemplateData: {
+                            subject: 'Milestone was incomplete',
+                            content: `It is our regret to inform you that milestone ID: ${row.milestone_id} in job ID: ${row.job_id} did not complete on time. As a result, we refunded the amount of $${moneyFormatter(row.milestone_payment_amount)} ${refund.currency.toUpperCase()} back to the client and the job has been flagged as "Abandoned". Abandoned jobs will slightly impact your completion rate and a low completion rate is not a good indicator on your profile. We hope that in the future, you can set milestones with conditions that are achievable because we sincerely want our customers to build and grow their business on Hire World.
+                            
+                            <p>For more information on "Abandoned" jobs, refer to our <a href='https://hireworld.ca/faq'>FAQ</a>.
+                            
+                            <p>
+                                <div><small style='color: darkgrey;'>Refund ID: ${refund.id}</small></div>
+                                <div><small style='color: darkgrey;'>Charge ID: ${refund.charge}</small></div>
+                            </p>`
+                        },
                         trackingSettings: {
                             clickTracking: {
                                 enable: false

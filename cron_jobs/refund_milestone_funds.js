@@ -71,7 +71,7 @@ AND CAST(event_execute_date AS date) - current_date BETWEEN 0 AND 1`)
 
                     if (row.client_email_setting) {
                         let message = {
-                            to: row.user_email,
+                            to: row.client_email,
                             from: {
                                 name: 'Hire World',
                                 email: 'admin@hireworld.ca'
@@ -99,8 +99,11 @@ AND CAST(event_execute_date AS date) - current_date BETWEEN 0 AND 1`)
                         messages.push(message);
                     }
 
+                    console.log(messages);
+
                     sgMail.send(messages)
                     .then(() => {
+                        console.log('message sent');
                         db.query(`UPDATE system_events SET event_status = 'Processed' WHERE event_id = $1`, [row.event_id])
                         .catch(err => {
                             return error.log(err, false, false, 'refund_milestone_funds');
@@ -125,7 +128,7 @@ AND CAST(event_execute_date AS date) - current_date BETWEEN 0 AND 1`)
                         return error.log(err, false, false, 'refund_milestone_funds');
                     });
 
-                    db.query(`UPDATE job_milestones SET milestone_status = 'Incomplete' WHERE milestone_job_id = $2`, [row.job_id])
+                    db.query(`UPDATE job_milestones SET milestone_status = 'Incomplete' WHERE milestone_job_id = $1`, [row.job_id])
                     .catch(err => {
                         return error.log(err, false, false, 'refund_milestone_funds');
                     });

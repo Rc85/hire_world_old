@@ -15,6 +15,7 @@ LEFT JOIN users ON users.username = jobs.job_user
 LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
 LEFT JOIN (
     SELECT username, user_email, email_notifications FROM users
+    LEFT JOIN user_settings ON users.user_id = user_settings.user_setting_id
 ) AS u ON u.username = jobs.job_client
 WHERE system_events.event_name = 'refund_milestone_funds'
 AND system_events.event_status = 'Queued'

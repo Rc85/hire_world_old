@@ -22,26 +22,25 @@ app.post('/api/job/accounts/fetch', authenticate, async(req, resp) => {
 });
 
 app.post('/api/jobs/fetch', authenticate, async(req, resp) => {
-    let statusParam;
+    let whereParam;
 
     if (req.body.stage === 'opened') {
         // 'New' is the same open except it shows a 'New' tag
-            // 'Open' are jobs that have been opened by the user
-            // 'Pending' are jobs that have milestone details sent to the client
-        statusParam = `job_status IN ('New', 'Open', 'Pending', 'Declined')`;
+        // 'Open' are jobs that have been opened by the user
+        // 'Pending' are jobs that have milestone details sent to the client
+        whereParam = `(job_user = $1 OR job_client = $1) AND job_status IN ('New', 'Open', 'Pending', 'Declined')`;
     } else if (req.body.stage === 'active') {
         // 'Active' are jobs that have been started and the first milestone payment transferred
         // 'Requesting Payment' is when the user submitted a request for payment to the client
-        statusParam = `job_status IN ('Active', 'Requesting Payment', 'Requesting Close', 'Error')`;
+        whereParam = `CASE WHEN job_user = $1 THEN job_status IN ('Active', 'Requesting Payment', 'Requesting Close', 'Error') WHEN job_client = $1 THEN job_status IN ('Active', 'Requesting Payment', 'Requesting Close') END`;
     } else if (req.body.stage === 'complete') {
-        statusParam = `job_status IN ('Complete')`;
+        whereParam = `CASE WHEN job_user = $1 THEN job_status IN ('Complete') WHEN job_client = $1 THEN job_status IN ('Complete', 'Error') END`;
     } else if (req.body.stage === 'abandoned') {
-        statusParam = `job_status IN ('Abandoned')`;
+        whereParam = `job_user = $1 AND job_status IN ('Abandoned')`;
     }
 
     let jobs = await db.query(`SELECT COUNT(job_id) AS total_jobs FROM jobs
-    WHERE (job_user = $1 OR job_client = $1)
-    AND ${statusParam}`, [req.session.user.username])
+    WHERE ${whereParam}`, [req.session.user.username])
     .catch(err => {
         return error.log(err, req, resp);
     });;
@@ -55,7 +54,7 @@ app.post('/api/jobs/fetch', authenticate, async(req, resp) => {
     ON jobs.job_id = unread.job_message_parent_id
     LEFT JOIN review_tokens
     ON review_tokens.token_job_id = jobs.job_id
-    WHERE (job_user = $1 OR job_client = $1) AND ${statusParam}
+    WHERE ${whereParam}
     ORDER BY job_created_date DESC NULLS LAST
     LIMIT 25
     OFFSET $2`, [req.session.user.username, req.body.offset])

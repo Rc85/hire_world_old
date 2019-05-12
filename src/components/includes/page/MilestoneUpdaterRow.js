@@ -425,10 +425,12 @@ class MilestoneUpdaterRow extends Component {
             milestoneStatus = <span className='mini-badge mini-badge-info'>Payment Sent</span>;
         } else if (this.state.milestone.milestone_status === 'Unpaid') {
             milestoneStatus = <span className='mini-badge mini-badge-danger'>Unpaid</span>;
+        } else if (this.state.milestone.milestone_status === 'Incomplete') {
+            milestoneStatus = <span className='mini-badge mini-badge-danger'>Incomplete</span>;
         }
 
         return (
-            <div className={`milestone-updater-row ${this.state.milestone.milestone_status === 'Pending' || this.state.milestone.payout.status === 'paid' ? 'disabled' : ''}`}>
+            <div className={`milestone-updater-row ${this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Incomplete' || this.state.milestone.payout.status === 'paid' ? 'disabled' : ''}`}>
                 <div className='d-flex-between-start'>
                     <div className='milestone-number'><h3>{this.props.index}</h3></div>
     
@@ -454,7 +456,7 @@ class MilestoneUpdaterRow extends Component {
                                 <div className='mr-1'><Tooltip text={<React.Fragment>
                                     <li className='ml-2'>.zip, .rar, .tar.gz, .gz, .tgz</li>
                                     <li className='ml-2'>Max 250 GB</li>
-                                </React.Fragment>} placement='bottom-right' disabled={this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Abandoned'}><SubmitButton type='button' loading={this.state.status === 'Uploading File'} value='Upload File' className='opaque' onClick={() => this.openFileBrowser()} disabled={this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Abandoned' || this.state.milestone.milestone_status === 'Unpaid'} /></Tooltip></div>
+                                </React.Fragment>} placement='bottom-right' disabled={this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Abandoned'}><SubmitButton type='button' loading={this.state.status === 'Uploading File'} value='Upload File' className='opaque' onClick={() => this.openFileBrowser()} disabled={this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Incomplete' || this.state.milestone.milestone_status === 'Unpaid'} /></Tooltip></div>
 
                                 <button className='btn btn-info' onClick={this.toggleDetails.bind(this)}><FontAwesomeIcon icon={this.state.showDetails ? faCaretUp : faCaretDown} /></button>
                             </div>

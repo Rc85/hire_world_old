@@ -104,12 +104,29 @@ AND CAST(event_execute_date AS date) - current_date BETWEEN 0 AND 1`)
                     return error.log(err, false, false, 'refund_milestone_funds');
                 });
 
-                db.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [row.job_user, `Unfortunately, milestone ID: ${row.milestone_id} in job ID: ${row.job_id} did not complete on time and the client was refunded`, 'Update']);
-                db.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [row.job_client, `We've refunded the amount of $${moneyFormatter(row.milestone_payment_amount)} to you for milestone ID: ${row.milestone_id} in job ID: ${row.job_id} as it was not completed on time`, 'Update']);
+                db.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [row.job_user, `Unfortunately, milestone ID: ${row.milestone_id} in job ID: ${row.job_id} did not complete on time and the client was refunded`, 'Update'])
+                .catch(err => {
+                    return error.log(err, false, false, 'refund_milestone_funds');
+                });
+
+                db.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [row.job_client, `We've refunded the amount of $${moneyFormatter(row.milestone_payment_amount)} to you for milestone ID: ${row.milestone_id} in job ID: ${row.job_id} as it was not completed on time`, 'Update'])
+                .catch(err => {
+                    return error.log(err, false, false, 'refund_milestone_funds');
+                });
+
+                db.query(`UPDATE jobs SET job_status = 'Abandoned' WHERE job_id = $1`, [row.job_id])
+                .catch(err => {
+                    return error.log(err, false, false, 'refund_milestone_funds');
+                });
+
+                db.query(`UPDATE job_milestones SET milestone_status = 'Incomplete' WHERE milestone_job_id = $2`, [row.job_id])
+                .catch(err => {
+                    return error.log(err, false, false, 'refund_milestone_funds');
+                });
             })
             .catch(err => {
                 return error.log(err, false, false, 'refund_milestone_funds');
             });
         }
     }
-})
+});

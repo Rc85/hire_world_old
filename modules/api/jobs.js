@@ -1245,7 +1245,7 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
                             await client.query(`INSERT INTO system_events (event_name, event_reference, event_execute_date) VALUES ($1, $2, current_timestamp + interval '89 days')`, ['refund_milestone_funds', charge.id]);
 
                             let conditions = await client.query(`SELECT * FROM milestone_conditions WHERE condition_parent_id = $1`, [req.body.id]);
-                            let files = await client.query(`SELECT * FROM milestone_files WHERE file_milestone_id = $1 ORDER BY filename`, [req.body.milestone_id]);
+                            let files = await client.query(`SELECT * FROM milestone_files WHERE file_milestone_id = $1 ORDER BY filename`, [req.body.id]);
                             
                             milestone.rows[0]['files'] = files.rows;
                             milestone.rows[0]['balance'] = charge.transfer.destination_payment.balance_transaction;

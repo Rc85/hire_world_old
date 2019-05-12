@@ -74,15 +74,18 @@ AND CAST(event_execute_date AS date) - current_date BETWEEN 0 AND 1`)
                             email: 'admin@hireworld.ca'
                         },
                         subject: 'We refunded you!',
-                        content: `This email is to inform you that milestone ID: ${row.milestone_id} in job ID: ${row.job_id} did not complete on time. As a result, we refunded the amount of $${moneyFormatter(row.milestone_payment_amount)} ${refund.currency.toUpperCase()} back to the account that was originally charged and the job has been flagged as "Abandoned".
-
-                        <p>For tips and options on what to do and how you can prevent a job from being abandoned, refer to our <a href='https://hireworld.ca/faq'>FAQ</a>.
-                        
-                        <p>
-                            <div><small style='color: darkgrey;'>Refund ID: ${refund.id}</small></div>
-                            <div><small style='color: darkgrey;'>Charge ID: ${refund.charge}</small></div>
-                        </p>`,
                         templateId: 'd-9459cc1fde43454ca77670ea97ee2d5a',
+                        dynamicTemplateData: {
+                            subject: 'We refunded you!',
+                            content: `This email is to inform you that milestone ID: ${row.milestone_id} in job ID: ${row.job_id} did not complete on time. As a result, we refunded the amount of $${moneyFormatter(row.milestone_payment_amount)} ${refund.currency.toUpperCase()} back to the account that was originally charged and the job has been flagged as "Abandoned".
+
+                            <p>For tips and options on what to do and how you can prevent a job from being abandoned, refer to our <a href='https://hireworld.ca/faq'>FAQ</a>.
+                            
+                            <p>
+                                <div><small style='color: darkgrey;'>Refund ID: ${refund.id}</small></div>
+                                <div><small style='color: darkgrey;'>Charge ID: ${refund.charge}</small></div>
+                            </p>`
+                        },
                         trackingSettings: {
                             clickTracking: {
                                 enable: false
@@ -95,7 +98,7 @@ AND CAST(event_execute_date AS date) - current_date BETWEEN 0 AND 1`)
 
                 sgMail.send(messages)
                 .then(() => {
-                    db.query(`UPDATE system_events SET event_status = 'Processed' WHERE event_id = ANY($1)`, [row.event_id])
+                    db.query(`UPDATE system_events SET event_status = 'Processed' WHERE event_id = $1`, [row.event_id])
                     .catch(err => {
                         return error.log(err, false, false, 'refund_milestone_funds');
                     });

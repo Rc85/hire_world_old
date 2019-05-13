@@ -160,89 +160,103 @@ app.post('/api/posted/job/update', authenticate, async(req, resp) => {
         } else {
             let authorized = await db.query(`SELECT * FROM job_postings WHERE job_post_id = $1`, [req.body.id]);
 
-            if (authorized.rows[0].job_post_user === req.body.user && req.body.user === req.session.user.username) {
-                await db.query(`UPDATE job_postings SET job_post_title = $1, job_post_modified_date = current_timestamp, job_post_sector = $2, job_post_details = $3, job_post_budget = $4, job_post_as_user = $5, job_is_local = $6, job_is_remote = $7, job_is_online = $8, job_post_company = $9, job_post_company_website = $10, job_post_country = $11, job_post_region = $12, job_post_city = $13, job_post_budget_threshold = $14, job_post_notification = $15, job_post_position_num = $17, job_post_payment_type = $18, job_post_budget_end = $19, job_post_type = $20, job_post_expiration_date = $21 WHERE job_post_id = $16 RETURNING *`, [req.body.title, req.body.sector, req.body.details, req.body.budget, req.body.postAsUser, req.body.local, req.body.remote, req.body.online, req.body.company, req.body.website, req.body.country, req.body.region, req.body.city, req.body.budgetThreshold, req.body.notification, req.body.id, req.body.positions, req.body.paymentType, req.body.budgetEnd, req.body.type, req.body.expire])
+            if (authorized.rows.length === 1) {
+                if (authorized.rows[0].job_post_user === req.body.user && req.body.user === req.session.user.username) {
+                    await db.query(`UPDATE job_postings SET job_post_title = $1, job_post_modified_date = current_timestamp, job_post_sector = $2, job_post_details = $3, job_post_budget = $4, job_post_as_user = $5, job_is_local = $6, job_is_remote = $7, job_is_online = $8, job_post_company = $9, job_post_company_website = $10, job_post_country = $11, job_post_region = $12, job_post_city = $13, job_post_budget_threshold = $14, job_post_notification = $15, job_post_position_num = $17, job_post_payment_type = $18, job_post_budget_end = $19, job_post_type = $20, job_post_expiration_date = $21 WHERE job_post_id = $16 RETURNING *`, [req.body.title, req.body.sector, req.body.details, req.body.budget, req.body.postAsUser, req.body.local, req.body.remote, req.body.online, req.body.company, req.body.website, req.body.country, req.body.region, req.body.city, req.body.budgetThreshold, req.body.notification, req.body.id, req.body.positions, req.body.paymentType, req.body.budgetEnd, req.body.type, req.body.expire])
+                    .then(result => {
+                        if (result && result.rowCount === 1) {
+                            resp.send({status: 'success', statusMessage: 'Job post updated', job: result.rows[0]});
+                        } else {
+                            resp.send({status: 'error', statusMessage: `Fail to update`});
+                        }
+                    })
+                    .catch(err => {
+                        return error.log(err, req, resp);
+                    });
+                } else {
+                    resp.send({status: 'error', statusMessage: `You're not authorized`});
+                }
+            } else {
+                await client.query(`INSERT INTO job_postings (job_post_title, job_post_user, job_post_sector, job_post_details, job_post_budget, job_post_as_user, job_is_local, job_is_remote, job_is_online, job_post_company, job_post_company_website, job_post_country, job_post_region, job_post_city, job_post_budget_threshold, job_post_notification, job_post_position_num, job_post_payment_type, job_post_budget_end, job_post_type, job_post_expiration_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)`, [req.body.title, req.session.user.username, req.body.sector, req.body.details, req.body.budget, req.body.postAsUser, req.body.local, req.body.remote, req.body.online, req.body.company, req.body.website, req.body.country, req.body.region, req.body.city, req.body.budgetThreshold, req.body.notification, req.body.positions, req.body.paymentType, req.body.budgetEnd, req.body.type, req.body.expire])
                 .then(result => {
                     if (result && result.rowCount === 1) {
-                        resp.send({status: 'success', statusMessage: 'Job post updated', job: result.rows[0]});
+                        resp.send({status: 'success', statusMessage: 'Job posted'});
                     } else {
-                        resp.send({status: 'error', statusMessage: `Fail to update`});
+                        resp.send({status: 'error', statusMessage: 'Fail to post job'});
                     }
                 })
-                .catch(err => error.log(err, req, resp));
-            } else {
-                resp.send({status: 'error', statusMessage: `You're not authorized`});
+                .catch(err => {
+                    return error.log(err, req, resp);
+                });
             }
         }
 });
 
 app.post('/api/posted/job/apply', authenticate, (req, resp) => {
-        db.connect((err, client, done) => {
-            if (err) error.log(err, req, resp);
+    db.connect((err, client, done) => {
+        if (err) return error.log(err, req, resp);
 
-            
+        if (req.body.user === req.session.user.username) {
+            (async() => {
+                try {
+                    await client.query('BEGIN');
 
-            if (req.body.user === req.session.user.username) {
-                (async() => {
-                    try {
-                        await client.query('BEGIN');
+                    let applied = await client.query(`SELECT applicant FROM job_post_applications WHERE applicant = $1 AND applied_job_post_id = $2`, [req.session.user.username, req.body.id]);
+                    let job = await client.query(`SELECT job_post_title, job_post_notification, job_post_user FROM job_postings WHERE job_post_id = $1`, [req.body.id]);
 
-                        let applied = await client.query(`SELECT applicant FROM job_post_applications WHERE applicant = $1 AND applied_job_post_id = $2`, [req.session.user.username, req.body.id]);
-                        let job = await client.query(`SELECT job_post_title, job_post_notification, job_post_user FROM job_postings WHERE job_post_id = $1`, [req.body.id]);
+                    if (applied.rows.length === 0) {
+                        let application = await client.query(`INSERT INTO job_post_applications (applicant, applied_job_post_id, application_details, application_notification) VALUES ($1, $2, $3, $4) RETURNING *`, [req.session.user.username, req.body.id, req.body.details, req.body.notification]);
 
-                        if (applied.rows.length === 0) {
-                            let application = await client.query(`INSERT INTO job_post_applications (applicant, applied_job_post_id, application_details, application_notification) VALUES ($1, $2, $3, $4) RETURNING *`, [req.session.user.username, req.body.id, req.body.details, req.body.notification]);
+                        let user = await client.query(`SELECT user_email FROM users WHERE username = $1`, [job.rows[0].job_post_user]);
 
-                            let user = await client.query(`SELECT user_email FROM users WHERE username = $1`, [job.rows[0].job_post_user]);
+                        await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [req.session.user.username, `You applied to a job`, 'Job']);
 
-                            await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [req.session.user.username, `You applied to a job`, 'Job']);
-
-                            if (job.rows[0].job_post_notification) {
-                                let message = {
-                                    to: user.rows[0].user_email,
-                                    from: {
-                                        name: 'Hire World',
-                                        email: 'admin@hireworld.ca'
-                                    },
-                                    subject: 'You Have an Applicant at Hire World!',
-                                    templateId: 'd-c6d7c9b6779f4268a673f103d50bfa81',
-                                    dynamicTemplateData: {
-                                        user: application.rows[0].applicant,
-                                        title: job.rows[0].job_post_title,
-                                        editPostedJob: `${process.env.SITE_URL}/dashboard/posted/job/details/${req.body.id}`,
-                                        postedJob: `${process.env.SITE_URL}/job/${req.body.id}`
-                                    },
-                                    trackingSettings: {
-                                        clickTracking: {
-                                            enable: false
-                                        }
+                        if (job.rows[0].job_post_notification) {
+                            let message = {
+                                to: user.rows[0].user_email,
+                                from: {
+                                    name: 'Hire World',
+                                    email: 'admin@hireworld.ca'
+                                },
+                                subject: 'You Have an Applicant at Hire World!',
+                                templateId: 'd-c6d7c9b6779f4268a673f103d50bfa81',
+                                dynamicTemplateData: {
+                                    user: application.rows[0].applicant,
+                                    title: job.rows[0].job_post_title,
+                                    editPostedJob: `${process.env.SITE_URL}/dashboard/posted/job/details/${req.body.id}`,
+                                    postedJob: `${process.env.SITE_URL}/job/${req.body.id}`
+                                },
+                                trackingSettings: {
+                                    clickTracking: {
+                                        enable: false
                                     }
                                 }
-
-                                sgMail.send(message)
-                                .catch(err => error.log(err, req, resp));
                             }
 
-                            await client.query('COMMIT')
-                            .then(() => resp.send({status: 'success', statusMessage: 'Application successful', application: application.rows[0]}));
-                        } else {
-                            let error = new Error(`You cannot apply again`);
-                            let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
-                            throw errObj;
+                            sgMail.send(message)
+                            .catch(err => error.log(err, req, resp));
                         }
-                    } catch (e) {
-                        await client.query('ROLLBACK');
-                        throw e;
-                    } finally {
-                        done();
+
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success', statusMessage: 'Application successful', application: application.rows[0]}));
+                    } else {
+                        let error = new Error(`You cannot apply again`);
+                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
+                        throw errObj;
                     }
-                })()
-                .catch(err => error.log(err, req, resp));
-            } else {
-                // log suspcious activity here
-                resp.send({status: 'error', statusMessage: 'Incorrect login'});
-            }
-        });
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => error.log(err, req, resp));
+        } else {
+            // log suspcious activity here
+            resp.send({status: 'error', statusMessage: 'Incorrect login'});
+        }
+    });
 });
 
 app.post('/api/posted/job/notification', authenticate, async(req, resp) => {

@@ -55,7 +55,7 @@ class Main extends Component {
                         }
         
                         if (profile.listing_online) {
-                            online = <span className='mini-badge mini-badge-purple mr-1'>Online</span>;
+                            online = <span className='mini-badge mini-badge-purple mr-1'>Link Work</span>;
                         }
         
                         if (profile.listing_price_type === 'To Be Discussed') {
@@ -72,7 +72,7 @@ class Main extends Component {
                         length={this.state.profiles.length}
                         title={
                             <React.Fragment>
-                                <NavLink to={`/dashboard/posted/job/details/${profile.listing_id}`}>{profile.listing_title}</NavLink>
+                                <NavLink to={`/user/${profile.listing_user}`}>{profile.listing_title}</NavLink>
                             </React.Fragment>
                         }
                         details={

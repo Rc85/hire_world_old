@@ -16,12 +16,16 @@ app.post('/api/get/posted/jobs', authenticate, async(req, resp) => {
 app.post('/api/get/posted/job/details', authenticate, async(req, resp) => {
         let authorized = await db.query(`SELECT * FROM job_postings WHERE job_post_id = $1`, [req.body.id]);
 
-        if (authorized.rows[0].job_post_user === req.session.user.username) {
-            // get applicants as well
+        if (authorized.rows.length === 0) {
+            if (authorized.rows[0].job_post_user === req.session.user.username) {
+                // get applicants as well
 
-            resp.send({status: 'success', job: authorized.rows[0]});
+                resp.send({status: 'success', job: authorized.rows[0]});
+            } else {
+                resp.send({status: 'authorized', statusMessage: `You're not authorized`});
+            }
         } else {
-            resp.send({status: 'authorized', statusMessage: `You're not authorized`});
+            reps.send({status: 'error'});
         }
 });
 

@@ -119,7 +119,11 @@ class Profile extends Component {
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
-        .catch(err => LogError(err, '/api/listing/save'));
+        .catch(err => {
+            LogError(err, '/api/listing/save');
+            this.setState({status: ''});
+            this.props.dispatch('Alert', 'An error occurred');
+        });
     }
     
     toggleListing() {
@@ -149,7 +153,11 @@ class Profile extends Component {
                     this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
                 }
             })
-            .catch(err => LogError(err, '/api/listing/toggle'));
+            .catch(err => {
+                LogError(err, '/api/listing/toggle');
+                this.setState({status: ''});
+                this.props.dispatch('Alert', 'An error occurred');
+            });
         }
     }
 
@@ -160,11 +168,34 @@ class Profile extends Component {
         this.setState({newSettings: settings});
     }
 
+    renewListing() {
+        this.setState({status: 'Renewing'});
+
+        fetch.post('/api/listing/renew')
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                let initialSettings = {...this.state.initialSettings};
+                initialSettings.listing_renewed_date = resp.data.renewedDate;
+
+                this.setState({status: '', initialSettings: initialSettings});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => {
+            LogError(err, '/api/listing/renew');
+            this.setState({status: ''});
+            this.props.dispatch('Alert', 'An error occurred');
+        });
+    }
+
     render() {
         if (this.state.status === 'Loading') {
             return <Loading size='7x' color='black' />;
         } else if (this.props.user.status === 'error') {
-            return <Redirect to='/error/app/401' />;
+            return <Redirect to='/error/app/404' />;
         } else if (this.props.user.status === 'not logged in') {
             return <Redirect to='/main' />;
         } else if (this.state.status === 'Unsubscribed') {
@@ -185,7 +216,7 @@ class Profile extends Component {
                 let lastRenew = new Date(this.state.initialSettings.listing_renewed_date);
 
                 renewButton = <React.Fragment>
-                    <Tooltip text={now - lastRenew < 8.64e+7 ? 'You must wait 24 hours from your last renew before you can renew again' : 'Renewing your listing will bring it to the top of the list'} placement='bottom-right' className='mr-1'><button id='renew-button' className='btn btn-primary' onClick={() => this.renewListing()} disabled={now - lastRenew < 8.64e+7}>Renew</button></Tooltip>
+                    <Tooltip text={now - lastRenew < 8.64e+7 ? 'You must wait 24 hours from your last renew before you can renew again' : 'Renewing your listing will bring it to the top of the list'} placement='bottom-right' className='mr-1'><button id='renew-button' className='btn btn-primary' onClick={() => this.renewListing()} disabled={now - lastRenew < 8.64e+7 || this.state.status === 'Renewing'}>Renew</button></Tooltip>
                 </React.Fragment>;
             }
             

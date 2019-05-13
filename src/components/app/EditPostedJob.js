@@ -206,7 +206,7 @@ class EditPostedJob extends Component {
         }
 
         if (this.props.user.status === 'error') {
-            return <Redirect to='/error/app/401' />;
+            return <Redirect to='/error/app/404' />;
         } else if (this.props.user.status === 'not logged in') {
             return <Redirect to='/main' />;
         }

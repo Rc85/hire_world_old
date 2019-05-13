@@ -182,7 +182,7 @@ class Site extends Component {
 
                 <div className='site-top-bar'>
                     <div className='site-top-bar-container'>
-                        <NavLink to='/'><img src='/images/logo_md.png' className='site-logo' /></NavLink>
+                        <NavLink to='/'><img src='/images/logo_md.png' className='site-logo' alt='Hire World' /></NavLink>
     
                         <div className='site-nav-bar'>
                             <div className='site-nav-item'><NavLink to='/'>Main</NavLink></div>

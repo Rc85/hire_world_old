@@ -195,8 +195,6 @@ app.post('/api/listing/save', authenticate, async(req, resp) => {
     db.connect((err, client, done) => {
         if (err) error.log(err, req, resp);
 
-        console.log(req.body);
-
         if (validate.blankCheck.test(req.body.listing_title)) {
             resp.send({status: 'error', statusMessage: 'Title cannot be blank'});
         } else if (!req.body.listing_online && !req.body.listing_remote && !req.body.listing_local) {

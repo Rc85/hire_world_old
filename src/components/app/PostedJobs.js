@@ -27,7 +27,6 @@ class PostedJobs extends Component {
     componentDidMount() {
         fetch.post('/api/get/posted/jobs')
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', jobs: resp.data.jobs});
             } else if (resp.data.status === 'error') {

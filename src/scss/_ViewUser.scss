@@ -38,6 +38,11 @@
     }
 }
 
+.view-user-title-container {
+    display: flex;
+    align-items: flex-start;
+}
+
 .view-user-title-wrapper {
     display: flex;
     justify-content: space-between;

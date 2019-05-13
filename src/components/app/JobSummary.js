@@ -8,7 +8,6 @@ import TitledContainer from '../utils/TitledContainer';
 import { Redirect } from 'react-router-dom';
 import { LogError } from '../utils/LogError';
 import JobTimeline from '../includes/page/JobTimeline';
-import InputWrapper from '../utils/InputWrapper';
 import MoneyFormatter from '../utils/MoneyFormatter';
 
 class JobSummary extends Component {
@@ -23,7 +22,6 @@ class JobSummary extends Component {
     componentDidMount() {
         fetch.post('/api/jobs/summary')
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', ...resp.data});
             } else if (resp.data.status === 'error') {
@@ -58,7 +56,6 @@ class JobSummary extends Component {
     }
     
     render() {
-        console.log(this.state);
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
@@ -116,7 +113,7 @@ class JobSummary extends Component {
 
                             <div className='job-summary-stats mb-3'>
                                 <div className='mb-1'><strong>Total Payment for Services:</strong></div>
-                                <div className='d-flex ml-3'>
+                                <div className='job-summary-price-container ml-3'>
                                     {this.state.finance.map((job, i) => {
                                         return <div key={i} className='mr-3'>
                                             {!job.total_payment ? <span>$0.00</span> : <span>$<MoneyFormatter value={job.total_payment} /></span>} {job.currency}
@@ -127,7 +124,7 @@ class JobSummary extends Component {
 
                             <div className='job-summary-stats mb-3'>
                                 <div className='mb-1'><strong>Total Application Fees Paid:</strong></div>
-                                <div className='d-flex ml-3'>
+                                <div className='job-summary-price-container ml-3'>
                                     {this.state.finance.map((obj, i) => {
                                         let userFee = obj.total_user_fee ? obj.total_user_fee : 0;
                                         let clientFee = obj.total_client_fee ? obj.total_client_fee : 0;
@@ -144,7 +141,7 @@ class JobSummary extends Component {
 
                             <div className='job-summary-stats mb-3'>
                                 <div className='mb-1'><strong>Total Earnings:</strong></div>
-                                <div className='d-flex ml-3'>
+                                <div className='job-summary-price-container ml-3'>
                                     {this.state.finance.map((obj, i) => {
                                         return <div key={i} className='mr-3'>
                                             <span>$<MoneyFormatter value={obj.total_earnings} /> {obj.currency}</span>
@@ -155,7 +152,7 @@ class JobSummary extends Component {
 
                             <div className='job-summary-stats mb-3'>
                                 <div className='mb-1'><strong>Funds Available Soon:</strong></div>
-                                <div className='d-flex ml-3'>
+                                <div className='job-summary-price-container ml-3'>
                                     {Object.keys(this.state.balance_pending).length > 0 ? Object.keys(this.state.balance_pending).map((key, i) => {
                                         return <div key={i}>$<MoneyFormatter value={this.state.balance_pending[key] / 100} /> {key.toUpperCase()}</div>
                                     }) : 'N/A'} 

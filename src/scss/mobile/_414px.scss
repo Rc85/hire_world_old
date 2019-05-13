@@ -23,6 +23,38 @@
         }
     }
 
+    .job-summary-stats-container, .job-summary-price-container {
+        flex-direction: column;
+    }
+
+    .job-timeline-container, .job-timeline-detail {
+        width: 100%;
+    }
+
+    #job-timeline-month-detail {
+        box-shadow: 0 5px 10px black;
+    }
+
+    .job-timeline-month-detail-wrapper {
+        position: absolute;
+        top: 100px;
+        left: 0;
+        width: 100%;
+    }
+
+    .job-timeline-month-job-div {
+        padding-left: 0;
+    }
+
+    .job-timeline-detail-container {
+        flex-direction: column;
+    }
+
+    .view-user-title-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
     .listing-row-title { order: 1; }
 
     .listing-row-purpose {order: 2;}

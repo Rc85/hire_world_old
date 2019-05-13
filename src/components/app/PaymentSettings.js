@@ -85,8 +85,6 @@ class PaymentSettings extends Component {
                 this.setState({status: ''});
             }
 
-            console.log(resp);
-
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
         })
         .catch(err => {

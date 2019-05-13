@@ -7,7 +7,7 @@ import FilterListings from '../includes/page/FilterListings';
 import { LogError } from '../utils/LogError';
 import TitledContainer from '../utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThList, faUserCircle, faCalendarAlt, faSackDollar, faDollarSign } from '@fortawesome/pro-solid-svg-icons';
+import { faThList, faUserCircle, faCalendarAlt, faSackDollar } from '@fortawesome/pro-solid-svg-icons';
 import Loading from '../utils/Loading';
 import Row from '../includes/page/Row';
 import Username from '../includes/page/Username';
@@ -112,7 +112,6 @@ class Sectors extends Component {
     }
 
     render() {
-        console.log(this.state.listings);
         let listings;
         
         if (this.props.match.params.type === 'profiles') {

@@ -248,7 +248,6 @@ app.post('/api/job/account/payment/add', authenticate, subscriptionCheck, async(
 
         if (user && user.rows[0].username === req.session.user.username) {
             if (user.rows[0].link_work_id) {
-                console.log(req.body);
                 if (req.body.token) {
                     await stripe.accounts.createExternalAccount(user.rows[0].link_work_id, {
                         external_account: req.body.token.id,
@@ -923,8 +922,6 @@ app.post('/api/job/pay', authenticate, subscriptionCheck, (req, resp) => {
                             }, {stripe_account: authorized.rows[0].link_work_id})
                             .catch(err => error.log(err, req, resp));
 
-                            //console.log(util.inspect(payout, false, null, true))
-
                             if (requestedAmount !== amount) {
                                 await stripe.refunds.create({
                                     charge: authorized.rows[0].charge_id,
@@ -1100,8 +1097,6 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
                             let thirdFee = 0;
 
                             totalAmount = lifetimeTotal + amount;
-                            console.log('lifetime total: ' + lifetimeTotal);
-                            console.log('total amount: ' + totalAmount);
 
                             if (lifetimeTotal <= 500) {
                                 if (totalAmount <= 500) {
@@ -1110,20 +1105,11 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
                                     firstFee = Math.round((500 - lifetimeTotal) * 0.15 * 100);
                                     secondFee = Math.round((totalAmount - 500) * 0.075 * 100);
 
-                                    console.log(firstFee, secondFee);
-                                    /* console.log('500 - 10000')
-                                    console.log('first fee: ' + firstFee)
-                                    console.log('second fee: ' + secondFee) */
-
                                     userFee = firstFee + secondFee;
                                 } else if (totalAmount > 10000) {
                                     firstFee = Math.round((500 - lifetimeTotal) * 0.15 * 100);
                                     secondFee = Math.round((10000 - 500) * 0.075 * 100);
                                     thirdFee = Math.round((totalAmount - 10000) * 0.0375 * 100);
-                                    /* console.log('10000+')
-                                    console.log('first fee: ' + firstFee)
-                                    console.log('second fee: ' + secondFee)
-                                    console.log('third fee: ' + thirdFee) */
 
                                     userFee = firstFee + secondFee + thirdFee;
                                 }
@@ -1133,42 +1119,12 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
                                 } else if (totalAmount > 10000) {
                                     firstFee = Math.round((10000 - lifetimeTotal) * 0.075 * 100);
                                     secondFee = Math.round((totalAmount - 10000) * 0.0375 * 100);
-                                    /* console.log('10000+')
-                                    console.log('first fee: ' + firstFee)
-                                    console.log('second fee: ' + secondFee) */
-
                                     userFee = firstFee + secondFee;
                                 }
                             } else if (lifetimeTotal > 10000) {
                                 userFee = Math.round(amount * 0.0375 * 100);
                             }
-                            /* } else {
-                                if (amount <= 500) {
-                                    userFee = Math.round(amount * 0.15 * 100);
-                                } else if (amount > 500 && amount <= 10000) {
-                                    firstFee = Math.round(500 * 0.15 * 100);
-                                    //console.log('500 - 10000');
-                                    secondFee = Math.round((amount - 500) * 0.075 * 100);
-                                    //console.log('first fee: ' + firstFee)
-                                    //console.log('second fee: ' + secondFee)
-                                    
-                                    userFee = firstFee + secondFee;
-                                } else if (amount > 10000) {
-                                    firstFee = Math.round(500 * 0.15 * 100);
-                                    secondFee = Math.round(9500 * 0.075 * 100);
-                                    thirdFee = Math.round((amount - 10000) * 0.0375 * 100);
-                                    //console.log('10000+')
-                                    //console.log('first fee: ' + firstFee)
-                                    //console.log('second fee: ' + secondFee)
-                                    //console.log('third fee: ' + thirdFee)
-
-                                    userFee = firstFee + secondFee + thirdFee;
-                                }
-                            } */
-
-                            console.log('user fee: ' + userFee);
-                            console.log('client fee: ' + clientFee);
-
+                            
                             let chargeAmount = amount * 100 + clientFee;
                     
                             let chargeObj = {
@@ -1191,7 +1147,6 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
 
                             let charge = await stripe.charges.create(chargeObj)
                             .catch(err => error.log(err, req, resp));
-                            //console.log(charge);
 
                             let milestone = await client.query(`UPDATE job_milestones SET milestone_status = 'In Progress', charge_id = $2, milestone_fund_due_date = to_timestamp($3) + interval '90 days', milestone_start_date = to_timestamp($3), balance_txn_id = $4, milestone_payment_after_fees = $5, client_app_fee = $6, user_app_fee = $7, app_fee_id = $8 WHERE milestone_id = $1 RETURNING *`, [
                                 req.body.id, 

@@ -316,9 +316,8 @@ app.post('/api/jobs/summary', authenticate, (req, resp) => {
                     AND job_client = $1
                     GROUP BY job_price_currency
                 ) AS pt ON pt.job_price_currency = jobs.job_price_currency
+                WHERE jobs.job_status NOT IN ('Open', 'New', 'Pending', 'Declined')
                 GROUP BY jobs.job_price_currency, uft.total_user_fee, cft.total_client_fee, et.total_earnings, pt.total_payment`, [req.session.user.username]);
-
-
 
                 await client.query('COMMIT')
                 .then(() => resp.send({

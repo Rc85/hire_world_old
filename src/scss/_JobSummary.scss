@@ -3,3 +3,16 @@
     justify-content: space-between;
     align-items: flex-start;
 }
+
+.job-summary-price-container {
+    display: flex;
+}
+
+.job-summary-details-link {
+    color: $theme-alt-highlight;
+    font-weight: bold;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}

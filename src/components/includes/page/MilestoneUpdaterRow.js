@@ -218,7 +218,7 @@ class MilestoneUpdaterRow extends Component {
     }
 
     openFileBrowser() {
-        if (this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Abandoned' || this.state.milestone.milestone_status === 'Unpaid') {
+        if (this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Incomplete' || this.state.milestone.milestone_status === 'Unpaid') {
             return false;
         } else {
             this.fileUploader.click();
@@ -259,7 +259,7 @@ class MilestoneUpdaterRow extends Component {
                     this.setState({status: '', showDetails: false});
                     this.props.dispatch(Alert('error', 'An error occurred'));
                 });
-            } else if ((this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Payment Sent' || this.state.milestone.milestone_status === 'Unpaid') && this.state.milestone.balance) {
+            } else if ((this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Payment Sent' || this.state.milestone.milestone_status === 'Unpaid' || this.state.milestone.milestone_status === 'Incomplete') && this.state.milestone.balance) {
                 this.setState({showDetails: true});
             }
         } else {
@@ -274,7 +274,6 @@ class MilestoneUpdaterRow extends Component {
 
             fetch.post('/api/job/pay', {milestone_id: this.state.milestone.milestone_id, job_modified_date: this.props.job.job_modified_date})
             .then(resp => {
-                console.log(resp);
                 if (resp.data.status === 'success') {
                     this.setState({status: '', milestone: resp.data.milestone});
                 } else if (resp.data.status === 'error') {
@@ -296,7 +295,6 @@ class MilestoneUpdaterRow extends Component {
     }
         
     render() {
-        console.log(this.state)
         let fundStatus, details, payoutStatus
 
         if (this.state.milestone.balance && this.state.showDetails) {
@@ -320,7 +318,7 @@ class MilestoneUpdaterRow extends Component {
                 <div className='milestone-tracking-details'>
                     {this.state.milestone.milestone_status === 'In Progress' || this.state.milestone.milestone_status === 'Requesting Payment' ? <div className='detail-child'><strong>Balance: </strong> {this.state.milestone.balance ? <span>$<MoneyFormatter value={this.state.milestone.balance.net / 100} /> {this.state.milestone.balance.currency.toUpperCase()}</span> : ''} {fundStatus}</div> : ''}
 
-                    {!isNaN(moment(this.state.milestone.milestone_fund_due_date).diff(moment(), 'days')) && this.state.milestone.milestone_status !== 'Complete' && this.state.milestone.milestone_status !== 'Unpaid' && this.state.milestone.milestone_status === 'Abandoned' && this.state.milestone.milestone_status !== 'Payment Sent' ? <div className='detail-child'><strong>Days Remaining: </strong> {moment(this.state.milestone.milestone_fund_due_date).diff(moment(), 'days')}</div> : ''}
+                    {!isNaN(moment(this.state.milestone.milestone_fund_due_date).diff(moment(), 'days')) && this.state.milestone.milestone_status !== 'Complete' && this.state.milestone.milestone_status !== 'Unpaid' && this.state.milestone.milestone_status === 'Incomplete' && this.state.milestone.milestone_status !== 'Payment Sent' ? <div className='detail-child'><strong>Days Remaining: </strong> {moment(this.state.milestone.milestone_fund_due_date).diff(moment(), 'days')}</div> : ''}
 
                     {this.state.milestone.balance.status === 'pending' ? <div className='detail-child'><strong>Available on:</strong> {moment(this.state.milestone.balance.available_on * 1000).format('MM-DD-YYYY')}</div> : ''}
 
@@ -456,7 +454,7 @@ class MilestoneUpdaterRow extends Component {
                                 <div className='mr-1'><Tooltip text={<React.Fragment>
                                     <li className='ml-2'>.zip, .rar, .tar.gz, .gz, .tgz</li>
                                     <li className='ml-2'>Max 250 GB</li>
-                                </React.Fragment>} placement='bottom-right' disabled={this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Abandoned'}><SubmitButton type='button' loading={this.state.status === 'Uploading File'} value='Upload File' className='opaque' onClick={() => this.openFileBrowser()} disabled={this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Incomplete' || this.state.milestone.milestone_status === 'Unpaid'} /></Tooltip></div>
+                                </React.Fragment>} placement='bottom-right' disabled={this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Incomplete'}><SubmitButton type='button' loading={this.state.status === 'Uploading File'} value='Upload File' className='opaque' onClick={() => this.openFileBrowser()} disabled={this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Incomplete' || this.state.milestone.milestone_status === 'Unpaid'} /></Tooltip></div>
 
                                 <button className='btn btn-info' onClick={this.toggleDetails.bind(this)}><FontAwesomeIcon icon={this.state.showDetails ? faCaretUp : faCaretDown} /></button>
                             </div>

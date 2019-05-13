@@ -4,13 +4,10 @@ const app = express();
 const bodyParser = require('body-parser');
 const http = require('http');
 const session = require('cookie-session');
-const controller = require('./modules/utils/controller');
 const server = http.createServer(app);
 const db = require('./modules/db');
-const cryptoJS = require('crypto-js');
 const sgMail = require('@sendgrid/mail');
 const error = require('./modules/utils/error-handler');
-const request = require('request');
 let port = process.env.PORT;
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -88,95 +85,8 @@ app.use(require('./modules/api/jobs'));
 app.use(require('./modules/api/posts'));
 
 app.get('/*', async(req, resp) => {
-    /* let announcements = await db.query(`SELECT * FROM announcements`); */
-
     resp.sendFile(__dirname + '/dist/app.html');
 });
-
-/* app.get('/pricing', async(req, resp) => {
-    let promo = await db.query(`SELECT * FROM promotions WHERE promo_status = 'Active'`)
-    .then(result => {
-        if (result) {
-            return result.rows[0];
-        }
-    })
-    .catch(err => console.log(err));
-
-    resp.render('pricing', {promo: promo, user: req.session.user});
-});
-
-app.get('/how-it-works', (req, resp) => {
-    resp.render('how', {user: req.session.user});
-});
-
-app.get('/features', (req, resp) => {
-    resp.render('features', {user: req.session.user});
-});
-
-app.get('/faq', (req, resp) => {
-    resp.render('faq', {user: req.session.user});
-});
-
-app.get('/register', (req, resp) => {
-    if (req.session.user) {
-        resp.redirect('/app');
-    } else {
-        resp.render('register');
-    }
-});
-
-app.get('/register/success', (req, resp) => {
-    resp.render('response', {header: 'Registration Successful', message: 'A verification email has been sent. Please click the link provided to activate your account.'});
-});
-
-app.get('/resend-confirmation', (req, resp) => {
-    resp.render('resend');
-});
-
-app.get('/support', (req, resp) => {
-    resp.render('support');
-});
-
-app.get('/about', (req, resp) => {
-    resp.render('about');
-});
-
-app.get('/tos', (req, resp) => {
-    resp.render('tos');
-});
-
-app.get('/privacy', (req, resp) => {
-    resp.render('privacy');
-});
-
-app.get('/advertise', (req, resp) => {
-    resp.render('advertise');
-});
-
-app.get('/contact', (req, resp) => {
-    resp.render('contact');
-});
-
-app.post('/contact-form', (req, resp) => {
-    let message = {
-        to: 'admin@hireworld.ca',
-        from: `${req.body.name} <${req.body.email}>`,
-        subject: req.body.subject,
-        text: req.body.message,
-        trackingSettings: {
-            clickTracking: {
-                enable: false
-            }
-        }
-    }
-
-    sgMail.send(message)
-    .then(() => resp.render('response', {header: 'Message Sent', message: 'Thank you for writing to us. If your message expects a response, we will respond as soon as we can.'}))
-    .catch(err => {
-        console.log(err);
-        resp.render('response', {header: '500 Internal Server Error', message: 'An error occurred while trying to deliver your message. Please try again later.'});
-    });
-}); */
 
 app.post('/api/site/review', (req, resp) => {
     db.query(`INSERT INTO site_review (reviewer, rating) VALUES ($1, $2)`, [req.session.user.username, req.body.stars])
@@ -189,10 +99,6 @@ app.post('/api/site/review', (req, resp) => {
     })
     .catch(err => error.log(err, req, resp));
 });
-
-/* app.get(/^\/(app|app(\/)?.*)?/, (req, resp) => {
-    resp.sendFile(__dirname + '/dist/app.html');
-}); */
 
 app.post('/api/pin', async(req, resp) => {
     if (req.session.user) {
@@ -290,24 +196,9 @@ app.use(require('./modules/admin/listings'));
 app.use(require('./modules/admin/reports'));
 app.use(require('./modules/admin/configs'));
 
-/* app.use('/api/dev', (req, resp, next) => {
-    if (req.session.user && req.session.user.userLevel > 90) {
-        next();
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not authorized`});
-    }
-});
-
-app.use(require('./modules/admin/errors')); */
-
-/* app.get('*', (req, resp) => {
-    console.log('here');
-    resp.sendFile(`${__dirname}/dist/index.html`);
-}); */
-
 app.use(require('./modules/webhooks'));
 
-server.listen(port, '0.0.0.0', (err) => {
+server.listen(port, (err) => {
     if (err) {
         console.log(err);
     } else {

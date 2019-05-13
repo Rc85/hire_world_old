@@ -88,7 +88,6 @@ class VerifyPayment extends Component {
     }
     
     render() {
-        console.log(this.props.user)
         let payments, addressInput;
 
         if (this.state.status === 'Getting Payments') {

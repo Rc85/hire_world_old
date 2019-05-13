@@ -60,11 +60,11 @@ class NotificationPanel extends Component {
 
         if (this.state.status === 'error') {
             message = this.state.statusMessage;
-        } else if (this.state.status === 'Loading') {
-            notifications = <div className='text-center'><FontAwesomeIcon icon={faCircleNotch} size='3x' spin /></div>;
         }
         
-        if (this.state.notifications.length > 0) {
+        if (this.state.status === 'Loading') {
+            notifications = <div className='text-center'><FontAwesomeIcon icon={faCircleNotch} size='3x' spin /></div>;
+        } else if (this.state.notifications.length > 0) {
             notifications = this.state.notifications.map((n, i) => {
                 let notification_icon;
 

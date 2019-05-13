@@ -149,7 +149,6 @@ class Username extends Component {
     }
 
     render() {
-        console.log(this.state)
         let popup, friendIcon, blockedIcon;
 
         if (this.props.user.user) {

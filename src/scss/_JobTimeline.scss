@@ -20,10 +20,15 @@
     margin-top: 15px;
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
+    background: $theme-blue;
 
     &.show {
         opacity: 1;
     }
+}
+
+.job-timeline-month-detail-wrapper {
+    width: 50%;
 }
 
 #job-timeline-month-container {
@@ -42,7 +47,7 @@
     &.show {
         max-height: 100%;
         opacity: 1;
-        overflow: '';
+        overflow: 'auto';
 
         #job-timeline-line {
             max-height: 100%;

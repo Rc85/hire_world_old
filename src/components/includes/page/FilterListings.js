@@ -79,7 +79,7 @@ class FilterListings extends Component {
         if (this.props.config.mobile && !this.state.show) {
             document.body.style.overflowY = 'hidden';
         } else if (this.props.config.mobile && this.state.show) {
-            document.body.style.overflowY = '';
+            document.body.style.overflowY = 'auto';
         }
 
         this.setState({show: !this.state.show});

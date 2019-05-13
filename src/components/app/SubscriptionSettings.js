@@ -46,7 +46,6 @@ class SubscriptionSettings extends Component {
     componentDidMount() {
         fetch.post('/api/get/user/subscription')
         .then(resp => {
-            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', subscription: resp.data.subscription, plans: resp.data.plans.data});
             } else if (resp.data.status === 'error') {

@@ -3036,9 +3036,14 @@
   margin-top: 15px;
   opacity: 0;
   transition: opacity 0.5s ease-in-out;
+  background: #2F496E;
 }
 #job-timeline-month-detail.show {
   opacity: 1;
+}
+
+.job-timeline-month-detail-wrapper {
+  width: 50%;
 }
 
 #job-timeline-month-container {
@@ -3057,7 +3062,7 @@
 #job-timeline-month-container.show {
   max-height: 100%;
   opacity: 1;
-  overflow: "";
+  overflow: "auto";
 }
 #job-timeline-month-container.show #job-timeline-line {
   max-height: 100%;
@@ -4391,7 +4396,7 @@ footer {
   position: absolute;
   width: 100%;
   z-index: 2;
-  box-shadow: 5px 5px 10px #2A2A2A;
+  box-shadow: 0px 5px 10px #2A2A2A;
   transition: padding 0.1s ease-in-out;
   transition-delay: 0.25s;
 }
@@ -4407,7 +4412,7 @@ footer {
   background-color: #2F496E;
   max-height: 75vh;
   transition: max-height 0.1s ease-in-out;
-  overflow: hidden;
+  overflow: auto;
   width: 95%;
   margin: 0 auto 0 auto;
 }
@@ -4424,6 +4429,7 @@ footer {
 }
 #search-field-container.hide {
   max-height: 0;
+  overflow: hidden;
 }
 
 #search-toggler {
@@ -4662,6 +4668,18 @@ footer {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+}
+
+.job-summary-price-container {
+  display: flex;
+}
+
+.job-summary-details-link {
+  color: #7dd2ff;
+  font-weight: bold;
+}
+.job-summary-details-link:hover {
+  text-decoration: underline;
 }
 
 #login {
@@ -5784,6 +5802,11 @@ footer {
   flex-grow: 1;
 }
 
+.view-user-title-container {
+  display: flex;
+  align-items: flex-start;
+}
+
 .view-user-title-wrapper {
   display: flex;
   justify-content: space-between;
@@ -6802,7 +6825,7 @@ footer {
   }
 
   #search-field-container {
-    max-height: calc(100vh - 90px);
+    max-height: calc(100vh - 110px);
   }
   #search-field-container .d-flex-between-center, #search-field-container .d-flex-between-start {
     flex-direction: column;
@@ -7023,6 +7046,38 @@ footer {
   .listing-row-main a {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .job-summary-stats-container, .job-summary-price-container {
+    flex-direction: column;
+  }
+
+  .job-timeline-container, .job-timeline-detail {
+    width: 100%;
+  }
+
+  #job-timeline-month-detail {
+    box-shadow: 0 5px 10px black;
+  }
+
+  .job-timeline-month-detail-wrapper {
+    position: absolute;
+    top: 100px;
+    left: 0;
+    width: 100%;
+  }
+
+  .job-timeline-month-job-div {
+    padding-left: 0;
+  }
+
+  .job-timeline-detail-container {
+    flex-direction: column;
+  }
+
+  .view-user-title-container {
+    flex-direction: column;
+    align-items: center;
   }
 
   .listing-row-title {

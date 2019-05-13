@@ -149,7 +149,6 @@ class MilestoneTrackingRow extends Component {
     }
     
     render() {
-        console.log(this.state)
         let status, fundStatus;
         let complete = [];
 

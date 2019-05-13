@@ -35,20 +35,15 @@ app.post('/stripe-webhooks/subscription/notification', async(req, resp) => {
                 throw err;
             });
 
-            console.log(event);
-
             if (user.rows.length === 1) {
                 if (event.type === 'customer.subscription.trial_will_end') {
-                    console.log(user.rows)
                     if (user.rows[0].referral_status === 'Activated' && user.rows[0].is_eligible) {
                         let trialEnd = moment(user.rows[0].subscription_end_date).add(3, 'days').unix();
-                        console.log(trialEnd)
 
                         await stripe.subscriptions.update(user.rows[0].subscription_id, {
                             trial_end: trialEnd
                         })
                         .then(async subscription => {
-                            console.log(subscription);
                             await db.query(`UPDATE subscriptions SET subscription_end_date = to_timestamp($1) WHERE subscription_id = $2`, [trialEnd, subscription.id])
                             .catch(err => {
                                 return err;
@@ -114,9 +109,7 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
         error.log(err, req);
         return resp.status(400).end();
     });
-    
-    console.log(event);
-    
+        
     if (loggedEvent.rows.length === 1 && (loggedEvent.rows[0].event_status === 'Processing' || loggedEvent.rows[0].event_status === 'Processed')) {
         resp.status(409).end();
     } else {
@@ -269,8 +262,6 @@ app.post('/stripe-webhooks/payout', async(req, resp) => {
         error.log(err, req);
         return resp.status(400).end();
     });
-
-    console.log(event);
 
     if (loggedEvent.rows.length === 1 && (loggedEvent.rows[0].event_status === 'Processing' || loggedEvent.rows[0].event_status === 'Processed')) {
         resp.status(409).end();

@@ -2,7 +2,6 @@ module.exports = (value) => {
     let valueToCompare = parseFloat(value);
     let valueString = valueToCompare.toFixed(2);
     let val;
-    console.log(valueToCompare, valueString)
 
     // Hundreds
     if (valueToCompare < 1000) {

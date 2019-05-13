@@ -287,7 +287,6 @@ app.post('/api/user/subscription/add', authenticate, (req, resp) => {
         .catch(err => {
             return error.log(err, req, resp);
         });
-        console.log(req.body);
 
         if (plans.indexOf(req.body.plan) < 0) {
             resp.send({status: 'error', statusMessage: `That plan does not exist`});
@@ -604,7 +603,6 @@ app.post('/api/user/payment/delete', authenticate, (req, resp) => {
                     LEFT JOIN subscriptions ON users.username = subscriptions.subscriber
                     WHERE username = $1`, [req.session.user.username]);
 
-                    console.log(user.rows)
 
                     if (user && user.rows[0].stripe_id) {
                         let customer = await stripe.customers.retrieve(user.rows[0].stripe_id);

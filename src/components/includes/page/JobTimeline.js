@@ -34,9 +34,12 @@ class JobTimeline extends Component {
 
         this.setState({jobDetails: job});
     }
+
+    closeDetails() {
+        this.setState({jobDetails: null});
+    }
     
     render() {
-        console.log(this.props.jobs)
         let status, monthDiv;
 
         if (this.props.status === 'Getting Jobs') {
@@ -84,8 +87,6 @@ class JobTimeline extends Component {
                 }
             });
 
-            console.log(months);
-
             monthDiv = months.map((month, i) => {
                 let jobs = [];
 
@@ -118,8 +119,6 @@ class JobTimeline extends Component {
             });
         }
 
-        //console.log(months[4].jobs);
-
         return (
             <div id='job-timeline'>
                 <div className='d-flex-between-start'>
@@ -140,7 +139,7 @@ class JobTimeline extends Component {
                         </div>      
                     </div>
 
-                    <div className='w-50' ref={e => this.jobDetails = e}>{this.state.jobDetails ? <JobTimelineDetails job={this.state.jobDetails} /> : ''}</div>
+                    <div className='job-timeline-month-detail-wrapper' ref={e => this.jobDetails = e}>{this.state.jobDetails ? <JobTimelineDetails job={this.state.jobDetails} close={this.closeDetails.bind(this)} /> : ''}</div>
                 </div>
             </div>
         );

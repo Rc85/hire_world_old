@@ -54,7 +54,6 @@ class Register extends Component {
     }
     
     render() {
-        console.log(this.state);
         if (this.state.status === 'Registered') {
             return <Redirect to='/registration/success' />;
         }

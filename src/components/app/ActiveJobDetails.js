@@ -10,15 +10,11 @@ import moment from 'moment';
 import Username from '../includes/page/Username';
 import MessageSender from '../includes/page/MessageSender';
 import JobMessageRow from '../includes/page/JobMessageRow';
-import MilestoneCreator from '../includes/page/MilestoneCreator';
-import { ShowConfirmation, ResetConfirmation, HideConfirmation } from '../../actions/ConfirmationActions';
+import { ShowConfirmation, ResetConfirmation } from '../../actions/ConfirmationActions';
 import { connect } from 'react-redux';
-import MilestoneDetails from '../includes/page/MilestoneDetails';
 import { NavLink } from 'react-router-dom';
 import Loading from '../utils/Loading';
 import { Alert } from '../../actions/AlertActions';
-import VerifyPayment from '../includes/page/VerifyPayment';
-import { StripeProvider, Elements } from 'react-stripe-elements';
 import MilestoneTrackingRow from '../includes/page/MilestoneTrackingRow';
 import MilestoneUpdaterRow from '../includes/page/MilestoneUpdaterRow';
 import SubmitReview from '../includes/page/SubmitReview';
@@ -193,7 +189,6 @@ class ActiveJobDetails extends Component {
     }
     
     render() {
-        console.log(this.state)
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {

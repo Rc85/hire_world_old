@@ -17,12 +17,19 @@ class JobTimelineDetails extends Component {
     
     componentDidMount() {
         setTimeout(() => {
-            this.setState({showDetails: true})
+            this.setState({showDetails: true});
         }, 250);
+    }
+
+    close() {
+        this.setState({showDetails: false});
+        
+        setTimeout(() => {
+            this.props.close();
+        }, 500);
     }
     
     render() {
-        console.log(this.props.job);
         return (
             <div id='job-timeline-month-detail' className={`simple-container no-bg ${this.state.showDetails ? 'show' : ''}`}>
                 <div className='simple-container-title'>{this.props.job.job_title}</div>
@@ -61,7 +68,10 @@ class JobTimelineDetails extends Component {
                     <div className='keep-format'>{this.props.job.job_description}</div>
                 </div>
 
-                <div className='text-right'><NavLink to={`/dashboard/job/details/${this.props.job.job_status.toLowerCase()}/${this.props.job.job_id}`}>View Job</NavLink></div>
+                <div className='text-right'>
+                    <span className='mr-2'><NavLink to={`/dashboard/job/details/${this.props.job.job_status.toLowerCase()}/${this.props.job.job_id}`}>View Job</NavLink></span>
+                    <span className='job-summary-details-link' onClick={this.close.bind(this)}>Close</span>
+                </div>
 
                 <div className='text-right'><small className='text-dark'>Job ID: {this.props.job.job_id}</small></div>
             </div>

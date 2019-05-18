@@ -3,13 +3,13 @@ import { Route, withRouter, Switch, NavLink, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { GetSession, GetUserNotificationAndMessageCount, GetSectors } from './actions/FetchActions';
 import { RemoveAlert } from './actions/AlertActions';
-import * as Pages from './components/app';
+import * as Pages from './app/index';
 import Confirmation from './components/utils/Confirmation';
 import Alert from './components/utils/Alert';
 import Prompt from './components/utils/Prompt';
 import Warning from './components/utils/Warning';
-import Footer from './components/includes/site/Footer';
-import ReviewHireWorld from './components/includes/page/ReviewHireWorld';
+import Footer from './components/Footer';
+import ReviewHireWorld from './components/ReviewHireWorld';
 import { StripeProvider, Elements } from 'react-stripe-elements';
 import CheckoutConfirmation from './components/utils/CheckoutConfirmation';
 import fetch from 'axios';
@@ -19,10 +19,10 @@ import { ToggleMenu } from './actions/MenuActions';
 import GlobalLoading from './components/utils/GlobalLoading';
 import SelectionModal from './components/utils/SelectionModal';
 import Loading from './components/utils/Loading';
-import Site from './components/site/Site';
-import Main from './components/site/Main';
-import Features from './components/site/Features';
-import Pricing from './components/site/Pricing';
+import Site from './site/Site';
+import Main from './site/Main';
+import Features from './site/Features';
+import Pricing from './site/Pricing';
 
 class App extends Component {
 	constructor(props) {

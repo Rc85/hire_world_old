@@ -299,7 +299,7 @@ class OpenJobDetails extends Component {
                             {this.state.job.job_total_price ? <div className='mr-2'><FontAwesomeIcon icon={faUsdSquare} className='text-special mr-1' /><strong>Total Payment:</strong> $<MoneyFormatter value={this.state.job.job_total_price} /> {this.state.job.job_price_currency}</div> : ''}
                         </div>
 
-                        {this.props.user.user && this.props.user.user.username === this.state.job.job_client ? <button className='btn btn-info' onClick={() => this.setState({edit: true})}>Edit</button> : ''}
+                        {this.props.user.user && this.props.user.user.username === this.state.job.job_client ? <button className='btn btn-primary' onClick={() => this.setState({edit: true})}>Edit</button> : ''}
                     </div>
 
                     {details}

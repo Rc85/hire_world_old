@@ -40,7 +40,7 @@ class MilestoneDetails extends Component {
                 <div className='simple-container-title'>Agreement</div>
 
                 <div className='milestone-agreement-buttons mb-3'>
-                    <div><FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /><strong>Milestone Created:</strong> {moment.utc(this.props.job.milestones_created_date).format('MM-DD-YYYY')}</div>
+                    <div><FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /><strong>Milestone Created:</strong> {moment.utc(this.props.job.milestone_created_date).format('MM-DD-YYYY')}</div>
 
                     <div>
                         {this.props.user.user && this.props.user.user.username === this.props.job.job_user

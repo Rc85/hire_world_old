@@ -14,11 +14,11 @@ class JobProposal extends Component {
         super(props);
         
         this.state = {
-            workDescription: this.props.job.job_description ? this.props.job.job_description : '',
-            workTitle: this.props.job.job_title ? this.props.job.job_title : '',
-            workDueDate: this.props.job.job_due_dte ? moment(this.props.job.job_due_date) : null,
-            offerPrice: this.props.job.job_offer_price ? this.props.job.job_offer_price : '',
-            priceCurrency: this.props.job.job_price_currency ? this.props.job.job_price_currency : ''
+            workDescription: this.props.job && this.props.job.job_description ? this.props.job.job_description : '',
+            workTitle: this.props.job && this.props.job.job_title ? this.props.job.job_title : '',
+            workDueDate: this.props.job && this.props.job.job_due_dte ? moment(this.props.job.job_due_date) : null,
+            offerPrice: this.props.job && this.props.job.job_offer_price ? this.props.job.job_offer_price : '',
+            priceCurrency: this.props.job && this.props.job.job_price_currency ? this.props.job.job_price_currency : ''
         }
     }
     

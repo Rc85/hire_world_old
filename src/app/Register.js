@@ -85,19 +85,15 @@ class Register extends Component {
                                 <InputWrapper label='Username' required>
                                     <input type='text' onChange={(e) => this.setState({username: e.target.value})} required minLength='5' maxLength='25' placeholder='5 - 25 alphanumeric, dash, and underscore allowed' />
                                 </InputWrapper>
-
-                                <InputWrapper label='Profession Title' required>
-                                    <input type='text' onChange={(e) => this.setState({title: e.target.value})} required maxLength='40' placeholder='eg. - Auto Mechanic, Tutor, etc.' />
-                                </InputWrapper>
                             </div>
         
                             <div className='setting-field-container mb-3' required>
                                 <InputWrapper label='Password'>
-                                    <input type='password' onChange={(e) => this.setState({password: e.target.value})} required minLength='6' maxLength='20' />
+                                    <input type='password' onChange={(e) => this.setState({password: e.target.value})} required minLength='8' maxLength='20' placeholder='Minimum 8 characters' />
                                 </InputWrapper>
                                 
                                 <InputWrapper label='Confirm Password' required>
-                                    <input type='password' onChange={(e) => this.setState({confirmPassword: e.target.value})} required minLength='6' maxLength='20' />
+                                    <input type='password' onChange={(e) => this.setState({confirmPassword: e.target.value})} required minLength='8' maxLength='20' />
                                 </InputWrapper>
                             </div>
         

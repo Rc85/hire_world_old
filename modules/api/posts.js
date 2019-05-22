@@ -1,10 +1,10 @@
 const app = require('express').Router();
-const db = require('../db');
+const db = require('../../pg_conf');
 const validate = require('../utils/validate');
 const request = require('request');
 const error = require('../utils/error-handler');
 const sgMail = require('@sendgrid/mail');
-const authenticate = require('../utils/auth');
+const authenticate = require('../../middlewares/auth');
 const moment = require('moment');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -43,6 +43,7 @@ app.post('/api/post/job', authenticate, (req, resp) => {
         } else if (!validate.locationCheck.test(req.body.country)) {
             resp.send({status: 'error', statusMessage: 'Invalid country'});
         } else if (!validate.locationCheck.test(req.body.region)) {
+            console.log(req.body.region)
             resp.send({status: 'error', statusMessage: 'Invalid region'});
         } else if (!validate.locationCheck.test(req.body.city)) {
             resp.send({status: 'error', statusMessage: 'Invalid city'});

@@ -9,12 +9,13 @@ import PropTypes from 'prop-types';
  * @param {Function} onClick The click event for each page 
  */
 const Pagination = props => {
+    console.log(props);
     let pages = [];
     let currentPage = props.currentPage + 1;
 
-    if (props.totalItems === 0) {
+    if (props.totalItems / props.itemsPerPage <= 0) {
         pages.push(<div key={1} className={`page-number active`}>1</div>);
-    } else {
+    } else if (props.totalItems / props.itemsPerPage > 0) {
         for (let i = 0; i < props.totalItems / props.itemsPerPage; i++) {
             let page;
 

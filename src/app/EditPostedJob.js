@@ -71,6 +71,7 @@ class EditPostedJob extends Component {
     componentDidMount() {
         fetch.post('/api/get/posted/job/details', {id: this.props.match.params.id})
         .then(resp => {
+            console.log(resp);
             if (resp.data.status === 'success') {
                 let state = {
                     status: '',
@@ -199,6 +200,7 @@ class EditPostedJob extends Component {
     }
     
     render() {
+        console.log(this.state);
         if (this.state.status === 'authorized') {
             return <Redirect to='/error/app/401' />;
         } else if (this.state.status === 'forbidden') {

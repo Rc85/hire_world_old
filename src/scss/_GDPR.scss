@@ -1,0 +1,17 @@
+.floating-container {
+    padding: 20px;
+    background-color: $theme-lightgrey;
+    box-shadow: 0 0 10px $not-black;
+    border-color: 1px solid black;
+    position: fixed;
+    transform: translateX(50%);
+    transform-origin: center;
+    z-index: 50;
+    bottom: 20px;
+    width: 50%;
+    color: black;
+
+    a {
+        color: $theme-highlight;
+    }
+}

@@ -1,5 +1,5 @@
-const db = require('../db');
-const error = require('./error-handler');
+const db = require('../pg_conf');
+const error = require('../modules/utils/error-handler');
 
 module.exports = async(req, resp, next) => {
     await db.query(`SELECT subscription_name FROM subscriptions WHERE subscriber = $1 AND subscription_end_date >= current_timestamp`, [req.session.user.username])

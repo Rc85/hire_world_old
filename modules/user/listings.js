@@ -1,8 +1,8 @@
 const app = require('express').Router();
-const db = require('../db');
+const db = require('../../pg_conf');
 const validate = require('../utils/validate');
 const error = require('../utils/error-handler');
-const authenticate = require('../utils/auth');
+const authenticate = require('../../middlewares/auth');
 
 app.post('/api/listing/toggle', authenticate, async(req, resp) => {
     let listing = await db.query(`SELECT listing_status FROM user_listings WHERE listing_user = $1`, [req.session.user.username]);

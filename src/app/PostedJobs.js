@@ -13,6 +13,7 @@ import Username from '../components/Username';
 import SlideToggle from '../components/utils/SlideToggle';
 import moment from 'moment';
 import { Alert } from '../actions/AlertActions';
+import Pagination from '../components/utils/Pagination';
 
 class PostedJobs extends Component {
     constructor(props) {
@@ -20,15 +21,35 @@ class PostedJobs extends Component {
         
         this.state = {
             status: 'Loading',
-            jobs: []
+            jobs: [],
+            offset: 0
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.offset !== this.state.offset) {
+            this.setState({status: 'Fetching'});
+            
+            fetch.post('/api/get/posted/jobs', {offset: this.state.offset})
+            .then(resp => {
+                if (resp.data.status === 'success') {
+                    this.setState({status: '', jobs: resp.data.jobs, totalPosts: parseInt(resp.data.totalPosts)});
+                } else if (resp.data.status === 'error') {
+                    this.setState({status: 'error'});
+                }
+            })
+            .catch(err => {
+                LogError(err, '/api/get/posted/jobs');
+                this.setState({status: 'error'});
+            });
         }
     }
     
     componentDidMount() {
-        fetch.post('/api/get/posted/jobs')
+        fetch.post('/api/get/posted/jobs', {offset: this.state.offset})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', jobs: resp.data.jobs});
+                this.setState({status: '', jobs: resp.data.jobs, totalPosts: parseInt(resp.data.totalPosts)});
             } else if (resp.data.status === 'error') {
                 this.setState({status: 'error'});
             }
@@ -69,24 +90,35 @@ class PostedJobs extends Component {
             this.props.dispatch(Alert('error', 'An error occurred'));
         });
     }
+
+    handlePagination(i) {
+        this.setState({offset: i * 25});
+    }
     
     render() {
+        let status;
+
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
             return <Redirect to='/main' />;
-        }
-        
-        if (this.state.status === 'Loading') {
+        } else if (this.state.status === 'Loading') {
             return <Loading size='7x' color='black' />;
         } else if (this.state.status === 'error') {
             return <Redirect to='/error/app/500' />;
+        } else if (this.state.status === 'Fetching') {
+            status = <FontAwesomeIcon icon={faCircleNotch} size='5x' spin />;
         }
         
         if (this.props.user.user) {
             return (
                 <section id='posted-jobs' className='main-panel'>
                     <TitledContainer title='Posted Jobs' bgColor='violet' icon={<FontAwesomeIcon icon={faFolderOpen} />} shadow>
+                        {status}
+                        {this.state.totalPosts > 0 ? <React.Fragment>
+                            <Pagination totalItems={this.state.totalPosts} currentPage={this.state.offset / 25} itemsPerPage={25} onClick={this.handlePagination.bind(this)} />
+                            <hr/>
+                        </React.Fragment> : ''}
                         {this.state.jobs.map((job, i) => {
                             let local, remote, online;
 
@@ -123,6 +155,10 @@ class PostedJobs extends Component {
                             <SlideToggle status={job.job_post_status === 'Active'} onClick={() => this.toggleJob(job.job_post_id, job.job_post_status, i)} /></React.Fragment>}
                             />
                         })}
+                        {this.state.totalPosts > 0 ? <React.Fragment>
+                            <hr/>
+                            <Pagination totalItems={this.state.totalPosts} currentPage={this.state.offset / 25} itemsPerPage={25} onClick={this.handlePagination.bind(this)} />
+                        </React.Fragment> : ''}
                     </TitledContainer>
                 </section>
             );

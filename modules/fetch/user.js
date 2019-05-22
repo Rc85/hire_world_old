@@ -1,9 +1,9 @@
 const app = require('express').Router();
-const db = require('../db');
+const db = require('../../pg_conf');
 const error = require('../utils/error-handler');
 const stripe = require('stripe')(process.env.STRIPE_API_KEY);
-const controller = require('../utils/controller');
-const authenticate = require('../utils/auth');
+const blockedUsers = require('../../controllers/blocked_users');
+const authenticate = require('../../middlewares/auth');
 
 app.post('/api/get/user', async(req, resp) => {
     db.connect((err, client, done) => {
@@ -136,7 +136,6 @@ app.get('/api/get/user/notification-message-job-count', authenticate, async(req,
         AND (conversation_recipient = $1 OR conversation_starter = $1)
         AND NOT conversation_id = ANY($2)`, [req.session.user.username, deletedConversationsArray]);
 
-        let proposalCount = await db.query(`SELECT COUNT(job_id) AS proposal_count FROM jobs WHERE job_user = $1 AND job_status = 'New'`, [req.session.user.username]);
         let jobMessageCount = await db.query(`SELECT 
             (
                 SELECT COUNT(job_message_id) AS opened_job_message_count FROM job_messages
@@ -158,7 +157,7 @@ app.get('/api/get/user/notification-message-job-count', authenticate, async(req,
         }
 
         if (notifications && messages) {
-            resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0].message_count, proposalCount: proposalCount.rows[0].proposal_count, jobMessageCount: jobMessageCount.rows[0]});
+            resp.send({status: 'success', notifications: notifications.rows[0].notification_count, messages: messages.rows[0].message_count, jobMessageCount: jobMessageCount.rows[0]});
         } else {
             resp.send({status: 'error', statusMessage: 'An error occurred'});
         }
@@ -218,39 +217,39 @@ app.post('/api/get/user/subscription', authenticate, async(req, resp) => {
 });
 
 app.post('/api/get/user/activities', authenticate, (req, resp) => {
-        db.connect((err, client, done) => {
-            if (err) error.log(err, req, resp);
+    db.connect((err, client, done) => {
+        if (err) error.log(err, req, resp);
 
-            (async() => {
-                try {
-                    await client.query('BEGIN');
+        (async() => {
+            try {
+                await client.query('BEGIN');
 
-                    let notifications = [];
-                    let activities = [];
+                let notifications = [];
+                let activities = [];
 
-                    let notificationCount = await client.query(`SELECT COUNT(notification_id) AS notification_count FROM notifications WHERE notification_recipient = $1`, [req.session.user.username]);
-                    let activityCount = await client.query(`SELECT COUNT(activity_id) AS activity_count FROM activities WHERE activity_user = $1`, [req.session.user.username]);
+                let notificationCount = await client.query(`SELECT COUNT(notification_id) AS notification_count FROM notifications WHERE notification_recipient = $1`, [req.session.user.username]);
+                let activityCount = await client.query(`SELECT COUNT(activity_id) AS activity_count FROM activities WHERE activity_user = $1`, [req.session.user.username]);
 
-                    if (req.body.request.type === 'all' || req.body.request.type === 'notifications') {
-                        notifications = await client.query(`SELECT * FROM notifications WHERE notification_recipient = $1 ORDER BY notification_date DESC LIMIT 5 OFFSET $2`, [req.session.user.username, req.body.request.offset]);
-                    }
-
-                    if (req.body.request.type === 'all' || req.body.request.type === 'activities') {
-                        activities = await client.query(`SELECT * FROM activities WHERE activity_user = $1 ORDER BY activity_date DESC LIMIT 5 OFFSET $2`, [req.session.user.username, req.body.request.offset]);
-                    }
-
-                    await client.query('COMMIT')
-                    .then(() => resp.send({status: 'success', notifications: notifications.rows, activities: activities.rows, activityCount: activityCount.rows[0].activity_count, notificationCount: notificationCount.rows[0].notification_count}));
-                    
-                } catch (e) {
-                    await client.query('ROLLBACK');
-                    throw e;
-                } finally {
-                    done();
+                if (req.body.request.type === 'all' || req.body.request.type === 'notifications') {
+                    notifications = await client.query(`SELECT * FROM notifications WHERE notification_recipient = $1 ORDER BY notification_date DESC LIMIT 5 OFFSET $2`, [req.session.user.username, req.body.request.offset]);
                 }
-            })()
-            .catch(err => error.log(err, req, resp));
-        });
+
+                if (req.body.request.type === 'all' || req.body.request.type === 'activities') {
+                    activities = await client.query(`SELECT * FROM activities WHERE activity_user = $1 ORDER BY activity_date DESC LIMIT 5 OFFSET $2`, [req.session.user.username, req.body.request.offset]);
+                }
+
+                await client.query('COMMIT')
+                .then(() => resp.send({status: 'success', notifications: notifications.rows, activities: activities.rows, activityCount: activityCount.rows[0].activity_count, notificationCount: notificationCount.rows[0].notification_count}));
+                
+            } catch (e) {
+                await client.query('ROLLBACK');
+                throw e;
+            } finally {
+                done();
+            }
+        })()
+        .catch(err => error.log(err, req, resp));
+    });
 });
 
 app.post('/api/get/user/friends', authenticate, async(req, resp) => {
@@ -331,13 +330,11 @@ app.post('/api/get/user/minimal', async(req, resp) => {
 });
 
 app.post('/api/get/user/blocked', authenticate, async(req, resp) => {
-        await controller.blockedUsers.retrieve(req, (result) => {
-            if (result.status === 'success') {
-                resp.send({status: result.status, statusMessage: result.statusMessage, users: result.users, totalBlockedUsers: result.totalBlockedUsers});
-            } else if (result.status === 'error') {
-                error.log(result.error, req, resp);
-            }
-        });
+    await blockedUsers.retrieve(false, req.session.user.username, req.body.filter, req.body.offset)
+    .then(result => {
+        resp.send({status: 'success', users: result.blocked_users, totalBlockedUsers: result.total});
+    })
+    .catch(err => error.log(err, req, resp));
 });
 
 app.post('/api/get/reviews', async(req, resp) => {

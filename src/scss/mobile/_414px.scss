@@ -6,6 +6,12 @@
         }
     }
 
+    .floating-container {
+        width: 100%;
+        transform: translateX(0);
+        z-index: 100;
+    }
+
     #main-panel-bg { height: 200px; }
 
     .edit-user-header-field {
@@ -177,6 +183,18 @@
         align-items: stretch;
     }
 
+    .job-details-dates {
+        margin: 5px 0;
+    }
+
+    .job-details-row {
+        margin-top: 30px;
+        
+        .btn {
+            align-self: flex-end;
+        }
+    }
+
     .funds-remaining {
         margin-top: 5px;
     }
@@ -279,7 +297,6 @@
 
     .row-title {
         a {
-            display: block;
             text-overflow: ellipsis;
             overflow: hidden;
         }
@@ -322,9 +339,18 @@
         flex-direction: column;
 
         .mr-2 {
+            white-space: nowrap;
             margin-right: 0;
             margin-bottom: 5px;
         }
+    }
+
+    .milestone-details-row {
+        flex-direction: column;
+    }
+
+    .job-details-row {
+        flex-direction: column-reverse;
     }
 
     .milestone-updater-details {
@@ -346,7 +372,7 @@
 
     .job-details-subheader {
         flex-direction: column;
-        align-items: stretch;
+        align-items: flex-start;
 
         .d-flex {
             flex-direction: column;

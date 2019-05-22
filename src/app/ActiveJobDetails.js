@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter, Redirect } from 'react-router-dom';
 import TitledContainer from '../components/utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileAlt, faComments, faCommentAlt, faCalendarAlt, faUsdSquare } from '@fortawesome/pro-solid-svg-icons';
+import { faFileAlt, faComments, faCommentAlt, faCalendarAlt, faUsdSquare, faCircleNotch, faCalendarTimes } from '@fortawesome/pro-solid-svg-icons';
 import { LogError } from '../components/utils/LogError';
 import fetch from 'axios';
 import moment from 'moment';
@@ -27,12 +27,13 @@ class ActiveJobDetails extends Component {
         super(props);
         
         this.state = {
-            status: 'Fetching',
+            status: 'Loading',
             sendStatus: '',
             job: {},
             messages: [],
             milestones: [],
-            createMilestones: false
+            createMilestones: false,
+            offset: 0
         }
     }
     
@@ -46,13 +47,33 @@ class ActiveJobDetails extends Component {
                 this.props.dispatch(ResetConfirmation());
             }
         }
+
+        if (prevState.offset !== this.state.offset) {
+            this.setState({status: 'Fetching'});
+
+            fetch.post('/api/get/job/messages', {id: this.props.match.params.id, offset: this.state.offset})
+            .then(resp => {
+                if (resp.data.status === 'success') {
+                    let messages = [...this.state.messages, ...resp.data.messages];
+                    this.setState({status: '', messages: messages});
+                } else if (resp.data.status === 'error') {
+                    this.setState({status: ''});
+                    this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+                }
+            })
+            .catch(err => {
+                LogError(err, '/api/get/job/messages');
+                this.setState({status: ''});
+                this.props.dispatch(Alert('error', 'An error occurred'));
+            });
+        }
     }
     
     componentDidMount() {
         fetch.post('/api/get/job/details', {id: this.props.match.params.id, stage: this.props.match.params.stage})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', job: resp.data.job, messages: resp.data.messages, milestones: resp.data.milestones, review: resp.data.review});
+                this.setState({status: '', job: resp.data.job, messages: resp.data.messages, milestones: resp.data.milestones, review: resp.data.review, totalMessages: parseInt(resp.data.totalMessages)});
             } else if (resp.data.status === 'error') {
                 this.setState({status: 'error'});
             }
@@ -187,15 +208,20 @@ class ActiveJobDetails extends Component {
             this.props.dispatch(Alert('error', 'An error occurred'));
         });
     }
+
+    loadMoreMessages() {
+        this.setState({offset: this.state.offset + 25});
+    }
     
     render() {
+        let status;
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
             return <Redirect to='/main' />;
         }
 
-        if (this.state.status === 'Fetching') {
+        if (this.state.status === 'Loading') {
             return <Loading size='7x' color='black' />;
         } else if (this.state.status === 'error') {
             return <Redirect to='/error/app/404' />;
@@ -203,6 +229,8 @@ class ActiveJobDetails extends Component {
             return <Redirect to='/error/job/404' />;
         } else if (this.state.status === 'Job Closed') {
             return <Redirect to='/link_work/job/closed' />;
+        } else if (this.state.status === 'Fetching') {
+            status = <div className='text-center'><FontAwesomeIcon icon={faCircleNotch} size='5x' spin /></div>;
         }
 
         if (this.props.user.user) {
@@ -276,6 +304,8 @@ class ActiveJobDetails extends Component {
 
                         <div className='text-right mb-3'><label><input type='checkbox' onChange={() => this.saveSetting('hide_completed_milestones')} checked={this.props.user.user.hide_completed_milestones} /> Hide completed milestones</label></div>
 
+                        <hr/>
+
                         {this.props.user.user && this.props.user.user.username === this.state.job.job_client ? <div id='milestone-tracker'>
                             {this.state.milestones.map((milestone, i) => {
                                 if (this.props.user.user && this.props.user.user.hide_completed_milestones && milestone.milestone_status === 'Complete') {
@@ -306,8 +336,18 @@ class ActiveJobDetails extends Component {
 
                         <div id='job-messages'>
                             {this.state.messages.map((message, i) => {
-                                return <JobMessageRow message={message} key={i} user={this.props.user} />
+                                if (message.job_message_type === 'User') {
+                                    return <JobMessageRow message={message} key={message.job_message_id} user={this.props.user} />
+                                } else if (message.job_message_type === 'System') {
+                                    return <div key={message.job_message_id} className='text-center mb-3'>
+                                        <em>{message.job_message} - {moment(message.job_message_date).fromNow()}</em>
+                                    </div>
+                                }
                             })}
+
+                            {status}
+
+                            {this.state.totalMessages > 25 && this.state.messages.length < this.state.totalMessages ? <div className='text-center'><button className='btn btn-primary' onClick={this.loadMoreMessages.bind(this)}>Load more</button></div> : ''}
                         </div>
                     </TitledContainer> : ''}
                 </section>

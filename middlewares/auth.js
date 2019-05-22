@@ -1,6 +1,6 @@
-const db = require('../db');
+const db = require('../pg_conf');
 const bcrypt = require('bcrypt');
-const error = require('./error-handler');
+const error = require('../modules/utils/error-handler');
 
 module.exports = async(req, resp, next) => {
     if (req.body.username && req.body.password) {
@@ -27,7 +27,8 @@ module.exports = async(req, resp, next) => {
                                 if (match) {
                                     if (auth.rows[0].two_fa_enabled) {
                                         req.session.auth = {
-                                            user_id: auth.rows[0].user_id
+                                            user_id: auth.rows[0].user_id,
+                                            remember: req.body.remember
                                         }
 
                                         await client.query('COMMIT')
@@ -36,6 +37,11 @@ module.exports = async(req, resp, next) => {
                                         let session = {
                                             user_id: auth.rows[0].user_id,
                                             username: auth.rows[0].username
+                                        }
+
+                                        if (req.body.remember) {
+                                            let expire = new Date('2100-01-01')
+                                            req.session.cookie.maxAge = expire.getTime();
                                         }
 
                                         req.session.user = session;    

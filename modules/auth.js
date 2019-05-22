@@ -1,4 +1,4 @@
-const db = require('./db');
+const db = require('../pg_conf');
 const app = require('express').Router();
 const bcrypt = require('bcrypt');
 const validate = require('./utils/validate');
@@ -6,9 +6,10 @@ const cryptoJS = require('crypto-js');
 const sgMail = require('@sendgrid/mail');
 const error = require('./utils/error-handler');
 const request = require('request');
-const controller = require('./utils/controller');
+const users = require('../controllers/users');
+const emails = require('../controllers/emails');
 const fs = require('fs');
-const authenticate = require('./utils/auth');
+const authenticate = require('../middlewares/auth');
 const speakeasy = require('speakeasy');
 const qrCode = require('qrcode');
 
@@ -22,7 +23,9 @@ app.post('/api/auth/register', (req, resp) => {
 
         if (response.success) {
             if (req.body.agreed) {
-                if (req.body.username && !validate.usernameCheck.test(req.body.username)) {
+                if (req.body.username && (/admin/.test(req.body.username) || /hireworld/.test(req.body.username))) {
+                    resp.send({status: 'error', statusMessage: 'That username is now allowed'});
+                } else if (req.body.username && !validate.usernameCheck.test(req.body.username)) {
                     resp.send({status: 'error', statusMessage: 'Invalid username'});
                 } else if (req.body.password && req.body.password !== req.body.confirmPassword) {
                     resp.send({status: 'error', statusMessage: 'Passwords do not match'});
@@ -139,7 +142,7 @@ app.post('/api/auth/register', (req, resp) => {
 });
 
 app.post('/api/auth/login', authenticate, async(req, resp) => {
-    let user = await controller.session.retrieve(false, req.session.user.user_id);
+    let user = await users.session.retrieve(false, req.session.user.user_id);
 
     resp.send({status: 'success', user: user});
 });
@@ -161,7 +164,7 @@ app.post('/api/auth/2fa/login', async(req, resp) => {
         }
 
         await db.query(`UPDATE users SET user_last_login = $1, user_this_login = current_timestamp WHERE user_id = $2`, [auth.rows[0].user_this_login, req.session.auth.user_id]);
-        let user = await controller.session.retrieve(false, req.session.auth.user_id);
+        let user = await users.session.retrieve(false, req.session.auth.user_id);
 
         req.session.auth = null;
 
@@ -172,7 +175,7 @@ app.post('/api/auth/2fa/login', async(req, resp) => {
 });
 
 app.all('/api/auth/logout', (req, resp) => {
-    req.session = null;
+    req.session.destroy();
 
     resp.send({status: 'error', statusMessage: `Logged out`});
 });
@@ -277,7 +280,7 @@ app.post('/api/forgot-password', async(req, resp) => {
         let response = JSON.parse(res.body);
 
         if (response.success) {
-            controller.email.password.reset(req.body.email, (err, message) => {
+            emails.password.reset(req.body.email, (err, message) => {
                 if (err && message) {
                     let error = new Error(message);
                     let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
@@ -370,7 +373,7 @@ app.post('/api/auth/verify/2fa', authenticate, async(req, resp) => {
         await db.query(`UPDATE users SET two_fa_key = $1, two_fa_enabled = true WHERE username = $2`, [req.session.user.secret.base32, req.session.user.username])
         .then(async result => {
             if (result && result.rowCount === 1) {
-                let user = await controller.session.retrieve(false, req.session.user.user_id);
+                let user = await users.session.retrieve(false, req.session.user.user_id);
                 resp.send({status: 'success', statusMessage: 'Two-factor authentication enabled', user: user});
             } else {
                 resp.send({status: 'error', statusMessage: 'Fail to save'});
@@ -401,7 +404,7 @@ app.post('/api/auth/disable/2fa', authenticate, async(req, resp) => {
             if (matched) {
                 await db.query(`UPDATE users SET two_fa_key = null, two_fa_enabled = false WHERE username = $1`, [req.session.user.username])
                 .then(async result => {
-                    let user = await controller.session.retrieve(false, req.session.user.user_id);
+                    let user = await users.session.retrieve(false, req.session.user.user_id);
 
                     if (result && result.rowCount === 1) {
                         resp.send({status: 'success', statusMessage: 'Two-factor authentication disabled', user: user});

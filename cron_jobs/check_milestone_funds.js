@@ -1,5 +1,5 @@
 require('dotenv').config({path: __dirname + '/.env'});
-const db = require('../modules/db');
+const db = require('../pg_conf');
 const error = require('../modules/utils/error-handler');
 const sgMail = require('@sendgrid/mail');
 const moment = require('moment');

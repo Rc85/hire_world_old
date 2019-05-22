@@ -80,7 +80,7 @@ class PostJob extends Component {
             if (resp.data.status === 'success') {
                 this.setState(this.initialState);
             } else if (resp.data.status === 'error') {
-                this.setState({status: ''});
+                this.setState({status: '', verified: ''});
             }
 
             this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
@@ -88,7 +88,7 @@ class PostJob extends Component {
         })
         .catch(err => {
             LogError(err, '/api/post/job');
-            this.setState({status: ''});
+            this.setState({status: '', verified: ''});
             this.props.dispatch(Alert('error', 'An error occurred'));
             recaptchaInstance.reset();
         })

@@ -1,10 +1,10 @@
 const app = require('express').Router();
-const db = require('../db');
+const db = require('../../pg_conf');
 const error = require('../utils/error-handler');
 const stripe = require('stripe')(process.env.STRIPE_API_KEY);
 const cryptoJs = require('crypto-js');
 const util = require('util');
-const authenticate = require('../utils/auth');
+const authenticate = require('../../middlewares/auth');
 const moneyFormatter = require('../utils/money-formatter');
 
 app.post('/api/job/accounts/fetch', authenticate, async(req, resp) => {
@@ -129,7 +129,8 @@ app.post('/api/get/job/details', authenticate, (req, resp) => {
                         ORDER BY jms.milestone_id`, [req.body.id]);
             
                         // Get job messages
-                        let messages = await client.query(`SELECT job_messages.*, user_profiles.avatar_url FROM job_messages LEFT JOIN users ON users.username = job_messages.job_message_creator LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id WHERE job_message_parent_id = $1 ORDER BY job_message_date DESC`, [req.body.id]);
+                        let totalMessages = await client.query(`SELECT COUNT(job_message_id) AS total_messages FROM job_messages WHERE job_message_parent_id = $1`, [req.body.id]);
+                        let messages = await client.query(`SELECT job_messages.*, user_profiles.avatar_url FROM job_messages LEFT JOIN users ON users.username = job_messages.job_message_creator LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id WHERE job_message_parent_id = $1 ORDER BY job_message_date DESC LIMIT 25`, [req.body.id]);
                         
                         // Update all job messages from 'New' to 'Viewed'
                         await client.query(`UPDATE job_messages SET job_message_status = 'Viewed' WHERE job_message_parent_id = $1 AND job_message_creator != $2 AND job_message_status = 'New'`, [req.body.id, req.session.user.username]);
@@ -190,7 +191,7 @@ app.post('/api/get/job/details', authenticate, (req, resp) => {
                         WHERE reviewer = $1 AND reviewing = $2 AND token IS NOT NULL AND jobs.job_id = $3`, [authorized.rows[0].job_client, authorized.rows[0].job_user, req.body.id]);
 
                         await client.query('COMMIT')
-                        .then(() => resp.send({status: 'success', job: jobDetails.rows[0], messages: messages.rows, milestones: milestones.rows, review: review ? review.rows[0] : null}));
+                        .then(() => resp.send({status: 'success', job: jobDetails.rows[0], messages: messages.rows, milestones: milestones.rows, review: review ? review.rows[0] : null, totalMessages: totalMessages.rows[0].total_messages || 0}));
                     } else {
                         let error = new Error(`You're not authorized`);
                         let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
@@ -212,6 +213,18 @@ app.post('/api/get/job/details', authenticate, (req, resp) => {
             error.log(err, req, resp);
         });
     });
+});
+
+app.post('/api/get/job/messages', authenticate, async(req, resp) => {
+    await db.query(`SELECT job_messages.*, user_profiles.avatar_url FROM job_messages LEFT JOIN users ON users.username = job_messages.job_message_creator LEFT JOIN user_profiles ON users.user_id = user_profiles.user_profile_id WHERE job_message_parent_id = $1 ORDER BY job_message_date DESC OFFSET $2 LIMIT 25`, [req.body.id, req.body.offset])
+    .then(result => {
+        if (result) {
+            resp.send({status: 'success', messages: result.rows});
+        } else {
+            resp.send({status: 'error', statusMessage: 'Fail to retrieve messages'});
+        }
+    })
+    .catch(err => error.log(err, req, resp));
 });
 
 app.post('/api/jobs/summary', authenticate, (req, resp) => {

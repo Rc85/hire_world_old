@@ -7,21 +7,23 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { connect } from 'react-redux';
 import SubmitButton from './utils/SubmitButton';
 import moment from 'moment';
+import { IsTyping } from '../actions/ConfigActions';
 
 class JobProposal extends Component {
     constructor(props) {
         super(props);
         
         this.state = {
-            workDescription: this.props.job ? this.props.job.job_description : '',
-            workTitle: this.props.job ? this.props.job.job_title : '',
-            workDueDate: this.props.job ? moment(this.props.job.job_due_date) : null,
-            offerPrice: this.props.job && this.props.job.job_offer_price ? this.props.job.job_offer_price : '',
-            priceCurrency: this.props.job && this.props.job.job_price_currency ? this.props.job.job_price_currency : ''
+            workDescription: this.props.job.job_description ? this.props.job.job_description : '',
+            workTitle: this.props.job.job_title ? this.props.job.job_title : '',
+            workDueDate: this.props.job.job_due_dte ? moment(this.props.job.job_due_date) : null,
+            offerPrice: this.props.job.job_offer_price ? this.props.job.job_offer_price : '',
+            priceCurrency: this.props.job.job_price_currency ? this.props.job.job_price_currency : ''
         }
     }
     
     render() {
+        console.log(this.props.job)
         return (
             <div id='start-job' className={this.props.className ? this.props.className : ''}>
                 <form onSubmit={(e) => {
@@ -31,7 +33,7 @@ class JobProposal extends Component {
                     <div className='setting-field-container mb-3'>
                         <div className='setting-child'>
                             <InputWrapper label='Work Title' required>
-                                <input type='text' value={this.state.workTitle} onChange={(e) => this.setState({workTitle: e.target.value})} placeholder='Title to identify the job' />
+                                <input type='text' value={this.state.workTitle} onChange={(e) => this.setState({workTitle: e.target.value})} placeholder='Title to identify the job' onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                             </InputWrapper>
                         </div>
                     </div>
@@ -39,7 +41,7 @@ class JobProposal extends Component {
                     <div className='setting-field-container mb-3'>
                         <div className='setting-child'>
                             <InputWrapper label='Offer Price'>
-                                <input type='text' value={this.state.offerPrice} onChange={(e) => this.setState({offerPrice: e.target.value})} />
+                                <input type='text' value={this.state.offerPrice} onChange={(e) => this.setState({offerPrice: e.target.value})} onFocus={() => this.props.dispatch(IsTyping(true))} onBlur={() => this.props.dispatch(IsTyping(false))} />
                             </InputWrapper>
                         </div>
 

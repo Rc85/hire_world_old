@@ -14,7 +14,8 @@ class LoginPanel extends Component {
         this.state = {
             status: '',
             username: null,
-            password: null
+            password: null,
+            remember: false
         }
     }
     
@@ -38,10 +39,13 @@ class LoginPanel extends Component {
                     </InputWrapper>
 
                     <InputWrapper label='Password' className='mb-1'>
-                        <input type='password' onChange={(e) => this.setState({password: e.target.value})} minLength='6' maxLength='20' onFocus={() => this.props.dispatch(LoggingIn(true))} onBlur={() => this.props.dispatch(LoggingIn(false))} />
+                        <input type='password' onChange={(e) => this.setState({password: e.target.value})} minLength='8' maxLength='20' onFocus={() => this.props.dispatch(LoggingIn(true))} onBlur={() => this.props.dispatch(LoggingIn(false))} />
                     </InputWrapper>
 
-                    <div className='mb-3'><NavLink to='/forgot-password'>Forgot Password</NavLink></div>
+                    <div className='d-flex-between-start mb-3'>
+                        <span className='mr-2'><label><input type='checkbox' onChange={() => this.setState({remember: !this.state.remember})} /> <strong>Remember me</strong></label>
+                        </span><NavLink to='/forgot-password'>Forgot Password</NavLink>
+                    </div>
 
                     <div className='text-right'>
                         <SubmitButton type='submit' loading={this.props.user.status === 'login begin'} value='Login' />

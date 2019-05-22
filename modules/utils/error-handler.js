@@ -1,5 +1,5 @@
-const db = require('../db');
-const sa = require('./sa');
+const db = require('../../pg_conf');
+const sa = require('../../controllers/suspicious_activities');
 
 module.exports = {
     log: async (err, req, resp, url, callback) => {

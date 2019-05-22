@@ -1,10 +1,11 @@
 const app = require('express').Router();
-const db = require('../db');
+const db = require('../../pg_conf');
 const bcrypt = require('bcrypt');
 const error = require('../utils/error-handler');
 const validate = require('../utils/validate');
-const controller = require('../utils/controller');
-const authenticate = require('../utils/auth');
+const users = require('../../controllers/users');
+const emails = require('../../controllers/emails');
+const authenticate = require('../../middlewares/auth');
 
 app.post('/api/user/settings/profile/save', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
@@ -31,7 +32,7 @@ app.post('/api/user/settings/profile/save', authenticate, (req, resp) => {
 
                         await client.query(`UPDATE user_profiles SET user_business_name = $1, user_address = $2, user_phone = $3, user_city_code = $4, user_country = $6, user_region = $7, user_city = $8 WHERE user_profile_id = $5 RETURNING *`, [req.body.businessName, req.body.address, req.body.phone, req.body.code, req.session.user.user_id, req.body.country, req.body.region, req.body.city])
 
-                        let user = await controller.session.retrieve(client, req.session.user.user_id);
+                        let user = await users.session.retrieve(client, req.session.user.user_id);
 
                         await client.query(`COMMIT`)
                         .then(async() => {
@@ -127,7 +128,7 @@ app.post('/api/user/settings/email/change', authenticate, (req, resp) => {
                             let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
                             throw errObj;
                         } else {
-                            let regKey = await controller.email.confirmation.resend(req.body.newEmail);
+                            let regKey = await emails.confirmation.resend(req.body.newEmail);
                            
                             await client.query(`UPDATE users SET user_email = $1, user_status = 'Pending', registration_key = $3, reg_key_expire_date = current_timestamp + interval '1' day WHERE user_id = $2`, [req.body.newEmail, req.session.user.user_id, regKey]);
 
@@ -189,7 +190,7 @@ app.post('/api/user/settings/change', authenticate, (req, resp) => {
                             }
                         }
 
-                        let user = await controller.session.retrieve(client, req.session.user.user_id);
+                        let user = await users.session.retrieve(client, req.session.user.user_id);
 
                         await client.query('COMMIT')
                         .then(() => resp.send({status: 'success', user: user}));
@@ -262,7 +263,7 @@ app.post('/api/user/profile/update', authenticate, (req, resp) => {
 
                         await client.query(`UPDATE user_profiles SET ${column} = $1 WHERE user_profile_id = $2`, [req.body.value, req.session.user.user_id])
 
-                        let user = await controller.session.retrieve(client, req.session.user.user_id);
+                        let user = await users.session.retrieve(client, req.session.user.user_id);
                         
                         await client.query('COMMIT')
                         .then(() => resp.send({status: 'success', statusMessage: 'Saved', user: user}));

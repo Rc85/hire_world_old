@@ -1,6 +1,6 @@
 module.exports = {
     usernameCheck: /^[a-zA-Z0-9_-]{5,25}$/,
-    passwordCheck: /^.{6,20}$/,
+    passwordCheck: /^.{8,20}$/,
     emailCheck: /^[a-zA-Z0-9_\-]+(\.{1}[a-zA-Z0-9_\-]*){0,2}@{1}[a-zA-Z0-9_\-]+\.([a-zA-Z0-9_\-]*\.{1}){0,2}[a-zA-Z0-9_\-]{2,}$/,
     nameCheck: /^[a-zA-Z]{1,40}$/,
     fullNameCheck: /^[a-zA-Z]{1,}\s[a-zA-Z]{1,}$/,
@@ -11,7 +11,7 @@ module.exports = {
     addressCheck: /^(\w|\d|\s(?!\s)|,|\.|\/|@|#|&|\(|\)|\+|-|:){1,300}$/,
     cityCodeCheck: /^([0-9]{1,5}|[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}(\s)?[0-9]{1}[a-zA-Z]{1}[0-9]{1})$/,
     phoneCheck: /^(\+1)?(\s)?([0-9]{1,15}|(\()?[0-9]{3}(\))?(\s|\-)?([0-9]{7,12}|[0-9]{3}(\s|\-)?[0-9]{4,9}))$/,
-    locationCheck: /^[a-zA-Z0-9À-ž,'().\-\s]{1,}$/,
+    locationCheck: /^[a-zA-Z0-9À-ž,'().\-\s\u2011]{1,}$/,
     urlCheck: /^(http:\/\/|https:\/\/|\/\/)?(www\.)?[a-zA-Z0-9\-]*\.[a-zA-Z]{0,5}([a-zA-Z0-9\-\/]*)/,
     userTitleCheck: /^[a-zA-Z0-9À-ž,'().\-\s]{3,30}$/,
     searchUserTitleCheck: /^[a-zA-Z0-9À-ž,'().\-\s]{1,}$/,

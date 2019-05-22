@@ -1,11 +1,11 @@
 const app = require('express').Router();
-const db = require('../db');
+const db = require('../../pg_conf');
 const moment = require('moment');
 const error = require('../utils/error-handler');
-const controller = require('../utils/controller');
+const conversations = require('../../controllers/conversations');
 const sgMail = require('@sendgrid/mail');
 const request = require('request');
-const authenticate = require('../utils/auth');
+const authenticate = require('../../middlewares/auth');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -117,7 +117,7 @@ app.post('/api/conversation/reply', authenticate, (req, resp) => {
 });
 
 app.post('/api/conversation/delete', authenticate, async(req, resp) => {
-    controller.conversations.delete(req.body.id, req, (status, statusMessage) => {
+    conversations.delete(req.body.id, req, (status, statusMessage) => {
         resp.send({status: status, statusMessage: statusMessage});
     });
 });

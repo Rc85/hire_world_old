@@ -127,7 +127,7 @@ class Sectors extends Component {
                 }
 
                 if (listing.listing_online) {
-                    online = <span className='mini-badge mini-badge-purple mr-1'>Online</span>;
+                    online = <span className='mini-badge mini-badge-purple mr-1'>Link Work</span>;
                 }
 
                 if (listing.listing_price_type === 'To Be Discussed') {
@@ -177,7 +177,7 @@ class Sectors extends Component {
                 }
 
                 if (job.job_is_online) {
-                    online = <span className='mini-badge mini-badge-purple mr-1'>Online</span>;
+                    online = <span className='mini-badge mini-badge-purple mr-1'>Link Work</span>;
                 }
 
                 if (job.job_post_budget_threshold === 'Between') {

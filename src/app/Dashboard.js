@@ -66,11 +66,11 @@ class Dashboard extends Component {
             {name: 'My Profile', link: '/dashboard/profile', active: /^\/dashboard\/profile/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faUser} />},
             {name: 'Conversations', link: '/dashboard/conversations', active: /^\/dashboard\/conversations/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCommentAlt} />, messageCount: parseInt(this.props.user.messages)},
             {name: 'Post a Job', link: '/dashboard/post/job', active: this.props.location.pathname === '/dashboard/post/job', icon: <FontAwesomeIcon icon={faFilePlus} />},
-            {name: 'My Jobs', link: '/dashboard/jobs', active: /^\/dashboard\/(jobs|job|posted|applied|saved)/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faBriefcase} />, messageCount: parseInt(this.props.user.proposals) + parseInt(this.props.user.job_messages.opened_job_message_count) + parseInt(this.props.user.job_messages.active_job_message_count), items: [
+            {name: 'My Jobs', link: '/dashboard/jobs', active: /^\/dashboard\/(jobs|job|posted|applied|saved)/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faBriefcase} />, messageCount: parseInt(this.props.user.job_messages.opened_job_message_count) + parseInt(this.props.user.job_messages.active_job_message_count), items: [
                 {name: 'Saved', active: this.props.location.pathname === '/dashboard/saved/jobs', link: '/dashboard/saved/jobs'},
                 {name: 'Posted', active: /^\/dashboard\/posted\/(jobs|job)/.test(this.props.location.pathname), link: '/dashboard/posted/jobs'},
                 {name: 'Applied', active: this.props.location.pathname === '/dashboard/applied/jobs', link: '/dashboard/applied/jobs'},
-                {name: 'Proposals', active: this.props.location.pathname === '/dashboard/jobs/opened', link: '/dashboard/jobs/opened', messageCount: parseInt(this.props.user.proposals) + parseInt(this.props.user.job_messages.opened_job_message_count)},
+                {name: 'Proposals', active: this.props.location.pathname === '/dashboard/jobs/opened', link: '/dashboard/jobs/opened', messageCount: parseInt(this.props.user.job_messages.opened_job_message_count)},
                 {name: 'Active', active: this.props.location.pathname === '/dashboard/jobs/active', link: '/dashboard/jobs/active', messageCount: parseInt(this.props.user.job_messages.active_job_message_count)},
                 {name: 'Completed', active: this.props.location.pathname === '/dashboard/jobs/complete', link: '/dashboard/jobs/complete'},
                 {name: 'Abandoned', active: this.props.location.pathname === '/dashboard/jobs/abandoned', link: '/dashboard/jobs/abandoned'}

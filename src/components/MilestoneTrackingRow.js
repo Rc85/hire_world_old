@@ -80,7 +80,7 @@ class MilestoneTrackingRow extends Component {
             this.props.dispatch(ShowLoading('Processing'));
             this.setState({status: 'Verifying'});
 
-            fetch.post('/api/job/milestone/start', {job_id: this.props.job.job_id, id: this.state.milestone.milestone_id, user: this.props.user.user.username, ...token, saveAddress: save})
+            fetch.post('/api/job/milestone/start', {job_id: this.props.job.job_id, id: this.state.milestone.milestone_id, milestone_due_date: this.state.milestone.milestone_due_date, user: this.props.user.user.username, ...token, saveAddress: save})
             .then(resp => {
                 if (resp.data.status === 'success') {
                     this.props.changeJobStatus('Active');
@@ -160,6 +160,10 @@ class MilestoneTrackingRow extends Component {
             status = <span className='mini-badge mini-badge-info mb-1'>Requesting Payment</span>;
         } else if (this.state.milestone.milestone_status === 'Payment Sent') {
             status = <span className='mini-badge mini-badge-info mb-1'>Payment Sent</span>;
+        } else if (this.state.milestone.milestone_status === 'Dormant') {
+            status = <span className='mini-badge mini-badge-warning mb-1'>Waiting</span>;
+        } else if (this.state.milestone.milestone_status === 'Pending') {
+            status = <span className='mini-badge mini-badge-success mb-1'>Ready</span>;
         }
         
         if (this.state.milestone.balance.status === 'available') {
@@ -181,6 +185,8 @@ class MilestoneTrackingRow extends Component {
 
                 {this.state.milestone.milestone_status === 'In Progress' || this.state.milestone.milestone_status === 'Requesting Payment' ? <div className='mr-2'><strong>Funds On-hold:</strong> <span>{moment(this.state.milestone.milestone_fund_due_date).diff(moment(), 'days') + ' days left'}</span></div> : ''}
 
+                {this.state.milestone.milestone_due_date ? <div className='mr-2'><strong>Expected Due:</strong> {moment(this.state.milestone.milestone_due_date).format('MM-DD-YYYY')}</div> : ''}
+
                 {this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Unpaid' || this.state.milestone.milestone_status === 'Payment Sent' ? <React.Fragment>
                     <div className='mr-2'><strong>Paid:</strong> $<MoneyFormatter value={this.state.milestone.milestone_payment_amount} /> {this.props.job.job_price_currency.toUpperCase()}</div>
                     <div><strong>Paid on:</strong> {moment(this.state.milestone.balance.created * 1000).format('MM-DD-YYYY')}</div>
@@ -198,11 +204,11 @@ class MilestoneTrackingRow extends Component {
 
         return (
             <React.Fragment>
-                <div className={`milestone-tracking-row ${this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Payment Sent' || this.state.milestone.milestone_status === 'Unpaid' ? 'disabled' : ''}`}>
+                <div className={`milestone-tracking-row ${this.state.milestone.milestone_status === 'Dormant' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Payment Sent' || this.state.milestone.milestone_status === 'Unpaid' ? 'disabled' : ''}`}>
                     <div className='milestone-number opaque'><h3>{this.props.index}</h3></div>
     
                     <div className='milestone-progress-container'>
-                        <div className='d-flex-between-center opaque'>
+                        <div className='milestone-details-row opaque'>
                             <span>{status}</span>
                             <small className='text-dark'>Milestone ID: {this.state.milestone.milestone_id}</small>
                         </div>
@@ -228,15 +234,15 @@ class MilestoneTrackingRow extends Component {
                     </div>
                 </div>
 
-                <div className={`d-flex-between-center ${this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' ? 'disabled' : ''}`}>
+                <div className={`milestone-details-row ${this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Dormant' ? 'disabled' : ''}`}>
                     <div className='d-flex-center opaque'>
                         {details}
                     </div>
 
                     <div>
                         {complete.indexOf('In Progress') < 0 && this.state.milestone.balance && this.state.milestone.balance.status === 'available' && this.state.milestone.milestone_status === 'Requesting Payment' ? 
-                        <SubmitButton type='button' loading={this.state.status === 'Paying'} value='Pay' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to release your funds?`, <span>An amount of $<MoneyFormatter value={parseFloat(this.state.milestone.requested_payment_amount) + parseFloat(this.state.milestone.user_app_fee)} /> {this.state.milestone.balance.currency.toUpperCase()} will be paid out to {this.props.job.job_user}</span>, {action: 'pay user', id: this.state.milestone.milestone_id}))} bgColor='success' /> : ''}
-                        {this.state.milestone.milestone_status === 'Pending' ? <button className='btn btn-primary milestone-button' type='button' onClick={() => this.setState({startMilestone: true})}>Start Milestone</button> : ''}
+                        <SubmitButton type='button' loading={this.state.status === 'Paying'} value='Pay' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to release your funds?`, <span>An amount of $<MoneyFormatter value={parseFloat(this.state.milestone.requested_payment_amount) + parseFloat(this.state.milestone.user_app_fee)} /> {this.state.milestone.balance.currency.toUpperCase()} will be sent to {this.props.job.job_user}</span>, {action: 'pay user', id: this.state.milestone.milestone_id}))} bgColor='success' /> : ''}
+                        {this.state.milestone.milestone_status === 'Pending' ? <button className='btn btn-primary' type='button' onClick={() => this.setState({startMilestone: true})}>Start Milestone</button> : ''}
                     </div>
                 </div>
 

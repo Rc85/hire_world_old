@@ -142,7 +142,7 @@ class BottomBar extends Component {
                     </div>
 
                     <div id='bottombar-toggle-button'>
-                        {(parseInt(this.props.user.estimates) > 0 || parseInt(this.props.user.messages) > 0 || parseInt(this.props.user.proposals) > 0) && !this.state.showMenu ? <div className='bottombar-message-indicator'></div> : ''}
+                        {(parseInt(this.props.user.estimates) > 0 || parseInt(this.props.user.messages) > 0 || parseInt(this.props.user.job_messages.opened_job_message_count) > 0 || parseInt(this.props.user.job_messages.active_job_message_count) > 0) && !this.state.showMenu ? <div className='bottombar-message-indicator'></div> : ''}
                         <FontAwesomeIcon icon={this.state.showBottomBar ? faTimes : faBars} size='2x' onClick={() => this.toggleMenu()} />
                     </div>
                 </div> : ''}

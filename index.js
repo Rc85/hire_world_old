@@ -3,34 +3,49 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const http = require('http');
-const session = require('cookie-session');
+const session = require('express-session');
 const server = http.createServer(app);
-const db = require('./modules/db');
+const db = require('./pg_conf');
 const sgMail = require('@sendgrid/mail');
 const error = require('./modules/utils/error-handler');
+const redis = require('redis');
+const redisStore = require('connect-redis')(session);
 let port = process.env.PORT;
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
-app.set('view engine', 'pug');
-app.set('views', ['dist', 'dist/inc']);
-//app.set('trust proxy', 'loopback');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json({
     verify: function(req, resp, buffer) {
         let url = req.originalUrl;
-
+        
         if (url.startsWith('/stripe-webhooks')) {
             req.rawBody = buffer.toString();
         }
     }
 }));
 
-app.use(session({
+let sessionObj = {
+    name: 'hireworld.ca.sid',
     secret: process.env.SESSION_SECRET,
-    maxAge: 8.64e+7
-}));
+    cookie: {
+        maxAge: 3600000
+    },
+    resave: false,
+    saveUninitialized: false,
+    store: new redisStore({
+        client: redis.createClient(),
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT
+    })
+}
+
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+    sessionObj.cookie['secure'] = true;
+}
+
+app.use(session(sessionObj));
 
 app.use(function (req, res, next) {
     req.session.nowInMinutes = Math.floor(Date.now() / 60e3)
@@ -156,45 +171,6 @@ app.post('/api/log-error', (req, resp) => {
     let errorObj = {stack: req.body.stack}
     error.log(errorObj, req, resp, req.body.url);
 });
-
-app.use('/api/admin', (req, resp, next) => {
-    if (req.session.user) {
-        db.query(`SELECT user_level FROM users WHERE username = $1`, [req.session.user.username])
-        .then(result => {
-            if (result.rows[0].user_level > 90) {
-                next();
-            } else {
-                resp.send({status: 'access error', statusMessage: `You're not authorized to access this area`});
-            }
-        })
-        .catch(err => error.log(err, req, resp));
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not logged in`});
-    }
-});
-
-app.post('/api/admin/privilege', (req, resp) => {
-    if (req.session.user) {
-        db.query(`SELECT user_level FROM users WHERE username = $1`, [req.session.user.username])
-        .then(result => {
-            if (result.rows[0].user_level > 90) {
-                resp.send({status: 'success'});
-            } else {
-                resp.send({status: 'access error', statusMessage: `You're not authorized to access this area`});
-            }
-        })
-        .catch(err => error.log(err, req, resp));
-    } else {
-        resp.send({status: 'error', statusMessage: `You're not authorized`});
-    }
-});
-
-app.use(require('./modules/admin/overview'));
-app.use(require('./modules/admin/sector'));
-app.use(require('./modules/admin/users'));
-app.use(require('./modules/admin/listings'));
-app.use(require('./modules/admin/reports'));
-app.use(require('./modules/admin/configs'));
 
 app.use(require('./modules/webhooks'));
 

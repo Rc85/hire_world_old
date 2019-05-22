@@ -95,7 +95,7 @@ class VerifyPayment extends Component {
 
         if (this.state.payments.length > 0) {
             payments = this.state.payments.map((payment, i) => {
-                return <option key={payment.id} value={payment.id}>{payment.brand} {payment.funding.charAt(0).toUpperCase() + payment.funding.substr(1)} **** **** **** {payment.last4}</option>
+                return <option key={payment.id} value={payment.id}>{payment.brand} {payment.funding.charAt(0).toUpperCase() + payment.funding.substr(1)} ({payment.last4})</option>
             });
         }
 

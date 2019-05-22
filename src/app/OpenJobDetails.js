@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter, Redirect } from 'react-router-dom';
 import TitledContainer from '../components/utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileAlt, faComments, faCalendarAlt, faHandHoldingUsd, faUsdSquare, faCalendarEdit, faCalendarMinus } from '@fortawesome/pro-solid-svg-icons';
+import { faFileAlt, faComments, faCalendarAlt, faHandHoldingUsd, faUsdSquare, faCalendarEdit, faCalendarMinus, faCircleNotch } from '@fortawesome/pro-solid-svg-icons';
 import { LogError } from '../components/utils/LogError';
 import fetch from 'axios';
 import moment from 'moment';
@@ -27,7 +27,7 @@ class OpenJobDetails extends Component {
         super(props);
         
         this.state = {
-            status: 'Fetching',
+            status: 'Loading',
             sendStatus: '',
             job: {},
             messages: [],
@@ -35,7 +35,8 @@ class OpenJobDetails extends Component {
                 {milestone_id: Date.now(), milestone_payment_amount: 0, milestone_due_date: null, conditions: [
                     {condition_id: Date.now(), condition: null}
                 ]}
-            ]
+            ],
+            offset: 0
         }
     }
     
@@ -49,6 +50,26 @@ class OpenJobDetails extends Component {
                 this.props.dispatch(ResetConfirmation());
             }
         }
+
+        if (prevState.offset !== this.state.offset) {
+            this.setState({status: 'Fetching'});
+
+            fetch.post('/api/get/job/messages', {id: this.props.match.params.id, offset: this.state.offset})
+            .then(resp => {
+                if (resp.data.status === 'success') {
+                    let messages = [...this.state.messages, ...resp.data.messages];
+                    this.setState({status: '', messages: messages});
+                } else if (resp.data.status === 'error') {
+                    this.setState({status: ''});
+                    this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+                }
+            })
+            .catch(err => {
+                LogError(err, '/api/get/job/messages');
+                this.setState({status: ''});
+                this.props.dispatch(Alert('error', 'An error occurred'));
+            });
+        }
     }
     
     componentDidMount() {
@@ -59,7 +80,8 @@ class OpenJobDetails extends Component {
                     {milestone_id: Date.now(), milestone_payment_amount: 0, milestone_due_date: null, conditions: [
                         {condition_id: Date.now(), condition: null}
                     ]}
-                ]});
+                ],
+                totalMessages: parseInt(resp.data.totalMessages)});
             } else if (resp.data.status === 'error') {
                 this.setState({status: 'error'});
             }
@@ -190,8 +212,13 @@ class OpenJobDetails extends Component {
         this.setState({status: 'Confirmed'});
     }
 
+    loadMoreMessages() {
+        this.setState({offset: this.state.offset + 25});
+    }
+
     render() {
-        if (this.state.status === 'Fetching') {
+        let status;
+        if (this.state.status === 'Loading') {
             return <Loading size='7x' color='black' />
         } if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
@@ -205,6 +232,8 @@ class OpenJobDetails extends Component {
             return <Redirect to='/link_work/job/accepted' />;
         } else if (!this.state.job) {
             return <Redirect to='/error/job/404' />;
+        } else if (this.state.status === 'Fetching') {
+            status = <div className='text-center'><FontAwesomeIcon icon={faCircleNotch} size='5x' spin /></div>;
         }
 
         if (this.props.user.user) {
@@ -262,11 +291,15 @@ class OpenJobDetails extends Component {
                 }
 
                 jobDetails = <React.Fragment>
-                    <div className='job-details-dates'>
-                        <div className='mr-2'><FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /><strong>Job Created Date:</strong> {moment.utc(this.state.job.job_created_date).format('MM-DD-YYYY')}</div>
-                        {moment(this.state.job.job_due_date).isValid() ? <div className='mr-2'><FontAwesomeIcon icon={faCalendarMinus} className='text-special mr-1' /><strong>Expected Delivery Date:</strong> {moment.utc(this.state.job.job_due_date).format('MM-DD-YYYY')}</div> : ''}
-                        <div className='mr-2'><FontAwesomeIcon icon={faHandHoldingUsd} className='text-special mr-1' /><strong>Offered Price:</strong> {this.state.job.job_offer_price ? <span>$<MoneyFormatter value={this.state.job.job_offer_price} /> {this.state.job.job_price_currency}</span> : 'No offer price'}</div>
-                        {this.state.job.job_total_price ? <div className='mr-2'><FontAwesomeIcon icon={faUsdSquare} className='text-special mr-1' /><strong>Total Payment:</strong> $<MoneyFormatter value={this.state.job.job_total_price} /> {this.state.job.job_price_currency}</div> : ''}
+                    <div className='job-details-row'>
+                        <div className='job-details-dates'>
+                            <div className='mr-2'><FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /><strong>Job Created Date:</strong> {moment.utc(this.state.job.job_created_date).format('MM-DD-YYYY')}</div>
+                            {moment(this.state.job.job_due_date).isValid() ? <div className='mr-2'><FontAwesomeIcon icon={faCalendarMinus} className='text-special mr-1' /><strong>Expected Delivery Date:</strong> {moment.utc(this.state.job.job_due_date).format('MM-DD-YYYY')}</div> : ''}
+                            <div className='mr-2'><FontAwesomeIcon icon={faHandHoldingUsd} className='text-special mr-1' /><strong>Offered Price:</strong> {this.state.job.job_offer_price ? <span>$<MoneyFormatter value={this.state.job.job_offer_price} /> {this.state.job.job_price_currency}</span> : 'No offer price'}</div>
+                            {this.state.job.job_total_price ? <div className='mr-2'><FontAwesomeIcon icon={faUsdSquare} className='text-special mr-1' /><strong>Total Payment:</strong> $<MoneyFormatter value={this.state.job.job_total_price} /> {this.state.job.job_price_currency}</div> : ''}
+                        </div>
+
+                        {this.props.user.user && this.props.user.user.username === this.state.job.job_client ? <button className='btn btn-info' onClick={() => this.setState({edit: true})}>Edit</button> : ''}
                     </div>
 
                     {details}
@@ -291,7 +324,6 @@ class OpenJobDetails extends Component {
 
                         <div className='job-details-subheader'>
                             <Username username={this.props.user.user && this.props.user.user.username === this.state.job.job_user ? this.state.job.job_client : this.state.job.job_user} color='alt-highlight' />
-                            {this.props.user.user && this.props.user.user.username === this.state.job.job_client ? <button className='btn btn-info' onClick={() => this.setState({edit: true})}>Edit</button> : ''}
                         </div>
 
                         {jobDetails}
@@ -302,7 +334,7 @@ class OpenJobDetails extends Component {
                             <button className='btn btn-danger' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to decline this job?`, `This action cannot be reverted`, {action: 'decline job'}))}>Decline Job</button>
                         </div> : ''}
 
-                        {this.state.createMilestones ? <MilestoneCreator job={this.state.job} milestones={this.state.milestones} update={(job, milestones) => this.setState({createMilestones: false, job: job, milestones: milestones})} /> : ''}
+                        {this.state.createMilestones ? <MilestoneCreator job={this.state.job} milestones={this.state.milestones} update={(job, milestones) => this.setState({createMilestones: false, job: job, milestones: milestones})} cancel={() => this.setState({createMilestones: false})} /> : ''}
 
                         <div className='text-right text-dark'><small>Job ID: {this.state.job.job_id}</small></div>
                     </TitledContainer>
@@ -312,8 +344,18 @@ class OpenJobDetails extends Component {
         
                         <div id='job-messages'>
                             {this.state.messages.map((message, i) => {
-                                return <JobMessageRow message={message} key={i} user={this.props.user} />
+                                if (message.job_message_type === 'User') {
+                                    return <JobMessageRow message={message} key={message.job_message_id} user={this.props.user} />
+                                } else if (message.job_message_type === 'System') {
+                                    return <div key={message.job_message_id} className='text-center mb-3'>
+                                        <em>{message.job_message} - {moment(message.job_message_date).fromNow()}</em>
+                                    </div>
+                                }
                             })}
+
+                            {status}
+
+                            {this.state.totalMessages > 25 && this.state.messages.length < this.state.totalMessages ? <div className='text-center'><button className='btn btn-primary' onClick={this.loadMoreMessages.bind(this)}>Load more</button></div> : ''}
                         </div>
                     </TitledContainer>
                 </section>

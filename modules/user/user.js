@@ -2,18 +2,18 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const app = require('express').Router();
-const db = require('../db');
+const db = require('../../pg_conf');
 const error = require('../utils/error-handler');
 const stripe = require('stripe')(process.env.STRIPE_API_KEY);
 const validate = require('../utils/validate');
 const moment = require('moment');
 const request = require('request');
-const controller = require('../utils/controller');
-const authenticate = require('../utils/auth');
+const users = require('../../controllers/users');
+const authenticate = require('../../middlewares/auth');
 const sgClient = require('@sendgrid/client');
 const sgMail = require('@sendgrid/mail');
 const util = require('util');
-const sa = require('../utils/sa');
+const sa = require('../../controllers/suspicious_activities');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 sgClient.setApiKey(process.env.SENDGRID_API_KEY);
@@ -102,7 +102,7 @@ app.post('/api/user/profile-pic/upload', authenticate, (req, resp) => {
 
                             await client.query(`UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2`, [filePath, req.session.user.user_id]);
 
-                            let user = await controller.session.retrieve(client, req.session.user.user_id);
+                            let user = await users.session.retrieve(client, req.session.user.user_id);
 
                             await client.query('COMMIT')
                             .then(() => resp.send({status: 'success', user: user}));
@@ -127,7 +127,7 @@ app.post('/api/user/profile-pic/delete', authenticate, async(req, resp) => {
             try {
                 await client.query('UPDATE user_profiles SET avatar_url = $1 WHERE user_profile_id = $2', ['/images/profile.png', req.session.user.user_id]);
 
-                let user = await controller.session.retrieve(client, req.session.user.user_id);
+                let user = await users.session.retrieve(client, req.session.user.user_id);
 
                 await client.query('COMMIT')
                 .then(() => resp.send({status: 'success', user: user}));
@@ -168,7 +168,7 @@ app.post('/api/user/edit', authenticate, (req, resp) => {
                     await client.query(`BEGIN`);
                     await client.query(`UPDATE user_profiles SET ${type} = $1 WHERE user_profile_id = $2`, [req.body.value, req.session.user.user_id]);
 
-                    let user = await controller.session.retrieve(client, req.session.user.user_id);
+                    let user = await users.session.retrieve(client, req.session.user.user_id);
 
                     await client.query(`COMMIT`)
                     .then(() => resp.send({status: 'success', user: user}));
@@ -265,13 +265,13 @@ app.post('/api/user/business_hours/save', authenticate, (req, resp) => {
 });
 
 app.post('/api/user/notifications/viewed', authenticate, async(req, resp) => {
-        await db.query(`UPDATE notifications SET notification_status = 'Viewed' WHERE notification_recipient = $1`, [req.session.user.username])
-        .then(result => {
-            if (result) {
-                resp.send({status: 'success'});
-            }
-        })
-        .catch(err => error.log(err, req, resp));
+    await db.query(`UPDATE notifications SET notification_status = 'Viewed' WHERE notification_recipient = $1`, [req.session.user.username])
+    .then(result => {
+        if (result) {
+            resp.send({status: 'success'});
+        }
+    })
+    .catch(err => error.log(err, req, resp));
 });
 
 app.post('/api/user/subscription/add', authenticate, (req, resp) => {

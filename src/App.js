@@ -23,6 +23,7 @@ import Site from './site/Site';
 import Main from './site/Main';
 import Features from './site/Features';
 import Pricing from './site/Pricing';
+import GDPR from './components/GDPR';
 
 class App extends Component {
 	constructor(props) {
@@ -31,7 +32,8 @@ class App extends Component {
 		this.state = {
 			mainMenu: false,
 			announcements: [],
-			announcementIds: []
+			announcementIds: [],
+			gdprAgreed: false
 		}
 	}
 	
@@ -42,6 +44,9 @@ class App extends Component {
 			this.props.dispatch(GetSession());
 			this.props.dispatch(GetUserNotificationAndMessageCount());
 			this.props.dispatch(IsTyping(false));
+
+			localStorage.setItem('gdpr', true);
+			this.setState({gdprAgreed: true});
 		}
 	}
 		
@@ -65,6 +70,8 @@ class App extends Component {
 		}
 
 		this.props.dispatch(SiteLoaded());
+
+		this.setState({gdprAgreed: localStorage.getItem('gdpr')});
 	}
 	
 	dismissAlert(id) {
@@ -96,12 +103,21 @@ class App extends Component {
 		}
 	}
 
+	handleGdpr() {
+		this.setState({gdprAgreed: true});
+		localStorage.setItem('gdpr', true);
+	}
+
 	render() {
 		if (!this.props.config.loaded) {
 			return <Loading size='10x' color='black' />;
 		}
 
-		let confirmation, alerts, prompt, warning, loading;
+		let confirmation, alerts, prompt, warning, loading, gdpr;
+
+		if (!this.state.gdprAgreed) {
+			gdpr = <GDPR agree={this.handleGdpr.bind(this)} />;
+		}
 
 		if (this.props.confirmation.status === true) {
 			confirmation = <Confirmation message={this.props.confirmation.message} note={this.props.confirmation.note} />;
@@ -148,6 +164,7 @@ class App extends Component {
 					{confirmation}
 					{loading}
 					{selection}
+					{gdpr}
 	
 					<Switch>
 						<Route exact path='/' render={() => <Site user={this.props.user} sectors={this.props.sectors}><Main user={this.props.user} sectors={this.props.sectors} /></Site>} />

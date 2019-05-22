@@ -1,5 +1,5 @@
 const app = require('express').Router();
-const db = require('./db');
+const db = require('../pg_conf');
 const stripe = require('stripe')(process.env.STRIPE_API_KEY);
 const util = require('util');
 const error = require('./utils/error-handler');

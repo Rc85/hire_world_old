@@ -50,6 +50,7 @@ class Jobs extends Component {
         
         fetch.post('/api/jobs/fetch', {stage: this.props.match.params.stage, offset: this.state.offset})
         .then(resp => {
+            console.log(resp);
             if (resp.data.status === 'success') {
                 this.setState({status: '', jobs: resp.data.jobs, totalJobs: resp.data.totalJobs});
             } else if (resp.data.status === 'error') {
@@ -139,7 +140,8 @@ class Jobs extends Component {
                 index={i}
                 title={
                     <React.Fragment>
-                        {this.props.user.user && this.props.user.user.username === job.job_user && job.job_status === 'New' ? <span className='mini-badge mini-badge-success mr-1'>New</span> : ''}
+                        {this.props.user.user && this.props.user.user.username === job.job_user && job.job_status === 'New' ? <span className='mini-badge mini-badge-primary mr-1'>New</span> : ''}
+                        {job.new_message && parseInt(job.new_message) > 0 ? <span className='mr-2 mini-badge mini-badge-success'>{job.new_message}</span> : ''} 
                         <NavLink to={`/dashboard/job/details/${this.props.match.params.stage}/${job.job_id}`}>{job.job_title}</NavLink>
                     </React.Fragment>
                 }
@@ -159,7 +161,7 @@ class Jobs extends Component {
 
             return (
                 <section id='opened-jobs' className='main-panel'>
-                    <TitledContainer title='Proposals' icon={<FontAwesomeIcon icon={faFileSpreadsheet} />} shadow bgColor='green'>
+                    <TitledContainer title='Jobs' icon={<FontAwesomeIcon icon={faFileSpreadsheet} />} shadow bgColor='green'>
                         {this.state.status === 'error' ? <span>An error occurred while retrieving the job list</span> : ''}
 
                         <div className='text-right mb-3'><label><input type='checkbox' onChange={() => this.saveSetting('hide_declined_jobs')} checked={this.props.user.user.hide_declined_jobs} /> Hide declined jobs</label></div>

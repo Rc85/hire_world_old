@@ -1,8 +1,8 @@
 const app = require('express').Router();
-const db = require('../db');
+const db = require('../../pg_conf');
 const error = require('../utils/error-handler');
 const validate = require('../utils/validate');
-const authenticate = require('../utils/auth');
+const authenticate = require('../../middlewares/auth');
 
 app.post('/api/get/listing', authenticate, async(req, resp) => {
         await db.query(`SELECT user_listings.*, users.link_work_acct_status FROM user_listings

@@ -15,6 +15,10 @@
     border: 1px solid $theme-highlight;
 }
 
+.job-details-row {
+    display: flex;
+    align-items: center;
+}
 
 .condition-row-container {
     display: none;

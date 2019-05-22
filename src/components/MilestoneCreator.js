@@ -230,7 +230,7 @@ class MilestoneCreator extends Component {
 
                     <div className='text-right'>
                         <SubmitButton type='submit' loading={this.state.status === 'Submitting'} value={this.props.editing ? 'Save' : 'Submit'} />
-                        {this.props.editing ? <button className='btn btn-secondary' type='button' onClick={() => this.props.cancel()}>Cancel</button> : ''}
+                        <button className='btn btn-secondary' type='button' onClick={() => this.props.cancel()}>Cancel</button>
                     </div>
                 </form>
             </div>

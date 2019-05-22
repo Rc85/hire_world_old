@@ -12,6 +12,7 @@
 .disabled {
     .opaque {
         opacity: 0.5;
+        pointer-events: none;
     }
 }
 
@@ -20,6 +21,12 @@
     height: 30px;
     margin: 0 0 15px 18px;
     background-color: $theme-lightgrey;
+}
+
+.milestone-details-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
 .milestone-upload-file {

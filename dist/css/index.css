@@ -3014,6 +3014,23 @@
   align-items: center;
 }
 
+.floating-container {
+  padding: 20px;
+  background-color: #DFDFDF;
+  box-shadow: 0 0 10px #1F1F1F;
+  border-color: 1px solid black;
+  position: fixed;
+  transform: translateX(50%);
+  transform-origin: center;
+  z-index: 50;
+  bottom: 20px;
+  width: 50%;
+  color: black;
+}
+.floating-container a {
+  color: #2988BC;
+}
+
 #job-timeline {
   width: 100%;
 }
@@ -3751,6 +3768,7 @@
 
 .disabled .opaque {
   opacity: 0.5;
+  pointer-events: none;
 }
 
 .milestone-tracking-row-separator {
@@ -3758,6 +3776,12 @@
   height: 30px;
   margin: 0 0 15px 18px;
   background-color: #DFDFDF;
+}
+
+.milestone-details-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 .milestone-upload-file {
@@ -3923,7 +3947,7 @@
   width: 100%;
 }
 #bottombar-container .bottombar-message-indicator {
-  background-color: #dc3545;
+  background-color: #ED463D;
   border-radius: 5px;
   font-size: 0.95rem;
   font-weight: bold;
@@ -4551,6 +4575,11 @@ footer {
   flex-basis: 100%;
   padding: 15px;
   border: 1px solid #2988BC;
+}
+
+.job-details-row {
+  display: flex;
+  align-items: center;
 }
 
 .condition-row-container {
@@ -7031,6 +7060,12 @@ footer {
     margin-bottom: 15px;
   }
 
+  .floating-container {
+    width: 100%;
+    transform: translateX(0);
+    z-index: 100;
+  }
+
   #main-panel-bg {
     height: 200px;
   }
@@ -7193,6 +7228,17 @@ footer {
     align-items: stretch;
   }
 
+  .job-details-dates {
+    margin: 5px 0;
+  }
+
+  .job-details-row {
+    margin-top: 30px;
+  }
+  .job-details-row .btn {
+    align-self: flex-end;
+  }
+
   .funds-remaining {
     margin-top: 5px;
   }
@@ -7279,7 +7325,6 @@ footer {
   }
 
   .row-title a {
-    display: block;
     text-overflow: ellipsis;
     overflow: hidden;
   }
@@ -7321,8 +7366,17 @@ footer {
     flex-direction: column;
   }
   .milestone-progress-details .mr-2 {
+    white-space: nowrap;
     margin-right: 0;
     margin-bottom: 5px;
+  }
+
+  .milestone-details-row {
+    flex-direction: column;
+  }
+
+  .job-details-row {
+    flex-direction: column-reverse;
   }
 
   .milestone-updater-details {
@@ -7341,7 +7395,7 @@ footer {
 
   .job-details-subheader {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
   }
   .job-details-subheader .d-flex {
     flex-direction: column;

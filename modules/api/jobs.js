@@ -1,5 +1,5 @@
 const app = require('express').Router();
-const db = require('../db');
+const db = require('../../pg_conf');
 const error = require('../utils/error-handler');
 const stripe = require('stripe')(process.env.STRIPE_API_KEY);
 const request = require('request');
@@ -14,10 +14,10 @@ const bcrypt = require('bcrypt');
 const util = require('util');
 const formidable = require('formidable');
 const http = require('http');
-const authenticate = require('../utils/auth');
+const authenticate = require('../../middlewares/auth');
 const moneyFormatter = require('../utils/money-formatter');
-const subscriptionCheck = require('../utils/subscription-check');
-const userEvents = require('../utils/user-events');
+const subscriptionCheck = require('../../middlewares/subscription-check');
+const userEvents = require('../../controllers/user_events');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -306,44 +306,60 @@ app.post('/api/job/account/payment/delete', authenticate, subscriptionCheck, asy
 });
 
 app.post('/api/job/create', authenticate, subscriptionCheck, async(req, resp) => {
-        let dueDate = new Date(req.body.workDueDate);
+    let dueDate = new Date(req.body.workDueDate);
 
-        if (!validate.titleCheck.test(req.body.workTitle)) {
-            resp.send({status: 'error', statusMessage: `Invalid character(s) in title`});
-        } else if (req.body.offerPrice && !validate.priceCheck.test(req.body.offerPrice)) {
-            resp.send({status: 'error', statusMessage: `Invalid price format`});
-        } else if (req.body.priceCurrency && !validate.currencyCheck.test(req.body.priceCurrency)) {
-            resp.send({status: 'error', statusMessage: `Invalid currency`});
-        } else if (req.body.workDueDate && isNaN(dueDate.getTime())) {
-            resp.send({status: 'error', statusMessage: `Invalid due date`});
-        } else {
-            let query;
-            let offerPrice = 0;
-            
-            if (req.body.offerPrice) {
-                offerPrice = parseFloat(req.body.offerPrice).toFixed(2);
-            }
+    if (!validate.titleCheck.test(req.body.workTitle)) {
+        resp.send({status: 'error', statusMessage: `Invalid character(s) in title`});
+    } else if (req.body.offerPrice && !validate.priceCheck.test(req.body.offerPrice)) {
+        resp.send({status: 'error', statusMessage: `Invalid price format`});
+    } else if (req.body.priceCurrency && !validate.currencyCheck.test(req.body.priceCurrency)) {
+        resp.send({status: 'error', statusMessage: `Invalid currency`});
+    } else if (req.body.workDueDate && isNaN(dueDate.getTime())) {
+        resp.send({status: 'error', statusMessage: `Invalid due date`});
+    } else {
+        db.connect((err, client, done) => {
+            if (err) return error.log(err, req, resp);
 
-            if (req.body.job_id) {
-                query = `UPDATE jobs SET job_title = $1, job_offer_price = $2, job_price_currency = $3, job_description = $4, job_due_date = $5, job_modified_date = current_timestamp WHERE job_id = $6 RETURNING *`;
-                params = [req.body.workTitle, offerPrice, req.body.priceCurrency, req.body.workDescription, req.body.workDueDate, req.body.job_id];
-            } else {
-                query = `INSERT INTO jobs (job_title, job_offer_price, job_price_currency, job_description, job_due_date, job_client, job_user) VALUES ($1, $2, $3, $4, $5, $6, $7)`;
-                params = [req.body.workTitle, offerPrice, req.body.priceCurrency, req.body.workDescription, req.body.workDueDate, req.session.user.username, req.body.user];
-            }
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+                
+                    let job;
+                    let offerPrice = 0;
+                    
+                    if (req.body.offerPrice) {
+                        offerPrice = parseFloat(req.body.offerPrice).toFixed(2);
+                    }
 
-            await db.query(query, params)
-            .then(result => {
-                if (result && result.rowCount === 1) {
-                    resp.send({status: 'success', statusMessage: req.body.job_id ? 'Job updated' : 'Job submitted and has been added to your job proposals', job: result.rows[0]});
-                } else {
-                    resp.send({status: 'error', statusMessage: req.body.job_id ? 'Fail to update job' : 'Fail to submit job'});
+                    if (req.body.job_id) {
+                        job = await client.query(`UPDATE jobs SET job_title = $1, job_offer_price = $2, job_price_currency = $3, job_description = $4, job_due_date = $5, job_modified_date = current_timestamp WHERE job_id = $6 RETURNING *`, [req.body.workTitle, offerPrice, req.body.priceCurrency, req.body.workDescription, req.body.workDueDate, req.body.job_id])
+                        .catch(err => {
+                            throw err;
+                        });
+
+                    } else {
+                        job = await client.query(`INSERT INTO jobs (job_title, job_offer_price, job_price_currency, job_description, job_due_date, job_client, job_user) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [req.body.workTitle, offerPrice, req.body.priceCurrency, req.body.workDescription, req.body.workDueDate, req.session.user.username, req.body.user])
+                        .catch(err => {
+                            throw err;
+                        });
+                    }
+                    
+                    await client.query(`INSERT INTO job_messages (job_message_creator, job_message, job_message_parent_id, job_message_type) VALUES ($1, $2, $3, $4)`, [req.session.user.username, req.body.job_id ? `Job updated` : `Job created`, job.rows[0].job_id, 'System']);
+                
+                    await client.query('COMMIT')
+                    .then(() => resp.send({status: 'success', statusMessage: req.body.job_id ? 'Job updated' : 'Job submitted and has been added to your job proposals', job: job.rows[0]}));
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
                 }
-            })
+            })()
             .catch(err => {
                 error.log(err, req, resp);
             });
-        }
+        });
+    }
 });
 
 app.post('/api/job/submit/message', authenticate, subscriptionCheck, (req, resp) => {
@@ -608,6 +624,8 @@ app.post('/api/job/agreement/submit', authenticate, subscriptionCheck, (req, res
 
                         await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [job.rows[0].job_client, req.body.edit ? `Details for a job has been modified [ID: ${req.body.jobId}]`: `You received details for job [ID: ${req.body.jobId}]`, 'Update']);
 
+                        await client.query(`INSERT INTO job_messages (job_message_creator, job_message, job_message_parent_id, job_message_type) VALUES ($1, $2, $3, $4)`, [req.session.user.username, `Milestone details created`, job.rows[0].job_id, 'System']);
+
                         await client.query('COMMIT')
                         .then(() => resp.send({status: 'success', statusMessage: req.body.edit ? 'Job details updated' : 'Job details sent', job: job.rows[0], milestones: milestones.rows}));
                     } else {
@@ -664,8 +682,7 @@ app.post('/api/job/condition/update', authenticate, subscriptionCheck, async(req
                             action = 'In Progress';
                         }
 
-                        let milestone = await client.query(`SELECT * FROM job_milestones WHERE milestone_id = $1`, [req.body.milestone_id]);
-                        
+                        let milestone = await client.query(`SELECT * FROM job_milestones WHERE milestone_id = $1`, [req.body.milestone_id]);      
 
                         if (milestone.rows[0].milestone_status === 'In Progress' || milestone.rows[0].milestone_status === 'Requesting Payment') {
                             let milestoneObj;
@@ -807,6 +824,8 @@ app.post('/api/job/payment/request', authenticate, subscriptionCheck, async(req,
 
                         let milestone = await client.query(`UPDATE job_milestones SET milestone_status = 'Requesting Payment', requested_payment_amount = $2, user_app_fee = $3 WHERE milestone_id = $1 RETURNING *`, [req.body.milestone_id, newRequestAmount.toFixed(2), userFee.toFixed(2)]);
                         await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `You received a payment request for a milestone in Job ID: ${authorized.rows[0].job_id}`, 'Update']);
+
+                        await client.query(`INSERT INTO job_messages (job_message_creator, job_message, job_message_parent_id, job_message_type) VALUES ($1, $2, $3, $4)`, [req.session.user.username, `Payment requested`, authorized.rows[0].job_id, 'System']);
 
                         let conditions = await client.query(`SELECT * FROM milestone_conditions WHERE condition_parent_id = $1`, [req.body.milestone_id]);
                         let balance = await stripe.balance.retrieveTransaction(authorized.rows[0].balance_txn_id, {expand: ['source.transfer.destination_payment.balance_transaction']});
@@ -962,6 +981,8 @@ app.post('/api/job/pay', authenticate, subscriptionCheck, (req, resp) => {
                             await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, jobComplete ? `You completed a job` : `You completed a milestone`, 'Job']);
                             await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, jobComplete ? `You completed a job` : `You completed a milestone`, 'Job']);
 
+                            await client.query(`INSERT INTO job_messages (job_message_creator, job_message, job_message_parent_id, job_message_type) VALUES ($1, $2, $3, $4)`, [req.session.user.username, `Milestone payment sent`, authorized.rows[0].job_id, 'System']);
+
                             await client.query(`UPDATE system_events SET event_status = 'Canceled' WHERE event_name = 'check_milestone_funds' AND event_reference = $1`, [milestone.rows[0].charge_id]);
                             await client.query(`UPDATE system_events SET event_status = 'Canceled' WHERE event_name = 'refund_milestone_funds' AND event_reference = $1`, [milestone.rows[0].charge_id]);
 
@@ -1061,7 +1082,9 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
                             let error = new Error(`Cannot start milestone while another is in progress`);
                             let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
                             throw errObj;
-                        // If there first pending milestone id does not match the one sent from client
+                        // Check if the milestone ID sent from client matches the next milestone in 'Pending' status
+                        // This prevents clients from skipping milestones
+                        // If the first pending milestone id does not match the one sent from client
                         } else if (pendingMilestones[0] !== req.body.id) {
                             let error = new Error(`Milestones must start in sequence`);
                             let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
@@ -1072,9 +1095,6 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
                             if (req.body.saveAddress) {
                                 await client.query(`UPDATE user_profiles SET user_city = $1, user_region = $2, user_country = $3, user_address = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.token.card.address_city, req.body.token.card.address_state, req.body.token.card.address_country, req.body.token.card.address_line1, req.body.token.card.address_zip, req.session.user.user_id]);
                             }
-
-                            // Check if the milestone ID sent from client matches the next milestone in 'Pending' status
-                            // This prevents clients from skipping milestones
                             
                             let user = await client.query(`SELECT jobs.job_user, users.link_work_id FROM job_milestones
                             LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
@@ -1164,14 +1184,16 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
 
                             // Create notification
                             await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, `An amount of $${moneyFormatter(amount * 1.03)} was charged on card ending with ${charge.payment_method_details.card.last4}`, 'Update']);
-                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, `${req.body.accept ? `Job ID: ${req.body.job_id} was accepted and the client has deposited` : `Milestone ID: ${milestone.milsetone_id} has started and the client has deposited`} $${moneyFormatter(amount * 1.03)}`, 'Update']);
+                            await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_user, `${req.body.accept ? `Job ID: ${req.body.job_id} was accepted and $${moneyFormatter(amount * 1.03)} ${authorized.rows[0].job_price_currency.toUpperCase()} has been transferred to your account` : `Milestone ID: ${milestone.rows[0].milestone_id} has started and  and $${moneyFormatter(amount * 1.03)} ${authorized.rows[0].job_price_currency.toUpperCase()} has been transferred to your account`}`, 'Update']);
+
+                            await client.query(`INSERT INTO job_messages (job_message_creator, job_message, job_message_parent_id, job_message_type) VALUES ($1, $2, $3, $4)`, [req.session.user.username, req.body.accept ? `Job started` : `Milestone ID: ${milestone.rows[0].milestone_id} started`, req.body.job_id, 'System']);
 
                             // Add to recent activities
                             await client.query(`INSERT INTO activities (activity_user, activity_action, activity_type) VALUES ($1, $2, $3)`, [authorized.rows[0].job_client, req.body.accept ? `You accepted a job` : `You started a milestone`, 'Job']);
 
                             // If an expected delivery date is set, add to upcoming events
                             if (req.body.milestone_due_date) {
-                                await userEvents.create(client, `Milestone Due Date`, req.body.milestone_due_date, authorized.rows[0].job_user, 'Job', req.body.job_id, `A milestone ID: ${milestone.milestone_id} is expected to be delivered`);
+                                await userEvents.create(client, `Milestone Due Date`, req.body.milestone_due_date, authorized.rows[0].job_user, 'Job', req.body.job_id, `A milestone ID: ${milestone.rows[0].milestone_id} is expected to be delivered`);
                             }
 
                             // Email user that a milestone has started
@@ -1184,7 +1206,7 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
                                 subject: 'A milestone has begun!',
                                 templateId: 'd-9459cc1fde43454ca77670ea97ee2d5a',
                                 dynamicTemplateData: {
-                                    content: req.body.accept ? `A client has accept the job ID: ${req.body.job_id} and has deposited funds equal to $${moneyFormatter(amount)}. The funds may or may not yet be available. Please ensure that it is available before you begin work. This can take up to 7 days from when you received this email.` : `A client has deposited funds equal to $${moneyFormatter(amount)} for the next milestone in job ID: ${req.body.job_id}. The funds may or may not yet be available. Please ensure that it is available before you begin work. This can take up to 7 days from when you received this email.`,
+                                    content: req.body.accept ? `A client has accept job ID: ${req.body.job_id} and has deposited funds equal to $${moneyFormatter(amount)}. The funds may or may not yet be available. Please ensure that it is available before you begin work. This can take up to 7 days from when you received this email.` : `A client has deposited funds equal to $${moneyFormatter(amount)} for the next milestone in job ID: ${req.body.job_id}. The funds may or may not yet be available. Please ensure that it is available before you begin work. This can take up to 7 days from when you received this email.`,
                                     subject: req.body.accept ? 'A client has accepted a job!' : 'A milestone has begun!'
                                 },
                                 trackingSettings: {
@@ -1426,6 +1448,22 @@ app.post('/api/job/close', authenticate, subscriptionCheck, async(req, resp) => 
         })()
         .catch(err => error.log(err, req, resp));
     });
+});
+
+app.post('/api/job/ready', authenticate, async(req, resp) => {
+    let authorized = await db.query(`SELECT * FROM job_milestones LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id WHERE milestone_id = $1`, [req.body.milestone_id]);
+
+    if (authorized.rows[0].job_user === req.session.user.username && req.body.user === authorized.rows[0].job_user && req.body.user === req.session.user.username) {
+        await db.query(`UPDATE job_milestones SET milestone_status = 'Pending' WHERE milestone_id = $1`, [req.body.milestone_id])
+        .then(result => {
+            if (result && result.rowCount === 1) {
+                resp.send({status: 'success', statusMessage: 'Ready check sent'});
+            } else {
+                resp.send({status: 'error', statusMessage: 'Fail to get milestone ready'});
+            }
+        })
+        .catch(err => error.log(err, req, resp));
+    }
 });
 
 /* app.post('/api/link-work/bank/verify', authenticate, async(req, resp) => {

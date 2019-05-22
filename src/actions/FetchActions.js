@@ -76,20 +76,20 @@ export const GetUserNotificationAndMessageCount = () => {
     return dispatch => {
         fetch.get('/api/get/user/notification-message-job-count')
         .then(resp => {
+            console.log(resp)
             if (resp.data.status === 'success') {
-                dispatch(UpdateUserNotificationAndMessageCount(resp.data.notifications, resp.data.messages, resp.data.proposalCount, resp.data.jobMessageCount));
+                dispatch(UpdateUserNotificationAndMessageCount(resp.data.notifications, resp.data.messages, resp.data.jobMessageCount));
             }
         })
         .catch(err => LogError(err, '/api/get/user/notification-message-job-count'));
     }
 }
 
-const UpdateUserNotificationAndMessageCount = (notifications, messages, proposals, job_messages) => {
+const UpdateUserNotificationAndMessageCount = (notifications, messages, job_messages) => {
     return {
         type: 'UPDATE_NOTIFICATION_AND_MESSAGE_COUNT',
         notifications,
         messages: messages,
-        proposals: proposals,
         job_messages: job_messages
     }
 }

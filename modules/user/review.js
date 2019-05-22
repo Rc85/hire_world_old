@@ -1,8 +1,8 @@
 const app = require('express').Router();
-const db = require('../db');
+const db = require('../../pg_conf');
 const cryptoJs = require('crypto-js');
 const error = require('../utils/error-handler');
-const authenticate = require('../utils/auth');
+const authenticate = require('../../middlewares/auth');
 const validate = require('../utils/validate');
 
 app.post('/api/authentic/review/submit', authenticate, (req, resp) => {

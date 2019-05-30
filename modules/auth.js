@@ -258,7 +258,7 @@ app.post('/api/activate-account', async(req, resp) => {
             let decrypted = cryptoJS.AES.decrypt(registrationKey, process.env.ACTIVATE_ACCOUNT_SECRET);
 
             if (decrypted.toString(cryptoJS.enc.Utf8) === user.rows[0].user_email) {
-                await db.query(`UPDATE users SET user_status = 'Active' WHERE user_id = $1`, [user.rows[0].user_id])
+                await db.query(`UPDATE users SET user_status = 'Active', activation_date = current_timestamp WHERE user_id = $1`, [user.rows[0].user_id])
                 .then(result => {
                     if (result && result.rowCount === 1) {
                         resp.send({status: 'success', statusMessage: `Your account has been activated`});
@@ -421,6 +421,35 @@ app.post('/api/auth/disable/2fa', authenticate, async(req, resp) => {
         });
     } else {
         resp.send({status: 'error', statusMessage: 'Incorrect code'});
+    }
+});
+
+app.post('/api/account/close', authenticate, async(req, resp) => {
+    let authorized = await db.query(`SELECT username, user_password FROM users WHERE username = $1`, [req.body.user])
+    .catch(err => {
+        return error.log(err, req, resp);
+    });
+
+    if (authorized.rows[0].username === req.session.user.username) {
+        bcrypt.compare(req.body.password, authorized.rows[0].user_password, async(err, match) => {
+            if (err) return error.log(err, req, resp);
+
+            if (match) {
+                await db.query(`UPDATE users SET user_status = 'Closed' WHERE username = $1`, [req.session.user.username])
+                .then(result => {
+                    if (result && result.rowCount === 1) {
+                        resp.send({status: 'success'});
+                    } else {
+                        resp.send({status: 'error', statusMessage: 'Fail to close account'});
+                    }
+                })
+                .catch(err => {
+                    return error.log(err, req, resp);
+                });
+            } else {
+                resp.send({status: 'error', statusMessage: 'Incorrect password'});
+            }
+        });
     }
 });
 

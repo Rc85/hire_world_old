@@ -13,7 +13,7 @@ module.exports = async(req, resp, next) => {
 
                     let auth = await client.query(`SELECT user_id, username, user_password, user_this_login, user_status, two_fa_enabled FROM users WHERE username ILIKE $1`, [req.body.username]);
 
-                    if (auth.rows.length === 1) {
+                    if (auth.rows.length === 1 && auth.rows[0].user_status !== 'Closed') {
                         if (auth.rows[0].user_status === 'Suspended') {
                             resp.send({status: 'suspended', statusMessage: 'Your account has been temporarily banned'});
                         } else if (auth.rows[0].user_status === 'Banned') {
@@ -53,8 +53,7 @@ module.exports = async(req, resp, next) => {
                                     }
                                 } else {
                                     await client.query('ROLLBACK');
-                                    resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
-                                    return;
+                                    return resp.send({status: 'error', statusMessage: 'Incorrect username or password'});
                                 }
                             });
                         }

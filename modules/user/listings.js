@@ -15,7 +15,7 @@ app.post('/api/listing/toggle', authenticate, async(req, resp) => {
             status = 'Active';
         }
 
-        await db.query(`UPDATE user_listings SET listing_status = $1 WHERE listing_user = $2 RETURNING listing_status`, [status, req.session.user.username])
+        await db.query(`UPDATE user_listings SET listing_status = $1, listing_toggled_date = current_timestamp WHERE listing_user = $2 RETURNING listing_status`, [status, req.session.user.username])
         .then(result => {
             if (result && result.rowCount === 1) {
                 resp.send({status: 'success', listing_status: result.rows[0].listing_status});

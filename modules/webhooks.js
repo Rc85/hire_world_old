@@ -9,7 +9,7 @@ const moneyFormatter = require('./utils/money-formatter');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-app.post('/stripe-webhooks/subscription/notification', async(req, resp) => {
+/* app.post('/stripe-webhooks/subscription/notification', async(req, resp) => {
     let sig = req.headers['stripe-signature'];
     let event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.STRIPE_SUBSCRIPTION_REMINDER_WEBHOOK_KEY);
     let loggedEvent = await db.query(`INSERT INTO stripe_events (event_id, event_created_date) VALUES ($1, to_timestamp($2)) ON CONFLICT (event_id) DO NOTHING RETURNING *`, [event.id, event.created])
@@ -195,7 +195,7 @@ app.post('/stripe-webhooks/subscription/renew', async(req, resp) => {
             throw e;
         }
     }
-});
+}); */
 
 app.post('/stripe-webhooks/link_work', async(req, resp) => {
     let sig = req.headers['stripe-signature'];

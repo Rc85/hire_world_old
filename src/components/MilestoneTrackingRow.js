@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckSquare, faCaretDown, faCaretUp, faCircleNotch } from '@fortawesome/pro-solid-svg-icons';
+import { faCheckSquare, faCaretDown, faCaretUp, faCircleNotch, faQuestionSquare, faTimesSquare } from '@fortawesome/pro-solid-svg-icons';
 import Tooltip from './utils/Tooltip';
 import { faSquare } from '@fortawesome/pro-regular-svg-icons';
 import moment from 'moment';
@@ -26,7 +26,8 @@ class MilestoneTrackingRow extends Component {
             milestone: this.props.milestone,
             startMilestone: false,
             showFileList: this.props.milestone.milestone_status === 'Complete' || this.props.milestone.milestone_status === 'Abandoned' ? false : true,
-            showDetails: this.props.milestone.milestone_status === 'In Progress' ? true : false
+            showDetails: this.props.milestone.milestone_status === 'In Progress',
+            showMilestoneDetails: this.props.milestone.milestone_status === 'Complete' || this.props.milestone.milestone_status === 'Abandoned' || this.props.milestone.milestone_status === 'Dormant' ? false : true
         }
     }
 
@@ -147,6 +148,36 @@ class MilestoneTrackingRow extends Component {
             this.setState({showDetails: false});
         }
     }
+
+    handleApprovingCondition(id, action, i) {
+        fetch.post('/api/job/condition/confirm', {action: action, condition_id: id})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                let milestone = {...this.state.milestone};
+
+                if (action === 'approve') {
+                    milestone.conditions.splice(i, 1);
+                } else if (action === 'decline') {
+                    milestone.conditions[i] = resp.data.condition;
+                }
+
+                this.setState({status: '', milestone: milestone});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => {
+            LogError(err, '/api/job/condition/confirm');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
+    }
+
+    handleToggleMilestoneDetails() {
+        this.setState({showMilestoneDetails: !this.state.showMilestoneDetails});
+    }
     
     render() {
         let status, fundStatus;
@@ -161,7 +192,7 @@ class MilestoneTrackingRow extends Component {
         } else if (this.state.milestone.milestone_status === 'Payment Sent') {
             status = <span className='mini-badge mini-badge-info mb-1'>Payment Sent</span>;
         } else if (this.state.milestone.milestone_status === 'Dormant') {
-            status = <span className='mini-badge mini-badge-warning mb-1'>Waiting</span>;
+            status = <span className='mini-badge mini-badge-secondary mb-1'>Waiting</span>;
         } else if (this.state.milestone.milestone_status === 'Pending') {
             status = <span className='mini-badge mini-badge-success mb-1'>Ready</span>;
         }
@@ -210,39 +241,53 @@ class MilestoneTrackingRow extends Component {
                     <div className='milestone-progress-container'>
                         <div className='milestone-details-row opaque'>
                             <span>{status}</span>
-                            <small className='text-dark'>Milestone ID: {this.state.milestone.milestone_id}</small>
+                        </div>
+
+                        <div className='milestone-progress-bar-track opaque'>
+                            <div className={`milestone-progress-bar w-${this.state.milestone.conditions && Math.round(this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length / this.state.milestone.conditions.length * 100)}`}></div>
                         </div>
     
-                        <Tooltip placement='bottom' tooltipClassName='bg-light' textColor='text-black' disabled={this.state.milestone.milestone_status === 'Pending'} text={<div className='milestone-tracker-conditions'>
-                            <strong>Conditions</strong>
-    
-                            <hr className='mt-1 mb-1'/>
-    
-                            {this.state.milestone.conditions.map((condition, i) => {
-                                complete.push(condition.condition_status);
+                        <div className='text-center opaque'>{this.state.milestone.conditions && Math.round(this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length / this.state.milestone.conditions.length * 100) || 0}%</div>
 
-                                return <div key={condition.condition_id} className='milestone-tracker-condition-row'>
-                                    <FontAwesomeIcon icon={condition.condition_status === 'In Progress' ? faSquare : faCheckSquare} className={`${condition.condition_status === 'In Progress' ? 'text-grey' : 'text-success'} mr-1`} />
-                                    <div className='milestone-tracker-condition-text'>{condition.condition}</div>
-                                </div>
-                            })}
-                        </div>}><div className='milestone-progress-bar-track opaque'>
-                            <div className={`milestone-progress-bar w-${Math.round(this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length / this.state.milestone.conditions.length * 100)}`}></div>
-                        </div></Tooltip>
-    
-                        <div className='text-center opaque'>{Math.round(this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length / this.state.milestone.conditions.length * 100)}%</div>
-                    </div>
-                </div>
+                        <div className={`milestone-details-row mb-3 ${this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Dormant' ? 'disabled' : ''}`}>
+                            <div></div>
+                            <div>
+                                {complete.indexOf('In Progress') < 0 && this.state.milestone.balance && this.state.milestone.balance.status === 'available' && this.state.milestone.milestone_status === 'Requesting Payment' ? 
+                                <SubmitButton type='button' loading={this.state.status === 'Paying'} value='Pay' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to release your funds?`, <span>An amount of $<MoneyFormatter value={parseFloat(this.state.milestone.requested_payment_amount) + parseFloat(this.state.milestone.user_app_fee)} /> {this.state.milestone.balance.currency.toUpperCase()} will be sent to {this.props.job.job_user}</span>, {action: 'pay user', id: this.state.milestone.milestone_id}))} bgColor='success' /> : ''}
+                                {this.state.milestone.milestone_status === 'Pending' ? <button className='btn btn-primary' type='button' onClick={() => this.setState({startMilestone: true})}>Start Milestone</button> : ''}
+                                <button className='btn btn-info' onClick={this.handleToggleMilestoneDetails.bind(this)}><FontAwesomeIcon icon={this.state.showMilestoneDetails ? faCaretUp : faCaretDown} /></button>
+                            </div>
+                        </div>
 
-                <div className={`milestone-details-row ${this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Complete' || this.state.milestone.milestone_status === 'Dormant' ? 'disabled' : ''}`}>
-                    <div className='d-flex-center opaque'>
-                        {details}
-                    </div>
+                        {this.state.showMilestoneDetails ? <>
+                            <div className='d-flex-center opaque'>
+                                {details}
+                            </div>
 
-                    <div>
-                        {complete.indexOf('In Progress') < 0 && this.state.milestone.balance && this.state.milestone.balance.status === 'available' && this.state.milestone.milestone_status === 'Requesting Payment' ? 
-                        <SubmitButton type='button' loading={this.state.status === 'Paying'} value='Pay' onClick={() => this.props.dispatch(ShowConfirmation(`Are you sure you want to release your funds?`, <span>An amount of $<MoneyFormatter value={parseFloat(this.state.milestone.requested_payment_amount) + parseFloat(this.state.milestone.user_app_fee)} /> {this.state.milestone.balance.currency.toUpperCase()} will be sent to {this.props.job.job_user}</span>, {action: 'pay user', id: this.state.milestone.milestone_id}))} bgColor='success' /> : ''}
-                        {this.state.milestone.milestone_status === 'Pending' ? <button className='btn btn-primary' type='button' onClick={() => this.setState({startMilestone: true})}>Start Milestone</button> : ''}
+                            <div className='simple-container no-bg'>
+                                <div className='simple-container-title'>Conditions</div>
+        
+                                {this.state.milestone.conditions && this.state.milestone.conditions.map((condition, i) => {
+                                    complete.push(condition.condition_status);
+                                    let icon;
+
+                                    if (condition.condition_status === 'Complete') {
+                                        icon = <FontAwesomeIcon icon={faCheckSquare} className='text-success mr-1' />;
+                                    } else if (condition.condition_status === 'In Progress') {
+                                        icon = <FontAwesomeIcon icon={faSquare} className='text-secondary mr-1' />;
+                                    } else if (condition.condition_status === 'Deleting') {
+                                        icon = <FontAwesomeIcon icon={faTimesSquare} className='text-danger mr-1' />;
+                                    }
+
+                                    return <div key={condition.condition_id} className='milestone-tracker-condition-row'>
+                                        {icon}
+                                        {condition.condition_is_new ? <span className='mini-badge mini-badge-primary mr-1'>New</span> : '' } 
+                                        <div className='milestone-tracker-condition-text'>{condition.condition}</div>
+                                        {condition.condition_status === 'Deleting' ? <div className='ml-2'><small className='mr-2'>Delete?</small> <small className='condition-link text-success mr-2' onClick={this.handleApprovingCondition.bind(this, condition.condition_id, 'approve', i)}>Approve</small><small className='condition-link text-danger' onClick={this.handleApprovingCondition.bind(this, condition.condition_id, 'decline', i)}>Decline</small></div> : ''}
+                                    </div>
+                                })}
+                            </div>
+                        </> : ''}
                     </div>
                 </div>
 
@@ -291,6 +336,7 @@ class MilestoneTrackingRow extends Component {
                     </div>
                 </div> : ''}
 
+                <div className='text-right'><small className='text-dark'>Milestone ID: {this.state.milestone.milestone_id}</small></div>
                 <hr/>
             </React.Fragment>
         );

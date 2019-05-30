@@ -74,7 +74,7 @@ class SideBar extends Component {
                     <div id='sidebar-links'>
                         {browseLink}
                         {this.props.items.map((item, i) => {
-                            if (this.props.user.user && (this.props.user.user.link_work_id || moment(this.props.user.user.subscription_end_date).diff(moment(), 'days') < 0 || !moment(this.props.user.user.subscription_end_date).diff(moment(), 'days')) && item.name === 'Link Work') {
+                            if (this.props.user.user && this.props.user.user.link_work_id && item.name === 'Link Work') {
                                 return null;
                             }
                             

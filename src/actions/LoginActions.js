@@ -1,6 +1,7 @@
 import fetch from 'axios';
 import { Alert } from '../actions/AlertActions';
 import { LogError } from '../components/utils/LogError';
+import { GetUserNotificationAndMessageCount } from './FetchActions';
 
 export const LoginUser = (data) => {
     return dispatch => {
@@ -10,6 +11,7 @@ export const LoginUser = (data) => {
         .then(resp => {
             if (resp.data.status === 'success') {
                 dispatch(LoginSuccess(resp.data.status, resp.data.user));
+                dispatch(GetUserNotificationAndMessageCount());
             } else if (resp.data.status === 'error') {
                 dispatch(LoginError(resp.data.status, resp.data.statusMessage));
                 dispatch(Alert(resp.data.status, resp.data.statusMessage));

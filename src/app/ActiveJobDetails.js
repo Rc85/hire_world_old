@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter, Redirect } from 'react-router-dom';
 import TitledContainer from '../components/utils/TitledContainer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileAlt, faComments, faCommentAlt, faCalendarAlt, faUsdSquare, faCircleNotch, faCalendarTimes } from '@fortawesome/pro-solid-svg-icons';
+import { faFileAlt, faComments, faCommentAlt, faCalendarAlt, faUsdSquare, faCircleNotch, faCalendarTimes, faRedoAlt } from '@fortawesome/pro-solid-svg-icons';
 import { LogError } from '../components/utils/LogError';
 import fetch from 'axios';
 import moment from 'moment';
@@ -49,7 +49,7 @@ class ActiveJobDetails extends Component {
         }
 
         if (prevState.offset !== this.state.offset) {
-            this.setState({status: 'Fetching'});
+            this.setState({status: 'Fetching Messages'});
 
             fetch.post('/api/get/job/messages', {id: this.props.match.params.id, offset: this.state.offset})
             .then(resp => {
@@ -70,10 +70,25 @@ class ActiveJobDetails extends Component {
     }
     
     componentDidMount() {
-        fetch.post('/api/get/job/details', {id: this.props.match.params.id, stage: this.props.match.params.stage})
+        this.fetchJobDetails();
+    }
+
+    fetchJobDetails(timeout) {
+        return fetch.post('/api/get/job/details', {id: this.props.match.params.id, stage: this.props.match.params.stage})
         .then(resp => {
             if (resp.data.status === 'success') {
-                this.setState({status: '', job: resp.data.job, messages: resp.data.messages, milestones: resp.data.milestones, review: resp.data.review, totalMessages: parseInt(resp.data.totalMessages)});
+                for (let milestone of resp.data.milestones) {
+                    if (!milestone.conditions) {
+                        milestone.conditions = [];
+                    }
+                }
+
+                let status = timeout ? 'Fetched' : '';
+                
+                this.setState({status: status, job: resp.data.job, messages: resp.data.messages, milestones: resp.data.milestones, review: resp.data.review, totalMessages: parseInt(resp.data.totalMessages)});
+                timeout && setTimeout(() => {
+                    this.setState({status: ''});
+                }, 3000);
             } else if (resp.data.status === 'error') {
                 this.setState({status: 'error'});
             }
@@ -82,6 +97,12 @@ class ActiveJobDetails extends Component {
             LogError(err, '/api/get/job/details');
             this.setState({status: ''});
         });
+    }
+
+    refresh() {
+        this.setState({status: 'Fetching'});
+
+        this.fetchJobDetails(true);
     }
 
     send(message) {
@@ -214,7 +235,6 @@ class ActiveJobDetails extends Component {
     }
     
     render() {
-        let status;
         if (this.props.user.status === 'error') {
             return <Redirect to='/error/app/401' />;
         } else if (this.props.user.status === 'not logged in') {
@@ -229,8 +249,6 @@ class ActiveJobDetails extends Component {
             return <Redirect to='/error/job/404' />;
         } else if (this.state.status === 'Job Closed') {
             return <Redirect to='/link_work/job/closed' />;
-        } else if (this.state.status === 'Fetching') {
-            status = <div className='text-center'><FontAwesomeIcon icon={faCircleNotch} size='5x' spin /></div>;
         }
 
         if (this.props.user.user) {
@@ -265,11 +283,14 @@ class ActiveJobDetails extends Component {
             return (
                 <section id='job-details-container' className='main-panel'>
                     <TitledContainer title='Job Details' shadow bgColor='purple' icon={<FontAwesomeIcon icon={faFileAlt} />} id='job-details' minimizable className='mb-5'>
+                        {this.state.status === 'Fetching' && <Loading size='5x' />}
                         <div className='job-details-header'>
                             <div className='d-flex-center'>
                                 <h2>{this.state.job.job_title}</h2>
                                 {jobStatus}
                             </div>
+
+                            <button className='btn btn-primary' type='button' onClick={this.refresh.bind(this)} disabled={this.state.status === 'Fetched'}><FontAwesomeIcon icon={faRedoAlt} /></button>
                         </div>
 
                         <div className='job-details-subheader mb-3'>
@@ -287,7 +308,7 @@ class ActiveJobDetails extends Component {
                             </div>
 
                             <div className='text-right'>
-                                {this.props.user.user && this.props.user.user.username === this.state.job.job_user && this.state.job.job_status !== 'Requesting Close' ? <SubmitButton type='button' loading={this.state.status === 'Requesting Close'} value={<nobr>Close Job</nobr>} bgColor='danger' onClick={() => this.props.dispatch(ShowConfirmation(`This will send a request to the other party to close the job, proceed?`, false, {action: 'request close job'}))} /> : ''}
+                                {this.props.user.user && this.props.user.user.username === this.state.job.job_user && this.state.job.job_status !== 'Requesting Close' ? <SubmitButton type='button' loading={this.state.status === 'Requesting Close'} value={<nobr>Close Job</nobr>} bgColor='danger' onClick={() => this.props.dispatch(ShowConfirmation(`This will send a request to the other party to close the job. Proceed?`, false, {action: 'request close job'}))} /> : ''}
                             </div>
                         </div>
 
@@ -312,7 +333,7 @@ class ActiveJobDetails extends Component {
                                     return null;
                                 }
 
-                                return <MilestoneTrackingRow key={milestone.milestone_id} job={this.state.job} milestone={milestone} index={i + 1} user={this.props.user} changeJobStatus={(status, review) => this.changeJobStatus(status, review)} />
+                                return <MilestoneTrackingRow key={Date.now() + i} job={this.state.job} milestone={milestone} index={i + 1} user={this.props.user} changeJobStatus={(status, review) => this.changeJobStatus(status, review)} />
                             })}
                         </div> : ''}
 
@@ -322,7 +343,7 @@ class ActiveJobDetails extends Component {
                                     return null;
                                 }
                                 
-                                return <MilestoneUpdaterRow key={milestone.milestone_id} job={this.state.job} milestone={milestone} index={i + 1} changeJobStatus={(status) => this.changeJobStatus(status)} user={this.props.user} enableJobClose={() => this.setState({closeJob: true})} />;
+                                return <MilestoneUpdaterRow key={Date.now() + i} job={this.state.job} milestone={milestone} index={i + 1} changeJobStatus={(status) => this.changeJobStatus(status)} user={this.props.user} enableJobClose={() => this.setState({closeJob: true})} />;
                             })}
                         </div> : ''}
 
@@ -340,12 +361,12 @@ class ActiveJobDetails extends Component {
                                     return <JobMessageRow message={message} key={message.job_message_id} user={this.props.user} />
                                 } else if (message.job_message_type === 'System') {
                                     return <div key={message.job_message_id} className='text-center mb-3'>
-                                        <em>{message.job_message} - {moment(message.job_message_date).fromNow()}</em>
+                                        <em>{message.job_message_status === 'New' ? <span className='mini-badge mini-badge-primary'>New</span> : ''} {message.job_message} - {moment(message.job_message_date).fromNow()}</em>
                                     </div>
                                 }
                             })}
 
-                            {status}
+                            {this.state.status === 'Fetching Messages' && <div className='text-center'><FontAwesomeIcon icon={faCircleNotch} size='5x' spin /></div>}
 
                             {this.state.totalMessages > 25 && this.state.messages.length < this.state.totalMessages ? <div className='text-center'><button className='btn btn-primary' onClick={this.loadMoreMessages.bind(this)}>Load more</button></div> : ''}
                         </div>

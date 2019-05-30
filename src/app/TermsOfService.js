@@ -128,8 +128,6 @@ const TermsOfService = props => {
 
                 <p>Promotion codes have no value and are not to be sold, traded, and/or profited in any way to the user distributing it.</p>
 
-                <p>Our referral program offers referred account an additonal free month of subscription. If within the first month, the referred account receives a suspension or has high level of suspicious activity that are not resolved, the referred account will not be eligible for the free month.</p>
-
                 <div className='text-right'><a href='#top'>Top</a></div>
 
                 <hr/>

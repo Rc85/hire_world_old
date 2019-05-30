@@ -1755,7 +1755,7 @@
 .titled-container .title-container-toggle-button {
   position: absolute;
   top: 10px;
-  right: 10px;
+  right: 15px;
 }
 .titled-container .title-wrapper {
   display: flex;
@@ -3758,7 +3758,7 @@
 .milestone-tracking-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 15px;
 }
 
@@ -3820,7 +3820,7 @@
 .milestone-number {
   width: 50px;
   height: 50px;
-  background: #009696;
+  background-color: #009696;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -3834,8 +3834,14 @@
   flex-grow: 1;
 }
 
+.milestone-updater-row-header {
+  display: flex;
+  flex-grow: 1;
+}
+
 .milestone-tracker-condition-row {
   display: flex;
+  align-items: center;
 }
 .milestone-tracker-condition-row:not(:last-child) {
   margin-bottom: 5px;
@@ -3885,7 +3891,19 @@
 
 .condition-row {
   display: flex;
+  margin-bottom: 5px;
+}
+.condition-row.disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
+.condition-row-icon, .condition-link {
   cursor: pointer;
+}
+
+.condition-link:hover {
+  text-decoration: underline;
 }
 
 .milestone-tracking-details {
@@ -3905,13 +3923,13 @@
 .job-details-subheader {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: flex-end;
+  margin-bottom: 30px;
 }
 
 .job-details-dates {
   display: flex;
   align-items: center;
-  margin: 30px 0 45px 0;
 }
 
 .blocked-user-container {
@@ -7083,7 +7101,7 @@ footer {
     align-items: flex-start;
   }
 
-  .job-summary-stats-container, .job-summary-price-container {
+  .job-summary-stats-container, .job-summary-price-container, .job-timeline-detail-container, .job-post-detail-row, .view-header, .radio-container, .link-work-badges, .milestone-details-row, .milestone-updater-row-header, .listing-row-detail, .row-details, .milestone-tracking-details, .milestone-tracking-row, .site-section-col, .account-id, .underline-div, .make-offer-field-container, .site-section-div-container, .site-main-footer-container, .site-main-sub-footer {
     flex-direction: column;
   }
 
@@ -7106,10 +7124,6 @@ footer {
     padding-left: 0;
   }
 
-  .job-timeline-detail-container {
-    flex-direction: column;
-  }
-
   .view-user-title-container {
     flex-direction: column;
     align-items: center;
@@ -7126,10 +7140,6 @@ footer {
   .listing-row-rating {
     order: 3;
     align-self: flex-end;
-  }
-
-  .listing-row-detail {
-    flex-direction: column;
   }
 
   .listing-row-detail-child {
@@ -7223,6 +7233,10 @@ footer {
     align-items: flex-start;
   }
 
+  .milestone-number {
+    margin-bottom: 15px;
+  }
+
   .view-header-title-details, .job-details-dates, .milestone-creator-details, .link-work-footer, .row-container {
     flex-direction: column;
     align-items: stretch;
@@ -7281,10 +7295,6 @@ footer {
     width: 25%;
   }
 
-  .job-post-detail-row, .view-header, .radio-container, .link-work-badges {
-    flex-direction: column;
-  }
-
   .financial-accounts .financial-info-container {
     flex-direction: column;
     align-items: stretch;
@@ -7316,10 +7326,6 @@ footer {
     border-bottom: 1px solid black;
   }
 
-  .row-details, .milestone-tracking-details {
-    flex-direction: column;
-  }
-
   .row-detail {
     margin-bottom: 5px;
   }
@@ -7344,7 +7350,7 @@ footer {
     border-left: 0;
   }
 
-  .row-buttons, .row-main {
+  .row-buttons, .row-main, .milestone-progress-container {
     width: 100%;
   }
 
@@ -7369,10 +7375,6 @@ footer {
     white-space: nowrap;
     margin-right: 0;
     margin-bottom: 5px;
-  }
-
-  .milestone-details-row {
-    flex-direction: column;
   }
 
   .job-details-row {
@@ -7453,17 +7455,9 @@ footer {
     padding-left: 0;
   }
 
-  .underline-div, .make-offer-field-container {
-    flex-direction: column;
-  }
-
   #footer .footer-links {
     width: auto;
     margin: 0 0 30px 0;
-  }
-
-  .account-id {
-    flex-direction: column;
   }
 
   .add-bank-mobile-button, .add-card-mobile-button {
@@ -7524,14 +7518,6 @@ footer {
     flex-direction: column;
   }
 
-  .site-section-col {
-    flex-direction: column;
-  }
-
-  .site-section-div-container {
-    flex-direction: column;
-  }
-
   .site-section-image {
     width: 75%;
     margin: 0 auto;
@@ -7543,10 +7529,6 @@ footer {
 
   .site-main-footer {
     font-size: 0.9rem;
-  }
-
-  .site-main-footer-container, .site-main-sub-footer {
-    flex-direction: column;
   }
 
   .main-links {

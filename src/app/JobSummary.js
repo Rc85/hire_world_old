@@ -85,7 +85,7 @@ class JobSummary extends Component {
 
             return (
                 <section id='jobs' className='main-panel'>
-                    <TitledContainer title='Job Summary' bgColor='orange' icon={<FontAwesomeIcon icon={faClipboardList} />}>
+                    <TitledContainer title='Job Summary' bgColor='orange' icon={<FontAwesomeIcon icon={faClipboardList} />} shadow>
                         <div className='simple-container no-bg'>
                             <div className='simple-container-title'>Stats</div>
 

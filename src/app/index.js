@@ -4,7 +4,8 @@ import Conversations from './Conversations';
 import Login from './Login';
 import Response from './Response';
 import FriendsList from './FriendsList';
-import Sectors from './Sectors';
+import ProfileListings from './ProfileListings';
+import JobListings from './JobListings';
 import AccountSettings from './AccountSettings';
 import ViewUser from './ViewUser';
 import PaymentSettings from './PaymentSettings';
@@ -35,4 +36,4 @@ import SavedPosts from './SavedPosts';
 import ResetPassword from './ResetPassword';
 import Refer from './Refer';
 
-export { Dashboard, EditUser, Conversations, Login, Response, FriendsList, Sectors, AccountSettings, ViewUser, PaymentSettings, SubscriptionSettings, Profile, Register, Faq, TermsOfService, PrivacyPolicy, About, Main, ResendConfirmation, ActivateAccount, ForgotPassword, BlockedUsers, Jobs, LinkWorkSettings, JobSummary, OpenJobDetails, ActiveJobDetails, LinkWork, PostJob, PostedJobs, EditPostedJob, ViewPostedJob, AppliedJobs, SavedPosts, ResetPassword, Refer }
+export { Dashboard, EditUser, Conversations, Login, Response, FriendsList, ProfileListings, JobListings, AccountSettings, ViewUser, PaymentSettings, SubscriptionSettings, Profile, Register, Faq, TermsOfService, PrivacyPolicy, About, Main, ResendConfirmation, ActivateAccount, ForgotPassword, BlockedUsers, Jobs, LinkWorkSettings, JobSummary, OpenJobDetails, ActiveJobDetails, LinkWork, PostJob, PostedJobs, EditPostedJob, ViewPostedJob, AppliedJobs, SavedPosts, ResetPassword, Refer }

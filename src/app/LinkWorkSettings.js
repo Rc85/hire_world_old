@@ -533,7 +533,6 @@ class LinkWorkSettings extends Component {
                             <div className='mr-2'><LabelBadge label='Payments' text={paymentText} status={paymentStatus} /></div>
                             <div className='mr-2'><LabelBadge label='Payout' text={payoutText} status={payoutStatus} /></div>
                             {bankAccountText === 'Required' ? <div className='mr-2'><LabelBadge label='Bank' text={bankAccountText} status={bankAccountStatus} /></div> : '' }
-                            {this.props.user.user && !this.props.user.user.is_subscribed ? <div className='mr-2'><LabelBadge label='Subscription' text='Required' status='danger' /></div> : ''}
                         </div>
 
                         {documentsRequired ? <StaticAlert status='warning' text={documentsRequiredText} /> : ''}

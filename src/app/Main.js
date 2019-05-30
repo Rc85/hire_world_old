@@ -77,7 +77,7 @@ class Main extends Component {
                         }
                         details={
                             <React.Fragment>
-                                <div className='row-detail'><FontAwesomeIcon icon={faUserCircle} className='text-special mr-1' /> <Username username={profile.listing_user} color='alt-highlight' /> ({profile.user_title}) {profile.link_work_acct_status === 'Approved' && new Date(profile.subscription_end_date) >= new Date() ? <div className='linked-status mini-badge mini-badge-success ml-1'>Linked</div> : ''}</div>
+                                <div className='row-detail'><FontAwesomeIcon icon={faUserCircle} className='text-special mr-1' /> <Username username={profile.listing_user} color='alt-highlight' /> ({profile.user_title}) {profile.link_work_acct_status === 'Approved' ? <div className='linked-status mini-badge mini-badge-success ml-1'>Linked</div> : ''}</div>
                                 <div className='row-detail'><FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /> {moment(profile.listing_created_date).format('MM-DD-YYYY')}</div>
                                 <div className='row-detail'><FontAwesomeIcon icon={faSackDollar} className='text-special mr-1' /> {price}</div>
                                 <div className='row-detail'>{local} {online} {remote}</div>

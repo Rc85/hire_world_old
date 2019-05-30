@@ -21,7 +21,7 @@ const userEvents = require('../../controllers/user_events');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-app.post('/api/job/accounts/create', authenticate, subscriptionCheck, (req, resp) => {
+app.post('/api/job/accounts/create', authenticate, (req, resp) => {
         let supportedCountries = ['AT', 'AU', 'BE', 'CA', 'CH', 'DE', 'DK', 'ES', 'FI', 'FR', 'GB', 'IE', 'IT', 'LU', 'NL', 'NO', 'NZ', 'PT', 'SE', 'US'];
         
         if ((req.body.firstname && !validate.nameCheck.test(req.body.firstname) || (req.body.lastname && !validate.nameCheck.test(req.body.lastname)))) {
@@ -173,7 +173,7 @@ app.post('/api/job/accounts/create', authenticate, subscriptionCheck, (req, resp
         }
 });
 
-app.post('/api/job/account/update', authenticate, subscriptionCheck, async(req, resp) => {
+app.post('/api/job/account/update', authenticate, async(req, resp) => {
         // need user validation
         delete req.body.ukBankType;
         delete req.body.useDefault;
@@ -243,7 +243,7 @@ app.post('/api/job/account/update', authenticate, subscriptionCheck, async(req, 
         }
 });
 
-app.post('/api/job/account/payment/add', authenticate, subscriptionCheck, async(req, resp) => {
+app.post('/api/job/account/payment/add', authenticate, async(req, resp) => {
         let user = await db.query(`SELECT username, link_work_id FROM users WHERE username = $1`, [req.body.user]);
 
         if (user && user.rows[0].username === req.session.user.username) {
@@ -273,7 +273,7 @@ app.post('/api/job/account/payment/add', authenticate, subscriptionCheck, async(
         }
 });
 
-app.post('/api/job/account/payment/default', authenticate, subscriptionCheck, async(req, resp) => {
+app.post('/api/job/account/payment/default', authenticate, async(req, resp) => {
         let user = await db.query(`SELECT link_work_id FROM users WHERE username = $1`, [req.session.user.username]);
 
         if (user && user.rows[0].link_work_id) {
@@ -287,7 +287,7 @@ app.post('/api/job/account/payment/default', authenticate, subscriptionCheck, as
         }
 });
 
-app.post('/api/job/account/payment/delete', authenticate, subscriptionCheck, async(req, resp) => {
+app.post('/api/job/account/payment/delete', authenticate, async(req, resp) => {
         let user = await db.query(`SELECT link_work_id FROM users WHERE username = $1`, [req.session.user.username]);
 
         if (user && user.rows[0].link_work_id) {
@@ -305,16 +305,16 @@ app.post('/api/job/account/payment/delete', authenticate, subscriptionCheck, asy
         }
 });
 
-app.post('/api/job/create', authenticate, subscriptionCheck, async(req, resp) => {
-    let dueDate = new Date(req.body.workDueDate);
+app.post('/api/job/create', authenticate, async(req, resp) => {
+    let dueDate = new Date(req.body.due_date);
 
-    if (!validate.titleCheck.test(req.body.workTitle)) {
+    if (!validate.titleCheck.test(req.body.title)) {
         resp.send({status: 'error', statusMessage: `Invalid character(s) in title`});
-    } else if (req.body.offerPrice && !validate.priceCheck.test(req.body.offerPrice)) {
+    } else if (req.body.budget && !validate.priceCheck.test(req.body.budget)) {
         resp.send({status: 'error', statusMessage: `Invalid price format`});
-    } else if (req.body.priceCurrency && !validate.currencyCheck.test(req.body.priceCurrency)) {
+    } else if (req.body.currency && !validate.currencyCheck.test(req.body.currency)) {
         resp.send({status: 'error', statusMessage: `Invalid currency`});
-    } else if (req.body.workDueDate && isNaN(dueDate.getTime())) {
+    } else if (req.body.due_date && isNaN(dueDate.getTime())) {
         resp.send({status: 'error', statusMessage: `Invalid due date`});
     } else {
         db.connect((err, client, done) => {
@@ -325,20 +325,20 @@ app.post('/api/job/create', authenticate, subscriptionCheck, async(req, resp) =>
                     await client.query('BEGIN');
                 
                     let job;
-                    let offerPrice = 0;
+                    let budget = 0;
                     
-                    if (req.body.offerPrice) {
-                        offerPrice = parseFloat(req.body.offerPrice).toFixed(2);
+                    if (req.body.budget) {
+                        budget = parseFloat(req.body.budget).toFixed(2);
                     }
 
                     if (req.body.job_id) {
-                        job = await client.query(`UPDATE jobs SET job_title = $1, job_offer_price = $2, job_price_currency = $3, job_description = $4, job_due_date = $5, job_modified_date = current_timestamp WHERE job_id = $6 RETURNING *`, [req.body.workTitle, offerPrice, req.body.priceCurrency, req.body.workDescription, req.body.workDueDate, req.body.job_id])
+                        job = await client.query(`UPDATE jobs SET job_title = $1, job_budget = $2, job_budget_currency = $3, job_description = $4, job_due_date = $5, job_modified_date = current_timestamp WHERE job_id = $6 RETURNING *`, [req.body.title, budget, req.body.currency, req.body.description, req.body.due_date, req.body.job_id])
                         .catch(err => {
                             throw err;
                         });
 
                     } else {
-                        job = await client.query(`INSERT INTO jobs (job_title, job_offer_price, job_price_currency, job_description, job_due_date, job_client, job_user) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [req.body.workTitle, offerPrice, req.body.priceCurrency, req.body.workDescription, req.body.workDueDate, req.session.user.username, req.body.user])
+                        job = await client.query(`INSERT INTO jobs (job_title, job_budget, job_budget_currency, job_description, job_due_date, job_client, job_user) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [req.body.title, budget, req.body.currency, req.body.description, req.body.due_date, req.session.user.username, req.body.user])
                         .catch(err => {
                             throw err;
                         });
@@ -362,7 +362,7 @@ app.post('/api/job/create', authenticate, subscriptionCheck, async(req, resp) =>
     }
 });
 
-app.post('/api/job/submit/message', authenticate, subscriptionCheck, (req, resp) => {
+app.post('/api/job/submit/message', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
             if (err) error.log(err, req, resp);
 
@@ -457,7 +457,7 @@ const upload = multer({
     }
 });
 
-app.post('/api/job/account/document/upload', authenticate, subscriptionCheck, async(req, resp) => {
+app.post('/api/job/account/document/upload', authenticate, async(req, resp) => {
         let user = await db.query(`SELECT user_id, link_work_id FROM users WHERE username = $1`, [req.session.user.username]);
         let uploadFiles;
 
@@ -521,7 +521,7 @@ app.post('/api/job/account/document/upload', authenticate, subscriptionCheck, as
         });
 });
 
-app.post('/api/job/agreement/submit', authenticate, subscriptionCheck, (req, resp) => {
+app.post('/api/job/agreement/submit', authenticate, (req, resp) => {
     let validMilestonePrices = true;
     let validMilestoneDates = true;
     let totalMilestonePrice = 0;
@@ -586,11 +586,15 @@ app.post('/api/job/agreement/submit', authenticate, subscriptionCheck, (req, res
 
                         await client.query(`DELETE FROM job_milestones WHERE milestone_job_id = $1`, [req.body.jobId]);
 
+                        let index = 1;
+
                         for (let obj of req.body.milestones) {
-                            let milestone = await client.query(`INSERT INTO job_milestones (milestone_job_id, milestone_payment_amount, milestone_due_date) VALUES ($1, $2, $3) RETURNING milestone_id`, [req.body.jobId, obj.milestone_payment_amount, obj.milestone_due_date]);
+                            let milestone = await client.query(`INSERT INTO job_milestones (milestone_job_id, milestone_payment_amount, milestone_due_date, milestone_creator, milestone_sequence) VALUES ($1, $2, $3, $4, $5) RETURNING milestone_id`, [req.body.jobId, obj.milestone_payment_amount, obj.milestone_due_date, req.session.user.username, index]);
+
+                            index++;
 
                             for (let condition of obj.conditions) {
-                                await client.query(`INSERT INTO milestone_conditions (condition_parent_id, condition) VALUES ($1, $2)`, [milestone.rows[0].milestone_id, condition.condition]);
+                                await client.query(`INSERT INTO milestone_conditions (condition_parent_id, condition, condition_creator) VALUES ($1, $2, $3)`, [milestone.rows[0].milestone_id, condition.condition, req.session.user.username]);
                             }
                         }
 
@@ -618,13 +622,25 @@ app.post('/api/job/agreement/submit', authenticate, subscriptionCheck, (req, res
                         WHERE jms.milestone_job_id = $1
                         ORDER BY jms.milestone_id`, [job.rows[0].job_id]);
 
-                        if (req.body.edit) {
-                            await client.query(`UPDATE jobs SET milestones_modified_date = current_timestamp WHERE job_id = $1`, [req.body.jobId]);
+                        for (let milestone of milestones.rows) {
+                            for (let condition of milestone.conditions) {
+                                if (!condition) {
+                                    milestone.conditions.splice(0, 1);
+                                }
+                            }
+
+                            for (let file of milestone.files) {
+                                if (!file) {
+                                    milestone.files.splice(0, 1);
+                                }
+                            }
                         }
 
-                        await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [job.rows[0].job_client, req.body.edit ? `Details for a job has been modified [ID: ${req.body.jobId}]`: `You received details for job [ID: ${req.body.jobId}]`, 'Update']);
+                        req.body.edit && await client.query(`UPDATE jobs SET contract_modified_date = current_timestamp WHERE job_id = $1`, [req.body.jobId]);
 
-                        await client.query(`INSERT INTO job_messages (job_message_creator, job_message, job_message_parent_id, job_message_type) VALUES ($1, $2, $3, $4)`, [req.session.user.username, `Milestone details created`, job.rows[0].job_id, 'System']);
+                        await client.query(`INSERT INTO notifications (notification_recipient, notification_message, notification_type) VALUES ($1, $2, $3)`, [job.rows[0].job_client, req.body.edit ? `Job ID: ${req.body.jobId} contract has been modified`: `You received a contract for job ID: ${req.body.jobId}`, 'Update']);
+
+                        req.body.edit && await client.query(`INSERT INTO job_messages (job_message_creator, job_message, job_message_parent_id, job_message_type) VALUES ($1, $2, $3, $4)`, [req.session.user.username, `Milestone details created`, job.rows[0].job_id, 'System']);
 
                         await client.query('COMMIT')
                         .then(() => resp.send({status: 'success', statusMessage: req.body.edit ? 'Job details updated' : 'Job details sent', job: job.rows[0], milestones: milestones.rows}));
@@ -645,7 +661,7 @@ app.post('/api/job/agreement/submit', authenticate, subscriptionCheck, (req, res
     }
 });
 
-app.post('/api/job/decline', authenticate, subscriptionCheck, async(req, resp) => {
+app.post('/api/job/decline', authenticate, async(req, resp) => {
         let authorized = await db.query(`SELECT job_user, job_client FROM jobs WHERE job_id = $1`, [req.body.id]);
 
         if (authorized.rows[0].job_user === req.session.user.username || authorized.rows[0].job_client === req.session.user.username) {
@@ -665,7 +681,7 @@ app.post('/api/job/decline', authenticate, subscriptionCheck, async(req, resp) =
         }
 });
 
-app.post('/api/job/condition/update', authenticate, subscriptionCheck, async(req, resp) => {
+app.post('/api/job/condition/update', authenticate, async(req, resp) => {
         db.connect((err, client, done) => {
             if (err) error.log(err, req, resp);
             (async() => {
@@ -682,28 +698,32 @@ app.post('/api/job/condition/update', authenticate, subscriptionCheck, async(req
                             action = 'In Progress';
                         }
 
-                        let milestone = await client.query(`SELECT * FROM job_milestones WHERE milestone_id = $1`, [req.body.milestone_id]);      
+                        let milestone = await client.query(`SELECT * FROM milestone_conditions LEFT JOIN job_milestones ON job_milestones.milestone_id = milestone_conditions.condition_parent_id WHERE condition_id = $1`, [req.body.condition_id]);      
 
                         if (milestone.rows[0].milestone_status === 'In Progress' || milestone.rows[0].milestone_status === 'Requesting Payment') {
-                            let milestoneObj;
+                            if (milestone.rows[0].condition_status !== 'Pending') {
+                                let milestoneObj;
 
-                            if (req.body.action === 'uncheck') {
-                                await client.query(`UPDATE jobs SET job_status = 'Active', job_modified_date = current_timestamp WHERE job_id = $1`, [req.body.job_id]);
-                                milestoneObj = await client.query(`UPDATE job_milestones SET milestone_status = 'In Progress', requested_payment_amount = null WHERE milestone_id = $1 RETURNING *`, [req.body.milestone_id]);
-                            } else if (req.body.action === 'check') {
-                                milestoneObj = await client.query(`SELECT * FROM job_milestones WHERE milestone_id = $1`, [req.body.milestone_id]);
+                                if (req.body.action === 'uncheck') {
+                                    await client.query(`UPDATE jobs SET job_status = 'Active', job_modified_date = current_timestamp WHERE job_id = $1`, [req.body.job_id]);
+                                    milestoneObj = await client.query(`UPDATE job_milestones SET milestone_status = 'In Progress', requested_payment_amount = null WHERE milestone_id = $1 RETURNING *`, [req.body.milestone_id]);
+                                } else if (req.body.action === 'check') {
+                                    milestoneObj = await client.query(`SELECT * FROM job_milestones WHERE milestone_id = $1`, [req.body.milestone_id]);
+                                }
+
+                                let condition = await client.query(`UPDATE milestone_conditions SET condition_status = $2, condition_completed_date = $3 WHERE condition_id = $1 RETURNING *`, [req.body.condition_id, action, req.body.action === 'check' ? new Date() : null]);
+                                /* let balance = await stripe.balance.retrieveTransaction(milestoneObj.rows[0].balance_txn_id, {expand: ['source.transfer.destination_payment.balance_transaction']});
+                                let files = await client.query(`SELECT * FROM milestone_files WHERE file_milestone_id = $1 ORDER BY filename`, [req.body.milestone_id]);
+
+                                milestoneObj.rows[0]['balance'] = balance.source.transfer.destination_payment.balance_transaction;
+                                milestoneObj.rows[0]['files'] = files.rows; */
+                                milestoneObj.rows[0]['conditions'] = condition.rows;
+                                
+                                await client.query('COMMIT')
+                                .then(() => resp.send({status: 'success', statusMessage: 'Condition updated', condition: condition.rows[0]}));
+                            } else {
+                                resp.send({status: 'error', statusMessage: 'Condition not approved'});
                             }
-
-                            let condition = await client.query(`UPDATE milestone_conditions SET condition_status = $2, condition_completed_date = $3 WHERE condition_id = $1 RETURNING *`, [req.body.condition_id, action, req.body.action === 'check' ? new Date() : null]);
-                            /* let balance = await stripe.balance.retrieveTransaction(milestoneObj.rows[0].balance_txn_id, {expand: ['source.transfer.destination_payment.balance_transaction']});
-                            let files = await client.query(`SELECT * FROM milestone_files WHERE file_milestone_id = $1 ORDER BY filename`, [req.body.milestone_id]);
-
-                            milestoneObj.rows[0]['balance'] = balance.source.transfer.destination_payment.balance_transaction;
-                            milestoneObj.rows[0]['files'] = files.rows; */
-                            milestoneObj.rows[0]['conditions'] = condition.rows;
-                            
-                            await client.query('COMMIT')
-                            .then(() => resp.send({status: 'success', statusMessage: 'Condition updated', condition: condition.rows[0]}));
                         } else {
                             resp.send({status: 'error', statusMessage: 'Milestone cannot be modified'});
                         }
@@ -761,7 +781,7 @@ app.post('/api/job/account/close', authenticate, async(req, resp) => {
         }
 });
 
-app.post('/api/job/payment/request', authenticate, subscriptionCheck, async(req, resp) => {
+app.post('/api/job/payment/request', authenticate, async(req, resp) => {
         db.connect((err, client, done) => {
             if (err) error.log(err, req, resp);
             
@@ -854,7 +874,7 @@ app.post('/api/job/payment/request', authenticate, subscriptionCheck, async(req,
         });
 });
 
-app.post('/api/job/pay', authenticate, subscriptionCheck, (req, resp) => {
+app.post('/api/job/pay', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
             if (err) error.log(err, req, resp);
 
@@ -1019,7 +1039,7 @@ app.post('/api/job/pay', authenticate, subscriptionCheck, (req, resp) => {
         });
 });
 
-app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp) => {
+app.post('/api/job/milestone/start', authenticate, (req, resp) => {
         db.connect((err, client, done) => {
             if (err) error.log(err, req, resp);
 
@@ -1063,19 +1083,6 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
                         }
 
                         let milestoneInProgress = false;
-                        let pendingMilestones = [];
-
-                        // Loop through all milestones
-                        for (let milestone of authorized.rows) {
-                            // If there is one in progress, stop looping
-                            if (milestone.milestone_status === 'In Progress' || milestone.milestone_status === 'Requesting Payment') {
-                                milestoneInProgress = true;
-                                break;
-                            // Or else store id of all "Pending" miletones
-                            } else if (milestone.milestone_status === 'Pending') {
-                                pendingMilestones.push(milestone.milestone_id);
-                            }
-                        }
                         
                         // If there is a milestone in progress
                         if (milestoneInProgress) {
@@ -1085,12 +1092,8 @@ app.post('/api/job/milestone/start', authenticate, subscriptionCheck, (req, resp
                         // Check if the milestone ID sent from client matches the next milestone in 'Pending' status
                         // This prevents clients from skipping milestones
                         // If the first pending milestone id does not match the one sent from client
-                        } else if (pendingMilestones[0] !== req.body.id) {
-                            let error = new Error(`Milestones must start in sequence`);
-                            let errObj = {error: error, type: 'CUSTOM', stack: error.stack};
-                            throw errObj;
                         } else {
-                            let milestones = await client.query(`SELECT * FROM job_milestones WHERE milestone_job_id = $1 AND milestone_status = 'Pending' ORDER BY milestone_id`, [req.body.job_id]);
+                            let milestones = await client.query(`SELECT * FROM job_milestones WHERE milestone_job_id = $1 ORDER BY milestone_id`, [req.body.job_id]);
 
                             if (req.body.saveAddress) {
                                 await client.query(`UPDATE user_profiles SET user_city = $1, user_region = $2, user_country = $3, user_address = $4, user_city_code = $5 WHERE user_profile_id = $6`, [req.body.token.card.address_city, req.body.token.card.address_state, req.body.token.card.address_country, req.body.token.card.address_line1, req.body.token.card.address_zip, req.session.user.user_id]);
@@ -1298,7 +1301,7 @@ app.post('/api/job/check-file-exists', (req, resp) => {
     }
 });
 
-app.post('/api/job/upload', authenticate, subscriptionCheck, async(req, resp) => {
+app.post('/api/job/upload', authenticate, async(req, resp) => {
     let uploadFile = jobFileUpload.single('file');
     
     uploadFile(req, resp, async(err) => {
@@ -1357,7 +1360,7 @@ app.post('/api/job/upload', authenticate, subscriptionCheck, async(req, resp) =>
     });
 });
 
-app.get('/files/:user/:milestone_id/:hash/:filename', authenticate, subscriptionCheck, async(req, resp) => {   
+app.get('/files/:user/:milestone_id/:hash/:filename', authenticate, async(req, resp) => {   
     let file = await db.query(`SELECT * FROM milestone_files
     LEFT JOIN job_milestones
     ON job_milestones.milestone_id = milestone_files.file_milestone_id
@@ -1370,7 +1373,7 @@ app.get('/files/:user/:milestone_id/:hash/:filename', authenticate, subscription
     }
 });
 
-app.post('/api/job/request/close', authenticate, subscriptionCheck, async(req, resp) => {
+app.post('/api/job/request/close', authenticate, async(req, resp) => {
     let authorized = await db.query(`SELECT job_user FROM jobs WHERE job_id = $1 AND job_status IN ('Requesting Payment', 'Active')`, [req.body.job_id]);
 
     if (authorized.rows[0].job_user === req.body.user && req.body.user === req.session.user.username) {
@@ -1388,7 +1391,7 @@ app.post('/api/job/request/close', authenticate, subscriptionCheck, async(req, r
     }
 });
 
-app.post('/api/job/close', authenticate, subscriptionCheck, async(req, resp) => {
+app.post('/api/job/close', authenticate, async(req, resp) => {
     db.connect((err, client, done) => {
         if (err) error.log(err, req, resp);
 
@@ -1463,6 +1466,201 @@ app.post('/api/job/ready', authenticate, async(req, resp) => {
             }
         })
         .catch(err => error.log(err, req, resp));
+    }
+});
+
+app.post('/api/job/condition/add', authenticate, (req, resp) => {
+    db.connect((err, client, done) => {
+        if (err) return error.log(err, req, resp);
+
+        if (req.body.condition && validate.blankCheck.test(req.body.condition)) {
+            resp.send({status: 'error', statusMessage: 'Condition cannot be blank'});
+        } else {
+            (async() => {
+                try {
+                    await client.query('BEGIN');
+
+                    let authorized = await client.query(`SELECT * FROM jobs WHERE job_id = $1`, [req.body.job_id])
+                    .catch(err => {
+                        throw err;
+                    });
+
+                    if (authorized.rows[0].job_user === req.session.user.username) {
+                        let condition = await client.query(`INSERT INTO milestone_conditions (condition_parent_id, condition, condition_creator, condition_is_new) VALUES ($1, $2, $3, true) RETURNING *`, [req.body.milestone_id, req.body.condition, req.session.user.username])
+                        .catch(err => {
+                            throw err;
+                        });
+
+                        await client.query(`INSERT INTO notifications (notification_message, notification_recipient, notification_type) VALUES ($1, $2, $3)`, [`A new condition has been added to a milestone in job ID: ${req.body.job_id}`, authorized.rows[0].job_client, 'Update'])
+                        .catch(err => {
+                            throw err;
+                        });
+
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success', statusMessage: 'Condition added', condition: condition.rows[0]}));
+                    } else {
+                        let error = new Error(`You're not authorized`);
+                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack}
+                        throw errObj;
+                    }
+                } catch (e) {
+                    await client.query('ROLLBACK');
+                    throw e;
+                } finally {
+                    done();
+                }
+            })()
+            .catch(err => {
+                return error.log(err, req, resp);
+            });
+        }
+    });
+});
+
+app.post('/api/job/condition/deleting', authenticate, (req, resp) => {
+    db.connect((err, client, done) => {
+        if (err) return error.log(err, req, resp);
+
+        (async() => {
+            try {
+                let authorized = await client.query(`SELECT * FROM milestone_conditions
+                LEFT JOIN job_milestones ON job_milestones.milestone_id = milestone_conditions.condition_parent_id
+                LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
+                WHERE condition_id = $1`, [req.body.condition_id])
+                .catch(err => {
+                    throw err;
+                });
+
+                if (authorized.rows[0].job_user === req.session.user.username) {
+                    let condition;
+
+                    if (authorized.rows[0].condition_is_new) {
+                        await client.query(`DELETE FROM milestone_conditions WHERE condition_id = $1`, [req.body.condition_id])
+                        .catch(err => {
+                            throw err;
+                        });
+                    } else {
+                        condition = await client.query(`UPDATE milestone_conditions SET condition_status = 'Deleting' WHERE condition_id = $1 RETURNING *`, [req.body.condition_id])
+                        .catch(err => {
+                            throw err;
+                        })
+
+                    }
+
+                    await client.query('COMMIT')
+                    .then(() => resp.send({status: 'success', statusMessage: condition ? 'Delete request sent' : 'Condition deleted', condition: condition && condition.rows[0]}));
+                } else {
+                    let error = new Error(`You're not authorized`);
+                    let errObj = {error: error, type: 'CUSTOM', stack: error.stack}
+                    throw errObj;
+                }
+            } catch (e) {
+                await client.query('ROLLBACK');
+                throw e;
+            } finally {
+                done();
+            }
+        })()
+        .catch(err => {
+            return error.log(err, req, resp);
+        });
+    });
+});
+
+app.post('/api/job/condition/confirm', authenticate, async(req, resp) => {
+    db.connect((err, client, done) => {
+        if (err) return error.log(err, req, resp) ;
+
+        (async() => {
+            try {
+                let authorized = await client.query(`SELECT * FROM milestone_conditions
+                LEFT JOIN job_milestones ON job_milestones.milestone_id = milestone_conditions.condition_parent_id
+                LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
+                WHERE condition_id = $1`, [req.body.condition_id])
+                .catch(err => {
+                    throw err;
+                });
+
+                if (authorized.rows[0].job_client === req.session.user.username) {
+                    if (authorized.rows[0].condition_status === 'Deleting') {
+                        let condition;
+
+                        if (req.body.action === 'approve') {
+                            await client.query(`DELETE FROM milestone_conditions WHERE condition_id = $1`, [req.body.condition_id])
+                            .catch(err => {
+                                throw err;
+                            });
+
+                            await client.query(`INSERT INTO job_messages (job_message_creator, job_message, job_message_parent_id, job_message_type) VALUES ($1, $2, $3, $4)`, [req.session.user.username, `A condition was deleted`, authorized.rows[0].job_id, 'System'])
+                            .catch(err => {
+                                throw err;
+                            });
+                        } else if (req.body.action === 'decline') {
+                            condition = await client.query(`UPDATE milestone_conditions SET condition_status = 'In Progress' WHERE condition_id = $1 RETURNING *`, [req.body.condition_id])
+                            .catch(err => {
+                                throw err;
+                            });
+
+                            await client.query(`INSERT INTO notifications (notification_message, notification_recipient, notification_type) VALUES ($1, $2, $3)`, [`A request to delete a condition was declined in in job ID: ${authorized.rows[0].job_id}`, authorized.rows[0].job_user, 'Update'])
+                            .catch(err => {
+                                throw err;
+                            });
+                        }
+
+                        await client.query('COMMIT')
+                        .then(() => resp.send({status: 'success', condition: condition && condition.rows[0], statusMessage: req.body.action === 'approve' ? 'Condition deleted' : 'Declined'}));
+                    } else {
+                        let error = new Error(`Request has been canceled`);
+                        let errObj = {error: error, type: 'CUSTOM', stack: error.stack}
+                        throw errObj;
+                    }
+                } else {
+                    let error = new Error(`You're not authorized`);
+                    let errObj = {error: error, type: 'CUSTOM', stack: error.stack}
+                    throw errObj;
+                }
+            } catch (e) {
+                await client.query('ROLLBACK');
+                throw e;
+            } finally {
+                done();
+            }
+        })()
+        .catch(err => {
+            return error.log(err, req, resp);
+        });
+    });
+});
+
+app.post('/api/job/condition/delete/cancel', authenticate, async(req, resp) => {
+    let authorized = await db.query(`SELECT * FROM milestone_conditions
+    LEFT JOIN job_milestones ON job_milestones.milestone_id = milestone_conditions.condition_parent_id
+    LEFT JOIN jobs ON jobs.job_id = job_milestones.milestone_job_id
+    WHERE condition_id = $1`, [req.body.condition_id])
+    .catch(err => {
+        throw err;
+    });
+
+    if (authorized.rows.length === 1) {
+        if (authorized.rows[0].job_user === req.session.user.username) {
+            if (authorized.rows[0].condition_status === 'Deleting') {
+                await db.query(`UPDATE milestone_conditions SET condition_status = 'In Progress' WHERE condition_id = $1`, [req.body.condition_id])
+                .then(result => {
+                    if (result) {
+                        resp.send({status: 'success', statusMessage: 'Request canceled'});
+                    }
+                })
+                .catch(err => {
+                    return error.log(err, req, resp);
+                });
+            } else {
+                resp.send({status: 'error', statusMessage: 'Not necessary'});
+            }
+        } else {
+            resp.send({status: 'error', statusMessage: `You're not authorized`});
+        }
+    } else {
+        resp.send({status: 'error', statusMessage: 'Condition does not exist'});
     }
 });
 

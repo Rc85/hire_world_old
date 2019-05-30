@@ -7,7 +7,7 @@ import { NavLink } from 'react-router-dom';
 const Faq = props => {
     return(
         <section id='faq' className='main-panel'>
-            <TitledContainer title='FAQ' shadow icon={<FontAwesomeIcon icon={faQuestionCircle} />} bgColor='danger'>
+            <TitledContainer title='FAQ' shadow icon={<FontAwesomeIcon icon={faQuestionCircle} />} bgColor='danger' shadow>
                 <div id='questions' className='mb-5'>
                     <div className='mb-3'>
                         <h1>General</h1>
@@ -521,9 +521,9 @@ const Faq = props => {
                         </div>
 
                         <div className='answer'>
-                            <p>Suspicious activities can involve many things from using a stolen credit card, entering address during payments that do not match the card, and using a different name than your Hire World's account name to sign up for Link Work. We understand that under some circumstances, some activities that are deemed suspicious will happen on Hire World. We measure suspicious activities from level one to five, five being severe. For example, using a different name to create a Link Work account will be considered suspicious activity, but is at a level of 1 and it is not considered "high". High level of suspicious activity fall in level 4 and higher. However, suspicious activities that have a low level can also be considered high by our administrators. For example, multiple failures of CVC check when entering payment information can be considered as high level of suspicious activity.</p>
+                            <p>Suspicious activities can involve many things from using a stolen credit card, entering address during payments that do not match the card, and using a different name than your Hire World's account name to sign up for Link Work. We understand that under some circumstances, some activities that are deemed suspicious will happen on Hire World. We measure suspicious activities from level one to five, five being severe. For example, using a different name to create a Link Work account will be considered suspicious activity, but it is not considered "high" level suspicious activity. High level suspicious activity fall under level 4 and 5. However, suspicious activities that have a low level can also be considered high by our administrators. For example, repeated failures of CVC check within a short period of time when entering payment information can be considered as high level of suspicious activity.</p>
 
-                            <p>We have multiple systems in place to monitor all sorts of suspicious activities in order to provide the best experience and safe platform for our users. When high level of suspicious activity is detected, we may notify your account and you by email that such detection has occurred on your account. Upon receiving an email regarding suspicious activity on your account, reply to the email with an explanation to our admin that the "suspicious activity" was performed by you so that we can flag it as "resolved".</p>
+                            <p>We have multiple systems in place to monitor all sorts of activities in order to provide the best experience and safe platform for our users. When high level of suspicious activity is detected, we will notify you by email that such detection has occurred on your account. The purpose of an email notification is so that you are given the opportunity to reply to the email claiming that the activity was performed by you so that we can flag it as "resolved". Not all suspicious activities will be notified by email and can be flagged as "resolved". Take for example, the CVC check scenario mentioned above.</p>
                         </div>
 
                         <div className='text-right'>

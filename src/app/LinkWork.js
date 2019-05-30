@@ -150,9 +150,7 @@ class LinkWork extends Component {
 
         if (this.props.user.user && this.props.user.user.link_work_id) {
             return <Redirect to='/dashboard/settings/link_work' />;
-        } else if (this.props.user.user && !this.props.user.user.is_subscribed) {
-            return <Redirect to='/error/link_work/403' />;
-        } else if (this.props.user.user && this.props.user.user.is_subscribed) {
+        } else if (this.props.user.user) {
             return(
                 <div id='jobs-not-linked' className='main-panel'>
                     <TitledContainer title='Link Work' icon={<FontAwesomeIcon icon={faLink} />} shadow>

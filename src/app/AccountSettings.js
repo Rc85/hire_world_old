@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter, Redirect } from 'react-router-dom';
 import PersonalSettings from '../components/PersonalSettings';
 import PasswordSettings from '../components/PasswordSettings';
-import { UpdateUser } from '../actions/LoginActions';
+import { UpdateUser, LogoutUser } from '../actions/LoginActions';
 import PropTypes from 'prop-types';
 import SlideToggle from '../components/utils/SlideToggle';
 import fetch from 'axios';
@@ -35,6 +35,9 @@ class AccountSettings extends Component {
                 this.props.dispatch(PromptOpen('Enter 6 digit code:', '', {action: 'disable 2fa 2'}));
             } else if (this.props.prompt.data.action === 'disable 2fa 2' && !prevProps.prompt.input && this.props.prompt.input !== prevProps.prompt.input) {
                 this.disable2fa(this.state.password, this.props.prompt.input);
+                this.props.dispatch(PromptReset());
+            } else if (this.props.prompt.data.action === 'close account' && !prevProps.prompt.input && this.props.prompt.input !== prevProps.prompt.input) {
+                this.closeAccount(this.props.prompt.input);
                 this.props.dispatch(PromptReset());
             }
         }
@@ -123,6 +126,25 @@ class AccountSettings extends Component {
             this.setState({status: ''});
             this.props.dispatch(Alert('error', 'An error occurred'));
             LogError(err, '/api/auth/disable/2fa');
+        });
+    }
+
+    confirmCloseAccount() {
+        this.props.dispatch(PromptOpen('Enter your password:', '', {action: 'close account', type: 'password'}));
+    }
+
+    closeAccount(password) {
+        fetch.post('/api/account/close', {user: this.props.user.user.username, password: password})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                this.props.dispatch(LogoutUser());
+            } else if (resp.data.status === 'error') {
+                this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+            }
+        })
+        .catch(err => {
+            LogError(err, '/api/account/close');
+            this.props.dispatch('error', 'An error occurred');
         });
     }
 
@@ -221,6 +243,8 @@ class AccountSettings extends Component {
                                 </div>
                             </div>
                         </div>
+
+                        <div className='text-right'><button className='btn btn-danger' onClick={this.confirmCloseAccount.bind(this)}>Close Account</button></div>
                     </TitledContainer>
                 </section>
             )

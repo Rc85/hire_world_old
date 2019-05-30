@@ -113,19 +113,7 @@ class App extends Component {
 			return <Loading size='10x' color='black' />;
 		}
 
-		let confirmation, alerts, prompt, warning, loading, gdpr;
-
-		if (!this.state.gdprAgreed) {
-			gdpr = <GDPR agree={this.handleGdpr.bind(this)} />;
-		}
-
-		if (this.props.confirmation.status === true) {
-			confirmation = <Confirmation message={this.props.confirmation.message} note={this.props.confirmation.note} />;
-
-			if (this.props.confirmation.obj.type === 'checkout') {
-				confirmation = <CheckoutConfirmation info={this.props.confirmation.obj} />;
-			}
-		}
+		let alerts;
 
 		if (this.props.alerts.length > 0) {
 			alerts = this.props.alerts.map((alert, i) => {
@@ -138,33 +126,15 @@ class App extends Component {
 			alerts = [];
 		}
 
-		if (this.props.prompt.text) {
-			prompt = <Prompt text={this.props.prompt.text} data={this.props.prompt.data} value={this.props.prompt.value} />;
-		}
-
-		if (this.props.warning.message) {
-			warning = <Warning message={this.props.warning.message} />;
-		}
-
-		if (this.props.loading.show) {
-			loading = <GlobalLoading text={this.props.loading.text} />;
-		}
-
-		let selection;
-
-		if (this.props.selection.text) {
-			selection = <SelectionModal selections={this.props.selection.selections} text={this.props.selection.text} />
-		}
-
 		return (
 			<React.Fragment>
 				<div className='col-container' onClick={(e) => this.toggleMenu(e)}>
-					{warning}
-					{prompt}
-					{confirmation}
-					{loading}
-					{selection}
-					{gdpr}
+					{this.props.warning.message && <Warning message={this.props.warning.message} />}
+					{this.props.prompt.text && <Prompt text={this.props.prompt.text} data={this.props.prompt.data} value={this.props.prompt.value} />}
+					{this.props.confirmation.status && <Confirmation message={this.props.confirmation.message} note={this.props.confirmation.note} />}
+					{this.props.loading.show && <GlobalLoading text={this.props.loading.text} />}
+					{this.props.selection.text && <SelectionModal selections={this.props.selection.selections} text={this.props.selection.text} />}
+					{!this.state.gdprAgreed && <GDPR agree={this.handleGdpr.bind(this)} />}
 	
 					<Switch>
 						<Route exact path='/' render={() => <Site user={this.props.user} sectors={this.props.sectors}><Main user={this.props.user} sectors={this.props.sectors} /></Site>} />
@@ -219,7 +189,8 @@ class App extends Component {
 
 						<Route exact path='/job/:id' render={() => <Pages.Dashboard user={this.props.user}><Pages.ViewPostedJob user={this.props.user} /></Pages.Dashboard>} />
 		
-						<Route exact path='/sectors/:type/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.Sectors user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/sectors/jobs/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.JobListings user={this.props.user} /></Pages.Dashboard>} />
+						<Route exact path='/sectors/profiles/:sector' render={() => <Pages.Dashboard user={this.props.user}><Pages.ProfileListings user={this.props.user} /></Pages.Dashboard>} />
 
 						<Route exact path='/refer' render={() => <Pages.Dashboard user={this.props.user}><Pages.Refer user={this.props.user} /></Pages.Dashboard>} />
 	

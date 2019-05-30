@@ -110,6 +110,7 @@ app.post('/api/get/job/details', authenticate, (req, resp) => {
                                 FROM job_milestones AS jm
                                 LEFT JOIN milestone_conditions AS mc
                                 ON jm.milestone_id = mc.condition_parent_id
+                                WHERE mc.condition_status != 'Declined'
                                 GROUP BY jm.milestone_id
                             ),
                             files AS (
@@ -189,6 +190,10 @@ app.post('/api/get/job/details', authenticate, (req, resp) => {
                         LEFT JOIN review_tokens
                         ON jobs.job_id = review_tokens.token_job_id
                         WHERE reviewer = $1 AND reviewing = $2 AND token IS NOT NULL AND jobs.job_id = $3`, [authorized.rows[0].job_client, authorized.rows[0].job_user, req.body.id]);
+
+                        if (authorized.rows[0].job_client === req.session.user.username) {
+                            await client.query(`UPDATE milestone_conditions SET condition_is_new = false WHERE condition_parent_id IN (SELECT milestone_id FROM job_milestones WHERE milestone_job_id = $1)`, [req.body.id]);
+                        }
 
                         await client.query('COMMIT')
                         .then(() => resp.send({status: 'success', job: jobDetails.rows[0], messages: messages.rows, milestones: milestones.rows, review: review ? review.rows[0] : null, totalMessages: totalMessages.rows[0].total_messages || 0}));

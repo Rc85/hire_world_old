@@ -28,11 +28,10 @@ class MilestoneDetailsRow extends Component {
                 <div className='milestone-condition-container'>
                     <div className='d-flex-between-start mb-3'>
                         <div><FontAwesomeIcon icon={faBullseye} className='text-special mr-1' /> <strong>Conditions</strong></div>
-                        <button className='btn btn-info' type='button' onClick={() => this.setState({show: !this.state.show})}><FontAwesomeIcon icon={this.state.show ? faCaretUp : faCaretDown} /></button>
                     </div>
 
                     <div className={`condition-row-container ${this.state.show ? 'expand' : ''}`}>
-                        {this.props.milestone.conditions.map((condition, i) => {
+                        {this.props.milestone.conditions.length > 0 && this.props.milestone.conditions.map((condition, i) => {
                             return <div key={condition.condition_id} className='milestone-detail-condition-row'>
                                 <div className='mr-2'><strong>{i + 1}.</strong></div> <div>{condition.condition}</div>
                             </div>

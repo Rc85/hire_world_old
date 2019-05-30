@@ -76,7 +76,6 @@ class Dashboard extends Component {
                 {name: 'Abandoned', active: this.props.location.pathname === '/dashboard/jobs/abandoned', link: '/dashboard/jobs/abandoned'}
             ]},
             {name: 'Link Work', link: '/dashboard/link_work', active: this.props.location.pathname === '/dashboard/link_work', icon: <FontAwesomeIcon icon={faLink} />},
-            {name: 'Subscription', link: '/dashboard/subscription', active: this.props.location.pathname === '/dashboard/subscription', icon: <FontAwesomeIcon icon={faSyncAlt} />},
             {name: 'Settings', link: '/dashboard/settings/account', active: /^\/dashboard\/settings/.test(this.props.location.pathname), icon: <FontAwesomeIcon icon={faCog} />, items: [
                 {name: 'Account', active: this.props.location.pathname === '/dashboard/settings/account', link: '/dashboard/settings/account'},
                 {name: 'Payment', active: this.props.location.pathname === '/dashboard/settings/payment', link: '/dashboard/settings/payment'},

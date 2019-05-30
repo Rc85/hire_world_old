@@ -17,18 +17,13 @@ class Pricing extends Component {
                 <div className='site-section-col'>
                     <h1>Promotions</h1>
 
-                    <div className='mb-3'>
-                        <h3>Bring a Friend <sup><small>1</small></sup></h3>
-                        <p>For a limited time, for every client you refer who reaches 3 consecutive months of subscription, you will receive a credit to waive the application fee of a job. Terms and conditions apply.</p>
-                    </div>
-
                     <div>
                         <h3>First 100 <sup><small>2</small></sup></h3>
-                        <p>Be the first 100 subscriber to reach 3 consecutive months of subscription and you will receive a credit to waive the application fee of a job. Terms and conditions apply.</p>
+                        <p>Get up to $500 off the application fee of a job when you are the first 100 to register and activate your account and list your profile.</p>
                     </div>
                 </div>
 
-                <div className='site-section-col'>
+                {/* <div className='site-section-col'>
                     <h1>Plans</h1>
                     
                     <table className='site-pricing-table'>
@@ -105,10 +100,10 @@ class Pricing extends Component {
                             </tr>      
                         </tbody>
                     </table>
-                </div>
+                </div> */}
 
                 <div className='site-section-col'>
-                    <h1>Link Work Fees <sup><small>*</small></sup></h1>
+                    <h1>Link Work Fees</h1>
 
                     <table className='app-fee-table'>
                         <thead>
@@ -155,9 +150,7 @@ class Pricing extends Component {
                 <div className='site-section-col'>
                     <small className='text-dark'>
                         <ol>
-                            <li className='mb-2'>For every unique referral who subscribes to three (3) consecutive months (including any free months), the referer's account will receive one (1) credit to waive the the application fee at the account owner's discretion. If within the three (3) consecutive months, the referred account receives a suspension, both accounts will not be eligible for the promotion.</li>
-
-                            <li>Accounts that have previous suspension(s), receive a suspension during the three (3) consecutive months, and/or have high level of suspicious activities that are not resolved before the qualifying day of the promotion, the account will not be eligible for the "First 100" promotion. Cancelling the subscription will remove the account from the "First 100" list. Upon qualifying for the promotion, your account will receive a credit to waive the application fee at your discretion. Referred account are not eligible for the "First 100" promotion.</li>
+                            <li><strong>First 100:</strong> To qualify for this promotion, profiles must be listed for a period of thirty (30) days. Unlisting your profile whether by you or by our admin will reset the day count back to zero. Accounts that receive a ban will be disqualified from the promotion. Accounts that have one or more suspicious activity that does not resolve by the time the account qualifies for the promotion, will not receive the $500 discount (exemptions apply, see <NavLink to='/faq'>FAQ</NavLink> for more details). The $500 discount is only applicable to the service provider's application fee and not the client's 3% application fee. Upon qualifying for the promotion, the qualified account will receive a revocable, non-transferrable, non-refundable, one-time-use $500 discount on the application fee of the next job with a client. If the application fee does not equal or exceed the $500 discount, the unused amount cannot be redeemed, claimed, or saved for future use as it is a one-time-use discount. Discount will remain on the account until it is used or if the account receives a ban, the discount will be revoked.</li>
                         </ol>
 
                         <p>The above stated terms and conditions are conjunction with our <NavLink to='/tos/'>Terms of Service</NavLink>. For more information on suspicious activity and promotions, please refer to our <NavLink to='/faq'>FAQ</NavLink>.</p>

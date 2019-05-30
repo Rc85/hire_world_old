@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHandshake, faTasks, faCommentDollar, faEnvelopeOpenDollar, faCheckCircle, faCommentAltDots } from '@fortawesome/pro-solid-svg-icons';
 import Badge from '../components/utils/Badge';
 
 class Features extends Component {

@@ -1,7 +1,7 @@
 .milestone-tracking-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 15px;
 }
 
@@ -67,7 +67,7 @@
 .milestone-number {
     width: 50px;
     height: 50px;
-    background: $info;
+    background-color: $info;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -81,8 +81,14 @@
     flex-grow: 1;
 }
 
+.milestone-updater-row-header {
+    display: flex;
+    flex-grow: 1;
+}
+
 .milestone-tracker-condition-row {
     display: flex;
+    align-items: center;
     
     &:not(:last-child) {
         margin-bottom: 5px;
@@ -135,7 +141,22 @@
 
 .condition-row {
     display: flex;
+    margin-bottom: 5px;
+
+    &.disabled {
+        cursor: default;
+        pointer-events: none;
+    }
+}
+
+.condition-row-icon, .condition-link {
     cursor: pointer;
+}
+
+.condition-link {
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 .milestone-tracking-details {
@@ -156,11 +177,11 @@
 .job-details-subheader {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: flex-end;
+    margin-bottom: 30px;
 }
 
 .job-details-dates {
     display: flex;
     align-items: center;
-    margin: 30px 0 45px 0;
 }

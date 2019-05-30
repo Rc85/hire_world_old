@@ -37,18 +37,13 @@ class MilestoneDetails extends Component {
 
         return (
             <div className='simple-container no-bg mb-3'>
-                <div className='simple-container-title'>Agreement</div>
+                <div className='simple-container-title'>Contract</div>
 
                 <div className='milestone-agreement-buttons mb-3'>
-                    <div><FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /><strong>Milestone Created:</strong> {moment.utc(this.props.job.milestone_created_date).format('MM-DD-YYYY')}</div>
+                    <div><FontAwesomeIcon icon={faCalendarAlt} className='text-special mr-1' /><strong>Contract Date:</strong> {moment.utc(this.props.job.milestone_created_date).format('MM-DD-YYYY')}</div>
 
                     <div>
-                        {this.props.user.user && this.props.user.user.username === this.props.job.job_user
-                            ? this.state.edit 
-                                ? <button className='btn btn-secondary' onClick={() => this.setState({edit: false})}>Cancel</button> 
-                                : <button className='btn btn-primary' onClick={() => this.setState({edit: true})}>Edit</button>
-                            : ''}
-                        {this.state.edit ? '' :<button className='btn btn-info' type='button' onClick={() => this.setState({showDetails: !this.state.showDetails})}><FontAwesomeIcon icon={this.state.showDetails ? faCaretUp : faCaretDown} /></button>}
+                        {this.state.edit ? '' : <><button className='btn btn-primary' onClick={() => this.setState({edit: true})}>Edit</button><button className='btn btn-info' type='button' onClick={() => this.setState({showDetails: !this.state.showDetails})}><FontAwesomeIcon icon={this.state.showDetails ? faCaretUp : faCaretDown} /></button></>}
                     </div>
                 </div>
 
@@ -62,7 +57,6 @@ class MilestoneDetails extends Component {
                 {this.props.user.user && this.props.user.user.username === this.props.job.job_client ? 
                 <div className='text-right'>
                     <SubmitButton type='button' loading={this.props.status === 'Confirming'} value='Confirm' onClick={() => this.props.confirm()} />
-                    <button className='btn btn-danger' onClick={() => this.props.decline()}>Decline</button>
                 </div>
                 : ''}
             </div>

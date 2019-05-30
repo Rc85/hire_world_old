@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckSquare, faTimes, faCircleNotch, faCaretDown, faCaretUp } from '@fortawesome/pro-solid-svg-icons';
+import { faCheckSquare, faTimes, faCircleNotch, faCaretDown, faCaretUp, faPlusSquare, faBan, faTimesCircle, faEllipsisH } from '@fortawesome/pro-solid-svg-icons';
 import { faSquare } from '@fortawesome/pro-regular-svg-icons';
 import moment from 'moment';
 import fetch from 'axios';
@@ -25,8 +25,8 @@ class MilestoneUpdaterRow extends Component {
         
         this.state = {
             status: '',
-            showDetails: this.props.milestone.milestone_status === 'In Progress' || this.props.milestone.milestone_status === 'Requesting Payment' || this.props.milestone.milestone_status === 'Unpaid' ? true : false,
-            complete: this.props.milestone.conditions.filter(condition => condition.condition_status === 'In Progress'),
+            showDetails: this.props.milestone.milestone_status === 'In Progress' || this.props.milestone.milestone_status === 'Requesting Payment' || this.props.milestone.milestone_status === 'Unpaid',
+            complete: this.props.milestone.conditions && this.props.milestone.conditions.filter(condition => condition.condition_status === 'In Progress') || 0,
             milestone: this.props.milestone,
             file: null,
             uploaded: null
@@ -316,6 +316,92 @@ class MilestoneUpdaterRow extends Component {
             this.props.dispatch(Alert('error', 'An error occurred'));
         });
     }
+
+    handleConditionText(e) {
+        this.setState({newCondition: e.target.value});
+    }
+
+    handleAddCondition() {
+        this.setState({addCondition: true});
+    }
+
+    handleCancelAddCondition() {
+        this.setState({addCondition: false});
+    }
+
+    handleDeleteCondition(id, index) {
+        this.setState({status: `Deleting Condition ${id}`});
+
+        fetch.post('/api/job/condition/deleting', {condition_id: id})
+        .then(resp => {
+            console.log(resp)
+            if (resp.data.status === 'success') {
+                let milestone = {...this.state.milestone};
+
+                if (resp.data.condition) {
+                    milestone.conditions[index] = resp.data.condition;
+                } else {
+                    milestone.conditions.splice(index, 1);
+                }
+
+                this.setState({status: '', milestone: milestone});
+            } else if (resp.data.status === 'error') {
+                this.setState({status: ''});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => {
+            LogError(err, '/api/job/condition/deleting');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
+    }
+
+    addCondition(e) {
+        e.preventDefault();
+        this.setState({status: 'Adding Condition'});
+
+        fetch.post('/api/job/condition/add', {condition: this.state.newCondition, job_id: this.props.job.job_id, milestone_id: this.state.milestone.milestone_id})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                let milestone = {...this.state.milestone};
+                milestone.conditions.push(resp.data.condition);
+
+                this.setState({status: '', milestone: milestone, addCondition: false});
+            } else {
+                this.setState({status: ''});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => {
+            LogError(err, '/api/job/condition/add');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
+    }
+
+    handleCancelDeleteRequest(id, index) {
+        fetch.post('/api/job/condition/delete/cancel', {condition_id: id})
+        .then(resp => {
+            if (resp.data.status === 'success') {
+                let milestone = {...this.state.milestone};
+                milestone.conditions[index].condition_status = 'In Progress';
+
+                this.setState({status: '', milestone: milestone});
+            } else {
+                this.setState({status: ''});
+            }
+
+            this.props.dispatch(Alert(resp.data.status, resp.data.statusMessage));
+        })
+        .catch(err => {
+            LogError(err, '/api/job/condition/delete/cancel');
+            this.setState({status: ''});
+            this.props.dispatch(Alert('error', 'An error occurred'));
+        });
+    }
         
     render() {
         console.log(this.state.milestone);
@@ -363,23 +449,35 @@ class MilestoneUpdaterRow extends Component {
                 <div className='simple-container no-bg'>
                     <div className='simple-container-title'>Conditions</div>
 
-                    {this.state.milestone.conditions.map((condition, i) => {
+                    {this.state.milestone.conditions && this.state.milestone.conditions.map((condition, i) => {
                         let icon;
 
                         if (this.state.status === `Completing Condition ${condition.condition_id}`) {
                             icon = <FontAwesomeIcon icon={faCircleNotch} spin />;
                         } else if (condition.condition_status === 'Complete') {
-                            icon = <FontAwesomeIcon icon={faCheckSquare} className='text-success mr-1' />;
+                            icon = <FontAwesomeIcon icon={faCheckSquare} className='text-success mr-1 condition-row-icon' onClick={() => this.updateCondition(condition.condition_id, i, 'uncheck')} />;
                         } else if (condition.condition_status === 'In Progress') {
-                            icon = <FontAwesomeIcon icon={faSquare} className='text-grey mr-1' />;
+                            icon = <FontAwesomeIcon icon={faSquare} className='text-grey mr-1 condition-row-icon' onClick={() => this.updateCondition(condition.condition_id, i, 'check')} />;
                         } else if (condition.condition_status === 'Complete' && this.state.milestone.milestone_status === 'Complete') {
                             icon = <FontAwesomeIcon icon={faCheckSquare} className='text-success mr-1' />;
+                        } else if (condition.condition_status === 'Deleting') {
+                            icon = <FontAwesomeIcon icon={faBan} className='text-secondary mr-1' />;
                         }
 
-                        return <div key={condition.condition_id} className='condition-row' onClick={() => this.updateCondition(condition.condition_id, i, condition.condition_status === 'In Progress' ? 'check' : 'uncheck')}>
-                            {icon} <span>{condition.condition}</span>
+                        return <div key={condition.condition_id} className={`condition-row`}>
+                            <div>{icon} <span className='mr-2'>{condition.condition}</span> {this.state.status === `Deleting Condition ${condition.condition_id}` ? <FontAwesomeIcon icon={faCircleNotch} spin /> : condition.condition_status !== 'Deleting' ? <FontAwesomeIcon icon={faTimesCircle} className='text-danger condition-row-icon' onClick={this.handleDeleteCondition.bind(this, condition.condition_id, i)} /> : <><small className='mini-badge mini-badge-info mr-2'>Waiting approval to delete</small><small className='condition-link text-alt-highlight' onClick={this.handleCancelDeleteRequest.bind(this, condition.condition_id, i)}>Cancel</small></>}</div>
                         </div>
                     })}
+
+                    {this.state.status === 'Adding Condition'
+                        ? <FontAwesomeIcon icon={faCircleNotch} spin />
+                        : <div className='condition-row'>{this.state.addCondition 
+                            ? <form className='d-flex w-100' onSubmit={this.addCondition.bind(this)}>
+                                <input type='text' onChange={this.handleConditionText.bind(this)} className='mr-1 fg-1' />
+                                <button type='submit' className='btn btn-primary'>Add</button>
+                                <button type='button' className='btn btn-secondary' onClick={this.handleCancelAddCondition.bind(this)}>Cancel</button>
+                            </form>
+                            : <FontAwesomeIcon icon={faPlusSquare} className='condition-row-icon text-info' onClick={this.handleAddCondition.bind(this)} />}</div>}
                 </div>
 
                 <form onSubmit={(e) => {
@@ -455,12 +553,12 @@ class MilestoneUpdaterRow extends Component {
 
         return (
             <div className={`milestone-updater-row ${this.state.milestone.milestone_status === 'Dormant' || this.state.milestone.milestone_status === 'Pending' || this.state.milestone.milestone_status === 'Incomplete' || this.state.milestone.payout.status === 'paid' ? 'disabled' : ''}`}>
-                <div className='d-flex-between-start'>
+                <div className='milestone-updater-row-header'>
                     <div className='milestone-number'><h3>{this.props.index}</h3></div>
     
                     <div className='milestone-progress-container'>
                         <div className='milestone-progress-bar-track opaque'>
-                            <div className={`milestone-progress-bar w-${Math.round(this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length / this.state.milestone.conditions.length * 100)}`}></div>
+                            <div className={`milestone-progress-bar w-${this.state.milestone.conditions && Math.round(this.state.milestone.conditions && this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length / this.state.milestone.conditions.length * 100)}`}></div>
                         </div>
     
                         <div className='milestone-progress-details mb-3'>
@@ -469,7 +567,7 @@ class MilestoneUpdaterRow extends Component {
                             </div>
 
                             <div className='milestone-updater-details text-center opaque'>
-                                <span>{Math.round(this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length / this.state.milestone.conditions.length * 100)}%</span>
+                                <span>{this.state.milestone.conditions && Math.round(this.state.milestone.conditions && this.state.milestone.conditions.filter(condition => condition.condition_status === 'Complete').length / this.state.milestone.conditions.length * 100) || 0}%</span>
                             </div>
     
                             <div className='milestone-updater-details d-flex-end-center'>

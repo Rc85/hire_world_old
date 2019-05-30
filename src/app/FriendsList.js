@@ -88,7 +88,7 @@ class FriendsList extends Component {
         if (this.props.user.user) {
             return(
                 <section id='friends-list' className='main-panel'>
-                    <TitledContainer title='Friends List' icon={<FontAwesomeIcon icon={faUserFriends} />} bgColor='lightblue'>
+                    <TitledContainer title='Friends List' icon={<FontAwesomeIcon icon={faUserFriends} />} bgColor='lightblue' shadow>
                         <div className='filter-container'>
                             <AlphaNumericFilter filter={(letter) => this.setState({filtering: letter})} currentLetter={this.state.filtering} />
                         </div>

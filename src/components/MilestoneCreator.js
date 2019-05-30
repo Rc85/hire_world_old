@@ -5,7 +5,7 @@ import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import TextArea from './utils/TextArea';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faTrash, faPlus } from '@fortawesome/pro-solid-svg-icons';
+import { faTimes, faTrash, faPlus, faArrowsAlt } from '@fortawesome/pro-solid-svg-icons';
 import { Alert } from '../actions/AlertActions';
 import { connect } from 'react-redux';
 import { faQuestionCircle } from '@fortawesome/pro-regular-svg-icons';
@@ -25,9 +25,7 @@ class MilestoneCreator extends Component {
             totalPrice: this.props.job ? this.props.job.job_total_price : '',
             currency: this.props.job ? this.props.job.job_price_currency : null,
             milestones: this.props.milestones || [
-                {milestone_id: Date.now(), milestone_payment_amount: 0, milestone_due_date: null, conditions: [
-                    {condition_id: Date.now(), condition: null}
-                ]}
+                {milestone_id: Date.now(), milestone_payment_amount: 0, milestone_due_date: null, conditions: []}
             ],
             details: this.props.job.job_details || ''
         };
@@ -45,10 +43,19 @@ class MilestoneCreator extends Component {
 
         fetch.post('/api/job/agreement/submit', data)
         .then(resp => {
+            console.log(resp);
             if (resp.data.status === 'success') {
                 if (this.props.editing) {
                     this.props.cancel();
                 }
+
+                for (let milestone of resp.data.milestones) {
+                    if (!milestone.conditions) {
+                        milestone.conditions = [];
+                    }
+                }
+
+                console.log(resp.data.milestones);
 
                 this.props.update(resp.data.job, resp.data.milestones);
             } else if (resp.data.status === 'error') {
@@ -79,9 +86,7 @@ class MilestoneCreator extends Component {
     addMilestone() {
         if (this.state.milestones.length < 20) {
             let milestones = [...this.state.milestones];
-            milestones.push({milestone_id: Date.now(), milestone_payment_amount: '0', milestone_due_date: null, conditions: [
-                {condition_id: Date.now(), condition: null}
-            ]});
+            milestones.push({milestone_id: Date.now(), milestone_payment_amount: '0', milestone_due_date: null, conditions: []});
             this.setState({milestones: milestones});
         } else {
             this.props.dispatch(Alert('error', 'Cannot add more milestones'));
@@ -111,13 +116,9 @@ class MilestoneCreator extends Component {
     }
 
     deleteCondition(mIndex, cIndex) {
-        if (this.state.milestones[mIndex].conditions.length > 1) {
-            let milestones = [...this.state.milestones];
-            milestones[mIndex].conditions.splice(cIndex, 1);
-            this.setState({milestones: milestones});
-        } else {
-            this.props.dispatch(Alert('error', 'Must have at least ONE condition'));
-        }
+        let milestones = [...this.state.milestones];
+        milestones[mIndex].conditions.splice(cIndex, 1);
+        this.setState({milestones: milestones});
     }
 
     unsetDeliveryDate(index) {
@@ -156,11 +157,11 @@ class MilestoneCreator extends Component {
                 <div className='mb-3'>
                     {milestone.conditions.map((condition, index) => {
                         return <div key={condition.condition_id} className='condition-container'>
-                            <InputWrapper label={`Condition #${index + 1}`} className='input-container' required={index === 0}>
+                            <InputWrapper label={`Condition #${index + 1}`} className='input-container' required>
                                 <input type='text' onChange={(e) => this.setCondition(e.target.value, index, i)} value={condition.condition === null ? '' : condition.condition} />
                             </InputWrapper>
                             <div className='add-condition-buttons'>
-                                {milestone.conditions.length > 1 ? <button className='condition-button btn btn-danger' type='button' onClick={() => this.deleteCondition(i, index)}><FontAwesomeIcon icon={faTrash} /></button> : ''}
+                                <button className='condition-button btn btn-danger' type='button' onClick={() => this.deleteCondition(i, index)}><FontAwesomeIcon icon={faTrash} /></button>
                             </div>
                         </div>
                     })}
@@ -178,12 +179,6 @@ class MilestoneCreator extends Component {
                 }}>
                     <div className='setting-field-container mb-3'>
                         <div className='setting-child'>
-                            <InputWrapper label='Total Price' required>
-                                <input type='text' onChange={(e) => this.setState({totalPrice: e.target.value})} required value={this.state.totalPrice === null ? '' : this.state.totalPrice} />
-                            </InputWrapper>
-                        </div>
-
-                        <div className='setting-child'>
                             <InputWrapper label='Currency' required>
                                 <input type='text' list='price_currency' onChange={(e) => this.setState({currency: e.target.value})} required value={this.state.currency === null ? '' : this.state.currency} />
                                 <datalist id='price_currency'>
@@ -196,29 +191,18 @@ class MilestoneCreator extends Component {
                         </div>
                     </div>
 
-                    <TextArea value={this.state.details} placeholder={`Add any other details such as specific agreements, terms, deadlines, etc. (Optional)`} onChange={(val) => this.setState({details: val})} className='w-100 mb-3' textAreaClassName='w-100' value={this.state.details} label='Details' />
+                    <TextArea value={this.state.details} placeholder={`Add any other details such as specific agreements, terms, deadlines, etc. to protect yourself should any issue arise`} onChange={(val) => this.setState({details: val})} className='w-100 mb-3' textAreaClassName='w-100' value={this.state.details} label='Details' />
 
                     <div className='milestone-creator-details'>
-                        <div className='milestone-creator-detail'>
-                            <button type='button' className='btn btn-primary mr-2' onClick={() => this.addMilestone()}>Add Milestone</button>
-                            <div className='mobile-tooltip'>
-                                <ul>
-                                    <li>At least one milestone is required.</li>
-                                    <li>At least one condition is needed for each milestone.</li>
-                                    <li>Delivery dates should not exceed 90 days.</li>
-                                    <li>Be as detail as possible when setting conditions.</li>
-                                    <li>Expected date will be entered into your upcoming events</li>
-                                </ul>
-                            </div>
-                            <Tooltip placement='right-bottom' text={<span>Notes:
-                                <ul>
-                                    <li>At least one milestone is required.</li>
-                                    <li>At least one condition is needed for each milestone.</li>
-                                    <li>Delivery dates should not exceed 90 days.</li>
-                                    <li>Be as detail as possible when setting conditions.</li>
-                                    <li>Expected date will be entered into your upcoming events</li>
-                                </ul>
-                            </span>}><FontAwesomeIcon icon={faQuestionCircle} size='lg' /></Tooltip>
+                        <div>
+                            <ul>
+                                <li>At least one milestone is required</li>
+                                <li>At least one condition is needed for each milestone</li>
+                                <li>Set milestones that you feel confident you can complete within 90 days, as funds cannot be held for longer than that</li>
+                                <li>Be as detail as possible when setting conditions as conditions determine the tasks to be completed</li>
+                                <li>Expected date will be entered into your upcoming events</li>
+                                <li>Milestone and conditions can be modified at any time upon agreement from both parties as long as the milestone is not complete</li>
+                            </ul>
                         </div>
                     </div>
 

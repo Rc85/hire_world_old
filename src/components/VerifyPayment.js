@@ -25,15 +25,6 @@ class VerifyPayment extends Component {
         }
     }
     
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.confirm.data) {
-            if (this.props.confirm.data.action === 'submit' && this.props.confirm.option) {
-                this.submit();
-                this.props.dispatch(ResetConfirmation());
-            }
-        }
-    }
-    
     componentDidMount() {
         fetch.post('/api/get/user/payments', {user: this.props.user.user.username})
         .then(resp => {

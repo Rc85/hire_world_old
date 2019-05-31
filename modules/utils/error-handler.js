@@ -22,7 +22,7 @@ module.exports = {
             message = err.error.message;
         } else {
             await db.query(`INSERT INTO error_log (error, error_url) VALUES ($1, $2) ON CONFLICT (error) DO UPDATE SET error_occurrence = error_log.error_occurrence + 1`, [err.stack, url ? url : req.url])
-            .catch(err => error.log(err, req, resp));
+            .catch(err => console.log(err));
 
             if (err.type === 'StripeInvalidRequestError' || err.type === 'validation_error') {
                 message = err.message;

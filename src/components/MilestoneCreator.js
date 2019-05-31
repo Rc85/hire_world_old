@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import InputWrapper from './utils/InputWrapper';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import TextArea from './utils/TextArea';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faTrash, faPlus, faArrowsAlt } from '@fortawesome/pro-solid-svg-icons';
@@ -157,7 +158,7 @@ class MilestoneCreator extends Component {
                 <div className='mb-3'>
                     {milestone.conditions.map((condition, index) => {
                         return <div key={condition.condition_id} className='condition-container'>
-                            <InputWrapper label={`Condition #${index + 1}`} className='input-container' required>
+                            <InputWrapper label={`Condition #${index + 1}`} required>
                                 <input type='text' onChange={(e) => this.setCondition(e.target.value, index, i)} value={condition.condition === null ? '' : condition.condition} />
                             </InputWrapper>
                             <div className='add-condition-buttons'>

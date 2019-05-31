@@ -3867,12 +3867,16 @@
   align-items: flex-start;
 }
 
-.milestone-button {
+.milestone-button, .add-milestone-button {
   margin-left: 15px;
   cursor: pointer;
 }
-.milestone-button:hover {
+.milestone-button:hover, .add-milestone-button:hover {
   filter: brightness(90%);
+}
+
+.add-milestone-button {
+  margin-left: 0;
 }
 
 .milestone-conditions-container {
@@ -5216,6 +5220,8 @@ footer {
 .row-detail {
   margin-right: 15px;
   font-size: 0.8rem;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
 }
 
 .row-buttons {
